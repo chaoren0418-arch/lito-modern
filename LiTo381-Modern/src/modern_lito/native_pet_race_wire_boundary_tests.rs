@@ -120,6 +120,7 @@ fn save(name: &str, v: Value) {
     writeln!(f, "{}", serde_json::to_string_pretty(&v).unwrap()).unwrap();
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r538_native_wire_existing_receiver_complete_split_merge_and_untagged_read_boundary() {
     let (bindings, doc) = binding();
     let row = doc["lanes"]
@@ -210,6 +211,7 @@ fn r538_native_wire_existing_receiver_complete_split_merge_and_untagged_read_bou
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r538_native_wire_actual_partial_eof_missing_key_foreign_stream_and_retirement() {
     let (bindings, doc) = binding();
     let mut checks = Vec::new();
@@ -335,6 +337,7 @@ fn r538_native_wire_actual_partial_eof_missing_key_foreign_stream_and_retirement
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r538_native_wire_actual_loopback_received_ordered_streams_and_partial_eof() {
     let bytes =
         fs::read(root("LITO_R538_LOOPBACK_ROOT").join("wire-session-bindings.json")).unwrap();

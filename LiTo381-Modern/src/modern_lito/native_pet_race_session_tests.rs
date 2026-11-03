@@ -140,6 +140,7 @@ fn evidence(name: &str, v: serde_json::Value) {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r535_native_session_prediction_wire_result_return_and_epoch_boundaries() {
     let (mut s, spawn) = session();
     let scope = seed(&mut s);
@@ -229,6 +230,7 @@ fn r535_native_session_prediction_wire_result_return_and_epoch_boundaries() {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r535_native_session_malformed_atomicity_seed_and_revocation_counterexamples() {
     let (mut s, spawn) = session();
     let scope = seed(&mut s);

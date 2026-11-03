@@ -124,7 +124,7 @@ impl Runtime {
 #[cfg(test)]mod tests {
  use super::*;
  fn context()->JoinedContext{JoinedContext{room_id:1,ce_revision:9,navigation_revision:10,channel:2}}
- #[test]fn count_or_multirow_cannot_supply_singleton_alias(){
+ #[test]#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"] fn count_or_multirow_cannot_supply_singleton_alias(){
   let p=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("logs/continuation-20261003/r519-test-inputs.json");let v:serde_json::Value=serde_json::from_slice(&std::fs::read(p).unwrap()).unwrap();let hex=|s:&str|s.as_bytes().chunks_exact(2).map(|c|u8::from_str_radix(std::str::from_utf8(c).unwrap(),16).unwrap()).collect::<Vec<_>>();let row=hex(v["row_body"].as_str().unwrap());
   let empty=source_identity::State::default();assert_eq!(complete_singleton_alias(&empty).unwrap(),None);
   let(single,_)=empty.prepare_packet(&[3,1]).unwrap();assert_eq!(complete_singleton_alias(&single).unwrap(),None);let(single,_)=single.prepare_packet(&row).unwrap();assert_eq!(complete_singleton_alias(&single).unwrap(),Some(hex(v["self_alias_raw"].as_str().unwrap())));

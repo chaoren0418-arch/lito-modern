@@ -220,6 +220,7 @@ fn race(c: &Contract, t: Arc<NativeTerrain>, start: Cell) -> OfflineRace {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r534_native_terrain_raw_reader_masks_and_composed_routes() {
     let contract = Contract::parse(&read("adopted-r533-component-contract.json")).unwrap();
     let witnesses = doc("native-race-route-witness.json");
@@ -367,6 +368,7 @@ fn r534_native_terrain_raw_reader_masks_and_composed_routes() {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r534_native_terrain_rejects_unqualified_inputs_and_keeps_offline_state_atomic() {
     let (i, p) = inputs(566);
     assert!(

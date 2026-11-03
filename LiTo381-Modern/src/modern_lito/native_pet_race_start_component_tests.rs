@@ -201,6 +201,7 @@ fn start_through_prepare(
     bodies
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r540_start_component_keyed_ready_countdown_roster_hud_actor_and_teardown_scope() {
     let (bindings, doc, replay) = documents();
     let contract = component_contract();
@@ -375,6 +376,7 @@ fn r540_start_component_keyed_ready_countdown_roster_hud_actor_and_teardown_scop
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r540_start_component_unknown_clock_restricted_elapsed_and_untagged_read() {
     let (bindings, doc, replay) = documents();
     let contract = component_contract();
@@ -483,6 +485,7 @@ fn r540_start_component_unknown_clock_restricted_elapsed_and_untagged_read() {
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r540_start_component_atomic_decoders_foreign_binding_partial_eof_and_ready_retirement() {
     let (bindings, doc, replay) = documents();
     let row = &doc["lanes"][0];

@@ -21,6 +21,7 @@ fn modern_bin_20261007_selector_all_bytes_and_unknown_no_io() {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn modern_bin_20261007_real_assets_through_existing_img_and_canvas() {
     for flag in [0, 255] {
         let asset = load_selected(source(), Some(flag)).unwrap().unwrap();
@@ -57,6 +58,7 @@ fn modern_bin_20261007_real_assets_through_existing_img_and_canvas() {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn modern_bin_20261007_wrong_identity_corruption_lengths_and_path_refused() {
     let asset = BackgroundAsset::load(source(), BackgroundId::Image6314).unwrap();
     let original = &asset.image().rgba;

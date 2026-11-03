@@ -26,7 +26,7 @@ fn inputs(body:BodyPlacement,effects:&[usize])->Inputs{Inputs{roof:Some(RoofPoli
     let mut q=inputs(BodyPlacement::ActualObservation,&[0]);q.insertion=Some(vec![SceneObject::Body,SceneObject::Body]);assert!(q.qualify(&[0]).is_err());
     let mut q=inputs(BodyPlacement::ActualObservation,&[0]);q.insertion=Some(vec![SceneObject::Body,SceneObject::Effect(1)]);assert!(q.qualify(&[0]).is_err());
 }
-#[test]fn opaque_scene_binding_reselection_and_retirement_refuse(){
+#[test]#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"] fn opaque_scene_binding_reselection_and_retirement_refuse(){
     let (mut o,_t,j)=owner();let other=owner();let n=j.native_job();let b=Binding{cancel:n.cancellation_token(),local:Arc::new(AtomicBool::new(false)),data:n.admitted_observation().data().clone(),plan:n.source_plan().clone()};b.check(n).unwrap();assert!(b.check(other.2.native_job()).is_err());
     let (c,q,r)=sample();let reply=c.decode_reply(&r,&q).unwrap();let data=n.admitted_observation().data();let mut scope=native::Scope{connection_incarnation:436,context:reply.request().catalog.native.canonical.context,channel:reply.request().catalog.native.canonical.channel,joined_room:data.room.id,room_revision:data.room.revision};assert!(o.stage(scope,reply).is_err());b.check(n).unwrap();scope.connection_incarnation=435;o.stage(scope,c.decode_reply(&r,&q).unwrap()).unwrap();assert!(b.check(n).is_err());
     let (mut o,_t,j)=owner();let n=j.native_job();let b=Binding{cancel:n.cancellation_token(),local:Arc::new(AtomicBool::new(false)),data:n.admitted_observation().data().clone(),plan:n.source_plan().clone()};o.retire();assert!(b.check(n).is_err());

@@ -144,6 +144,7 @@ fn save(name: &str, v: Value) {
     writeln!(f, "{}", serde_json::to_string_pretty(&v).unwrap()).unwrap();
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r537_native_return_actual_per_receiver_result_self_peer_owner_delete_sequences() {
     let r = replay();
     assert_eq!(r["per_receiver_ordinal_only"], true);
@@ -259,6 +260,7 @@ fn r537_native_return_actual_per_receiver_result_self_peer_owner_delete_sequence
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r537_native_return_partial_missing_untagged_epoch_and_atomic_counterexamples() {
     let r = replay();
     let seq = &r["sequences"][5];
