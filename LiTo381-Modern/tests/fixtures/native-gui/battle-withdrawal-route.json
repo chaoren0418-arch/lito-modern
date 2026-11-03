@@ -1,0 +1,157 @@
+{
+  "status": "reverse_observed_route_requires_actual_gui_validation",
+  "source": "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\repair-candidate-peers\\20261013-215614-510-review-candidate\\server-trace.jsonl",
+  "source_sha256": "B4FDB2BC38FC8B46999AC0449CE7435EE06E214409D84D59AC459D507C61686B",
+  "map_id": 564,
+  "formal_jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "target": [
+    32741,
+    32801
+  ],
+  "steps": [
+    {
+      "before": [
+        32729,
+        32797
+      ],
+      "after": [
+        32730,
+        32796
+      ],
+      "heading": 1,
+      "key": 105
+    },
+    {
+      "before": [
+        32730,
+        32796
+      ],
+      "after": [
+        32731,
+        32795
+      ],
+      "heading": 1,
+      "key": 105
+    },
+    {
+      "before": [
+        32731,
+        32795
+      ],
+      "after": [
+        32732,
+        32794
+      ],
+      "heading": 1,
+      "key": 105
+    },
+    {
+      "before": [
+        32732,
+        32794
+      ],
+      "after": [
+        32733,
+        32793
+      ],
+      "heading": 1,
+      "key": 105
+    },
+    {
+      "before": [
+        32733,
+        32793
+      ],
+      "after": [
+        32734,
+        32793
+      ],
+      "heading": 2,
+      "key": 102
+    },
+    {
+      "before": [
+        32734,
+        32793
+      ],
+      "after": [
+        32734,
+        32794
+      ],
+      "heading": 4,
+      "key": 98
+    },
+    {
+      "before": [
+        32734,
+        32794
+      ],
+      "after": [
+        32735,
+        32795
+      ],
+      "heading": 3,
+      "key": 99
+    },
+    {
+      "before": [
+        32735,
+        32795
+      ],
+      "after": [
+        32736,
+        32796
+      ],
+      "heading": 3,
+      "key": 99
+    },
+    {
+      "before": [
+        32736,
+        32796
+      ],
+      "after": [
+        32737,
+        32797
+      ],
+      "heading": 3,
+      "key": 99
+    },
+    {
+      "before": [
+        32737,
+        32797
+      ],
+      "after": [
+        32738,
+        32798
+      ],
+      "heading": 3,
+      "key": 99
+    },
+    {
+      "before": [
+        32738,
+        32798
+      ],
+      "after": [
+        32739,
+        32799
+      ],
+      "heading": 3,
+      "key": 99
+    },
+    {
+      "before": [
+        32739,
+        32799
+      ],
+      "after": [
+        32740,
+        32800
+      ],
+      "heading": 3,
+      "key": 99
+    }
+  ]
+}

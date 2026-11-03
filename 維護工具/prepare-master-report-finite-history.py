@@ -1,0 +1,4 @@
+"""Archive the previous report entry before selecting the new compact source updater."""
+from datetime import datetime,timezone
+from native_E149_recovery_contract import R,sha,encoded,require
+T=R/'維護工具';p=T/'update-master-report-E149-current.py';s=p.read_text('utf-8-sig');require(s.count('update-master-report-E149-compact.py')==1,'report entry differs');out=R/'驗證紀錄/current/master-report-finite-history-updater-source'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f');out.mkdir(parents=True);(out/'before.py').write_bytes(p.read_bytes());(out/'source.json').write_bytes(encoded(dict(source=str(p),before_sha256=sha(p),archive_sha256=sha(out/'before.py'),tests_executed=0)));p.write_text(s.replace('update-master-report-E149-compact.py','update-master-report-E149-finite-history.py'),encoding='utf-8',newline='\n');print(out)

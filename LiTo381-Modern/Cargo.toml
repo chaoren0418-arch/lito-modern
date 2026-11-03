@@ -1,0 +1,65 @@
+[package]
+name = "lito-modern"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+default-run = "LiToModern"
+autobins = false
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "LiToModern"
+path = "src/main.rs"
+
+[[bin]]
+name = "LiToModern-485F-Candidate"
+path = "src/bin/native_backend_485f_candidate.rs"
+
+[features]
+# Explicit synthetic fault harness; excluded from normal client builds.
+teleport-wire-test = []
+
+[[test]]
+name = "native_teleport_controller"
+path = "tests/native_teleport_controller.rs"
+required-features = ["teleport-wire-test"]
+
+[dependencies]
+aes = "0.8"
+anyhow = "1"
+base64 = "0.22"
+flate2 = "1"
+png = "0.17"
+roxmltree = "=0.21.1"
+rustls = { version = "0.23.44", default-features = false, features = ["std", "ring", "tls12"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+webpki-roots = "1"
+zeroize = "1.9"
+windows = { version = "0.59", features = [
+    "Win32_Foundation", "Win32_Globalization", "Win32_Security",
+    "Win32_Graphics_Gdi", "Win32_Media_Audio",
+    "Win32_System_Threading", "Win32_System_JobObjects", "Win32_System_Memory",
+    "Win32_System_Kernel", "Win32_System_Diagnostics_Debug",
+    "Win32_System_LibraryLoader", "Win32_System_Com", "Win32_System_DataExchange",
+    "Win32_UI_WindowsAndMessaging", "Win32_UI_HiDpi",
+    "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_Input_Ime",
+    "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_Controls",
+] }
+
+[build-dependencies]
+winres = "0.1"
+
+[profile.release]
+opt-level = "z"
+lto = "thin"
+strip = "symbols"
+codegen-units = 16
+
+# Resource pins and frame digests are hot paths even in the development client.
+# Keep engine debug checks; optimize the locked SHA implementation itself.
+[profile.dev.package.sha2]
+opt-level = 3

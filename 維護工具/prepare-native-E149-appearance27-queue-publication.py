@@ -1,0 +1,36 @@
+"""Publish only the queued-body component scope; do not claim67/68 integration."""
+from pathlib import Path
+import ast
+from native_E149_recovery_contract import R,read,sha,require
+T=R/'維護工具';q=read(read(R/'工作佇列.json')['current_E149_storm65_sleep66_development']['qualification'])
+def rewrite(s,a,b):
+ require(s.count(a)==1,'publication anchor differs '+a[:90]);return s.replace(a,b)
+def names(s):
+ return s.replace('native-E149-storm65-sleep66','native-E149-appearance27-queue').replace('E149-storm65-sleep66-development','E149-appearance27-queue-development').replace('current_E149_storm65_sleep66_development','current_E149_appearance27_queue_development')
+p=T/'qualify-native-E149-storm65-sleep66.py';require(sha(p)==q['source_pins'][str(p)],'publisher differs');s=names(p.read_text('utf-8-sig'))
+lo=s.index('NOTE=');hi=s.index('def validate(',lo);s=s[:lo]+'''NOTE='依#67／#68續查發現S27缺口：原native4A70B0於body busy經4E6860排tag27，idle才4E0490切換外觀；不能把舊動作即時套新gfx。新增native_appearance27數字metadata佇列元件：嚴格八byte、同Owner動作／外觀FIFO、caller真busy邊界每次最多一步、舊動作保留body snapshot；source退役sticky、晚到worker只合併admission。LT-relative不猜base。尚未串接World／Animator／controller／GUI，#67變形術／monlist96選項與#68聖結界仍未接，入口72／剩108未增加。37檔23 Runtime／11 Rust QA／3 Java、368module、原六nested；兩版18metadata退出0，新7純＋前305共312案全未跑。正常1049／所有PE／正式JAR／registry／G06 binding及16案640次不變，未套用／PE連結／測試／桌面／播放。'
+NEXT='先把S27 queued body元件接入World／Animator／History：綁原4E6AF0 busy／idle、依同poll先後保留舊動作gfx／walk與後續新動作、held death與root退役；再接#67完整monlist96選項／C_HACTION Owner與#68七byte請求、server資格／自然7200／32秒，入口仍72／剩108。測試及桌面暫緩；恢復後依總報告驗當版library兩版、Release與GUI。'
+'''+s[hi:]
+lo=s.index(" proof=read(k['inspection']);");hi=s.index(' libraries=',lo);s=s[:lo]+""" proof=read(k['inspection']);require(sha(k['inspection'])==k['inspection_sha256'] and proof['definitions']==k['definitions'] and [d['skillId'] for d in k['definitions']]==[67,68] and proof['S27_exact_eight_bytes'] and proof['native_busy_queues27_instead_of_applying_now'] and proof['native_idle_applies27_directly'] and proof['formal_standard_forms']==96 and not proof['PE_executed'],'original S27/body proof differs');check_pins(proof['source_pins']);require(all(sha(p)==h for p,h in proof['external_readonly_pins'].items()),'readonly primary differs')
+ require(not k['runtime_overrides'] and set(k['modules'])=={'native_appearance27'},'scope exceeds new queue component')
+ for name,row in k['modules'].items():
+  require(sha(row['path'])==row['sha256'] and sha(row['template'])==row['template_sha256'] and Path(row['path']).read_bytes()==Path(row['template']).read_bytes(),'new module differs');source=Path(row['path']).read_text('utf-8-sig');cases+=source.count('#[test]');ignored+=source.count('#[ignore=');modern+='\\n#[path = r#"'+Path(row['path']).as_posix()+'"#]\\npub(crate) mod '+name+';\\n';files[PREFIX+name+'.rs']=row['sha256'];paths[PREFIX+name+'.rs']=row['path']
+ require((cases,ignored,len(files))==(7,0,37) and files==k['effective_overlay_files'] and paths==k['effective_overlay_paths'],'new component/source inventory differs');check_pins({paths[n]:h for n,h in files.items()});require(modern==Path(c['generated_mod']).read_text('utf-8-sig') and len(re.findall(r'#\\[path = r#"',modern))==c['module_count']==368,'module graph differs')
+ require(Path(old['generated_root']).read_text('utf-8-sig').replace(Path(old['generated_mod']).as_posix(),Path(c['generated_mod']).as_posix())==Path(c['generated_root']).read_text('utf-8-sig') and c['original_nested_runtime_pairs']==old['original_nested_runtime_pairs'] and sum(len(r['rewrites']) for r in c['original_nested_runtime_pairs'].values())==6,'root/nested differs')
+ for pair in c['original_nested_runtime_pairs'].values():require(sha(pair['path'])==pair['sha256'] and sha(pair['source'])==pair['source_sha256'],'nested raw differs')
+ cov=prior['current_source_coverage'];require(cov==k['current_source_coverage'] and cov['recognized_count']==72 and cov['missing_request_count']==108 and k['next_definition_ids']==[67,68],'request coverage changed without integration')
+"""+s[hi:]
+s=rewrite(s,"ref=w['current_E149_earthquake62_silence64_development']","ref=w['current_E149_storm65_sleep66_development']")
+lines=s.splitlines(keepends=True);s=''.join(line for line in lines if not line.startswith((' tooling=['," q['tooling_preflight_failures']",' raw.update(tooling_pins)')))
+s=rewrite(s,'changed_runtime_files=5,effective_overlay_files=36,runtime_modules=22','changed_runtime_files=1,new_runtime_modules=1,overridden_runtime_files=0,effective_overlay_files=37,runtime_modules=23')
+s=rewrite(s,'resolved_module_path_attributes=367','resolved_module_path_attributes=368')
+s=rewrite(s,'new_tests_written=15,new_opt_in_original_resource_cases=2,retained_skill_tests_written=290','new_tests_written=7,new_opt_in_original_resource_cases=0,retained_skill_tests_written=305')
+lo=s.index('request_registered_ids=[65,66],');hi=s.index('direction_initializer_execution_qualified=False',lo);s=s[:lo]+"request_registered_ids=[],component_source_only=True,S27_world_or_animator_integrated=False,shape67_menu_or_request_integrated=False,protection68_request_integrated=False,native_busy_guard_caller_integration_complete=False,LT_base_binding_complete=False,"+s[hi:]
+s=s.replace('unselected_storm65_sleep66_original_class1_overlap_and_sleep_metadata_only','unselected_appearance27_queue_component_no_World_or_GUI_integration').replace('new_tests_written=15','new_tests_written=7').replace('effective_overlay_files=36','effective_overlay_files=37').replace("item='storm65_sleep66_class1_overlap_and_server_sleep_authority'","item='appearance27_original_busy_queue_before_shape67_integration'")
+s=rewrite(s,"for t in row['supplements']})","for t in row.get('supplements',[])})")
+s=rewrite(s," for p in [Path(__file__).resolve(),T/'readback-native-E149-appearance27-queue.py',T/'native_E149_process_birth_readonly.py',T/'prepare-native-E149-appearance27-queue.py'"," for row in k['modules'].values():raw[row['template']]=row['template_sha256']\n for p in [Path(__file__).resolve(),T/'readback-native-E149-appearance27-queue.py',T/'native_E149_process_birth_readonly.py',T/'prepare-native-E149-appearance27-queue.py'")
+out=T/'qualify-native-E149-appearance27-queue.py';require(not out.exists(),'publisher exists');ast.parse(s);out.write_text(s,encoding='utf-8',newline='\n')
+p=T/'readback-native-E149-storm65-sleep66.py';require(sha(p)==q['source_pins'][str(p)],'reader differs');s=names(p.read_text('utf-8-sig'))
+lo=s.index(" require(q['storm_class1_first_target_origin_and_overlap_audio']");hi=s.index("require((q['effective_overlay_files']",lo);s=s[:lo]+" require(q['component_source_only'] and not any(q[n] for n in ['S27_world_or_animator_integrated','shape67_menu_or_request_integrated','protection68_request_integrated','native_busy_guard_caller_integration_complete','LT_base_binding_complete']),'unintegrated scope differs');"+s[hi:]
+for a,b in [('(36,22,11,3,367,6,15,290)','(37,23,11,3,368,6,7,305)'),("q['request_registered_ids']==[65,66]","q['request_registered_ids']==[]"),("['#65雷霆風暴／#66沉睡之霧','305','72／剩108','可重疊音效'","['S27','312','72／剩108','尚未串接'")]:s=rewrite(s,a,b)
+s=s.replace('new_cases_written=15','new_cases_written=7');out=T/'readback-native-E149-appearance27-queue.py';require(not out.exists(),'reader exists');ast.parse(s);out.write_text(s,encoding='utf-8',newline='\n');print(out)

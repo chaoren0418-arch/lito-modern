@@ -1,0 +1,27 @@
+"""Preserve finite admission through source retirement without restoring retired graph."""
+from pathlib import Path
+import json
+from native_E149_recovery_contract import R,SOURCE,FORMAL,read,sha,encoded,require,check_pins
+T=R/'維護工具';V=R/'驗證紀錄/current';C=T/'candidates/native-E149-finite-history-20261024-130100';PREFIX='LiTo381-Modern/src/modern_lito/'
+def prepare():
+ w=read(R/'工作佇列.json');ref=w['current_E149_resurrection61_development'];require(sha(ref['qualification'])==ref['qualification_sha256'],'prior differs');q=read(ref['qualification']);require(sha(q['candidate'])==q['candidate_sha256'],'candidate differs');base=read(q['candidate']);files=dict(base['effective_overlay_files']);paths=dict(base['effective_overlay_paths']);inspection=V/'native-E149-finite-history-inspection/20261024-130019-192287/inspection.json';proof=read(inspection);check_pins(proof['source_pins']);require(not C.exists(),'candidate exists')
+ history='''impl History {
+    pub(crate) fn active_sequences(&self)->BTreeSet<u64>{self.active.iter().map(|a|a.cue.sequence).collect()}
+    pub(crate) fn merge_admission(&mut self,other:&Self){if self.generation==other.generation{self.seen.extend(other.seen.iter().copied());}}
+}
+'''
+ changes={
+ 'native_skill_effects.rs':[('#[derive(Default)]\npub struct Effects {',history+'#[derive(Default)]\npub struct Effects {'),('    pub(crate) fn restore_history(&mut self,history:History) {\n        self.generation=history.generation;self.seen=history.seen;self.active=history.active;\n        self.started=history.started;self.omitted=history.omitted;\n    }','    pub(crate) fn restore_history(&mut self,history:History) {self.restore_history_with_source(history,true);}\n    pub(crate) fn restore_history_with_source(&mut self,history:History,same_source:bool) {\n        self.generation=history.generation;self.seen=history.seen;self.active=if same_source{history.active}else{vec![]};\n        self.started=history.started;self.omitted=history.omitted;\n    }')],
+ 'native_world_scene.rs':[('.chain(self.many.active_sequences()).collect()', '.chain(self.many.active_sequences()).chain(self.skills.iter().flat_map(|h|h.active_sequences())).collect()'),('self.many.merge_admission(&other.many);self.animation','self.many.merge_admission(&other.many);for (history,incoming) in self.skills.iter_mut().zip(&other.skills){history.merge_admission(incoming);}self.animation'),('        if history.restore_other_effects {\n            for (effect,h) in [&mut self.skill_effects,&mut self.item_effects,&mut self.reagent_effects,&mut self.travel_effects].into_iter().zip(history.skills) {effect.restore_history(h);}\n        }','        for (effect,h) in [&mut self.skill_effects,&mut self.item_effects,&mut self.reagent_effects,&mut self.travel_effects].into_iter().zip(history.skills) {effect.restore_history_with_source(h,history.restore_other_effects);}')]
+ }
+ supplements={'native_skill_effects.rs':[T/'templates/native_finite_history_tests.rs'],'native_world_scene.rs':[T/'templates/native_finite_scene_history_tests.rs']};prepared={}
+ for short,delta in changes.items():
+  s=Path(paths[PREFIX+short]).read_text('utf-8-sig')
+  for a,b in delta:require(s.count(a)==1,'source anchor differs '+short+': '+a[:100]);s=s.replace(a,b)
+  for p in supplements[short]:s+='\n'+p.read_text('utf-8-sig')
+  prepared[short]=s
+ C.mkdir();overrides={}
+ for short,s in prepared.items():
+  name=PREFIX+short;old=Path(paths[name]);p=C/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(s,encoding='utf-8',newline='\n');overrides[name]=dict(path=str(p),sha256=sha(p),predecessor=str(old),predecessor_sha256=sha(old),changes=changes[short],supplements=[dict(path=str(t),sha256=sha(t)) for t in supplements[short]]);files[name]=sha(p);paths[name]=str(p)
+ cohort=Path(q['compile_run'])/'cohort.json';cases=sum(t.read_text('utf-8-sig').count('#[test]') for rows in supplements.values() for t in rows);ignored=sum(t.read_text('utf-8-sig').count('#[ignore=') for rows in supplements.values() for t in rows);require((len(files),cases,ignored)==(36,8,1),'scope count differs');contract=dict(schema='E149-finite-history-source-v1',base_source_manifest_sha256=SOURCE,formal_target_sha256=FORMAL,predecessor_qualification=ref['qualification'],predecessor_qualification_sha256=ref['qualification_sha256'],predecessor_candidate=q['candidate'],predecessor_candidate_sha256=sha(q['candidate']),predecessor_metadata_cohort=str(cohort),predecessor_metadata_cohort_sha256=sha(cohort),integration_predecessor_cohort=str(cohort),integration_predecessor_cohort_sha256=sha(cohort),inspection=str(inspection),inspection_sha256=sha(inspection),original_pins={},modules={},runtime_overrides=overrides,effective_overlay_files=files,effective_overlay_paths=paths,current_source_coverage=q['current_source_coverage'],definitions=[],next_definition_ids=q['next_definition_ids'],next_definitions=q['next_definitions'],new_tests_written=8,new_resource_opt_in_cases=1,previous_written_deferred_cases=267,source_retirement_preserves_admission=True,late_worker_finite_profiles_merge_admission=True,active_finite_profile_audio_keys_retained=True,tests_executed=0,PEs_linked=False,outputs_executed=False,whole_goal_complete=False);(C/'contract.json').write_bytes(encoded(contract));print(json.dumps(dict(contract=str(C/'contract.json'),sha256=sha(C/'contract.json'),effective_files=36,new_cases=8,recognized_requests=68,remaining=112,tests_executed=0),ensure_ascii=False))
+if __name__=='__main__':prepare()

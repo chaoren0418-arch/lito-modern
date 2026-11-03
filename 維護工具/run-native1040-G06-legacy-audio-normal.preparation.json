@@ -1,0 +1,15 @@
+{
+  "status": "prepared_unexecuted_current_source_G06_driver",
+  "base": "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\run-native1040-G06-controller.py",
+  "base_sha256": "085D3F49A387C7EF1E5990E96791F50572CD2B52699E49C99EE58C0C5C4BF7D5",
+  "candidate": "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\run-native1040-G06-legacy-audio-normal.py",
+  "candidate_sha256": "D7003ABE31D145F42E9B5488EF360FAAA5C89AAE07CCCEC877F135C8B7553BCB",
+  "changes": [
+    "Accept only the newly qualified normal 17-target/122-job input family.",
+    "Require current workload queue idle before new runtime."
+  ],
+  "existing_six_scenarios_preserved": true,
+  "phase_deadlines_changed": false,
+  "diagnostic_API_extension": false,
+  "executed": false
+}

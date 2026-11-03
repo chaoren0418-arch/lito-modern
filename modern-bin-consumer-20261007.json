@@ -1,0 +1,274 @@
+{
+  "schema": "modern.bin.consumer.offline.v1",
+  "task_id": "modern-bin-consumer-20261007",
+  "updated_at": "2026-10-07T06:22:25.604686+08:00",
+  "state": "DELIVERED_OFFLINE_INCREMENT_REVIEW_REQUIRED",
+  "overall_complete": false,
+  "increment": "Pinned Native background RGBA -> existing Img -> explicit source-byte selector -> caller-positioned CPU Canvas",
+  "adopted_contracts": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\modern-contracts-20261007.json",
+      "bytes": 41310,
+      "sha256": "DC08927CDB282EE14CD80080AD7EDB579EF8560AD98C00E83BFD5877BB39964D"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito登入器\\舊版分析與驗收\\runtime\\LiTo.unpacked-oep-current.exe",
+      "bytes": 7094272,
+      "sha256": "4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\Native-background-scene-contract.json",
+      "bytes": 9015,
+      "sha256": "DDD86F5D197D53987A46DFBBBB879E8FBE0C77C1AE3B68C296EF4F62325056A7"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\resources\\modern-rgba\\manifest.json",
+      "bytes": 5799,
+      "sha256": "D25BED57BE58F0AB3EB17F6A716F8202329B4E02BEE98F63B50D84ADA8218540"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\resources\\modern-rgba\\6314.rgba",
+      "bytes": 1228800,
+      "sha256": "949463E781BA723BAE1EDA005C1A346E2086EA003317CE7C41F140A8B61850E8"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\resources\\modern-rgba\\7482.rgba",
+      "bytes": 1228800,
+      "sha256": "A7A1B6AEDA3B9F9259802F428ABEE3FBC809931C6CF41EA8FF07001A7D4E6BBF"
+    }
+  ],
+  "source_evidence": {
+    "PE_sha256": "4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9",
+    "selector_VA": "00496F05",
+    "selector_RVA": "00096F05",
+    "factory_call_VA": "00496F28",
+    "factory_call_RVA": "00096F28",
+    "factory_target_VA": "00495520",
+    "factory_target_RVA": "00095520",
+    "flag_VA": "0064AFA0",
+    "flag_RVA": "0024AFA0"
+  },
+  "consumer_audit": [
+    {
+      "id": "native_background_assets",
+      "before": "No 6314/7482 or64AFA0 consumer in Native Rust; skin only loads7580 channel background",
+      "after": "Integrated public native_mode_menu_skin::background API; three new CPU tests use actual delivered buffers"
+    },
+    {
+      "id": "495520_call_boundary",
+      "status": "Qualified factory boundary consumed as scope limit; no invented draw method or owner"
+    },
+    {
+      "id": "S_F4_244",
+      "status": "Already implemented in native_entry_transfer decode/address_from_word/consume_source_transfer_event; no old PASS rerun or duplicate implementation"
+    },
+    {
+      "id": "saved_host_64AD74",
+      "status": "Current owned transfer state audited; no new startup host or implicit initialized buffer invented; outside this one increment"
+    }
+  ],
+  "source_changes": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_mode_menu_skin.rs",
+      "bytes": 10592,
+      "sha256": "8D6A7964E668A460B9D360D635CA75BC5F5BBF6C5AF6F699E6DBC470797B5CB6"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_background_assets.rs",
+      "bytes": 3466,
+      "sha256": "53686D08F8AD2436D230DA123B517F616A9306B7B6F0B34EA6BAE2AA7B8D3C4D"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_background_assets_tests.rs",
+      "bytes": 2951,
+      "sha256": "A2D204370A0EE367034A0A5817A9AD5F4003B797D3735469958E04B0DE62C759"
+    }
+  ],
+  "consumer_call_chain": [
+    "native_mode_menu_skin::background::load_selected(root, explicit Option<u8>)",
+    "select: zero ->6314; nonzero ->7482; unknown ->None without file access",
+    "BackgroundAsset::load ->existing adapter::read_pinned ->from_rgba ->existing Img",
+    "BackgroundAsset::blit_preview(explicit caller origin) ->existing Canvas::blit_rgba"
+  ],
+  "source_diff": {
+    "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\source.diff",
+    "bytes": 7239,
+    "sha256": "67A7D9802A73E4C6783554B87D81A43539CA86DC23DE76BF3FA420D80121FBF4"
+  },
+  "source_snapshot": {
+    "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\source-snapshot.json",
+    "bytes": 450704,
+    "sha256": "877D2283369088F1F4408D8C862DADACD22752CF5541C7433A02D950BDD33705"
+  },
+  "rust_source_accounting": {
+    "before": 661,
+    "after": 663,
+    "new": 2,
+    "modified": 1,
+    "old_files_byte_unchanged": 660
+  },
+  "build": {
+    "target": "i686-pc-windows-msvc",
+    "library": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\liblito_modern.rlib",
+      "bytes": 679041476,
+      "sha256": "5918033AE80B8017625942127B43CCFAC3E11C962B699ED0951EBBB84743D38B"
+    },
+    "library_recompiled": true,
+    "accounting": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\build-accounting.json",
+      "bytes": 532,
+      "sha256": "F63F888EFC2DF75E73A554D5FCC8E7CEAA36B2CF86388AEC3F283806B6BA6D5B"
+    },
+    "warnings": {
+      "build": {
+        "total_warning_messages": 291,
+        "new_module_warning_messages": 0
+      },
+      "test-build": {
+        "total_warning_messages": 92,
+        "new_module_warning_messages": 0
+      }
+    }
+  },
+  "validation": {
+    "new_CPU_checks": 3,
+    "passed": 3,
+    "failed": 0,
+    "executions": 1,
+    "cases": [
+      "256 source byte values; unknown input performs no I/O",
+      "Actual6314/7482 identities, dimensions and every pixel of caller-defined clipped CPU composition",
+      "Wrong identity, corrupt SHA, empty/short/long buffers, relative and parent-component paths rejected"
+    ],
+    "test_artifact": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\new-background-tests.exe",
+      "bytes": 65463296,
+      "sha256": "F8F3F0CC890BF954EF0B72EC25BE041780203BB4FD35D0E54EAC7C044D227564"
+    },
+    "stdout": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\tests.stdout.log",
+      "bytes": 509,
+      "sha256": "01A00A0C6DE10D026958A0566F02C1C6055765FA2946FDB1FA7AFEFBD66DE16F"
+    },
+    "test_compile_accounting": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\test-build-accounting.json",
+      "bytes": 424,
+      "sha256": "127DC5E00247EFE8590ECA29F8727B5235CCFC483F4E47B6535248FC70B327C9"
+    },
+    "test_run_accounting": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\test-accounting.json",
+      "bytes": 416,
+      "sha256": "5932393286E0D9329B71AF3069BD6378866D2B42760DFF68DD100A9C76BF64C9"
+    }
+  },
+  "evidence_logs": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\build.jsonl",
+      "bytes": 691562,
+      "sha256": "CD63FD6E5D283E923D9BF63D5786359EDEAA8BCA87116FE7D82382DEFFFD1E5A"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\build.stderr.log",
+      "bytes": 168,
+      "sha256": "8D7AB99737A63B332374A08704982A69348694010F151529A5B0F616AD63A8EA"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\test-build.jsonl",
+      "bytes": 341598,
+      "sha256": "6C4C9F6CC3620A52253E381CE3B5B1CEA3FFE429FF2F0DD7C83783A08A2231A5"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\test-build.stderr.log",
+      "bytes": 169,
+      "sha256": "297BF1A863CB5A922E05D23E64BF5456C56F0C2801254DC7444D6AB24B7F26FA"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\tests.stderr.log",
+      "bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\artifacts.json",
+      "bytes": 653,
+      "sha256": "0741D97EEE6C264F37B1F4A8661550A5D6313214CAD215C6E056D08B21181E60"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-bin-consumer-20261007\\before-rust-pins.json",
+      "bytes": 115379,
+      "sha256": "9E77A07078B0C3F5A442AC727B74C5938AB268313BADB557910063ABFBAADEEF"
+    }
+  ],
+  "tools_and_documentation": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\tools\\build-modern-bin-consumer-20261007.ps1",
+      "bytes": 5036,
+      "sha256": "5EB2F1EC4299BA2A1EC36D637953157217E90ACCDE521510EA2016CDC038ECE4"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\tools\\seal-modern-bin-consumer-20261007.py",
+      "bytes": 10515,
+      "sha256": "4270A1DD536A876DE746D8E7DF785945ADDFFE295ADDC90923DAB38911A08890"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\docs\\native-background-offline-consumer.md",
+      "bytes": 2397,
+      "sha256": "608DDBF49535831CD07204586DE14AD221207F7BF6D0C0CD3097412BF6A0A18C"
+    }
+  ],
+  "boundary": {
+    "offline_implemented": true,
+    "runtime_scene_binding": false,
+    "native_render_parity": false,
+    "GUI_acceptance": false,
+    "flag_unknown_preserved": true,
+    "coordinates_caller_preview_only": true,
+    "default_route_unchanged": true,
+    "new_or_corrected_wire": false,
+    "old_PASS_replays": 0,
+    "Java_SQL": 0,
+    "sockets": 0,
+    "GUI": 0,
+    "READY_reads": 0,
+    "claims": 0,
+    "private_next_layer_analysis": 0,
+    "server_namespace_writes": 0,
+    "retained_restrictions": "T291/T27/refund/rebid; auction/castle/full-WORLD/store dependencies; private backing42E550/42E6D0/42EA50; Native tool limits"
+  },
+  "next_BIN_request": {
+    "id": "modern-background-scene-binding",
+    "supplier": "BIN via supervisor; qualified existing evidence only",
+    "consumer": "native_mode_menu_skin::background then explicit qualified Native scene consumer",
+    "call_points": [
+      "496F05 flag selection",
+      "496F28 ->495520 factory result EAX/EDI",
+      "75F6E8 owner+0C comparison5"
+    ],
+    "required_fields": [
+      "Source PE SHA and VA/RVA of each existing qualified owner publication/reset/destruction anchor",
+      "Flag64AFA0 initialized value and lifecycle scope",
+      "495520 result/backdrop owner link distinct from child descriptors",
+      "Qualified backdrop x/y, crop/clip/transform and drawing mode with supporting existing artifact",
+      "Source-established scene association or an explicit unknown"
+    ],
+    "existing_evidence": [
+      {
+        "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\modern-contracts-20261007.json",
+        "bytes": 41310,
+        "sha256": "DC08927CDB282EE14CD80080AD7EDB579EF8560AD98C00E83BFD5877BB39964D"
+      },
+      {
+        "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\Native-background-scene-contract.json",
+        "bytes": 9015,
+        "sha256": "DDD86F5D197D53987A46DFBBBB879E8FBE0C77C1AE3B68C296EF4F62325056A7"
+      }
+    ],
+    "acceptance": "Evidence independently establishes the requested fields; then add targeted scene binding checks. Child x/y, count8, type5 or argument7 cannot substitute for backdrop origin or named scene.",
+    "stop_condition": "Do not expand retained private next layers. Missing fields stay unknown; no GUI or user-presence prerequisite for independently qualified offline inputs.",
+    "blocks_completed_increment": false
+  },
+  "handoff_to": [
+    "supervisor"
+  ],
+  "wire_notification_required": false
+}

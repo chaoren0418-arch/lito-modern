@@ -1,0 +1,31 @@
+from r491_common import *
+import shutil
+draft=L/'r527-pre-r2-draft';draft.mkdir();mapping=[]
+for p in [L/'r527-485F-real-backend-preparation-handoff.json',L/'r527-provider-supply-request.json',P/'Native-R527_485F實接consumer與供應接口準備交接.txt',P/'tools/seal-r527.py']:
+ dst=draft/p.name;shutil.copyfile(p,dst);mapping.append(dict(original=pin(p),retained_copy=pin(dst)))
+root=L/'r527-inputs/provider-r2';root.mkdir();p=P.parent.parent/'lito伺服器/server-modern-485F-backend-fixture-r2.json';v=read(p);e=pin(p);assert e['sha256']=='8426091EB6A92B9FABEB802BE122558FA187B1FB50AAE36458CBC320C8F57EAA';shutil.copyfile(p,root/p.name);checked=[e];bundle=Path(v['evidence_root'])
+for value in v.values():
+ if isinstance(value,dict)and'path'in value and'sha256'in value:
+  actual=pin(value['path']);assert actual==value;checked.append(actual)
+manifest=read(v['manifest']['path']);integrity=read(v['launch_integrity']['path'])
+for row in manifest['files']+integrity['files']:
+ p=bundle/row['path'];assert p.is_relative_to(bundle);actual=pin(p);assert actual['bytes']==row['bytes']and actual['sha256']==row['sha256'];checked.append(actual)
+assert len(manifest['files'])==37 and len(integrity['files'])==24
+for key in ['handoff','manifest','launch_integrity','revision_delta','password_offline_check','account_case_compatibility']:shutil.copyfile(v[key]['path'],root/Path(v[key]['path']).name)
+launcher=Path(v['launcher']['path']).read_text('utf-8');assert 'secrets.token_hex(6)'in launcher and 'secrets.token_urlsafe(32)'not in launcher
+helper=(bundle/'source/Modern485ProviderMain.java').read_text('utf-8');assert '[0-9a-f]{12}'in helper
+resource=P.parent.parent/'lito脫殼資源/Native-selection-resource-gap-contract.json';assert pin(resource)['sha256']=='07005BF58CB90C133F94E286A376D86301FEA1806CE060906CDE3773A9042EF6';shutil.copyfile(resource,root/resource.name)
+save(L/'r527-provider-r2-adoption.json',dict(accepted_root=e,accepted_handoff=v['handoff'],launcher=v['launcher'],launch_integrity=v['launch_integrity'],bundle=str(bundle),checked_pins=checked,root_pins=10,bundle_payload_pins=37,launch_pins=24,exact_credential_generator='secrets.token_hex(6) →12 lowercasehex ASCII',helper_password_guard='[0-9a-f]{12}',properties_subset='accepted offlinePASS only;new runtimepassword notgenerated/read',account_normalization='Fx485Host/Fx485Guest firstbyteuppercase preserves specifiedbytes only;actualS_CB stillsource',new_JVM_SQL_auth_runtime=0,cold_status='ACCEPTED_COLD_R2_FRESH_READY_PENDING',parent_7DFA_history=pin(L/'r527-cold-provider-adoption.json'),pre_R2_draft=mapping,unpublished_pre_R2_draft_superseded=True,Batch35_UI_scheduling_only=pin(resource),Batch35_limits='8 selectionsourceparts matchfrozenR526/sixIMG originalindexPAK evidence;6314/7482backgroundsubscene and79/80/personbank/lifecycle unknown. No R527UI expansion.'))
+request=read(L/'r527-provider-supply-request.json');request['historical_cold_root']=request.pop('accepted_cold_root');request['historical_cold_handoff']=request.pop('accepted_cold_handoff');request['accepted_cold_root']=e;request['accepted_cold_handoff']=v['handoff'];request['provider_bundle']=str(bundle);request['credential_dependency'].update(current_cold_launcher_generates_43_bytes=False,resolved_by_accepted_R2=True,generator='secrets.token_hex(6)',expected_password_bytes=12,supplier_action='Use acceptedR2 frozenbundle on authorizedfreshstart;freshrandom12 ASCIIpassword fits unchanged4..13 guard.',coordination_update='R2 coldpins accepted8426091E/807A7334. No freshREADY/runtime;original7DFA history retained.')
+request['pending']=['freshR2supportHostREADY/status/lease/PIDcreation acceptance','trueModern485Fbackendcompatibility using historicalADlayoutcandidate adapters','latercountdowncoordination','GUI/default main/Native/WORLD'];request['coordination'][0]='Serverowner uses acceptedR2 frozenbundle, authorizedstart--support-host freshlease600,collectREADY/status/lease/PIDcreation then supervisoracceptsfreshSHA.';save(L/'r527-provider-supply-request.json',request)
+p=P/'tools/seal-r527.py';s=p.read_text('utf-8');s=s.replace("verification=L/'r527-final-preparation-verification.json'", "r2=read(L/'r527-provider-r2-adoption.json')\nfor e in r2['checked_pins']:\n actual=pin(e['path']);assert actual['bytes']==e['bytes']and actual['sha256']==e['sha256'];checked.append(actual)\nverification=L/'r527-final-preparation-verification.json'")
+s=s.replace('尚待新pins及fresh READY acceptance。Modern不截斷secret','現已採R2 root8426091E、handoff807A7334，37manifest/24launchpins與token_hex(6)及helper[0-9a-f]{12}核對，僅cold offlinePASS；仍等fresh READY/runtime。Modern不截斷secret')
+s=s.replace('先供應owner冷credential修正/newpins，再fresh --support-host lease600','供應owner採acceptedR2 frozenbundle，再fresh --support-host lease600')
+s=s.replace("[p for p in (L/'r527-inputs').iterdir()if p.is_file()]", "[p for p in (L/'r527-inputs').rglob('*')if p.is_file()]")
+s=s.replace("+[human]))]", "+[p for p in (L/'r527-pre-r2-draft').iterdir()if p.is_file()]+[human]))]")
+s=s.replace("cold_provider_adoption=pin(L/'r527-cold-provider-adoption.json'),", "provider_R2_adoption=pin(L/'r527-provider-r2-adoption.json'),historical_cold_provider_adoption=pin(L/'r527-cold-provider-adoption.json'),")
+s=s.replace("credential_dependency='Old token_urlsafe32 outputs43ASCII >fixed4..13. Supervisor delegatedserver new12-byte ASCIIcoldrevision;awaitnewpins andfreshREADY;no truncation/staging bypass/input expansion.'", "credential_dependency='Resolved offline acceptedR2 8426091E/807A7334 token_hex6→12ASCII withhelper[0-9a-f]{12};unchanged4..13guard. AwaitfreshREADY/runtime, original7DFAhistory retained.'")
+s=s.replace("'Newapproved12-byte credentialprovider coldpins then acceptedfreshREADY/status/lease/PIDcreation;old7DFAcoldbundle cannotconnect directly.'", "'AcceptedR2cold 8426091E/807A7334 adopted; freshREADY/status/lease/PIDcreation andactualR2startup/supportHost stillpending;old7DFAcannotconnect directly.'")
+s=s.replace('等server12-bytecredential新冷pins與監製freshREADY/status/lease/PIDcreation接受','已採R2 8426091E/807A7334冷12-bytecredential 37/24pins，等監製freshREADY/status/lease/PIDcreation接受')
+s=s.replace('134輸入pin/47歷史BIN34錨點、cold52/25pins','134輸入pin/47歷史BIN34錨點、R2cold37/24pins及舊52/25history')
+p.write_text(s,'utf-8');print('R527 acceptedR2 coldadopted;old history/draft retained;freshREADYstillpending')

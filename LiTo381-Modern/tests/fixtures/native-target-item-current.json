@@ -1,0 +1,41 @@
+{
+  "status": "verified_actual_isolated_SQL_formal_GmTravel_classifier_and_target_codec",
+  "catalog_id": 42501,
+  "use_type": 5,
+  "invgfx": 828,
+  "packet": "1ce1da8a00000000000a803480",
+  "malformed_rejected": 14,
+  "static_row_only": true,
+  "player_tables_accessed": false,
+  "runtime_authority_mutations": 0,
+  "gameplay_or_GUI_verified": false,
+  "reference_receipt": "驗證紀錄/current/travel-sql/20261014-154134-741/receipt.json",
+  "reference_receipt_data": {
+    "source_project_modified": false,
+    "runtime": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\current\\travel-sql\\20261014-154134-741",
+    "driver_sha256": "E2A3B2FC726A1AC64E998585DB86B30FA8BF3F706195B78BB77C5F99BF877BD9",
+    "player_tables_accessed": false,
+    "jar_sha256": "C02AAAE8D54A27E30460BE2E3C47709EE64D35F007A8BE27AC74A327268B9539",
+    "static_fixture_sha256": "1E60EA99F8E885E6D5005CCEA7F122D29B64F5B28175605684F673C7EBAE8B74",
+    "oracle": {
+      "status": "verified_actual_isolated_SQL_formal_GmTravel_classifier_and_target_codec",
+      "catalog_id": 42501,
+      "use_type": 5,
+      "invgfx": 828,
+      "packet": "1ce1da8a00000000000a803480",
+      "malformed_rejected": 14,
+      "static_row_only": true,
+      "player_tables_accessed": false,
+      "runtime_authority_mutations": 0,
+      "gameplay_or_GUI_verified": false
+    },
+    "owned_process": {
+      "datadir": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\current\\travel-sql\\20261014-154134-741\\data",
+      "pid": 21788,
+      "start_utc": "2026-10-14T15:41:36.5383530Z"
+    },
+    "port": 61849,
+    "status": "verified_isolated_actual_SQL_static42501_row",
+    "output": "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\travel-sql\\20261014-154134-741"
+  }
+}

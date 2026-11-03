@@ -1,0 +1,22 @@
+"""Preserve initial publisher sources, then qualify corrected cross-poll policy."""
+from pathlib import Path
+from datetime import datetime,timezone
+from native_E149_recovery_contract import R,read,sha,encoded,require
+T=R/'維護工具';V=R/'驗證紀錄/current';out=V/'native-E149-summon51-publication-source'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f');out.mkdir(parents=True)
+for name in ['qualify-native-E149-summon51.py','readback-native-E149-summon51.py']:(out/name).write_bytes((T/name).read_bytes())
+s=(T/'qualify-native-E149-summon51.py').read_text('utf-8-sig')
+def replace(a,b):
+ global s
+ require(s.count(a)==1,'hold publication anchor differs '+a[:100]);s=s.replace(a,b)
+replace('case_count==10 and ignored_count==0','case_count==12 and ignored_count==0')
+s=s.replace('新10純QA＋前214共224案','新12純QA＋前214共226案').replace('18metadata退出0。新12','18metadata退出0；原初版action即清pending缺口封存，修正版於既有兩秒窗保留跨poll拒絕關聯，其他技能原終止規則不變。新12')
+replace('new_tests_written=10,new_opt_in_original_resource_cases=0','new_tests_written=12,new_opt_in_original_resource_cases=0')
+replace('new_tests_written=10,tests_executed=0,request_recognition_count=64','new_tests_written=12,tests_executed=0,request_recognition_count=64')
+needle=' libraries={p:next';require(s.count(needle)==1,'library marker differs');s=s.replace(needle," initial=read(k['original_metadata_cohort']);require(sha(k['original_metadata_cohort'])==k['original_metadata_cohort_sha256'] and sha(k['original_development_candidate'])==k['original_development_candidate_sha256'] and initial['contract_sha256']==k['original_development_candidate_sha256'] and initial['status']=='eighteen_metadata_compilers_complete_no_tests' and [r['exit_code'] for r in initial['compiler_runs']]==[0]*18 and k['original_metadata_actual_exit_code']==0 and k['summon_pending_after_cast_action_bounded_seconds']==2 and k['original_issue_was_static_review_not_executed_test'],'initial source/metadata boundary differs');check_pins(initial['input_pins'])\n"+needle)
+replace(" pins=dict(c['input_pins']);pins[str(cohort)]=sha(cohort)", " pins=dict(c['input_pins']);pins[str(cohort)]=sha(cohort);initial=read(k['original_metadata_cohort']);pins.update(initial['input_pins'])")
+replace('  summon_selection_count=31,','  original_development_candidate=k[\'original_development_candidate\'],original_development_candidate_sha256=k[\'original_development_candidate_sha256\'],original_metadata_cohort=k[\'original_metadata_cohort\'],original_metadata_cohort_sha256=k[\'original_metadata_cohort_sha256\'],original_metadata_observed_tool_chunk=k[\'original_metadata_observed_tool_chunk\'],original_source_issue=k[\'original_source_issue\'],summon_pending_after_cast_action_bounded_seconds=2,\n  summon_selection_count=31,')
+needle=" with zipfile.ZipFile(out/'raw.zip','x',zipfile.ZIP_DEFLATED) as z:";require(s.count(needle)==1,'raw archive marker differs');s=s.replace(needle," for path in [Path(k['original_development_candidate']),Path(k['original_metadata_cohort']),Path(initial['generated_root']),Path(initial['generated_mod']),T/'compile-native-E149-summon51-hold.py',T/'prepare-native-E149-summon51-hold.py',T/'prepare-native-E149-summon51-hold-tools.py',T/'prepare-native-E149-summon51-hold-publication.py',T/'native-E149-summon51-hold.md']:raw[str(path)]=sha(path)\n for row in read(k['original_development_candidate'])['runtime_overrides'].values():raw[row['path']]=row['sha256']\n for row in initial['compiler_runs']:raw.update(row['logs'])\n"+needle)
+(T/'qualify-native-E149-summon51.py').write_text(s,encoding='utf-8',newline='\n')
+s=(T/'readback-native-E149-summon51.py').read_text('utf-8-sig');s=s.replace('(4,33,19,11,3,365,6,10,214,0)','(4,33,19,11,3,365,6,12,214,0)').replace('new_cases_written=10','new_cases_written=12').replace("'#51召喚術','224'","'#51召喚術','226'")
+needle=" require((q['changed_runtime_files']";require(s.count(needle)==1,'reader marker differs');s=s.replace(needle," initial=read(q['original_metadata_cohort']);require(sha(q['original_metadata_cohort'])==q['original_metadata_cohort_sha256'] and q['summon_pending_after_cast_action_bounded_seconds']==2,'initial source/pending policy differs');observations.extend(process.original_terminal(row) for row in [initial['pipeline']]+[r['original_process'] for r in initial['compiler_runs']])\n"+needle)
+(T/'readback-native-E149-summon51.py').write_text(s,encoding='utf-8',newline='\n');(out/'receipt.json').write_bytes(encoded(dict(before_files={p.name:sha(p) for p in out.iterdir() if p.is_file()},tests_executed=0,whole_goal_complete=False)));print(out)

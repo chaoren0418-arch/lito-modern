@@ -1,0 +1,8 @@
+{
+  "source": "D:\\lineage\u958b\u767c\\3-lito\u958b\u767c\\lito\u4f3a\u670d\u5668\\LiTo381-Server\\src\\main\\java\\local\\lito381\\server\\RentalEquipmentBonuses.java",
+  "source_sha256": "39DB4A689D061FAA54F992620A83BC83445B6D3CE05A6658194C01E4407EDC61",
+  "formal_jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "deployed": false,
+  "formal_source_modified": false,
+  "candidate_scope": "Detached pure bonus computation; not formal ClientSession qualification"
+}

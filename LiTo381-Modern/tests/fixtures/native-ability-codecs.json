@@ -1,0 +1,7 @@
+{"level_ability_enabled":false,"cases":[
+{"codec":"mageDexterity","seconds":1200,"ability":15,"type":5,"hex":"6cb0040f05"},
+{"codec":"mageDexterity","seconds":0,"ability":10,"type":1,"hex":"6c00000a01"},
+{"codec":"mageDexterity","seconds":513,"ability":127,"type":5,"hex":"6c01027f05"},
+{"codec":"mageStrength","seconds":1200,"ability":18,"weight":50,"type":5,"hex":"6bb004123205"},
+{"codec":"mageStrength","seconds":0,"ability":13,"weight":45,"type":1,"hex":"6b00000d2d01"},
+{"codec":"mageStrength","seconds":513,"ability":127,"weight":255,"type":5,"hex":"6b01027fff05"}],"actual_sessions":0,"actual_casts":0}

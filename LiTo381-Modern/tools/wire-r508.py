@@ -1,0 +1,22 @@
+from pathlib import Path
+p=Path('src/modern_lito/native_city_runtime.rs');s=p.read_text(encoding='utf-8')
+def edit(a,b,count=-1):
+ global s
+ assert a in s,a;s=s.replace(a,b,count)
+edit('#[path="native_login_wire.rs"]pub mod login_wire;', '#[path="native_login_wire.rs"]pub mod login_wire;\n#[path="native_login_bootstrap.rs"]pub mod login_bootstrap;')
+edit('StreamIngress { SeedAccepted','StreamIngress { Bootstrap(login_bootstrap::Change),SeedAccepted')
+edit('pub struct Runtime {startup_host:', 'pub struct Runtime {bootstrap_adapter:Option<login_bootstrap::JavaFixtureAdapter>,login_bootstrap:login_bootstrap::State,last_source_rejection:Option<SourceRejection>,startup_host:')
+edit('Ok(Self{startup_host:', 'Ok(Self{bootstrap_adapter:None,login_bootstrap:login_bootstrap::State::default(),last_source_rejection:None,startup_host:')
+edit('let (next,epoch)=self.source_scope.prepare_begin()?;self.commit_source_boundary(next)?;', 'let (next,epoch)=self.source_scope.prepare_begin()?;self.commit_source_boundary(next)?;self.last_source_rejection=None;')
+edit('self.entry_transfer.retire()?;self.entry_navigation.retire()?;', 'self.login_bootstrap.retire();self.entry_transfer.retire()?;self.entry_navigation.retire()?;')
+edit('self.startup_host=None;self.next_generation()', 'self.startup_host=None;self.bootstrap_adapter=None;self.next_generation()')
+edit('pub fn source_flow(&self)', 'pub fn last_source_rejection(&self)->Option<SourceRejection>{self.last_source_rejection.clone()}\n pub fn source_flow(&self)')
+edit('pub struct StreamEvent', 'pub struct SourceRejection {pub epoch:u64,pub opcode:Option<u8>,pub body_bytes:usize,pub reason:String}\n#[derive(Clone,Debug)]pub struct StreamEvent')
+edit('self.entry_navigation.written(ticket.serial());','self.entry_navigation.written(ticket.serial());self.login_bootstrap.written(ticket.serial());')
+edit('Err(_)=>{let unsupported59=bytes.first()==Some(&59);','Err(error)=>{self.last_source_rejection=Some(SourceRejection{epoch:epoch.serial(),opcode:bytes.first().copied(),body_bytes:bytes.len(),reason:error.to_string()});let unsupported59=bytes.first()==Some(&59);')
+edit('let ingress=if matches!(bytes.first(),Some(243|244|251))','let ingress=if matches!(bytes.first(),Some(0|59|230)){self.consume_source_bootstrap_event(&packet).map(StreamIngress::Bootstrap)}else if bytes.first()==Some(&244)&&self.bootstrap_adapter.is_some()&&self.login_bootstrap.key.stage==login_bootstrap::Stage::AwaitRedirect{let entry_transfer::Packet::Request{slot,address_word,port_word}=entry_transfer::decode(&bytes)? else{unreachable!()};self.redirect_login_bootstrap(slot,address_word,port_word).map(StreamIngress::Bootstrap)}else if matches!(bytes.first(),Some(243|244|251))')
+edit('Err(_)=>{self.retire_source_stream(epoch,source_stream::Terminal::DispatchRefused,&mut batch)?;break;}','Err(error)=>{self.last_source_rejection=Some(SourceRejection{epoch:epoch.serial(),opcode:bytes.first().copied(),body_bytes:bytes.len(),reason:error.to_string()});self.retire_source_stream(epoch,source_stream::Terminal::DispatchRefused,&mut batch)?;break;}')
+edit('};batch.events.push(event);','};batch.events.push(event);if self.source_scope.admit_epoch(epoch).is_err(){break;}')
+edit('let revision=self.source_roster_revision.checked_add(1).context("source roster control revision exhausted")?;', 'if self.bootstrap_adapter.is_some()&&event.body().first()==Some(&3){ensure!(self.login_bootstrap.key.stage==login_bootstrap::Stage::AwaitRoster,"GAME roster requires completed NEWS continuation");self.login_bootstrap.credentials=None;self.login_bootstrap.key.credentials_pending=false;self.login_bootstrap.key.stage=login_bootstrap::Stage::Roster;self.login_bootstrap.key.roster_count=Some(event.body()[1]);}\n  let revision=self.source_roster_revision.checked_add(1).context("source roster control revision exhausted")?;',1)
+edit('presentation::Key{login_form:', 'presentation::Key{bootstrap:self.login_bootstrap.key.clone(),login_form:')
+p.write_text(s,encoding='utf-8')

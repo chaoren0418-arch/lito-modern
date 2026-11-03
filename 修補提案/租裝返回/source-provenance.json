@@ -1,0 +1,33 @@
+{
+  "status": "blocked_candidate_compilation_source_jar_api_mismatch",
+  "source": "D:\\lineage開發\\3-lito開發\\lito伺服器\\LiTo381-Server\\src\\main\\java\\local\\lito381\\server\\ClientSession.java",
+  "source_sha256": "9469E3D27321F89BE4057CCE0634EC4680CB30039ACCD2D8C5E829B2A7F222E7",
+  "candidate_sha256": "985AF5ED2A98736F892B85A4931DAD68E60C4E3BF2FB15D39BCCF6E9023879D0",
+  "scope": "Only staged rental restart/transfer bypasses initial BATTLE dispatch; ordinary battle paths preserved; not a formal JAR update",
+  "utc": "2026-10-13T21:00:47.584850+00:00",
+  "formal_jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "compiled": false,
+  "deployed": false,
+  "live_validation": false,
+  "errors": [
+    {
+      "line": 580,
+      "missing": "CaptureLog.Connection"
+    },
+    {
+      "line": 955,
+      "missing": "CaptureLog.connection(String)"
+    },
+    {
+      "line": 8453,
+      "source_call": "GameHub.selectCharacter(ClientSession,int,String,CharacterSummary)",
+      "jar_signature": "GameHub.selectCharacter(ClientSession,String)"
+    },
+    {
+      "line": 15372,
+      "source_call": "GameHub.selectCharacter(ClientSession,int,String,CharacterSummary)",
+      "jar_signature": "GameHub.selectCharacter(ClientSession,String)"
+    }
+  ],
+  "next": "Resolve matching ClientSession source revision before compiling or running the narrowly guarded dispatch patch. Do not modify unrelated protocol/capture APIs to force compilation."
+}

@@ -1,0 +1,27 @@
+//! R477 exact catalog40 and qualified Native plans. No Shared/fallback aliases.
+use super::{native_resources as r,native_multisector_flow::{Catalog,BoundMap,MapChoice}};
+pub use super::native_offline_preview_resources::Inputs;
+use serde_json::{Value,json};use anyhow::{ensure,Context,Result};use std::path::{Path,PathBuf};
+#[path="../../tools/native-resource-adapter.rs"]mod adapter;
+pub use super::native_multi_map_resources::Entry;
+fn bp(v:&Value)->Result<r::BytePin>{let h=v["sha256"].as_str().context("SHA absent")?;ensure!(h.len()==64,"SHA length");let mut sha256=[0;32];for(i,b)in sha256.iter_mut().enumerate(){*b=u8::from_str_radix(&h[2*i..2*i+2],16)?;}Ok(r::BytePin{bytes:v["bytes"].as_u64().context("bytes")?,sha256})}
+fn read(root:&Path,p:&Value)->Result<Vec<u8>>{let mut p=p.clone();p["namespace"]=json!("MODERN_MULTI_MAP_INPUT");adapter::read_pinned(root,&p,"MODERN_MULTI_MAP_INPUT",256<<20).map_err(|e|anyhow::anyhow!("{e}"))}
+pub fn load(inputs:&Inputs)->Result<(Catalog,Vec<BoundMap>,Vec<Entry>)>{
+ ensure!(inputs.project.is_absolute()&&inputs.manifest.starts_with(&inputs.project),"owned multi map input root");let p=json!({"path":inputs.manifest,"bytes":inputs.manifest_pin.bytes,"sha256":adapter::hex(&inputs.manifest_pin.sha256)});let m:Value=serde_json::from_slice(&read(&inputs.project,&p)?)?;
+ let catalog=Catalog::from_lttext(true,&read(&inputs.project,&m["LTtext_index"])?,&read(&inputs.project,&m["LTtext_pak"])?,bp(&m["LTtext_index"])?,bp(&m["LTtext_pak"])?,bp(&m["table_decoded"])?)?;
+ let original:Value=serde_json::from_slice(&read(&inputs.project,&m["catalog_source"])?)?;let rows=m["catalog40"].as_array().context("catalog40")?;ensure!(rows.len()==40&&rows.as_slice()==original["rows"].as_array().context("original40")?.iter().map(|v|v["original_table"].clone()).collect::<Vec<_>>().as_slice(),"exact R474 forty mode/map records required");
+ let bindings=m["bindings"].as_array().context("binding plans")?;ensure!(!bindings.is_empty()&&bindings.len()<=40,"qualified binding count");let mut maps=Vec::new();
+ for v in bindings{let mode=v["mode"].as_u64().context("mode")?;let id=v["map_id"].as_u64().context("map")?;ensure!(mode<6&&id<=i32::MAX as u64&&rows.iter().any(|r|r["mode"]==mode&&r["map_id"]==id)&&!maps.iter().any(|b:&BoundMap|b.mode==mode as u8&&b.plan.map_id==id as u32),"mode/map plan outside exact catalog or duplicate");
+  ensure!(v["namespace"]=="NATIVE_LITO_LTMAP_V1","Native namespace required");let source_root=PathBuf::from(v["map_root"].as_str().context("map root")?);let archive_root=PathBuf::from(v["archive_root"].as_str().context("archive root")?);ensure!(source_root.is_absolute()&&source_root.starts_with(&inputs.project)&&archive_root.is_absolute()&&archive_root.starts_with(&inputs.project),"owned plan roots");
+  let s=v["sectors"].as_array().context("sectors")?;ensure!(!s.is_empty()&&s.len()<=64,"complete Native sector count");let mut sectors=Vec::new();for s in s{let x=s["x"].as_u64().context("x")?;let y=s["y"].as_u64().context("y")?;ensure!(x<=65535&&y<=65535&&s["map_id"]==id,"exact sector key identity");let expected=source_root.join(id.to_string()).join(format!("{x:04x}{y:04x}.s32"));ensure!(Path::new(s["pin"]["path"].as_str().context("sector pin path")?)==expected,"sector pin/path mismatch");sectors.push(r::SectorPin{key:r::NativeSectorKey{map_id:id as u32,x:x as u16,y:y as u16},pin:bp(&s["pin"])?});}
+  let authority=original["rows"].as_array().unwrap().iter().find(|r|r["logical_map"]==id&&r["mode"]==mode).context("whole-map authority absent")?;
+  let exact=authority["native_sector_files"].as_array().context("complete sector authority")?;
+  ensure!(exact.len()==s.len(),"incomplete Native map sector plan; no partial map preview");
+  for actual in s{let name=Path::new(actual["pin"]["path"].as_str().unwrap()).file_name().context("sector name")?;let expected=exact.iter().find(|p|Path::new(p["path"].as_str().unwrap()).file_name()==Some(name)).context("sector outside full original map")?;ensure!(actual["pin"]["bytes"]==expected["bytes"]&&actual["pin"]["sha256"]==expected["sha256"],"sector differs from full original map authority");}
+  ensure!(sectors.windows(2).all(|p|p[0].key<p[1].key),"canonical sector anchor/order required");
+  let a=v["archives"].as_array().context("archives")?;ensure!(a.len()==4,"four archive roles");let mut archives=Vec::new();for ((a,role),name) in a.iter().zip([r::ArchiveRole::TileIndex,r::ArchiveRole::TilePak,r::ArchiveRole::SpriteIndex,r::ArchiveRole::SpritePak]).zip(["LTtile.idx","LTtile.pak","LTsprite.idx","LTsprite.pak"]){ensure!(Path::new(a["path"].as_str().context("archive path")?)==archive_root.join(name),"archive role/path mismatch");archives.push(r::ArchivePin{role,pin:bp(a)?});}
+  maps.push(BoundMap{mode:mode as u8,sources:r::NativeSources{map_root:source_root,archive_root},plan:r::NativeAssetPlan{namespace:r::ResourceNamespace::NativeLitoV1,map_id:id as u32,canonical_sha256:bp(&json!({"bytes":0,"sha256":v["canonical_sha256"]}))?.sha256,sectors,archives}});
+ }
+ let entries=rows.iter().map(|r|{let mode=r["mode"].as_u64().context("row mode")? as u8;let id=r["map_id"].as_u64().context("row map")? as u32;let choice=catalog.choices().iter().find(|c|c.mode==mode&&c.map_id==id).context("row not in actual LTtext")?.clone();ensure!(r["name"]==choice.name&&r["source_row"]==choice.source_row,"exact table record");let available=maps.iter().any(|b|b.mode==mode&&b.plan.map_id==id);Ok(Entry{choice,available})}).collect::<Result<Vec<_>>>()?;
+ Ok((catalog,maps,entries))
+}

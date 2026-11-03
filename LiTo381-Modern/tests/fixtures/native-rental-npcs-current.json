@@ -1,0 +1,148 @@
+{
+  "jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "npcs": [
+    {
+      "id": 1812987904,
+      "name": "指導員-潘塔休",
+      "resource": 0,
+      "x": 32772,
+      "y": 32836,
+      "role": "GUIDE",
+      "start_html": "Phan_Start",
+      "end_html": "Phan_End_k",
+      "action": "request LTC light jewel"
+    },
+    {
+      "id": 1812987905,
+      "name": "血盟管理員-蘇耳",
+      "resource": 1,
+      "x": 32767,
+      "y": 32825,
+      "role": "EMBLEM",
+      "start_html": "Soul_Start",
+      "end_html": "Soul_End",
+      "action": "request LTC emblem of authority"
+    },
+    {
+      "id": 1812987906,
+      "name": "武器商人-瑪雅",
+      "resource": 2,
+      "x": 32762,
+      "y": 32828,
+      "role": "EMBLEM",
+      "start_html": "Maya_Start",
+      "end_html": "Maya_End",
+      "action": "request LTC emblem of craftsman"
+    },
+    {
+      "id": 1812987907,
+      "name": "首席傳送師-伊奇",
+      "resource": 3,
+      "x": 32775,
+      "y": 32824,
+      "role": "EMBLEM",
+      "start_html": "Ezee_Start",
+      "end_html": "Ezee_End",
+      "action": "request LTC emblem of delight"
+    },
+    {
+      "id": 1812987908,
+      "name": "旅館主人-阿里亞",
+      "resource": 4,
+      "x": 32774,
+      "y": 32832,
+      "role": "EMBLEM",
+      "start_html": "Aria_Start",
+      "end_html": "Aria_End",
+      "action": "request LTC emblem of peace"
+    },
+    {
+      "id": 1812987914,
+      "name": "防具商人-菲佛",
+      "resource": 10,
+      "x": 32758,
+      "y": 32820,
+      "role": "RENTAL_MERCHANT",
+      "start_html": "Paper_start",
+      "end_html": null,
+      "action": null
+    },
+    {
+      "id": 1812987915,
+      "name": "防具商人-克里",
+      "resource": 11,
+      "x": 32762,
+      "y": 32820,
+      "role": "RENTAL_MERCHANT",
+      "start_html": "Click_Start",
+      "end_html": null,
+      "action": null
+    },
+    {
+      "id": 1812987916,
+      "name": "飾品商人-勒夫",
+      "resource": 12,
+      "x": 32766,
+      "y": 32820,
+      "role": "RENTAL_MERCHANT",
+      "start_html": "Love_Start",
+      "end_html": null,
+      "action": null
+    },
+    {
+      "id": 1812987995,
+      "name": "旅館服務生-席巴",
+      "resource": 91,
+      "x": 32780,
+      "y": 32832,
+      "role": "HOTEL_SERVICE",
+      "start_html": "inn",
+      "end_html": null,
+      "action": null
+    },
+    {
+      "id": 1812987996,
+      "name": "傳送師-尤依琳",
+      "resource": 92,
+      "x": 32778,
+      "y": 32820,
+      "role": "TELEPORT_SERVICE",
+      "start_html": "TeleportMe",
+      "end_html": null,
+      "action": null
+    },
+    {
+      "id": 1812987997,
+      "name": "傳送師-艾恩",
+      "resource": 93,
+      "x": 32782,
+      "y": 32820,
+      "role": "TELEPORT_SERVICE",
+      "start_html": "TeleportMe",
+      "end_html": null,
+      "action": null
+    },
+    {
+      "id": 1812987998,
+      "name": "傳送師-尤蘿雅",
+      "resource": 94,
+      "x": 32782,
+      "y": 32824,
+      "role": "TELEPORT_SERVICE",
+      "start_html": "TeleportMe",
+      "end_html": null,
+      "action": null
+    },
+    {
+      "id": 1812987999,
+      "name": "傳送師-阿霞",
+      "resource": 95,
+      "x": 32782,
+      "y": 32828,
+      "role": "TELEPORT_SERVICE",
+      "start_html": "TeleportMe",
+      "end_html": null,
+      "action": null
+    }
+  ]
+}

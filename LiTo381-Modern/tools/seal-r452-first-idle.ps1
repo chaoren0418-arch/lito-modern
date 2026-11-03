@@ -1,0 +1,36 @@
+param([string]$Revision='r452a')
+$ErrorActionPreference='Stop'
+$project=Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'evidence-json.ps1')
+$logs=Join-Path $project 'logs\continuation-20261003'
+function Pin($p){[ordered]@{path=$p;bytes=(Get-Item $p).Length;sha256=(Get-FileHash $p).Hash}}
+function Check($p){if((Get-FileHash $p.path).Hash -ne $p.sha256 -or ($p.bytes -and (Get-Item $p.path).Length -ne $p.bytes)){throw ('Pin drift: '+$p.path)}}
+$cp=Join-Path $logs 'r452-candidate.json';$c=Get-Content $cp -Raw|ConvertFrom-Json;Check $c
+foreach($p in $c.source_pins){Check $p;if((Get-FileHash $p.snapshot).Hash -ne $p.sha256){throw 'Snapshot drift'}}
+$build=@(Get-Content (Join-Path $logs "$Revision-library-build.jsonl")|ForEach-Object{try{$_|ConvertFrom-Json}catch{}})
+if(-not @($build|Where-Object{$_.reason -eq 'build-finished' -and $_.success}).Count){throw 'Library failed'}
+$libs=@($build|Where-Object{$_.reason -eq 'compiler-artifact' -and $_.target.name -eq 'lito_modern'}|ForEach-Object{$_.filenames}|Where-Object{$_ -like '*.rlib'})
+if($libs.Count -ne 1){throw 'Library count'}
+$lib=Join-Path (Split-Path $c.path -Parent) 'r452-production.rlib';if(Test-Path $lib){throw 'Already sealed'};[IO.File]::Copy($libs[0],$lib,$false);if((Get-FileHash $lib).Hash -ne (Get-FileHash $libs[0]).Hash){throw 'Library drift'}
+$c|Add-Member production_library (Pin $lib)
+$test=Join-Path $logs "$Revision-consumer.stdout.log";if([IO.File]::ReadAllText($test) -notmatch '1 passed; 0 failed; 0 ignored;'){throw 'Focused test failed'}
+$dp=Join-Path $logs 'r452-idle-details.json';$d=Get-Content $dp -Raw|ConvertFrom-Json
+if($d.CPU_frames -ne 8 -or $d.rows.Count -ne 8 -or $d.rows[6].bank -ne 72 -or $d.rows[7].action -ne 49 -or $d.rows[7].bank -ne 80 -or $d.rows[7].subframe -ne 0 -or $d.rows[7].dispatch_ms -ne 2469 -or $d.rows[7].next_due_ms -ne 2637 -or $d.missing_callback_or_clock_cases -ne 19 -or $d.missing_draw_cases -ne 5 -or $d.missing_terrain_cases -ne 3 -or $d.next_idle_continuation_executed -or $d.event_dispatch_executed -or $d.runtime_inputs_observed -or $d.private_live_owner_qualified -or $d.renderer_LOADED){throw 'First idle finite scope differs'}
+foreach($p in $d.images){Check $p}
+$ap=Join-Path $logs 'r452-original-source-pins.json';$asm=Get-Content $ap -Raw|ConvertFrom-Json;Check $asm.original_disassembly;$text=[IO.File]::ReadAllText($asm.original_disassembly.path)
+foreach($p in $asm.files){Check $p;if(!$text.Contains([IO.File]::ReadAllText($p.path))){throw 'ASM not exact'}}
+$sp=Join-Path $logs 'r439-appearance-snapshot.json';$snap=Get-Content $sp -Raw|ConvertFrom-Json;$mp=Join-Path $snap.candidate.root 'manifest.json';if((Get-FileHash $mp).Hash -ne $snap.candidate.manifest_sha256){throw 'Manifest drift'}
+$resources=@(foreach($name in $d.input_pins.PSObject.Properties.Name){$p=Pin (Join-Path $snap.candidate.root $name);if($p.sha256 -ne $d.input_pins.$name.sha256 -or $p.bytes -ne $d.input_pins.$name.bytes){throw 'Resource drift'};$p.relative_path=$name;$p})
+foreach($p in $d.extra_input_pins){Check $p}
+$history=@(foreach($name in @('r447','r448','r449','r450','r451')){$p=Join-Path $logs "$name-candidate.json";$old=Get-Content $p -Raw|ConvertFrom-Json;Check $old;Check $old.production_library;foreach($source in $old.source_pins){if((Get-FileHash $source.snapshot).Hash -ne $source.sha256){throw 'Historical source snapshot drift'}};Pin $p})
+& (Join-Path $PSScriptRoot 'audit-continuation-source-scope.ps1')
+$scopePath=Join-Path (Split-Path $c.path -Parent) 'source-change-scope-520.json';[IO.File]::Copy((Join-Path $logs 'source-change-scope.json'),$scopePath,$false)
+$c.validation='PASSED finite conditional attack-owned idle49 first callback; one focused test, eight reviewed CPU images; no live authority'
+Write-ModernEvidenceJson -Path $cp -Value $c
+$claims=@('One private finite study message is created only by the same Replay attack47 end; opcode32/action49 queued due2469, then first idle frame1 bank80/sub0 dispatch2469.','Original4D6570 removes timer before callback;4E85F0 pops first message;4E9300 null68 branch and4E45F0 neutral/direct49 branch explicitly conditional, prior draw unlink and postload globals explicit.','Original4E45F0 reset0 then4E5B50 increment1; catalog frame0 bank80/sub8 preserved, not displayed as generic zero skip. Selected frame1 ticks4/FPS24 =>166+2; fresh4D65F0 sample2469 produces2637 expected/scheduled clock; late2499/new2506 preview2674.','19missing/early callback-clock cases,5missing draw,3missing terrain plus wrong bank/full revision refuse with queue unchanged. Eight frames actual Native564 floor/object CPU interleaving; only first idle step then stop.','Assumed actor+4 zero is an explicit callback branch byte, never inferred from character Type3. Full historical binding is offline identity; no producer-private live owner/override authority or event dispatch/natural idle loop/full roof/Layer8/GUI grant.')
+$result=Join-Path $logs 'r452-finite-renderer-result.json'
+Write-ModernEvidenceJson -Path $result -Value ([ordered]@{state='PASSED_FINITE_CONDITIONAL_FIRST_IDLE49';checked_at=[DateTimeOffset]::Now.ToString('o');candidate=$c;focused_passed=1;focused_failed=0;test=Pin $test;details=Pin $dp;ASM=Pin $ap;original_fragments=$asm.files.Count;selected_resources=$resources;extra_inputs=$d.extra_input_pins;images=$d.images;visual_reviewed=$true;historical_preserved=$history;immutable_source_scope=Pin $scopePath;claims=$claims;source_files=520;renderer_LOADED=$false;GUI=0;original_BIN_executed=$false;live_owner_qualified=$false;overall_status='in_progress'})
+$handoff=Join-Path $logs 'Native-appearance-R452第一個待機callback與真地形交接.txt';[IO.File]::WriteAllText($handoff,($claims -join "`r`n")+"`r`nResult: $result`r`n$($c.source_pins.Count) source / $($asm.files.Count) full ASM / $($resources.Count) appearance inputs / 6 terrain inputs. LOADEDfalse/GUI0/16of40;R408 unchanged. Roof alias/state/timer and Layer8 event source chain continue next.",[Text.UTF8Encoding]::new($false))
+Write-ModernEvidenceJson -Path (Join-Path $logs 'r452-final-verification.json') -Value ([ordered]@{result=Pin $result;candidate=Pin $cp;host=Pin $c.path;library=Pin $lib;handoff=Pin $handoff;details=Pin $dp;immutable_scope=Pin $scopePath;source_snapshots=$c.source_pins.Count;images=$d.images;visual_reviewed=$true;renderer_LOADED=$false;GUI=0})
+$statusPath=Join-Path (Split-Path $project -Parent) '監製進度.json';$status=Get-Content $statusPath -Raw|ConvertFrom-Json;$status.updated_at=[DateTimeOffset]::Now.ToString('o');$status.phase='R452_first_idle_callback_passed_roof_Layer8_source_chain_in_progress';$status.current_task='R452 one focused passed24.73sec;finite attack47→end72→owned queued firstidle49 bank80/sub0 onNative564 eightCPU images viewed. Explicit callback/queue/clock/pointer conditions;27missing/early cases+wrongbank/revision do not consumequeue. Freshclock2469→2637,late2499/new2506→2674preview. 61source/17ASM/12appearance+6terrain pins;520src immutable audit, R408/history retained. Continue native roof alias/state/timer and Layer8/event qualified finite source branch. LOADEDfalse/GUI0/16of40.';$status|Add-Member r452_finite_renderer (Pin $result) -Force;Write-ModernEvidenceJson -Path $statusPath -Value $status
+Write-Output "R452 sealed: $($c.source_pins.Count) source, $($resources.Count) resource inputs, eight CPU images"

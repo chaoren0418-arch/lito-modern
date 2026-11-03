@@ -1,0 +1,20 @@
+{
+  "status": "prepared_unexecuted_completed_child_reader",
+  "base": "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\qualify-native8CC5-teleport-audio.py",
+  "base_sha256": "1188F74536BC64E03B4D2738322BD18FC1D64241CF8440FE9568101B35289827",
+  "reader": "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\qualify-native8CC5-audio-completed-Release-child.py",
+  "reader_sha256": "FB2F0F5CBA9024431712B0D2C381046A324672C5240D389A5965FCD7AC4F9B76",
+  "changes": [
+    "Require the recorded child process birth, exit0 and exact stdout path within a parent whose observed terminal is exit1.",
+    "Keep the parent failure and exit1 explicit in the qualification.",
+    "For shared-battle heal C14/S37, require ordering after the same peer F4 and matching actor, without an invalid upper bound at the other peer source C1F."
+  ],
+  "underlying_native_inputs_or_assertions_changed": false,
+  "product_runtime_reexecuted": false,
+  "preserved_reader_archive_failure": {
+    "tool_chunk": "5965eb",
+    "observed_exit_code": 1,
+    "previous_reader_sha256": "ED1B00CBC8D76AAD2AA5DC9DF7C9B2A0B1D034C2D0B4068EE7A26AD20F9314C4",
+    "error": "Global option key overwrote the parent case label with strip during archive assembly; native/protocol checks had completed, qualification was not granted."
+  }
+}

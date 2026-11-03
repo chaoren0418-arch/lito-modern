@@ -1,0 +1,10 @@
+
+#[cfg(test)]mod massslow76_definition_development_tests {
+ use super::*;
+ const RAW:&[u8]=include_bytes!(r"D:\lineage開發\3-lito開發\lito重建版\驗證紀錄\current\native-E149-greater75-massslow76-inspection\20261024-170921-768554\3932.definition.txt");
+ fn catalog(raw:&[u8])->SpriteActionCatalog{SpriteActionCatalog::parse_for_inspection(&[b"11297 0 0\n".as_slice(),raw].concat(),super::super::sprite_actions::ActionLimits::default()).unwrap()}
+ fn animation()->Animation{qualify_massslow76(&catalog(RAW)).unwrap()}
+ #[test]fn original_thirteen_frames_keep_overlap1349_at_source_two_and_no_Hit(){let a=animation();assert_eq!(a.frames.len(),13);assert_eq!(a.frames[0].subframe,12);let classified=super::super::combat_animation::classify_native_cues(&a.frames[2].events).unwrap();assert!(classified.non_audio.is_empty());let group=classified.audio.unwrap();assert_eq!(group.candidates(),&[1349]);assert_eq!(group.mode,super::super::combat_animation::NativeAudioMode::AllowOverlappingVoices);assert!(a.frames.iter().flat_map(|f|&f.events).all(|e|matches!(e,FrameEvent::Effect(1349))));}
+ #[test]fn changed_class_audio_blend_or_terminal_timing_are_rejected(){let s=String::from_utf8(RAW.to_vec()).unwrap();for(a,b)in[("<1349","[1349"),("109.effect(1 -1)","109.effect(0 -1)"),("104.attr(8)","104.attr(128)"),("0.11:7","0.11:6")]{assert!(s.contains(a));assert!(qualify_massslow76(&catalog(s.replace(a,b).as_bytes())).is_err());}}
+ #[test]fn clock_uses166ms_overlap_and2451ms_visual_independent_of_server64seconds(){let clip=super::super::native_effect_timing::Clip::new(std::sync::Arc::new(animation())).unwrap();let mut p=clip.start();let mut s=p.advance(0).unwrap();let(mut audio,mut at)=(vec![],0);while !s.finished{for c in &s.crossed_cues{if c.event==FrameEvent::Effect(1349){audio.push(at);}}at=p.next_callback_millis().unwrap();s=p.advance(at*1_000_000).unwrap();}assert_eq!(audio,vec![166]);assert_eq!(at,2451);assert_eq!(s.source_frame,0);let mut p=clip.start();p.advance(0).unwrap();assert_eq!(p.advance(1_000_000_000).unwrap().source_frame,2);assert_eq!(p.next_callback_millis(),Some(1166));}
+}

@@ -1,0 +1,7 @@
+# 召喚跨poll拒絕守衛修正
+
+原初版的summon-only observer能在同次poll看見晚於action的353／743，但controller仍按共用規則於CastAction立即清pending，下一次poll的拒絕會失去關聯。此問題由來源審查發現；沒有執行測試，也不將原metadata成功當行為正確。
+
+保留原四檔候選與完整18metadata批次，修正版只另寫controller：召喚CastAction保留pending，直到既有自請求since起兩秒觀測窗、權威拒絕或退役。沒有延長deadline；其他技能原CastAction終止策略不改。兩秒內不可重送，避免拒絕跨新請求誤歸屬；逾窗僅保留已到CastAction回饋，不宣稱companion成功。
+
+補兩個純controller QA來源，使用空transport的兩次poll，涵蓋353／743／319跨poll拒絕、三秒既有邊界、其他技能及generation退役。僅寫入並編譯，本文全未執行。新12純QA＋前214共226案皆未跑，非inventory或通過數。其餘31選項、七byte請求、非modal下拉選單及完整owner／InputStamp與原六nested target維持原分支；修正版必須全部18metadata重新編譯，不移記原批次。原來源／範圍見native-E149-summon51.md。

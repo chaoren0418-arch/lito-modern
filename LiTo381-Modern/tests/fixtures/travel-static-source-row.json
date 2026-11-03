@@ -1,0 +1,13 @@
+{
+  "source": "D:\\lineage開發\\1-伺服器\\db\\380_db.sql",
+  "source_sha256": "653CF57F37F8D17EF6AF0ED35F513DFCEA7711372A0CA7CF1903DCDA0C3A2F0D",
+  "ddl_sha256": "E37C358B01FFA47049FBFAD5E45395CA427C6BD321151F0694C5C65C9B3B31B0",
+  "row_sha256": "2E904361C6E85DFD4B4B96999C63985A0594E3C446D6D98328D22E0B20A5163D",
+  "row": "INSERT INTO `etcitem` VALUES (NULL, 42501, 'GM瞬間移動', 'wand.Storm_Walk', 'GM瞬間移動', 'wand', 'spell_long', 'paper', 0, 828, 11, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 127);",
+  "catalog_id": 42501,
+  "item_name": "GM瞬間移動",
+  "classname": "wand.Storm_Walk",
+  "use_type": "spell_long",
+  "invgfx": 828,
+  "test_scope": "only source static etcitem row imported; no player tables"
+}

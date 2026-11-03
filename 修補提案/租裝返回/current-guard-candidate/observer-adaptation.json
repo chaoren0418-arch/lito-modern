@@ -1,0 +1,9 @@
+{
+  "original_sha256": "C3AD29EAE6F0F0B8C24276B97D46C81969416AD9BEC78AFDBF150755AD3E921D",
+  "adapted_sha256": "11BEAB53A77C6B7173189B0C413929550E879734B615BAB58AEA4CA7B3064D88",
+  "scope": "Read-only observer adds test account and stable in-process session identity to distinguish role identity while character state retires; initial fixtures and every actual session action unchanged",
+  "authority_mutation": false,
+  "first_attempt_error": "Before authentication account is null; added null-safe diagnostic label. Failed run 20261013-212350-345-review-candidate retained; no gameplay conclusion.",
+  "previous_adapted_sha256": "DF1B1AAC43F2A577E1BD4E20FAEC2C6521819129468891290F443490A6A9E161",
+  "additional_scope": "Optional test-owned request files trigger fresh passive snapshots; no mutation or protocol response injection."
+}

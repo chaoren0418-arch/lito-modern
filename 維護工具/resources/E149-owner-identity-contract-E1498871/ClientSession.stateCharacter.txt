@@ -1,0 +1,7 @@
+  private java.lang.String stateCharacter();
+    Code:
+       0: aload_0
+       1: aload_0
+       2: invokevirtual #5584               // Method playerName:()Ljava/lang/String;
+       5: invokevirtual #11195              // Method stateCharacter:(Ljava/lang/String;)Ljava/lang/String;
+       8: areturn

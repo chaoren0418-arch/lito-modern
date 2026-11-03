@@ -1,0 +1,1 @@
+{"schema":1,"jar_sha256":"bbc59308c43df89ee5029d3b3c802be8ad55fee65c41faca99a76912dd5dce43","packets":{"request":"140701df7f2080","boundary":"140701ffff0000","cast":"200100000012","direction":"1c0100000003","effect":"53df7f2080a800","book":"1e080000000000000002","mana":"4d3c007800"},"lease":{"segments":8,"first_pulses":2,"late_pulses":2,"expires_ns":10000000000}}

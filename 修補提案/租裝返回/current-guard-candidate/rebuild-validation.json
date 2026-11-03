@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-13T21:47:05.550391+00:00",
+  "status": "reconstructed_identical_jar_and_Xverify_all_passed",
+  "output": "LiTo381-Modern/target/current/rental-return-review-build/d1735840f8704f70b1e4ac91a85bf62c/rental-return-review-candidate.jar",
+  "sha256": "6887A337E347D561366E0EB7EB8E93A2B7EA03ADD7A3888FC4BE2B70C3479DA7",
+  "unchanged_other_methods": 2148,
+  "changed_entries": [
+    "local/lito381/server/ClientSession.class"
+  ],
+  "declared_class_methods": 2147,
+  "formal_deployed": false
+}

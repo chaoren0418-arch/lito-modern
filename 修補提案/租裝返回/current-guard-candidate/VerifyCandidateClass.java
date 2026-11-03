@@ -1,0 +1,1 @@
+public final class VerifyCandidateClass {public static void main(String[] a)throws Exception {Class<?> c=Class.forName("local.lito381.server.ClientSession",false,VerifyCandidateClass.class.getClassLoader());System.out.println("Verified class methods="+c.getDeclaredMethods().length+" source="+c.getProtectionDomain().getCodeSource().getLocation());}}

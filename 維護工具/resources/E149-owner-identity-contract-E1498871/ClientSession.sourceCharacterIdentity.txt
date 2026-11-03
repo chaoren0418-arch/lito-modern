@@ -1,0 +1,5 @@
+  java.lang.String sourceCharacterIdentity();
+    Code:
+       0: aload_0
+       1: invokevirtual #4562               // Method stateCharacter:()Ljava/lang/String;
+       4: areturn

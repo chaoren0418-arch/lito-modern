@@ -1,0 +1,20 @@
+{
+  "reference_jar_sha256": "C02AAAE8D54A27E30460BE2E3C47709EE64D35F007A8BE27AC74A327268B9539",
+  "captured_actor": "0b1e81517efc040064650300050e000000000000002437343800000000000000000000ff000000ffff00",
+  "row": {
+    "actions": [],
+    "attributes": "[OpaqueAttribute { key: ActionKey { id: 102, variant: None }, label_bytes: [116, 121, 112, 101], body_bytes: [49, 50] }, OpaqueAttribute { key: ActionKey { id: 104, variant: None }, label_bytes: [97, 116, 116, 114], body_bytes: [49] }]",
+    "graphics": 869,
+    "header": "#869  1       mother of elves     102.type(12) 104.attr(1)",
+    "id": 869
+  },
+  "sprite": {
+    "archive": "Sprite",
+    "member": "869-0.spr",
+    "offset": 940577456,
+    "bytes": 1569,
+    "sha256": "7C987511C72730D61347128CD0978137112AE25942327F301E44B8AF50C775E5",
+    "header": "ff76010047310519cb41a210052989392d4ee718620ca41cec492629081d893d"
+  },
+  "scope": "type12 one-image no-animation body; attr104=1 semantics and full native draw flags remain unqualified"
+}

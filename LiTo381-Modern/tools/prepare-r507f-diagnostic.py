@@ -1,0 +1,10 @@
+from r491_common import *
+s=(P/'tools/r507e-host-consumer.rs').read_text(encoding='utf-8').replace('r507e-event','r507f-event')
+s=s.replace('fn expect(s: &mut TcpStream, v: &Value) {','fn expect(s: &mut TcpStream, v: &Value) {\n eprintln!("EXPECT {} {:?}",s.local_addr().unwrap(),v["plain"]);')
+s=s.replace('assert_eq!(raw, bytes(&v["wire"]));','assert_eq!(raw, bytes(&v["wire"]));eprintln!("EXPECTED {} {:?}",s.local_addr().unwrap(),v["plain"]);')
+s=s.replace('fn write_wait(r:&mut Runtime,m:&mut Metrics,e:&Endpoint,count:usize){','#[track_caller]fn write_wait(r:&mut Runtime,m:&mut Metrics,e:&Endpoint,count:usize){eprintln!("WAIT count={} caller={} nav={:?} TX={:?}",count,std::panic::Location::caller(),r.source_navigation_snapshot(),r.source_send_snapshot());')
+s=s.replace('for _ in 0..count{sent(e);}}','eprintln!("WRITTEN count={} nav={:?}",count,r.source_navigation_snapshot());for _ in 0..count{sent(e);}eprintln!("ACKED count={}",count);}')
+s=s.replace('Duration::from_secs(20)).unwrap(){','Duration::from_secs(35)).unwrap(){')
+(P/'tools/r507f-host-consumer.rs').write_text(s,encoding='utf-8')
+s=(P/'tools/build-r507e-consumer.ps1').read_text(encoding='utf-8').replace('r507e','r507f');(P/'tools/build-r507f-consumer.ps1').write_text(s,encoding='utf-8')
+save(L/'r507-fourth-attempt-preserved.json',dict(candidate=read(L/'r507e-consumer-candidate.json'),stdout=pin(L/'r507e-consumer.stdout.log'),stderr=pin(L/'r507e-consumer.stderr.log'),exit=Path(L/'r507e-consumer.exit.txt').read_text(),reason='still unresolved fixture wait; new diagnostic keeps fixed production library unchanged; not a successful Back claim'))

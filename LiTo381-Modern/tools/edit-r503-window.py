@@ -1,0 +1,20 @@
+from r491_common import *
+p=P/'src/modern_lito/native_city_window.rs';s=p.read_text(encoding='utf-8')
+def sub(a,b):
+ global s
+ assert s.count(a)==1,(a[:90],s.count(a));s=s.replace(a,b)
+sub('SourceCharacterBack,source_character_command_slot','SourceCharacterBack,SourceLobbyBack,entry_navigation::Scene as NavigationScene,source_character_command_slot')
+sub('struct State {login_control:','struct State {lobby_back:RefCell<Option<SourceLobbyBack>>,login_control:')
+sub('State{login_control:','State{lobby_back:RefCell::new(None),login_control:')
+sub(' *s.character_back.borrow_mut()=',' *s.lobby_back.borrow_mut()=s.runtime.borrow().as_ref().and_then(Runtime::source_lobby_back);\n let navigation=s.runtime.borrow().as_ref().unwrap().source_navigation_snapshot();let navigation_active=navigation.scene!=NavigationScene::Dormant;let lobby=navigation.scene==NavigationScene::Lobby;\n *s.character_back.borrow_mut()=')
+sub('label(c[TITLE],if entry{"LiTo Modern"}','label(c[TITLE],if entry&&lobby{"LiTo Modern · 大廳"}else if entry{"LiTo Modern"}')
+sub('label(c[INFO],if entry&&s.runtime','label(c[BACK],if lobby{"返回頻道（尚未開放）"}else{"返回"});\n label(c[INFO],if entry&&lobby{"已收到大廳回包。大廳功能與返回頻道尚未開放。"}else if entry&&navigation_active{"等待進入結果…"}else if entry&&s.runtime')
+sub('NETWORK|OFFLINE=>entry&&!login_active','NETWORK|OFFLINE=>entry&&!login_active&&!navigation_active')
+sub('BACK=>!entry||roster||login_active','BACK=>!entry||roster||login_active||navigation_active')
+sub('NETWORK=>page==UiPage::Menu&&!roster','NETWORK=>page==UiPage::Menu&&!roster&&!navigation_active')
+sub('SOURCE_ENTRY=>entry&&!login_active&&','SOURCE_ENTRY=>entry&&!login_active&&!navigation_active&&')
+sub('BACK=>(login_active','BACK=>!navigation_active&&((login_active')
+sub('||s.character_back.borrow().is_some(),_=>true','||s.character_back.borrow().is_some()),_=>true')
+sub('unsafe fn back(hwnd:HWND,s:&State){','unsafe fn back(hwnd:HWND,s:&State){if s.screen.get()==Screen::Entry&&s.runtime.borrow().as_ref().is_some_and(|r|r.source_navigation_snapshot().scene!=NavigationScene::Dormant){let control=s.lobby_back.borrow().clone();let result=control.as_ref().ok_or_else(||anyhow::anyhow!("正在等待進入結果；可按結束離開")).and_then(|c|s.runtime.borrow_mut().as_mut().unwrap().handle_player_entry_command(EntryCommand::BackLobby(c)));if let Err(e)=result{label(s.controls.get()[STATUS],&e.to_string());}else{refresh(hwnd,s);}return;}')
+sub('if s.screen.get()==Screen::Entry{if let Some((w,h,rgba))=image','if s.screen.get()==Screen::Entry&&s.runtime.borrow().as_ref().is_some_and(|r|r.presentation_key().character_ui.active){if let Some((w,h,rgba))=image')
+p.write_text(s,encoding='utf-8')

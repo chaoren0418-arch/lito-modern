@@ -1,0 +1,9 @@
+#[cfg(test)]mod sleep66_definition_development_tests {
+ use super::*;
+ const RAW:&[u8]=include_bytes!(r"D:\lineage開發\3-lito開發\lito重建版\驗證紀錄\current\native-E149-storm65-sleep66-inspection\20261024-134253-376985\760.definition.txt");
+ fn catalog(raw:&[u8])->SpriteActionCatalog {SpriteActionCatalog::parse_for_inspection(&[b"11297 0 0\n".as_slice(),raw].concat(),super::super::sprite_actions::ActionLimits::default()).unwrap()}
+ fn qualified()->Animation {qualify_one(&catalog(RAW),SPECS.iter().find(|s|s.sprite==760).unwrap()).unwrap()}
+ #[test]fn sleep_original_has_twenty_one_frames_sound136_and_screen_attribute(){let a=qualified();assert_eq!(a.directionality,Directionality::Undirected);assert_eq!(a.frames.len(),21);assert_eq!(a.frames[0].subframe,20);assert_eq!(a.frames[1].events,vec![FrameEvent::Sound(136)]);assert!(a.frames.iter().all(|f|f.duration_ticks==6));assert!(a.frames.iter().flat_map(|f|&f.events).all(|e|matches!(e,FrameEvent::Sound(136))));}
+ #[test]fn changed_sleep_audio_timing_or_blend_is_rejected_without_fallback(){let text=String::from_utf8(RAW.to_vec()).unwrap();let spec=SPECS.iter().find(|s|s.sprite==760).unwrap();for(x,y)in[("[136","<136"),("0.10:6","0.10:5"),("104.attr(8)","104.attr(128)")]{assert!(text.contains(x));assert!(qualify_one(&catalog(text.replace(x,y).as_bytes()),spec).is_err());}}
+ #[test]fn finite_sleep_visual_ends_at5250ms_and_late_poll_does_not_catch_up(){let clip=super::super::native_effect_timing::Clip::new(std::sync::Arc::new(qualified())).unwrap();let mut p=clip.start();let mut s=p.advance(0).unwrap();assert_eq!(s.source_frame,1);let mut now=0;while !s.finished{now=p.next_callback_millis().unwrap();s=p.advance(now*1_000_000).unwrap();}assert_eq!(now,5250);assert_eq!(s.source_frame,0);let mut p=clip.start();p.advance(0).unwrap();assert_eq!(p.advance(10_000_000_000).unwrap().source_frame,2);assert_eq!(p.next_callback_millis(),Some(10250));}
+}

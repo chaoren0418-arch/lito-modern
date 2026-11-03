@@ -1,0 +1,7 @@
+{
+  "reference_sha256": "C02AAAE8D54A27E30460BE2E3C47709EE64D35F007A8BE27AC74A327268B9539",
+  "case": "驗證紀錄/current/travel-sql/20261014-162514-914",
+  "packet": "0F 09 B8 D3 AE 79 BC D0 A4 77 A6 B3 B3 E6 A6 EC A9 CE BB D9 C3 AA AA AB A1 41 A5 BC B0 F5 A6 E6 B6 C7 B0 65 A1 43 00",
+  "note": "S_MESSAGE type=9 gm-command-result",
+  "scope": "actual initial TestKnight SQL42501 target rejection; no successful portal in this case"
+}

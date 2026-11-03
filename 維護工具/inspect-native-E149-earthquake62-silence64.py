@@ -1,0 +1,35 @@
+"""Static E149 centered earthquake and silence material branches; no game execution."""
+from pathlib import Path
+from datetime import datetime,timezone
+import json,re,zipfile,capstone
+from native_E149_recovery_contract import R,P,SOURCE,FORMAL,read,sha,encoded,require
+from native_E149_classfile_bootstraps import bootstraps
+from native_E149_classfile_scan import parse,instructions
+T=R/'維護工具';V=R/'驗證紀錄/current'
+def methods(p):
+ s=Path(p).read_text('utf-8-sig');hs=list(re.finditer(r'^  [^ \n].*\([^\n]*\)[^\n]*;\s*$',s,re.M));return [(h.group().strip(),s[h.start():hs[i+1].start() if i+1<len(hs) else len(s)]) for i,h in enumerate(hs)]
+def inspect():
+ w=read(R/'工作佇列.json');ref=w['current_E149_finite_history_development'];require(sha(ref['qualification'])==ref['qualification_sha256'] and w['current_user_requested_goal']['test_execution_deferred_by_user'] and not w['active_workloads'] and not w['active_workload_sessions'],'development-only predecessor differs');q=read(ref['qualification']);out=V/'native-E149-earthquake62-silence64-inspection'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f');out.mkdir(parents=True)
+ session=V/'native-formal-reference-refresh/20261023-192435-953238/ClientSession.stdout.txt';require(sha(session)=='DE8F393A4E77FF15478DDE258E45E14F680EC9C15BC7FADDF3D5F33B7A333B25','ClientSession differs');names=['useCenteredAreaAttackSpell','useClassicWorldCenteredAreaAttackSpell','useSilenceSpell','useClassicWorldSilenceSpell','nativeMaterialSilenceBody','nativeMaterialWorldSilenceBody','lambda$useSilenceSpell$248','lambda$useClassicWorldSilenceSpell$246','lambda$useClassicWorldSilenceSpell$247'];selected={name:s for h,s in methods(session) for name in names if ' '+name+'(' in h};require(len(selected)==9,'method set differs')
+ for name,s in selected.items():(out/(name+'.txt')).write_text(s,encoding='utf-8',newline='\n')
+ for name in ['useCenteredAreaAttackSpell','useClassicWorldCenteredAreaAttackSpell']:require('Protocol.selectorOnlySpellRequest:' in selected[name] and 'Protocol.attackMany:' in selected[name],'centered request differs')
+ for name,checks in [('nativeMaterialSilenceBody',{1:'Protocol.attackSpellRequest:',1629:'NativeSilenceMaterialAction.admit:',2109:'BattleTimedStatus.activateSilence:',2200:'Protocol.effectObject:'}),('nativeMaterialWorldSilenceBody',{1:'Protocol.attackSpellRequest:',1484:'NativeSilenceMaterialAction.admit:',1955:'BattleTimedStatus.activateSilence:',2032:'Protocol.effectObject:'})]:
+  for at,text in checks.items():require(re.search(r'^\s*'+str(at)+r':[^\n]*'+re.escape(text),selected[name],re.M),'silence offset differs '+str(at))
+ jar=P/'target/current/server-reference/formal-server-E1498871.jar';require(sha(jar)==FORMAL and sha(w['current_formal_reference_identity']['formal'])==FORMAL,'formal differs')
+ with zipfile.ZipFile(jar) as z:
+  _,indys=bootstraps(z.read('local/lito381/server/ClientSession.class'));raw=z.read('local/lito381/server/NativeSilenceMaterialAction.class');c=parse(raw);rows=[dict(name=m['name'],descriptor=m['descriptor'],instructions=instructions(m['code']['bytes'],c['cp'])) for m in c['methods'] if m['code']]
+ refs={int(i) for name in ['nativeMaterialSilenceBody','nativeMaterialWorldSilenceBody'] for i in re.findall(r'invokedynamic\s+#(\d+),[^\n]*Predicate;',selected[name])};bindings={str(i):indys[i] for i in refs};require(any(any(m['name']=='lambda$useSilenceSpell$248' for m in b['method_handles']) for b in bindings.values()) and any(any(m['name']=='lambda$useClassicWorldSilenceSpell$246' for m in b['method_handles']) for b in bindings.values()),'effective target bootstrap differs');(out/'target-bootstraps.json').write_bytes(encoded(bindings));(out/'NativeSilenceMaterialAction-Code.json').write_bytes(encoded(rows))
+ text=Path('D:/lineage開發/3-lito開發/lito脫殼資源/resources/decoded/Text/row15937-list.spr');require(sha(text)=='523C61AD5CC362A56A36F58B262C84EFA8B4435F017E7074D35B5834E8B9F127','Text differs');data=text.read_bytes();defs={}
+ for id in [1812,1813,1814,2177]:
+  m=re.search(rb'(?m)^#'+str(id).encode()+rb'[ \t]+.*?(?=^#|\Z)',data,re.S|re.M);require(m is not None,'raw definition absent');p=out/(str(id)+'.definition.txt');p.write_bytes(m.group());defs[str(id)]=dict(path=str(p),sha256=sha(p))
+ pe=Path('D:/lineage開發/3-lito開發/lito登入器/舊版分析與驗收/runtime/LiTo.unpacked-oep-current.exe');require(sha(pe)=='4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9','analysis PE differs');source=V/'native-E149-blizzard59-inspection/20261024-115029-671040/start.bin';require(sha(source)=='6937E97AE98ACA01232582E90F70DBD2BA2D656D92E92837105A233B6A318A77','original start bytes differ');raw=source.read_bytes();md=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_32);code={i.address:i for i in md.disasm(raw,0x44f350)};pc=0x44f370;trace=[];equal=None
+ while pc!=0x45001a:
+  require(len(trace)<40 and pc in code,'compare chain exceeded');i=code[pc];trace.append(dict(address=pc,hex=i.bytes.hex(),mnemonic=i.mnemonic,operands=i.op_str));next_pc=pc+i.size
+  if i.mnemonic=='mov':require(i.op_str=='ax, word ptr [esi + 0x14]','unreviewed graphics load')
+  elif i.mnemonic=='cmp':a,b=i.op_str.split(', ');require(a=='ax','unreviewed graphics comparison');equal=1812==int(b,0)
+  elif i.mnemonic in ['je','jne']:require(equal is not None,'comparison missing');next_pc=int(i.op_str,0) if equal==(i.mnemonic=='je') else next_pc
+  else:raise RuntimeError('unreviewed reachable native instruction')
+  pc=next_pc
+ (out/'start-1812-static-route.json').write_bytes(encoded(dict(graphics=1812,trace=trace,reached_default=pc,offset_two_step_not_reached=True,PE_executed=False)));(out/'start.bin').write_bytes(raw)
+ sql=Path('D:/lineage開發/3-lito開發/lito伺服器/LiTo381-Server/db/lito_static.sql');labels=[l.strip() for l in sql.open(encoding='utf-8-sig') if re.match(r'INSERT INTO `skills` VALUES \((62|64),',l)];require(len(labels)==2,'labels differ');(out/'readonly-labels.txt').write_text('\n'.join(labels)+'\n',encoding='utf-8');(out/'inspector.py').write_bytes(Path(__file__).read_bytes());pins={str(p):sha(p) for p in out.iterdir()};pins.update({str(p):sha(p) for p in [session,jar,T/'native_E149_classfile_scan.py',T/'native_E149_classfile_bootstraps.py']});p=out/'inspection.json';p.write_bytes(encoded(dict(schema='E149-earthquake62-silence64-primary-v1',source_manifest_sha256=SOURCE,formal_target_sha256=FORMAL,source_pins=pins,external_readonly_pins={str(text):sha(text),str(pe):sha(pe),str(sql):sha(sql)},definitions=q['next_definitions'],raw_definitions=defs,earthquake_selector_only=True,earthquake_fixed_wire_origin=True,earthquake_main_Over_shadow1813_smoke1814=True,earthquake_source_frames_are_unrotated=True,earthquake_Hit_source_frame=5,earthquake_Sound716_source_frame=1,silence_actor_xy_material_world_and_battle=True,silence_status_server_owned_seconds=16,silence_visual_millis=2822,tests_executed=0,game_classes_loaded=0,game_methods_invoked=0,PE_executed=False,whole_goal_complete=False)));print(json.dumps(dict(inspection=str(p),sha256=sha(p),tests_executed=0),ensure_ascii=False))
+if __name__=='__main__':inspect()

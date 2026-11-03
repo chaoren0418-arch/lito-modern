@@ -1,0 +1,23 @@
+{
+  "jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "source_run": "20261013-112949-562",
+  "capture_sha256": "df5184eb2c425f6e81bae570b2baa8fe5c54dec1512d92796517479a5fe05cfa",
+  "messages": [
+    {
+      "time": "2026-10-13T11:30:10.300023700Z",
+      "direction": "server_to_client",
+      "opcode": "0x0F",
+      "wire_length": 19,
+      "plain": "0F 09 A5 FA A4 A7 C4 5F A5 DB A4 A3 A8 AC A1 43 00",
+      "note": "S_SYSTEM_MESSAGE rental-town insufficient-light-gem"
+    },
+    {
+      "time": "2026-10-13T11:30:10.735355800Z",
+      "direction": "server_to_client",
+      "opcode": "0x0F",
+      "wire_length": 19,
+      "plain": "0F 09 A5 FA A4 A7 C4 5F A5 DB A4 A3 A8 AC A1 43 00",
+      "note": "S_SYSTEM_MESSAGE rental-town insufficient-light-gem"
+    }
+  ]
+}

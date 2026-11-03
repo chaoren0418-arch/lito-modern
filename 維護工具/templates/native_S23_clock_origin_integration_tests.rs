@@ -1,0 +1,28 @@
+
+#[cfg(test)]
+mod native_S23_clock_flow_development_tests {
+    use super::*;
+    #[test]
+    fn native_clock_quantizes_global_endpoints_before_subtraction(){
+        assert_eq!(native_clock_elapsed_ns(500_000,500_000),0);
+        assert_eq!(native_clock_elapsed_ns(59_999_999,500_000),59_000_000);
+        assert_eq!(native_clock_elapsed_ns(60_000_000,500_000),60_000_000);
+        assert_eq!(native_clock_elapsed_ns(1_000_123,999_999),1_000_000);
+        assert_eq!(native_clock_elapsed_ns(101_000_000,1_999_999),100_000_000);
+    }
+    #[test]
+    #[ignore="LITO_SHARED_RESOURCE_ROOT; four original profiles/WAVs, native callback/history and memory draw only"]
+    fn actual_four_profiles_keep_order_arrival_anchors_history_and_audio_occurrences(){
+        let root=std::env::var_os("LITO_SHARED_RESOURCE_ROOT").expect("explicit shared root");let cancel=AtomicBool::new(false);let mut shared=None;
+        for(gfx,skill)in[(167u16,4),(1583,15),(1799,7),(1797,6)]{for distance in [1,6]{
+            let mut w=super::super::native_login::LoginController::default().snapshot().world.clone();let fixture:serde_json::Value=serde_json::from_slice(include_bytes!(r"D:\lineage開發\3-lito開發\lito重建版\LiTo381-Modern\tests\fixtures\native-world-current.json")).unwrap();for key in ["world","start","status","actor","bot"]{let hex=fixture["packets"][key].as_str().unwrap();let packet:Vec<_>=(0..hex.len()).step_by(2).map(|i|u8::from_str_radix(&hex[i..i+2],16).unwrap()).collect();w.accept(&packet).unwrap();}
+            w.learned_skills.clear();w.learned_skills.insert(skill);let own=w.own_actor().unwrap().clone();let target=0x71234567;let mut other=own.clone();other.id=target;other.x+=distance;other.incarnation+=1;w.actors.insert(target,other.clone());let sequence=100+u64::from(gfx);w.projectiles.push(ProjectileCue{heading:2,attacker_incarnation:own.incarnation,target_incarnation:Some(other.incarnation),action_sequence:sequence,attacker:own.id,target,damage_marker:0x20,projectile:super::super::native_combat::Projectile{id:77,graphics:gfx,flight_type:0,from:[own.x,own.y],to:[other.x,other.y]}});let event=EnteredEvent{actor:own.id,sequence,action:18,frame:1,event:"Hit".into(),sound:None,prepared_audio:None};
+            let mut p=Projectiles::default();p.prepare_with_catalog(Path::new(&root),&w,&cancel,&mut shared);assert!(p.errors.is_empty());let view=ViewProjection{anchor_cell:WorldCell{x:i32::from(own.x),y:i32::from(own.y)},anchor_pixel:super::super::world_map::PixelPoint{x:400,y:300}};let mut audio=vec![];let mut impact_times=vec![];let mut duplicated=0;let mut restored=false;
+            for step in 0..=220u64{if distance==6&&step==1{w.actors.get_mut(&target).unwrap().x+=1;}let now=if step==0{500_000}else{step*10_000_000};let before=serde_json::to_value(&w).unwrap();let hits=p.update(&w,if step==0{Some(&event)}else{None}.into_iter(),now);assert_eq!(serde_json::to_value(&w).unwrap(),before);impact_times.extend(hits.iter().map(|_|now));let mut fragments=vec![];let(receipt,events)=p.draw_to(&mut super::super::native_world_effects::Target::Fragments(&mut fragments),view,now);assert!(receipt["clock_errors"].as_array().unwrap().is_empty(),"{receipt}");assert!(receipt["load_error"].is_null());for row in receipt["flights"].as_array().unwrap(){if row["arrived"]==true{assert_eq!(row["arrival_ns"].as_u64().unwrap(),u64::from(distance-1)*60_000_000);let expected_x=own.x+distance+if gfx==1797&&distance==6{1}else{0};assert_eq!(row["position"],serde_json::json!([expected_x,own.y]));}}
+                audio.extend(events);drop(fragments);if step==0{let mut fragments=vec![];let(_,again)=p.draw_to(&mut super::super::native_world_effects::Target::Fragments(&mut fragments),view,now);duplicated=again.len();audio.extend(again);drop(fragments);}
+                if distance==6&&step==20{let history=p.history();assert_eq!(history.active_sequences(),BTreeSet::from([sequence]));let mut next=Projectiles::default();next.restore_history(history,true);w.projectiles.clear();w.learned_skills.clear();next.prepare_with_catalog(Path::new(&root),&w,&cancel,&mut shared);assert!(next.assets.contains_key(&gfx));p=next;restored=true;}
+            }
+            assert_eq!(impact_times,vec![if distance==1{500_000}else{u64::from(distance-1)*60_000_000}]);assert!(p.flights.is_empty());assert_eq!(p.launched,1);assert_eq!(restored,distance==6);let expected=match(gfx,distance){(167,1)=>vec![97],(167,_)=>vec![97,97],(1583,1)=>vec![97,99],(1583,_)=>vec![97,97,99],(1799,1)=>vec![719,711],(1799,_)=>vec![719,719,711],(1797,1)=>vec![713,719],(1797,_)=>vec![719,719,713],_=>unreachable!()};let mut cues=audio.iter().map(|e|{let p=e.prepared_audio.clone().unwrap();assert!(p.prepared_sound().unwrap().pcm_bytes().len()>0);assert_eq!(p.group().mode,super::super::combat_animation::NativeAudioMode::SuppressWhileSameIdPlaying);p}).collect::<Vec<_>>();let mut history=super::super::native_audio_delivery::FiniteDeliveryHistory::default();history.select_world((1,w.generation,w.map_id.unwrap()));let report=history.filter_frame(&mut cues).unwrap();assert_eq!((report.kept,report.duplicates),(expected.len(),duplicated));assert_eq!(cues.iter().map(|c|c.prepared_sound().unwrap().sound_id()).collect::<Vec<_>>(),expected);
+        }}
+    }
+}

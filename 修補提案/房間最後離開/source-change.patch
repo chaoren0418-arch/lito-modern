@@ -1,0 +1,9 @@
+--- a/src/main/java/local/lito381/server/ClientSession.java
++++ b/src/main/java/local/lito381/server/ClientSession.java
+@@
+     private void broadcastDefaultRoomReset(long roomId) throws IOException {
++        // Result return can complete after the empty custom room was removed.
++        // Its directory row no longer exists; continue the current caller
++        // through CHANNEL and the complete room-list publication.
++        if (!hub.roomExists(currentChannelId, roomId)) return;
+         GameHub.RoomSnapshot reset = hub.roomSnapshots(currentChannelId).stream()

@@ -1,0 +1,57 @@
+{
+  "schema": "E149-owner-source-identity-contract-v1",
+  "status": "original_bytecode_contract_only",
+  "formal_target_sha256": "E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498",
+  "source_pins": {
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\native-E149-owner-identity\\20261023-224304-427612\\GameStateStore.stdout.txt": "74692EB0998756695C71E36473C1867AB3C4284312780EFE68B2A2C72E8BA0A8",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\native-E149-owner-identity\\20261023-224304-427612\\inspection.json": "8D2269A2FA9E15CBA0CA941E0D903429046446A538EE60D3BD2DE072D54509DF",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\native-formal-reference-refresh\\20261023-192435-953238\\ClientSession.stdout.txt": "DE8F393A4E77FF15478DDE258E45E14F680EC9C15BC7FADDF3D5F33B7A333B25",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\native-E149-item-gameplay-reachability\\20261023-224206-735514\\NativeDeItemApplication$Owner.stdout.txt": "57606E05ECE71C91233AAA392A2033F9A3542D34EE4ABC2BA79343A4FE20D0FD",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\native-E149-item-gameplay-reachability\\20261023-224206-735514\\inspection.json": "FAEDD7ED8B3DB21491BCA39EE12AC3FA1814B3B4344C88C0792103C4480457C0"
+  },
+  "excerpt_pins": {
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\ClientSession.accountName.txt": "AD43192B2E198A0191DF2AB1A7A6D71A2E016D15D6331978F968092787A9571C",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\ClientSession.playerName.txt": "7C44C18A478DC9814579F592EE9E7F4329AE2F70C7B6E9560655D574520E046E",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\ClientSession.sourceAccountIdentity.txt": "2986F6E06E1B5869A1C7481BE1311DA69942AE9F0AE660BBA9841282566643AC",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\ClientSession.sourceCharacterIdentity.txt": "61271A4330BDD46187EA8F9EDCE75BA91C86422CCFB21B2A7B90A4B1E25B18E2",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\ClientSession.stateAccount.txt": "96C2429B79C981F8B07CB12B04D9436E6BAA0C2F6160F11B18E24300BDA99FAF",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\ClientSession.stateCharacter.txt": "FE53A2205B1B2576A90EDD3E97F621E3AC999E670A0881CB63E5A59989A3EF46",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\ClientSession.stateCharacterNamed.txt": "67C9FDC29F2005313DF3921906046DA2129009C15A6BA1314B01ADC1270492AB",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\GameStateStore.sourceCharacter.txt": "F60B7DEA05D7482E574E5D57B18AABA35E0A507218CDB8A76086D8D98FC3ACC0",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\Owner.constructor.txt": "438434DCEBE94CDCFDE3011CC19A7CF4EED89FEA04D7F678881BEDA345750D1C",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\resources\\E149-owner-identity-contract-E1498871\\sourceCharacter.concat-bootstrap.txt": "DB3F0EEBD0C202FE4D5401EDD63FD555A5331EBC480ECAF7C50E9A31AE0A9C72"
+  },
+  "selected_character_from": "ClientSession.selectedCharacter (nonempty selected case)",
+  "account_from": "ClientSession.account (nonnull authenticated case)",
+  "owner_source_semantics": "source_qualified_character_identity",
+  "owner_account_semantics": "source_qualified_account_identity",
+  "component_normalization": "java_String_trim_UTF16_code_units_0000_through_0020",
+  "separator_code_point": 31,
+  "concatenation": [
+    "trim(source)",
+    "U+001F",
+    "trim(name)"
+  ],
+  "reject_empty_components": true,
+  "reject_embedded_separator": true,
+  "case_folding_at_owner_construction": false,
+  "source_reachability_inspection": "D:\\lineage開發\\3-lito開發\\lito重建版\\驗證紀錄\\current\\native-E149-item-gameplay-reachability\\20261023-224206-735514\\inspection.json",
+  "source_reachability_inspection_sha256": "FAEDD7ED8B3DB21491BCA39EE12AC3FA1814B3B4344C88C0792103C4480457C0",
+  "nondefault_gameplay_route_proven": false,
+  "findings": [
+    "The earlier reader incorrectly compared owner.source/account with bare source/account values",
+    "The original owner calls sourceCharacterIdentity/sourceAccountIdentity, both using GameStateStore.sourceCharacter",
+    "The sourceCharacter bytecode trims two components, rejects empty/separator-containing values and concatenates with U+001F",
+    "Nondefault setter search includes inherited-owner method refs and direct fields; only Item.setItem -> setGreater is an explicit setter caller",
+    "General reflection, external callers and runtime routing are not excluded by this static search",
+    "StateCopy rejects active ScheduledFuture/EquipmentTimerLease and pending magic-stone expiry; these are not ordinary successful staged cases"
+  ],
+  "tests_executed": 0,
+  "classes_instantiated": 0,
+  "desktop_inputs": 0,
+  "original_methods_invoked": false,
+  "full_native_owner_qualified": false,
+  "full_attribute_matrix_qualified": false,
+  "whole_goal_complete": false,
+  "recorded_utc": "2026-10-23T22:44:23.348159+00:00"
+}

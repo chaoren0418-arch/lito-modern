@@ -1,0 +1,15 @@
+{
+  "status": "detached_review_candidate_built",
+  "base_sha256": "9719F45DB324206617726CE06D1A9E2184E9A3B3AEFAB3D50F3EBBDFBF09CFAC",
+  "candidate_sha256": "A1F119F5BCBF0159E8CFB3396B7B601BF0930983B375F374704B81874591E27C",
+  "candidate_path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\current\\server-reference\\candidate-last-room-reset.jar",
+  "changed_members": [
+    "local/lito381/server/ClientSession.class"
+  ],
+  "changed_methods": [
+    "broadcastDefaultRoomReset(J)V"
+  ],
+  "other_methods_unchanged": 2149,
+  "formal_deployed": false,
+  "current_formal_compatibility_proven": false
+}

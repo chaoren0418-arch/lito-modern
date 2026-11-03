@@ -1,0 +1,100 @@
+{
+  "jar_sha256": "6928A147DF1E784304B9080632C56121B173BF60B172023EBD263E82FD448628",
+  "origin": "actual authoritative route in 20261014-132727-388; all GUI steps must revalidate current server position",
+  "npc_id": 1812987996,
+  "npc_name": "傳送師-尤依琳",
+  "map_id": 500,
+  "steps": [
+    {
+      "after": [
+        32771,
+        32817
+      ],
+      "before": [
+        32770,
+        32818
+      ],
+      "heading": 1,
+      "key": 38
+    },
+    {
+      "after": [
+        32772,
+        32816
+      ],
+      "before": [
+        32771,
+        32817
+      ],
+      "heading": 1,
+      "key": 38
+    },
+    {
+      "after": [
+        32773,
+        32815
+      ],
+      "before": [
+        32772,
+        32816
+      ],
+      "heading": 1,
+      "key": 38
+    },
+    {
+      "after": [
+        32774,
+        32816
+      ],
+      "before": [
+        32773,
+        32815
+      ],
+      "heading": 3,
+      "key": 39
+    },
+    {
+      "after": [
+        32775,
+        32817
+      ],
+      "before": [
+        32774,
+        32816
+      ],
+      "heading": 3,
+      "key": 39
+    },
+    {
+      "after": [
+        32776,
+        32818
+      ],
+      "before": [
+        32775,
+        32817
+      ],
+      "heading": 3,
+      "key": 39
+    },
+    {
+      "after": [
+        32777,
+        32819
+      ],
+      "before": [
+        32776,
+        32818
+      ],
+      "heading": 3,
+      "key": 39
+    }
+  ],
+  "compatible_jar_sha256": [
+    "6928A147DF1E784304B9080632C56121B173BF60B172023EBD263E82FD448628",
+    "76EBE06D89DBD19CDB577E229657883C16156C77A23EDE288880C25584D2E3CC",
+    "C02AAAE8D54A27E30460BE2E3C47709EE64D35F007A8BE27AC74A327268B9539"
+  ],
+  "76EBE06D_qualification": "G06 and movement handlers bytecode unchanged; each GUI coordinate still independently checked against current authority",
+  "C02AAAE8_qualification": "Original NPC/teleport/movement handlers and GameHub identical; GUI coordinates remain checked against actual authority. GM/item travel new branches separate."
+}

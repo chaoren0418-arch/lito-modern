@@ -1,0 +1,12 @@
+//! New finite index/member inventory through existing pure L1 cipher; no native program.
+#[path="../src/modern_lito/resource_cipher.rs"] mod resource_cipher;
+use std::{fs,io::Write,path::PathBuf};
+fn main(){
+ let root=PathBuf::from(std::env::args().nth(1).expect("own snapshot root"));let stem=std::env::args().nth(2).expect("Text or LTtext");assert!(matches!(stem.as_str(),"Text"|"LTtext"));
+ let out=PathBuf::from(std::env::args().nth(3).expect("unique own output root"));assert!(out.is_dir());let mut index=fs::read(root.join(format!("{stem}.idx"))).unwrap();assert!(index.len()<=8*1024*1024&&index.len()>=4);let count=u32::from_le_bytes(index[..4].try_into().unwrap()) as usize;assert!(count>0&&count<=100000&&index.len()==4+count*28);resource_cipher::decode_payload_in_place(&mut index[4..]);
+ let pak=fs::read(root.join(format!("{stem}.pak"))).unwrap();assert!(pak.len()<=64*1024*1024);let mut ledger=fs::OpenOptions::new().create_new(true).write(true).open(out.join("all-members.tsv")).unwrap();let mut found=0;let mut names=std::collections::BTreeSet::new();
+ for(i,row)in index[4..].chunks_exact(28).enumerate(){let raw=&row[4..24];let end=raw.iter().position(|b|*b==0).unwrap_or(20);let name=std::str::from_utf8(&raw[..end]).unwrap();assert!(!name.contains(['\t','\r','\n','/','\\'])&&!name.is_empty());let duplicate=!names.insert(name.to_ascii_lowercase());let offset=u32::from_le_bytes(row[..4].try_into().unwrap()) as usize;let size=u32::from_le_bytes(row[24..].try_into().unwrap()) as usize;assert!(size<=8*1024*1024&&offset.checked_add(size).is_some_and(|e|e<=pak.len()));writeln!(ledger,"{i}\t{name}\t{offset}\t{size}\t{duplicate}").unwrap();
+  if name.to_ascii_lowercase().starts_with("campaigndesc") {assert!(!duplicate,"campaign member ambiguity");assert!(name.bytes().all(|b|b.is_ascii_alphanumeric()||matches!(b,b'.'|b'-'|b'_')));let mut b=pak[offset..offset+size].to_vec();let mut f=fs::OpenOptions::new().create_new(true).write(true).open(out.join(format!("{name}.raw"))).unwrap();f.write_all(&b).unwrap();resource_cipher::decode_payload_in_place(&mut b);let mut f=fs::OpenOptions::new().create_new(true).write(true).open(out.join(format!("{name}.decoded"))).unwrap();f.write_all(&b).unwrap();println!("campaign index={i} name={name} offset={offset} bytes={size}");found+=1;}
+ }
+ let mut f=fs::OpenOptions::new().create_new(true).write(true).open(out.join("decoded-index.bin")).unwrap();f.write_all(&index).unwrap();println!("complete_count={count} campaign_members={found}");
+}

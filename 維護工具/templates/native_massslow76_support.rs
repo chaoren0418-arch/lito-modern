@@ -1,0 +1,14 @@
+
+fn qualify_massslow76(c:&SpriteActionCatalog)->Result<Animation,HonorAssetError> {
+    let row=c.sprites.get(&3932).ok_or(HonorAssetError::Unsupported("massslow3932 absent"))?;
+    let resolved=c.resolve_action(3932,ActionKey::new(0))?;let a=resolved.animation;
+    let ticks=[4,4,4,4,4,4,4,4,4,5,5,6,7];let attrs:[(u32,&[u8]);3]=[(102,b"0"),(104,b"8"),(109,b"1 -1")];
+    if row.id!=3932||row.graphics_id!=3932||resolved.definition_sprite_id!=3932||row.image_count!=Some(1)||row.header_issue.is_some()||row.actions.len()!=1||row.attributes.len()!=3
+        ||attrs.iter().any(|(key,body)|row.attributes.iter().filter(|v|v.key==ActionKey::new(*key)&&v.body_bytes.trim_ascii()==*body).count()!=1)
+        ||a.directionality!=Directionality::Undirected||a.frames_per_second!=24||a.frames.len()!=13
+        ||a.frames.iter().enumerate().any(|(n,f)|f.image_id!=0||f.subframe!=if n==0{12}else{n as u32-1}||f.duration_ticks!=ticks[n]
+            ||f.events!=if n==2{vec![FrameEvent::Effect(1349)]}else{vec![]}) {
+        return Err(HonorAssetError::Unsupported("massslow3932 original class/overlap/timing changed"));
+    }
+    Ok(a.clone())
+}

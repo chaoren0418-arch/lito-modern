@@ -1,0 +1,10 @@
+  java.lang.String accountName();
+    Code:
+       0: aload_0
+       1: getfield      #4629               // Field account:Ljava/lang/String;
+       4: ifnonnull     13
+       7: ldc_w         #3628               // String
+      10: goto          17
+      13: aload_0
+      14: getfield      #4629               // Field account:Ljava/lang/String;
+      17: areturn

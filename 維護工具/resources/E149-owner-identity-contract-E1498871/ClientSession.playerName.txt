@@ -1,0 +1,22 @@
+  java.lang.String playerName();
+    Code:
+       0: aload_0
+       1: getfield      #4556               // Field selectedCharacter:Ljava/lang/String;
+       4: invokevirtual #6224               // Method java/lang/String.isEmpty:()Z
+       7: ifne          15
+      10: aload_0
+      11: getfield      #4556               // Field selectedCharacter:Ljava/lang/String;
+      14: areturn
+      15: aload_0
+      16: getfield      #3820               // Field characters:Ljava/util/List;
+      19: invokeinterface #8465,  1         // InterfaceMethod java/util/List.isEmpty:()Z
+      24: ifeq          33
+      27: ldc_w         #43565              // String TestKnight
+      30: goto          49
+      33: aload_0
+      34: getfield      #3820               // Field characters:Ljava/util/List;
+      37: iconst_0
+      38: invokeinterface #4057,  2         // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+      43: checkcast     #4635               // class local/lito381/server/CharacterSummary
+      46: invokevirtual #4829               // Method local/lito381/server/CharacterSummary.name:()Ljava/lang/String;
+      49: areturn

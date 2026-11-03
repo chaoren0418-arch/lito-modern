@@ -1,0 +1,4 @@
+"""Archive the prior generator; retain the compact handoff without repeated historical scans."""
+from datetime import datetime,timezone
+from native_E149_recovery_contract import R,sha,encoded,require
+T=R/'維護工具';p=T/'update-master-report-E149-current.py';require('update-master-report-E149-compact.py' not in p.read_text('utf-8-sig'),'entry already updated');out=R/'驗證紀錄/current/master-report-resurrection61-updater-source'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f');out.mkdir(parents=True);(out/'before.py').write_bytes(p.read_bytes());(out/'source.json').write_bytes(encoded(dict(source=str(p),before_sha256=sha(p),archive_sha256=sha(out/'before.py'),tests_executed=0)));p.write_text('"""Current compact report entry; historical generator archived before replacement."""\nfrom pathlib import Path\nimport runpy\nrunpy.run_path(str(Path(__file__).with_name("update-master-report-E149-compact.py")),run_name="__main__")\n',encoding='utf-8',newline='\n');print(out)

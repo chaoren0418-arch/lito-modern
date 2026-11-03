@@ -1,0 +1,299 @@
+{
+  "schema": "modern.host.buffer.consumer.offline.v1",
+  "task_id": "modern-host-buffer-consumer-20261007",
+  "updated_at": "2026-10-07T10:30:13.741163+08:00",
+  "state": "DELIVERED_SOURCE_SEMANTIC_OFFLINE_INCREMENT_REVIEW_REQUIRED",
+  "overall_complete": false,
+  "adopted_contracts": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\監製工作流\\modern-host-buffer-consumer-20261007-scope-review.json",
+      "bytes": 2516,
+      "sha256": "198B5D0B1BC20708DB844FD3EB0A707F261C4FDAB00F786A86528D1703C7BE9C"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\modern-contracts-20261007.json",
+      "bytes": 41310,
+      "sha256": "DC08927CDB282EE14CD80080AD7EDB579EF8560AD98C00E83BFD5877BB39964D"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\host-alias-lifecycle.json",
+      "bytes": 8125,
+      "sha256": "CA359ECAFEAA2BD97239414858F62C02C9AD9DCBEA728921C7E62EBFD66EB644"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito脫殼資源\\reconnect-source-index\\host-alias-port-contract.json",
+      "bytes": 19729,
+      "sha256": "D2B94080D053C95944538609B8089D157949B9A678DE4894A853FEE8DBD6A5C9"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\modern-bin-consumer-20261007.json",
+      "bytes": 12196,
+      "sha256": "999BB3D9C2763A738A7A6A20FAB1A34A3AA21745E61C7699D3EEE6E889871E42"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito登入器\\舊版分析與驗收\\runtime\\LiTo.unpacked-oep-current.exe",
+      "bytes": 7094272,
+      "sha256": "4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9"
+    }
+  ],
+  "assignment": {
+    "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\assignment.json",
+    "bytes": 4547,
+    "sha256": "8D8567FC735D462A88CD052B6CD66375432C7693B9B7627AB912F5AC122D154F"
+  },
+  "source_changes": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_entry_transfer.rs",
+      "bytes": 15484,
+      "sha256": "4CA6034EFE0512D2256D465FF5B7767D0A60868D2F62E73F2862525F7F434B65"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_startup_host.rs",
+      "bytes": 2309,
+      "sha256": "FFB0CCE6D6C59889327942249C83CC4FF65A020DA4582FCD95656335FD72DC67"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_host_buffers.rs",
+      "bytes": 3756,
+      "sha256": "9B577D3BEC40AB1E18E1BE0FD921530D1AC45EE31003AE8EE626F62B777B2DEB"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_host_buffers_tests.rs",
+      "bytes": 6841,
+      "sha256": "840808B5E1082A13A8DEEA6236F3539FEA1BACE101531EA8F9B3E4CD51698A4A"
+    }
+  ],
+  "source_diff": {
+    "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\source.diff",
+    "bytes": 17503,
+    "sha256": "8D37DC2D73313051B823F59DE68E69BB0463168C65FB7C29BF7F388FBC27D4F9"
+  },
+  "source_snapshot": {
+    "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\source-snapshot.json",
+    "bytes": 457492,
+    "sha256": "CBFE008B22F9C3087FCD2F88198B8C615F9E415A5F1D8A892827E42671734BED"
+  },
+  "rust_source_accounting": {
+    "before": 663,
+    "after": 665,
+    "new": 2,
+    "modified": 2,
+    "old_files_byte_unchanged": 661
+  },
+  "semantics": {
+    "host_capacity_bytes_including_NUL": 256,
+    "alias_capacity_bytes_including_NUL": 28,
+    "port_bits": 16,
+    "copy_through_first_NUL": true,
+    "copy_includes_NUL": true,
+    "source_tail_ignored": true,
+    "old_destination_tail_preserved": true,
+    "uninitialized_distinct_from_empty": true,
+    "raw_non_ASCII_unchanged": true,
+    "byte_bound_is_Modern_safety_not_Native_clamp": true,
+    "atomic_multi_field_validation": true,
+    "port_signed_view_is_not_socket_authority": true
+  },
+  "actual_consumer_wiring": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_startup_host.rs",
+      "flow": "FixtureStartupHost::parse -> existing synthetic kind/canonical numeric-loopback gate ->HostBuffer::copy_payload; FixtureStartupHost::target reads HostBuffer::payload for same numeric address/port2000",
+      "authority": "Explicit synthetic JSON only; Native050104CD return not asserted"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_entry_transfer.rs",
+      "flow": "Existing start_source_transfer_branch ->State::start ->AliasBuffer::copy_payload; State::alias now supplies cached C9 replay; Key.selected_name remains identical presentation payload",
+      "authority": "Same existing source-scope/synthetic/epoch/navigation qualification; alias never supplies startup host"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_entry_transfer.rs",
+      "flow": "State::start with supplied target and State::return_two copy existing u16 target port into independent PortWord",
+      "authority": "Records these explicit pure transfer steps; other fixture I/O/timer path port-global equivalence not claimed"
+    }
+  ],
+  "preserved_call_path_evidence": {
+    "Runtime_configure_startup_gate_verbatim": true,
+    "entry_transfer_Runtime_handlers_verbatim": true,
+    "native_city_runtime_byte_unchanged": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_city_runtime.rs",
+      "bytes": 57642,
+      "sha256": "48F194E56C6F555761A9E2CC90C7F6509133F7F1ABF97A6405CF3677B3250A69"
+    },
+    "native_login_events_byte_unchanged": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_login_events.rs",
+      "bytes": 30748,
+      "sha256": "852FA9C178EC70CAECB57B2AD0FD3D23AAA20C6CCBA4AA16458A03CD00B35FB6"
+    },
+    "native_entry_navigation_byte_unchanged": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\native_entry_navigation.rs",
+      "bytes": 14951,
+      "sha256": "68E8C2682A79D7D950C8F2DC662DD16E3C71AD096AB406A756ADABF2CFCA8140"
+    }
+  },
+  "build": {
+    "target": "i686-pc-windows-msvc",
+    "library": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\liblito_modern.rlib",
+      "bytes": 678476146,
+      "sha256": "A9B7E21DD80203AA24A25C70E6450E519F63F431914386AB024FC4B1AF1C4396"
+    },
+    "recompiled": true,
+    "accounting": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\build-accounting.json",
+      "bytes": 531,
+      "sha256": "78A691FE280C822602CDF0BA4DC1DF3D96DC3B7C8A7CE967243BF18A018AA79A"
+    },
+    "warnings": {
+      "build": {
+        "total_warning_messages": 291,
+        "changed_or_new_module_warning_messages": 0
+      },
+      "test-build": {
+        "total_warning_messages": 92,
+        "changed_or_new_module_warning_messages": 0
+      }
+    }
+  },
+  "validation": {
+    "passed": 4,
+    "failed": 0,
+    "new_CPU_checks_executions": 1,
+    "old_PASS_replays": 0,
+    "cases": [
+      "Host256 and alias28 terminator bounds; raw bytes/source ownership/source tail/destination tail",
+      "Independent fields; multi-field errors publish nothing; all65536 port bit/signed views",
+      "Affected synthetic startup parse->buffer->target path with existing restrictions and refusals",
+      "Affected transfer start->owned alias->replay accessor/return port/revision failure/Modern retirement data paths"
+    ],
+    "stdout": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\tests.stdout.log",
+      "bytes": 682,
+      "sha256": "A3C945661E27560A77BF85C53CF0004B141386D865643E39BEDD979F9FD7C703"
+    },
+    "test_artifact": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\new-host-buffer-tests.exe",
+      "bytes": 64983552,
+      "sha256": "78519642C7A9A60EFC17E53957B66F0524078BA24E3E41D763CF42D7F1052BE0"
+    },
+    "compile_accounting": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\test-build-accounting.json",
+      "bytes": 424,
+      "sha256": "127DC5E00247EFE8590ECA29F8727B5235CCFC483F4E47B6535248FC70B327C9"
+    },
+    "run_accounting": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\test-accounting.json",
+      "bytes": 427,
+      "sha256": "23B1B79F2788CDC3731BB9BA4520AFA8AED4B30A5D1E67B19BB74DD2D47F8D08"
+    }
+  },
+  "evidence_logs": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\build.jsonl",
+      "bytes": 691562,
+      "sha256": "9946E1AEFB4C41E750750D459AEFB879B44D086BD4219D6EFD8FAB61A34B4DC2"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\build.stderr.log",
+      "bytes": 168,
+      "sha256": "ECE82B0C0EF93E22F50E156E5B05E5581439CDAB8C668A658A952F237C2DE603"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\test-build.jsonl",
+      "bytes": 341598,
+      "sha256": "67649996B44F5AF5DCD2DD8CF94E632DA788A5EBA193CD29B2A2F4B7FA69D12A"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\test-build.stderr.log",
+      "bytes": 169,
+      "sha256": "1F36E380E6B862EFCF9C3EDFB8BC63CFE91391FA97D50676FB67F5B6E1C23968"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\tests.stderr.log",
+      "bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\artifacts.json",
+      "bytes": 670,
+      "sha256": "619AF598BA9456E4B4739928CE6C0AAE7E89D72BBA3F965F995560327CF1EAF1"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\before-rust-pins.json",
+      "bytes": 114411,
+      "sha256": "9D027A859448C338194E3EAA71C9026A178B594E14687470DC5F958B0D75A5FB"
+    }
+  ],
+  "tools_and_documentation": [
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\tools\\build-modern-host-buffer-consumer-20261007.ps1",
+      "bytes": 5121,
+      "sha256": "49F5EC86D79F9246F9248C1AF773A9BA01E68823E2DFFDE072FE747E586456C8"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\tools\\seal-modern-host-buffer-consumer-20261007.py",
+      "bytes": 13504,
+      "sha256": "C372D871235513DF40CC04F965F8154C437D6E5F9239519BA2DBF5A6588EF849"
+    },
+    {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\docs\\native-host-buffer-consumer.md",
+      "bytes": 3386,
+      "sha256": "173567AC5550E108BB9B521BC6120080166DCC7D0C69CA99124AEFE9281EABAA"
+    }
+  ],
+  "proposal_queue": {
+    "before": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\modern-host-buffer-consumer-20261007\\queue.before.json",
+      "bytes": 316296,
+      "sha256": "D08D8CE3E260863A5693F491FA1F9100FB2A6608F2AB382793269C50E0FD7BBE"
+    },
+    "after": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\工作佇列.json",
+      "bytes": 329567,
+      "sha256": "C1D761607DDFDB09709702E0B1BF4E51ECB11FD61567EE19D4C950BE6F9657C6"
+    },
+    "existing_items_unchanged": 41,
+    "new_item_state": "review",
+    "coverage": {
+      "historical_v47_program_complete": 16,
+      "remaining_v47_program_modes": 24,
+      "mode_map_rows": 40,
+      "new_full_native_bindings": 0,
+      "GUI_accepted": 0,
+      "LOADED": false,
+      "overall_completed": false
+    }
+  },
+  "unknowns": [
+    "Private050104CD at47C9B7 absent from fixed image; may correspond to API thunk, identity/body unknown",
+    "Other transitive init/connection/library calls not exhaustively closed",
+    "Actual host value and callback execution in T73 unobserved",
+    "Upstream codepage/IDN normalization",
+    "Current value / execution epoch",
+    "Private or indirect clearing beyond the qualified direct scope",
+    "Transfer byte_storage.host stays uninitialized; synthetic startup adapter does not publish Native saved-host authority",
+    "Port projection only covers explicit start/return steps; unrelated current endpoint/timer I/O is not a global-byte trace",
+    "Modern key retirement is not proof of Native alias/host/port clearing"
+  ],
+  "boundary": {
+    "Native_initializer_executed_proven": false,
+    "runtime_host_owner_epoch_manufactured": false,
+    "live_server_connect_qualified": false,
+    "default_profile_or_peer_as_startup_authority": false,
+    "private_next_layer_analysis": 0,
+    "GUI": 0,
+    "sockets": 0,
+    "provider": 0,
+    "Java_SQL": 0,
+    "game_launches": 0,
+    "READY_reads": 0,
+    "claims": 0,
+    "server_namespace_writes": 0,
+    "retained_restrictions": "495520/050104CD/private42E550/42E6D0/42EA50; Native tools; T291/T27/refund/rebid/Store/auction/castle/full-WORLD"
+  },
+  "new_or_corrected_wire": false,
+  "wire_notification_required": false,
+  "handoff_to": [
+    "supervisor"
+  ],
+  "next_step": "Stop after this increment and await supervisor evidence review. No missing Native authority is replaced by a synthetic data copy."
+}

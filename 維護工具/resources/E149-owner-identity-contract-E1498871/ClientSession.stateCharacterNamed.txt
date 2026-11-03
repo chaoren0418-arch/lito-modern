@@ -1,0 +1,7 @@
+  private java.lang.String stateCharacter(java.lang.String);
+    Code:
+       0: aload_0
+       1: getfield      #4070               // Field selectedClassicServerName:Ljava/lang/String;
+       4: aload_1
+       5: invokestatic  #11364              // Method local/lito381/server/GameStateStore.sourceCharacter:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       8: areturn

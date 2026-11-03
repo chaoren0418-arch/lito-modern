@@ -1,0 +1,26 @@
+"""Read formal classfiles and bounded original PE flag routes; never execute game code."""
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,subprocess
+import capstone,pefile
+from native_E149_recovery_contract import R,FORMAL,read,sha,encoded,owned,require
+T=R/'維護工具';V=R/'驗證紀錄/current'
+def main():
+ w=read(R/'工作佇列.json');require(w['current_user_requested_goal']['test_execution_deferred_by_user'] and not w['active_workloads'] and not w['active_workload_sessions'],'development-only idle phase required');require(sha(w['current_formal_reference_identity']['formal'])==FORMAL,'formal changed')
+ out=owned(V/'native-E149-break27-dark40-inspection'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f'));out.mkdir(parents=True);jar=R/'LiTo381-Modern/target/current/server-reference/formal-server-E1498871.jar';javap=Path('C:/Program Files/Microsoft/jdk-17.0.17.10-hotspot/bin/javap.exe');require(sha(jar)==FORMAL and sha(javap)=='09A29817B39833F5CFED07A8267C7D7DB5BFD2501513466F9C7525CDBB4CAA0A','original classfile/tool differs');commands=[]
+ for name in ['NativeWeaponBreakMaterialAction','NativeBlindMaterialAction']:
+  command=[str(javap),'-J-Dfile.encoding=UTF-8','-p','-c','-constants','-classpath',str(jar),'local.lito381.server.'+name];result=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,creationflags=subprocess.CREATE_NO_WINDOW|subprocess.BELOW_NORMAL_PRIORITY_CLASS,timeout=120);logs={}
+  for suffix,data in [('stdout.txt',result.stdout),('stderr.txt',result.stderr)]:p=out/(name+'.'+suffix);p.write_bytes(data);logs[str(p)]=sha(p)
+  commands.append(dict(command=command,exit_code=result.returncode,logs=logs));require(result.returncode==0,'javap failed')
+ binary=Path('D:/lineage開發/3-lito開發/lito登入器/舊版分析與驗收/runtime/LiTo.unpacked-oep-current.exe');require(sha(binary)=='4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9','original PE differs');pe=pefile.PE(str(binary),fast_load=True);base=pe.OPTIONAL_HEADER.ImageBase;cs=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_32);ranges={};all_rows={}
+ for name,start,limit in [('attribute104_parser',0x43e49f,0x43e4be),('common_action_set_flags',0x4e0490,0x4e0530),('common_main_draw',0x4e0200,0x4e025d),('fragment_submit',0x4cd9d0,0x4cdb20),('first_pass_selector',0x488d0b,0x488e90),('flag80_pixel_wrappers',0x4c0f40,0x4c0f80)]:
+  raw=pe.get_data(start-base,limit-start);rows=list(cs.disasm(raw,start));require(rows,'empty range');end=rows[-1].address+rows[-1].size;raw=raw[:end-start];require(sum(r.size for r in rows)==len(raw),'instruction gap');record=[dict(address=r.address,hex=r.bytes.hex(),mnemonic=r.mnemonic,operands=r.op_str) for r in rows];ranges[name]=dict(start=start,end=end,sha256=hashlib.sha256(raw).hexdigest().upper(),instructions=record);all_rows.update({r.address:(r.mnemonic,r.op_str) for r in rows})
+ expected={0x43e49f:('cmp','edi, 0x68'),0x43e4ac:('mov','edx, dword ptr [0x647e68]'),0x43e4b5:('mov','word ptr [edx + ecx*2], ax'),0x4e0205:('mov','ax, word ptr [esi + 0x1a]'),0x4e020f:('push','eax'),0x4e021d:('call','0x4cd9d0'),0x4cda7d:('mov','edx, dword ptr [ebp + 0x14]'),0x4cda80:('push','edx'),0x4cdaa7:('call','0x483770'),0x488de5:('test','al, 0x80'),0x488dec:('call','dword ptr [0x768898]')}
+ for a,x in expected.items():require(all_rows.get(a)==x,'flag-route instruction differs '+hex(a))
+ # Find exact field load/store within the complete decoded common-action range.
+ rows=ranges['common_action_set_flags']['instructions'];require(any(r['operands']=='eax, dword ptr [0x647e68]' for r in rows) and any(r['operands']=='ax, word ptr [eax + edi*2]' for r in rows) and any(r['operands']=='word ptr [esi + 0x1a], ax' for r in rows),'common sprite flags no longer retained');pe.close()
+ asm=Path('D:/lineage開發/3-lito開發/lito登入器/舊版分析與驗收/ida-client-oep-v2/full-disassembly.asm');require(sha(asm)=='2A3A6E1026EE65288C07EFF00990BDDDBEFA5ACEC9EED551F528A0CC0A7DEA9A','original asm differs')
+ wrapper=read(w['current_E149_reveal23_tame36_development']['qualification']);source=Path(wrapper['candidate']);require(sha(source)==wrapper['candidate_sha256'],'previous source changed')
+ result=dict(status='formal_wrapper_and_attr128_submission_primary_static_only',formal_target_sha256=FORMAL,javap_sha256=sha(javap),commands=commands,PE=str(binary),PE_sha256=sha(binary),ASM=str(asm),ASM_sha256=sha(asm),ranges=ranges,expected_instructions={str(k):v for k,v in expected.items()},source=str(Path(__file__).resolve()),source_sha256=sha(Path(__file__)),attr104_value_retained_in_effect_word1A=True,common_draw_passes_flags_to_fragment_queue=True,flag128_selects_dedicated_flag80_route=True,modern_mix_to_bind='Multiply',graphics2175_pixels_not_qualified=True,original_PE_initialization_not_qualified=True,game_classes_instantiated=0,PE_executed=False,tests_executed=0,GUI_verified=False,WAV_playbacks=0)
+ (out/'inspection.json').write_bytes(encoded(result));print(json.dumps(dict(inspection=str(out/'inspection.json'),javap_exit_codes=[c['exit_code'] for c in commands],tests_executed=0),ensure_ascii=False))
+if __name__=='__main__':main()

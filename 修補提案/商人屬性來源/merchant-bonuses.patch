@@ -1,0 +1,77 @@
+--- a/src/main/java/local/lito381/server/RentalEquipmentBonuses.java
++++ b/src/main/java/local/lito381/server/RentalEquipmentBonuses.java
+@@ -65,9 +65,7 @@
+ 
+         for (RuntimeInventory.Item item : items) {
+             if (item == null || !item.equipped() || item.sourceBound()) continue;
+-            RentalItemDefinitionCatalog.SourceTemplate source =
+-                    RentalItemDefinitionCatalog.source(
+-                            Math.toIntExact(item.definition().catalogId()));
++            BonusSource source = source(Math.toIntExact(item.definition().catalogId()));
+             if (source == null) continue;
+             matchedItems = Math.addExact(matchedItems, 1);
+             if ("weapon".equals(source.kind())) matchedWeapons++;
+@@ -126,8 +124,62 @@
+     }
+ 
+     private static int add(int current,
+-                           RentalItemDefinitionCatalog.SourceTemplate source,
++                           BonusSource source,
+                            String field) {
+         return Math.addExact(current, source.integer(field));
+     }
++    private interface BonusSource {
++        String kind();
++        int integer(String field);
++    }
++
++    /** Preserve selected-3.80 precedence; merchant definitions retain their own provenance. */
++    private static BonusSource source(int catalogId) {
++        RentalItemDefinitionCatalog.SourceTemplate selected = RentalItemDefinitionCatalog.source(catalogId);
++        if (selected != null) {
++            return new BonusSource() {
++                public String kind() { return selected.kind(); }
++                public int integer(String field) { return selected.integer(field); }
++            };
++        }
++        NativeLitoRentalMerchantCatalog.Item merchant = NativeLitoRentalMerchantCatalog.findBySourceItemId(catalogId);
++        if (merchant == null) return null;
++        // Already decoded from the hash-pinned retained merchant TSV. No fallback database.
++        InventoryCatalog.NativeArmorStatus armor = merchant.definition().sourceArmorStatus();
++        return new BonusSource() {
++            public String kind() { return armor == null ? "weapon" : "armor"; }
++            public int integer(String field) {
++                return switch (field) {
++                    case "add_str" -> armor == null ? 0 : armor.strength();
++                    case "add_con" -> armor == null ? 0 : armor.constitution();
++                    case "add_dex" -> armor == null ? 0 : armor.dexterity();
++                    case "add_int" -> armor == null ? 0 : armor.intelligence();
++                    case "add_wis" -> armor == null ? 0 : armor.wisdom();
++                    case "add_cha" -> armor == null ? 0 : armor.charisma();
++                    case "add_hp" -> armor == null ? 0 : armor.hitPoints();
++                    case "add_mp" -> armor == null ? 0 : armor.manaPoints();
++                    case "add_sp" -> armor == null ? 0 : armor.spellPower();
++                    case "m_def" -> armor == null ? 0 : armor.magicResistance();
++                    case "defense_water" -> armor == null ? 0 : armor.waterResistance();
++                    case "defense_wind" -> armor == null ? 0 : armor.windResistance();
++                    case "defense_fire" -> armor == null ? 0 : armor.fireResistance();
++                    case "defense_earth" -> armor == null ? 0 : armor.earthResistance();
++                    case "regist_stun" -> armor == null ? 0 : armor.stunResistance();
++                    case "regist_stone" -> armor == null ? 0 : armor.stoneResistance();
++                    case "regist_sleep" -> armor == null ? 0 : armor.sleepResistance();
++                    case "regist_freeze" -> armor == null ? 0 : armor.freezeResistance();
++                    case "regist_sustain" -> armor == null ? 0 : armor.sustainResistance();
++                    case "regist_blind" -> armor == null ? 0 : armor.blindResistance();
++                    case "haste_item" -> armor != null && armor.haste() ? 1 : 0;
++                    // These effects are absent from the retained merchant source schema.
++                    // Weapon damage/hit and native AC remain in their existing evaluators.
++                    case "add_hpr", "add_mpr", "magicdmgmodifier", "damage_reduction",
++                         "add_melee_redux", "add_bow_redux", "weight_reduction",
++                         "hit_modifier", "dmg_modifier", "bow_hit_modifier", "bow_dmg_modifier" -> 0;
++                    default -> throw new IllegalArgumentException("unknown merchant bonus field " + field);
++                };
++            }
++        };
++    }
++
+ }

@@ -1,0 +1,69 @@
+  static java.lang.String sourceCharacter(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    flags: (0x0008) ACC_STATIC
+    Code:
+      stack=3, locals=4, args_size=2
+         0: aload_0
+         1: ifnonnull     10
+         4: ldc_w         #605                // String
+         7: goto          14
+        10: aload_0
+        11: invokevirtual #973                // Method java/lang/String.trim:()Ljava/lang/String;
+        14: astore_2
+        15: aload_1
+        16: ifnonnull     25
+        19: ldc_w         #605                // String
+        22: goto          29
+        25: aload_1
+        26: invokevirtual #973                // Method java/lang/String.trim:()Ljava/lang/String;
+        29: astore_3
+        30: aload_2
+        31: invokevirtual #1073               // Method java/lang/String.isEmpty:()Z
+        34: ifne          62
+        37: aload_3
+        38: invokevirtual #1073               // Method java/lang/String.isEmpty:()Z
+        41: ifne          62
+        44: aload_2
+        45: bipush        31
+        47: invokevirtual #4886               // Method java/lang/String.indexOf:(I)I
+        50: ifge          62
+        53: aload_3
+        54: bipush        31
+        56: invokevirtual #4886               // Method java/lang/String.indexOf:(I)I
+        59: iflt          73
+        62: new           #868                // class java/lang/IllegalArgumentException
+        65: dup
+        66: ldc_w         #4888               // String invalid source-qualified character identity
+        69: invokespecial #871                // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        72: athrow
+        73: aload_2
+        74: aload_3
+        75: invokedynamic #4889,  0           // InvokeDynamic #47:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        80: areturn
+      StackMapTable: number_of_entries = 6
+        frame_type = 10 /* same */
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+        frame_type = 252 /* append */
+          offset_delta = 10
+          locals = [ class java/lang/String ]
+        frame_type = 67 /* same_locals_1_stack_item */
+          stack = [ class java/lang/String ]
+        frame_type = 252 /* append */
+          offset_delta = 32
+          locals = [ class java/lang/String ]
+        frame_type = 10 /* same */
+      LineNumberTable:
+        line 6545: 0
+        line 6546: 15
+        line 6547: 30
+        line 6548: 47
+        line 6549: 56
+        line 6550: 62
+        line 6552: 73
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      81     0 classicServerName   Ljava/lang/String;
+            0      81     1 characterName   Ljava/lang/String;
+           15      66     2 source   Ljava/lang/String;
+           30      51     3 character   Ljava/lang/String;

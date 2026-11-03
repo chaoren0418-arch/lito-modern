@@ -1,0 +1,6398 @@
+{
+  "mask_size": [
+    320,
+    204
+  ],
+  "source_lmp_sha256": "30CF051FE516A053AC494B8054E5A320BAB1F3F3DD7B0010E0CF0C74AACCE5AA",
+  "cases": [
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "2287D8247DA09B07CC04E27D3AFFC459474F2CFF9E8A30858686600E5796495D"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "9B69CB0BD3E3B05D078B1EE110F2F6EAA8506DF055C8CFD79F790A99B0853C91"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "DF3750B776229CD4F0A0E1760C5EC8D2A40206F578C1DA37B46C797970165863"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "A75DBC6E4FC569DF074CC1D6DDCA024C2CC1E2D7D94EB6F03680A31A2FD67B94"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "E1E6DAD1327EFA809657FB1CEA2D779C484B7C6D69A3400CA5BD539EA1BB5068"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "7BE4C3C3F4502ABDD29F086380022FBC6BEB7409BFE204B6BDCBD9F95C5137AE"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "6748996ED6368BC871CEDD046B981CE4BB6347E00C7DC6C62A07AD182A401696"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "B74CDC65F7EE8F7E74E044A6E0D12C06E4CC1948E8CBB4F737317F56C1845E73"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "29ECC7AD65CACD1CA97EB9874785524AAEC8FAB9C53DD0CFF05757AA6A591E91"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "0221F04223D1B5A1DBEF7C010874508C6EE9558C62A8F67005C3B379B458D83D"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": -16,
+          "y": -8
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": -15,
+          "y": -7
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 304,
+          "y": 196
+        }
+      ],
+      "original_native_sha256": "265071719616AF6F40404FD173F7CF488A6B4C0E5EEDF7B51B45B89C82E99E41"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "2287D8247DA09B07CC04E27D3AFFC459474F2CFF9E8A30858686600E5796495D"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "9B69CB0BD3E3B05D078B1EE110F2F6EAA8506DF055C8CFD79F790A99B0853C91"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "DF3750B776229CD4F0A0E1760C5EC8D2A40206F578C1DA37B46C797970165863"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "A75DBC6E4FC569DF074CC1D6DDCA024C2CC1E2D7D94EB6F03680A31A2FD67B94"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "E1E6DAD1327EFA809657FB1CEA2D779C484B7C6D69A3400CA5BD539EA1BB5068"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "7BE4C3C3F4502ABDD29F086380022FBC6BEB7409BFE204B6BDCBD9F95C5137AE"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "6748996ED6368BC871CEDD046B981CE4BB6347E00C7DC6C62A07AD182A401696"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "B74CDC65F7EE8F7E74E044A6E0D12C06E4CC1948E8CBB4F737317F56C1845E73"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "29ECC7AD65CACD1CA97EB9874785524AAEC8FAB9C53DD0CFF05757AA6A591E91"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "0221F04223D1B5A1DBEF7C010874508C6EE9558C62A8F67005C3B379B458D83D"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": -16,
+          "y": -8
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": -15,
+          "y": -7
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 304,
+          "y": 196
+        }
+      ],
+      "original_native_sha256": "265071719616AF6F40404FD173F7CF488A6B4C0E5EEDF7B51B45B89C82E99E41"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "381B5DDFAF0259097D968D30FAE17DBBE7FF5A23B04412FED1FCE315EE127FCC"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "EE46934D02DC0AB4EC60D6A63543162690B884D6066B849B46939C4A19416C56"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "E09F7A0CFD48095DE9819C3A17220646504C0581B2704440F6E01F79224F1285"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "1C244C667A5A21C7CE8AC6139A4EA212DAB5EDCB644E53096B8F14B17394140B"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "C82BA886A0B19D48DD6FF69A3AC111EC0AAF572DBD5F2164F18B39B68E9A6560"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "2908063FCC7F59C6848E57CF9C18D7124DDDAF6F7EB55F689B7D0F93173C624E"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "D030BC66FD75FF731FC3FBB2D3724A6864CE9887A1045A1288F72A8EC857BFA5"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "A9DDAB2C71A61B798657E44B4E88ACC11525EB88C14C99A97EE8271D74A5BD89"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "1E71E7355340C961F3C4D57B6D4465B983DE0F31C4AB5FE8E0CEC540E7CACE3B"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "0A5B1C187A5FD174800B418C60E6A260AE97074769489B9FC8BE575F2641BC9E"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "F70033806B2F6BD997DD0D641C9DE09273630D474845E6E1F7B888F1A4097A44"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": -32,
+          "y": -16
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": -31,
+          "y": -15
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 22,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 288,
+          "y": 188
+        }
+      ],
+      "original_native_sha256": "A6428E013BD3536A5FD85519B29B03BCCCB68863B8ABC6005B371B0CDB04FCDA"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "381B5DDFAF0259097D968D30FAE17DBBE7FF5A23B04412FED1FCE315EE127FCC"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "EE46934D02DC0AB4EC60D6A63543162690B884D6066B849B46939C4A19416C56"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "E09F7A0CFD48095DE9819C3A17220646504C0581B2704440F6E01F79224F1285"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "1C244C667A5A21C7CE8AC6139A4EA212DAB5EDCB644E53096B8F14B17394140B"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "C82BA886A0B19D48DD6FF69A3AC111EC0AAF572DBD5F2164F18B39B68E9A6560"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "2908063FCC7F59C6848E57CF9C18D7124DDDAF6F7EB55F689B7D0F93173C624E"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "D030BC66FD75FF731FC3FBB2D3724A6864CE9887A1045A1288F72A8EC857BFA5"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "A9DDAB2C71A61B798657E44B4E88ACC11525EB88C14C99A97EE8271D74A5BD89"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "1E71E7355340C961F3C4D57B6D4465B983DE0F31C4AB5FE8E0CEC540E7CACE3B"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "0A5B1C187A5FD174800B418C60E6A260AE97074769489B9FC8BE575F2641BC9E"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "F70033806B2F6BD997DD0D641C9DE09273630D474845E6E1F7B888F1A4097A44"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": -32,
+          "y": -16
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": -31,
+          "y": -15
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 33,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 288,
+          "y": 188
+        }
+      ],
+      "original_native_sha256": "A6428E013BD3536A5FD85519B29B03BCCCB68863B8ABC6005B371B0CDB04FCDA"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "E7BF7F08B6F783E6BA4ECC7B261C3B6BD4439DCE0A5232E47BF3B0A0F94684BC"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "8E02157359D04E3FCE5C735EB6C51A6CBECE4ABDBECC13A8F7A39E9185EB3782"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "D8280B5FB696BDA40E270D0088D3AE8E34F1CB9BD87DA77E0B09706441D0098A"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "2E405705B4FE404C34FA3D422923A91AE8CA6B76CD030B849DD828011A7ECD94"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "F065764BA5EC001123E515DA5BA02141CB56A58D8E20F8DCA67066C66E0046A3"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "9C9FB7FC5ABEFF8205886CC3290686C12FFCD741EC92E14EA16F019B120FC570"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "796E6BB3A3415EECD7259BFE818836FB81368986D8EDA1B51E96416A57B4E3A8"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "7E1853389C4B3B5962F338B20E824AF8ACB02F0164E23AD3450D535B1ABBAADB"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "408962E90E41B6A633EBEEE4AFAB1B27A895F08EEC8A2748E0C060D6B922F806"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "9D464D6A127A3A622A9A71BBBEF1A5007E58AE10CB192BE765904DD0D768CA32"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "ACB18219D92998D51C2E268B4B8DF09393BE687D03AAFDDA02E3E7B4B55DBA69"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": -72,
+          "y": -36
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": -71,
+          "y": -35
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 44,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 248,
+          "y": 168
+        }
+      ],
+      "original_native_sha256": "76C54A3026E4892D126700B2FC91E5B08A42B37C64F80A98792DF871DD59D6FC"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "E7BF7F08B6F783E6BA4ECC7B261C3B6BD4439DCE0A5232E47BF3B0A0F94684BC"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "8E02157359D04E3FCE5C735EB6C51A6CBECE4ABDBECC13A8F7A39E9185EB3782"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "D8280B5FB696BDA40E270D0088D3AE8E34F1CB9BD87DA77E0B09706441D0098A"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "2E405705B4FE404C34FA3D422923A91AE8CA6B76CD030B849DD828011A7ECD94"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "F065764BA5EC001123E515DA5BA02141CB56A58D8E20F8DCA67066C66E0046A3"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "9C9FB7FC5ABEFF8205886CC3290686C12FFCD741EC92E14EA16F019B120FC570"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "796E6BB3A3415EECD7259BFE818836FB81368986D8EDA1B51E96416A57B4E3A8"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "7E1853389C4B3B5962F338B20E824AF8ACB02F0164E23AD3450D535B1ABBAADB"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "408962E90E41B6A633EBEEE4AFAB1B27A895F08EEC8A2748E0C060D6B922F806"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "9D464D6A127A3A622A9A71BBBEF1A5007E58AE10CB192BE765904DD0D768CA32"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "ACB18219D92998D51C2E268B4B8DF09393BE687D03AAFDDA02E3E7B4B55DBA69"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": -72,
+          "y": -36
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": -71,
+          "y": -35
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 55,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 248,
+          "y": 168
+        }
+      ],
+      "original_native_sha256": "76C54A3026E4892D126700B2FC91E5B08A42B37C64F80A98792DF871DD59D6FC"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "5CA1CFDF82753A38D7339D075742352B5B43A2EC665F5E8CE5D22593ACBA2123"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "9E962A2E54F1905A876129186B3BE37B09D6A2E7875F3189BE90CEADE94AF5CA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "A2F676255A0EACDA4FB8457059AB43A59473CA2F78D53A117B1BC2415E597433"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "B70D27A6A71AF2505DC1726807F86E47C2F5A910712417F9BDD53FAFD779BFBB"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "18B94909A7FCB82D4B7737CF999732B92BEE41C0C10957FD3332187B4EE31000"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "C164FF8188CF88E64E8ED22E9C199C01F7131F1138B96D327A6ACE19EE3AFB2F"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "B63D3C2E0D0A8AE17581A018F851E1031F40A19BB06C7342E1177E42A275F167"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "F1F393CDAC7B72DF3ABD1EA0A9FB27E31690B2BED6BC275D0D0CFF979C45253F"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "E09D56B45FAA757F262A70A175FA4801399F7466B1726621CF99A43A71A39C92"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "C2F3EB21FB2127FCDD94BF97C3705AB4FE2CFE447A491721D20A7EBC8BDD62D4"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": -144,
+          "y": -72
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": -143,
+          "y": -71
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 66,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 176,
+          "y": 132
+        }
+      ],
+      "original_native_sha256": "2DD8102F4CAA815E7224D94F02B823DF46E0962D3D79F6819D9FDEF7F5D7CE2A"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "5CA1CFDF82753A38D7339D075742352B5B43A2EC665F5E8CE5D22593ACBA2123"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "9E962A2E54F1905A876129186B3BE37B09D6A2E7875F3189BE90CEADE94AF5CA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "A2F676255A0EACDA4FB8457059AB43A59473CA2F78D53A117B1BC2415E597433"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "B70D27A6A71AF2505DC1726807F86E47C2F5A910712417F9BDD53FAFD779BFBB"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "18B94909A7FCB82D4B7737CF999732B92BEE41C0C10957FD3332187B4EE31000"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "C164FF8188CF88E64E8ED22E9C199C01F7131F1138B96D327A6ACE19EE3AFB2F"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "B63D3C2E0D0A8AE17581A018F851E1031F40A19BB06C7342E1177E42A275F167"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "F1F393CDAC7B72DF3ABD1EA0A9FB27E31690B2BED6BC275D0D0CFF979C45253F"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "E09D56B45FAA757F262A70A175FA4801399F7466B1726621CF99A43A71A39C92"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "C2F3EB21FB2127FCDD94BF97C3705AB4FE2CFE447A491721D20A7EBC8BDD62D4"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": -144,
+          "y": -72
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": -143,
+          "y": -71
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 77,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 176,
+          "y": 132
+        }
+      ],
+      "original_native_sha256": "2DD8102F4CAA815E7224D94F02B823DF46E0962D3D79F6819D9FDEF7F5D7CE2A"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "23618796FA67189650CB13D538C5D2BE502C697C06A63324E36BC106DD1606EE"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "5ADB0619DED301A44CF0D2F47755192C8330667B2E4BC9ACC37183E4E98463E5"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "6E1BB5505A6BDA2F5895C57ACA1512A2C0B882A816F187A0D6D96A55926DBDEA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "88AA61C99E3FEB85A9EFC3958324AE558A9DFF109AB263792F2C268A49FDC56D"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "85105E01879DBC8528C218121A7E40D37046BC985D580A9E8AC81792C3C15861"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "8F64D8FFB0E08541DDF2FDCC00A57245542829E05A9783E5F51AAC304161707B"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "8B1B1F1DADB95C44E3AD286FD21CF974D3BDEFCAFA0471730CB6C385D8777120"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "C16DF6AAA9A8EEA8009ADE9F720342D31AA490FCA61EEBAC73E9E64C1C3DD10F"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "B8EB3AA0B1AEC9FA89854F95A683333D33C90C2F389A21126546E964CF249164"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": -200,
+          "y": -100
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": -199,
+          "y": -99
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 88,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 120,
+          "y": 104
+        }
+      ],
+      "original_native_sha256": "E0EF3AF82E1E44190BE6357204EC74648C2AA64631856F803C0C47DFABFFFD7A"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "23618796FA67189650CB13D538C5D2BE502C697C06A63324E36BC106DD1606EE"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "5ADB0619DED301A44CF0D2F47755192C8330667B2E4BC9ACC37183E4E98463E5"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "6E1BB5505A6BDA2F5895C57ACA1512A2C0B882A816F187A0D6D96A55926DBDEA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "88AA61C99E3FEB85A9EFC3958324AE558A9DFF109AB263792F2C268A49FDC56D"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "85105E01879DBC8528C218121A7E40D37046BC985D580A9E8AC81792C3C15861"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "8F64D8FFB0E08541DDF2FDCC00A57245542829E05A9783E5F51AAC304161707B"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "8B1B1F1DADB95C44E3AD286FD21CF974D3BDEFCAFA0471730CB6C385D8777120"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "C16DF6AAA9A8EEA8009ADE9F720342D31AA490FCA61EEBAC73E9E64C1C3DD10F"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "B8EB3AA0B1AEC9FA89854F95A683333D33C90C2F389A21126546E964CF249164"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": -200,
+          "y": -100
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": -199,
+          "y": -99
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 99,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 120,
+          "y": 104
+        }
+      ],
+      "original_native_sha256": "E0EF3AF82E1E44190BE6357204EC74648C2AA64631856F803C0C47DFABFFFD7A"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "6E649755AFAD9481C8AB2E88CF8572418DD0DD23E907B535E855AC11724363C2"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "21A867D7FE9F819F3947E6B3DF2F087FE13B3AB58CFE1DE45ABE7E15126EBD7C"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "CD000D1994E77C6E3BE9E14589B31B121011C13A334C54746D072D9B95ABF772"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "FEC27EBA93C661103BBC6E82ED03BDBE4BC771568C89599F27C55EB619DE27D7"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "2AE105401FC1F5F5D02D1F84D7D1CB02A175D8FF8482AB49D1F096550F4C4733"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "B9535DAD910392E6856141B516A0C41F0AF7F6A823D6081213F3A831F2BECA48"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "71182520BB8ED7617D57EB344868EE0EE4B569CC528D8955CA68BBA3FCD8E8DF"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "B897CF430941416B6E05E68BC4C1283B96A3021E0C4239366EE1CF272519FCE5"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "9B95067917049B1F6B942CEF6B9BA4DE7FBC99122B2A32CC6B9FA4AFDE9565C5"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": -240,
+          "y": -120
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": -239,
+          "y": -119
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 110,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 80,
+          "y": 84
+        }
+      ],
+      "original_native_sha256": "262A1694143F6B1AA2DF2B8B631870E8A8373979EAE4BCCEFBABBC77329C6E70"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "6E649755AFAD9481C8AB2E88CF8572418DD0DD23E907B535E855AC11724363C2"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "21A867D7FE9F819F3947E6B3DF2F087FE13B3AB58CFE1DE45ABE7E15126EBD7C"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "CD000D1994E77C6E3BE9E14589B31B121011C13A334C54746D072D9B95ABF772"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "FEC27EBA93C661103BBC6E82ED03BDBE4BC771568C89599F27C55EB619DE27D7"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "2AE105401FC1F5F5D02D1F84D7D1CB02A175D8FF8482AB49D1F096550F4C4733"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "B9535DAD910392E6856141B516A0C41F0AF7F6A823D6081213F3A831F2BECA48"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "71182520BB8ED7617D57EB344868EE0EE4B569CC528D8955CA68BBA3FCD8E8DF"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "B897CF430941416B6E05E68BC4C1283B96A3021E0C4239366EE1CF272519FCE5"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "9B95067917049B1F6B942CEF6B9BA4DE7FBC99122B2A32CC6B9FA4AFDE9565C5"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": -240,
+          "y": -120
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": -239,
+          "y": -119
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 121,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 80,
+          "y": 84
+        }
+      ],
+      "original_native_sha256": "262A1694143F6B1AA2DF2B8B631870E8A8373979EAE4BCCEFBABBC77329C6E70"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "EB2DDE11F5B9582227E5D92B21DFEC9A18DAE7C41089ECDECCC8912BA693556F"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "ED53A3B31CD082CEF3023B5369C47E9BF98E378AFDCCC655C393C19565FBBEFD"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "65C2A2F4338856B09A61802D0E68E909CB9655C275F6AAD1C159609F0C184543"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "C8A1C586B7FC0A89C5B4B5DE44282DA93109BA3E64994AD43A158319E424D90B"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "F77A1341BC2EE41DED5421251159E5E6BD7319D091842FFA75BCBAC957785994"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "DD67777017B5A23B7906BC415A92B969C181BBD7D6C3A1647D37AAF390A68135"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "B192FD7EB59E7B905E9D185104CA746A81CA8C0F23AB0AA564FCFC39B4D7A083"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "CE415F7ADC129B9A11FF1CF7D12E6151579AEE3E17400F0EAAB05AC90E1F6B4C"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "7390D04ABAE1024E1042360FB17A70FC59EB89DC4F8AB2518433A71F4C5F7FCA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": -288,
+          "y": -144
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": -287,
+          "y": -143
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 132,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 32,
+          "y": 60
+        }
+      ],
+      "original_native_sha256": "D7513F82D9CCAF22CFAB43DA09CBB17AC7A0CA2CE89F087C72A3406A640E48D6"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "EB2DDE11F5B9582227E5D92B21DFEC9A18DAE7C41089ECDECCC8912BA693556F"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "ED53A3B31CD082CEF3023B5369C47E9BF98E378AFDCCC655C393C19565FBBEFD"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "65C2A2F4338856B09A61802D0E68E909CB9655C275F6AAD1C159609F0C184543"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "C8A1C586B7FC0A89C5B4B5DE44282DA93109BA3E64994AD43A158319E424D90B"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "F77A1341BC2EE41DED5421251159E5E6BD7319D091842FFA75BCBAC957785994"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "DD67777017B5A23B7906BC415A92B969C181BBD7D6C3A1647D37AAF390A68135"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "B192FD7EB59E7B905E9D185104CA746A81CA8C0F23AB0AA564FCFC39B4D7A083"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "CE415F7ADC129B9A11FF1CF7D12E6151579AEE3E17400F0EAAB05AC90E1F6B4C"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "7390D04ABAE1024E1042360FB17A70FC59EB89DC4F8AB2518433A71F4C5F7FCA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": -288,
+          "y": -144
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": -287,
+          "y": -143
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 143,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 32,
+          "y": 60
+        }
+      ],
+      "original_native_sha256": "D7513F82D9CCAF22CFAB43DA09CBB17AC7A0CA2CE89F087C72A3406A640E48D6"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "27B716400D55F57AF89874F9CE62DC1CD071A8BCB2080AA1C87E71C0C5A1A9C3"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "929E38305ABFC899D94236C9F67D7244BAED3F879A2CB82B17EE6B3185156D1E"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "D0915B7081C7A57833256EA52859B79D62144D36EA9259B6CB2956647BAF3F8A"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "39DA1B44C3414A7ED3924D3B475E5CF9B3CDCA4161065713310DA0EB5AC41945"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "33DAA3010F4E0299FD99451BE86C749F5804DFC63D7635D96C9892D8649E059F"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "667AEA97E0C4401973C9E096EC21E5B096C6C9283103CA122B0CFF6E09698F29"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "75218819844A36AB47181A63713D03787AD475C36A6FCB377F67EFEF67CF4637"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "8D9F2B44D58B17CD65781CFD597833EC89E37AFA3FF5A3D4B0470AE952E6BC99"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "56B06975DA4054AC77EF3B75DA325D3BF4A487FA8BC3C2BDBE0738A16001C464"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "0F8196D86D5F7BFDD5F2578A762738F6787E0D4732811365A268863A1A91B04D"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "01365540B0E190E86A79D80E8225CFD6E547579DD3FEB4A9FE0C199385048EF2"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": -312,
+          "y": -156
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": -311,
+          "y": -155
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 154,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 8,
+          "y": 48
+        }
+      ],
+      "original_native_sha256": "78BE4C92C0E8D0EB7ED5C642600655DAFE6378C7F8096E1DA61DB1D0A533E27E"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 37,
+          "y": 22
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 160,
+          "y": 102
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 319,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": -7,
+          "y": 3
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 13,
+          "y": -9
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": -400,
+          "y": -300
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 1000,
+          "y": 1000
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 315,
+          "y": -3
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": -3,
+          "y": 199
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 159,
+          "y": 203
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 319,
+          "y": 101
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 1,
+          "y": 1
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 165,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 15,
+          "x": 320,
+          "y": 204
+        }
+      ],
+      "original_native_sha256": "D5EBF1B7B54E7DC914C34C1B00390BB1E1BC3924914B03DB78D47C687EB747FA"
+    },
+    {
+      "seed": 0,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 1,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 2,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 3,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 4,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 5,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 6,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 7,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 8,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 9,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 10,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 11,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 12,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 13,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 14,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 0,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "303A5E5632C906B4DF81DB064BB5886F97C651C8833606880D239313642E3CDE"
+    },
+    {
+      "seed": 0,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 14,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 13,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 12,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 11,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 10,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 9,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 8,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 7,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 6,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 5,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 4,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 3,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 2,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 1,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 0,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "A7A7F7963B9463474044032C880D7F84F7621C635A56EF3DE767B0CD4A136EAB"
+    },
+    {
+      "seed": 1,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 2,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 3,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 4,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 5,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 6,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 7,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 8,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 9,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 10,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 11,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 12,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 13,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 14,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 0,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 1,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "83A48F5E0A49805FFA55BC90E55883F39F5AE5B2D78F5DDEE6A2F7F4B6E1A0F0"
+    },
+    {
+      "seed": 1,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 1,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 0,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 14,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 13,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 12,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 11,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 10,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 9,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 8,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 7,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 6,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 5,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 4,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 3,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 2,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 1,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "8434B7F91A2FAA2198189E1BB16F1753B23488089B67571601ECFE6828C7A236"
+    },
+    {
+      "seed": 2,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 3,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 4,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 5,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 6,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 7,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 8,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 9,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 10,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 11,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 12,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 13,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 14,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 0,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 1,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 2,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "8BB3ED30B4EDED38D4683F69F5DF9088F8BCFC01AB8B882FF470001DF45D9E9E"
+    },
+    {
+      "seed": 2,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 2,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 1,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 0,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 14,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 13,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 12,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 11,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 10,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 9,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 8,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 7,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 6,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 5,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 4,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 3,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 2,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "ADC167661C396868E22404243FA638CF25139AAD9FCB57BA88F0CA9436645923"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 4,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 5,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 6,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 7,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 8,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 9,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 10,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 11,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 12,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 13,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 14,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 0,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 1,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 2,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 3,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "FF881021E955B6BF3C62C175C86A3B175C416E7F89165179EE7F2F62CAD17080"
+    },
+    {
+      "seed": 3,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 3,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 2,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 1,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 0,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 14,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 13,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 12,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 11,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 10,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 9,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 8,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 7,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 6,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 5,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 4,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 3,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "6DDBA66ADDCDB0B559A9758C87CFB3744B0BE2BD551030F498381EAF47DABF04"
+    },
+    {
+      "seed": 4,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 5,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 6,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 7,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 8,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 9,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 10,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 11,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 12,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 13,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 14,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 0,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 1,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 2,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 3,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 4,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "5581B479724A5C0E01D4CEB89FD4DD11C20F4A346AD4F3917AA2639ABA12984D"
+    },
+    {
+      "seed": 4,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 4,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 3,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 2,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 1,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 0,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 14,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 13,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 12,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 11,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 10,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 9,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 8,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 7,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 6,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 5,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 4,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "E4D20F90850E0963499B5E0C5C9FC60FDA7BCD15F03247C53B0DEE8142F04CC0"
+    },
+    {
+      "seed": 5,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 6,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 7,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 8,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 9,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 10,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 11,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 12,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 13,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 14,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 0,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 1,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 2,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 3,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 4,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 5,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "C7FB55610CA33CEDE20E39DFD47120F4FA7FF5B35FA6C3268A49EDD5392B1671"
+    },
+    {
+      "seed": 5,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 5,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 4,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 3,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 2,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 1,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 0,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 14,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 13,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 12,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 11,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 10,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 9,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 8,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 7,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 6,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 5,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "A0968030E6E3A92E5551FD1F50B9354AA814F15EB209783F9EE7D3B9D297E7EA"
+    },
+    {
+      "seed": 6,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 7,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 8,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 9,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 10,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 11,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 12,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 13,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 14,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 0,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 1,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 2,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 3,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 4,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 5,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 6,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "8DACDE7DC230CB8D5E2741CF7DF89D79CD515B4D57950D3469F09F1DE3E3E68C"
+    },
+    {
+      "seed": 6,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 6,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 5,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 4,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 3,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 2,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 1,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 0,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 14,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 13,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 12,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 11,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 10,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 9,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 8,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 7,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 6,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "5086A43B76E590A8B6F1FB24D19273A0D7D20170111BC81EF483B7D358608BC1"
+    },
+    {
+      "seed": 7,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 8,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 9,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 10,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 11,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 12,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 13,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 14,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 0,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 1,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 2,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 3,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 4,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 5,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 6,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 7,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "0328150FE13824A53FB1A61A2E4984DF7E9347EE1D7DD1A900BAF9E5AA6B3C5E"
+    },
+    {
+      "seed": 7,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 7,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 6,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 5,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 4,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 3,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 2,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 1,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 0,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 14,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 13,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 12,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 11,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 10,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 9,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 8,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 7,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "D26D7D65D03BDCA0037556B9F0DAC1F40FC983A528D0D37622A9474184D5FE0F"
+    },
+    {
+      "seed": 8,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 9,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 10,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 11,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 12,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 13,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 14,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 0,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 1,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 2,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 3,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 4,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 5,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 6,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 7,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 8,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "B4BFC55D4CC6D2DFABF2004B86742B624E07014ED3151E419D29D27191177C3B"
+    },
+    {
+      "seed": 8,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 8,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 7,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 6,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 5,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 4,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 3,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 2,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 1,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 0,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 14,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 13,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 12,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 11,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 10,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 9,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 8,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "426BD6A9D2B461CD9F5C4C5FFE73E8204DCCEF34FAB4AD3AD5FB953B15E4FA5A"
+    },
+    {
+      "seed": 9,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 10,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 11,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 12,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 13,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 14,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 0,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 1,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 2,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 3,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 4,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 5,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 6,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 7,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 8,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 9,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "5930A9B9C8D9FD5329288A63970CF4A24CFC89DAFAC39CD2E1B17879384260D3"
+    },
+    {
+      "seed": 9,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 9,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 8,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 7,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 6,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 5,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 4,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 3,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 2,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 1,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 0,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 14,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 13,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 12,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 11,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 10,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 9,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "61FF63A35C17BDA6E11E79DDC30E7CB3B56014961900C3B77F6DAA896540837B"
+    },
+    {
+      "seed": 10,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 11,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 12,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 13,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 14,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 0,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 1,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 2,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 3,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 4,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 5,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 6,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 7,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 8,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 9,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 10,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "272FE54B000C350F9EA7A114C436B31ABC8DE642716FD2E3756542A357B4B1D9"
+    },
+    {
+      "seed": 10,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 10,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 9,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 8,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 7,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 6,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 5,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 4,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 3,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 2,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 1,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 0,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 14,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 13,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 12,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 11,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 10,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "AF30B6E05FC253EB804297B3A27AF518D8090F95860747896071600A967A71BB"
+    },
+    {
+      "seed": 11,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 12,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 13,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 14,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 0,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 1,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 2,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 3,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 4,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 5,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 6,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 7,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 8,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 9,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 10,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 11,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "B8C7F71019697AF8B05F48D7A80A0FDC555446D5E888A4485B77558DCA2B7DAE"
+    },
+    {
+      "seed": 11,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 11,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 10,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 9,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 8,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 7,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 6,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 5,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 4,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 3,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 2,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 1,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 0,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 14,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 13,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 12,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 11,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "68EC85E5D517081A8065C77EC5F6B4CED19181E331A6C295775CF9498F721E71"
+    },
+    {
+      "seed": 12,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 13,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 14,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 0,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 1,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 2,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 3,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 4,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 5,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 6,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 7,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 8,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 9,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 10,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 11,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 12,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "EAD82FDD8CF6FF19ACB454CC4439DC6CCE82E2CDC50A9B1F1D4D62BD0C1EACAC"
+    },
+    {
+      "seed": 12,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 12,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 11,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 10,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 9,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 8,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 7,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 6,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 5,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 4,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 3,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 2,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 1,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 0,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 14,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 13,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 12,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "680E29D18F1B14CE078CD413ED921534F3EDD3F9D9FE2844DC09615E7C84A6EC"
+    },
+    {
+      "seed": 13,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 14,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 0,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 1,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 2,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 3,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 4,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 5,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 6,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 7,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 8,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 9,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 10,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 11,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 12,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 13,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "31805FD876C38BDBC25B5EE393F788C33E5CD2605ED55C8ADE35575C86C40EE1"
+    },
+    {
+      "seed": 13,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 13,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 12,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 11,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 10,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 9,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 8,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 7,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 6,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 5,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 4,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 3,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 2,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 1,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 0,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 14,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 13,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "4373116A49136759D098F7E863679AEA6A5ABA9F87CB907E2BE7D204E9994662"
+    },
+    {
+      "seed": 14,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 0,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 1,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 2,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 3,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 4,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 5,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 6,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 7,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 8,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 9,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 10,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 11,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 12,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 13,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 14,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "5443D124C644EF0FEC947958B26E76C5681101CA89288FA9B90130B37C095380"
+    },
+    {
+      "seed": 14,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 14,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 13,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 12,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 11,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 10,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 9,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 8,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 7,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 6,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 5,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 4,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 3,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 2,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 1,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 0,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 14,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "9FB954D274443972FFCDF3079362408B16FB1FDF71F165106D8D264299D27ED9"
+    },
+    {
+      "seed": 15,
+      "clear": false,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 117,
+          "y": 85
+        },
+        {
+          "slot": 1,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 2,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 3,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 4,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 5,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 6,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 7,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 8,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 9,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 10,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 11,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 12,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 13,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 14,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 0,
+          "x": 12,
+          "y": 40
+        }
+      ],
+      "original_native_sha256": "E806A78D7F0255C85CE5C5524A3AFD38785BFE286280759A3D6872F660708309"
+    },
+    {
+      "seed": 15,
+      "clear": true,
+      "ops": [
+        {
+          "slot": 0,
+          "x": 12,
+          "y": 40
+        },
+        {
+          "slot": 14,
+          "x": 19,
+          "y": 43
+        },
+        {
+          "slot": 13,
+          "x": 26,
+          "y": 46
+        },
+        {
+          "slot": 12,
+          "x": 33,
+          "y": 49
+        },
+        {
+          "slot": 11,
+          "x": 40,
+          "y": 52
+        },
+        {
+          "slot": 10,
+          "x": 47,
+          "y": 55
+        },
+        {
+          "slot": 9,
+          "x": 54,
+          "y": 58
+        },
+        {
+          "slot": 8,
+          "x": 61,
+          "y": 61
+        },
+        {
+          "slot": 7,
+          "x": 68,
+          "y": 64
+        },
+        {
+          "slot": 6,
+          "x": 75,
+          "y": 67
+        },
+        {
+          "slot": 5,
+          "x": 82,
+          "y": 70
+        },
+        {
+          "slot": 4,
+          "x": 89,
+          "y": 73
+        },
+        {
+          "slot": 3,
+          "x": 96,
+          "y": 76
+        },
+        {
+          "slot": 2,
+          "x": 103,
+          "y": 79
+        },
+        {
+          "slot": 1,
+          "x": 110,
+          "y": 82
+        },
+        {
+          "slot": 0,
+          "x": 117,
+          "y": 85
+        }
+      ],
+      "original_native_sha256": "A7A7F7963B9463474044032C880D7F84F7621C635A56EF3DE767B0CD4A136EAB"
+    },
+    {
+      "seed": 0,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "pairs",
+          "x": 0,
+          "y": 0,
+          "w": 320,
+          "h": 204
+        }
+      ],
+      "original_native_sha256": "D66FBB4B3CB533FCEFF89B76A83BD75A6E33916AF8B501404693C79C446C7ED9"
+    },
+    {
+      "seed": 0,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 255,
+          "x": 0,
+          "y": 0,
+          "w": 320,
+          "h": 204
+        }
+      ],
+      "original_native_sha256": "AFAF1D4AA3B1F12F2BC33291D0A7566983036821780743D17E60973668032D04"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 7
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": 7,
+          "h": 0
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": -1,
+          "h": 0
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": -1
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": -1,
+          "h": -1
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": -1
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    },
+    {
+      "seed": 3,
+      "clear": false,
+      "ops": [
+        {
+          "kind": "constant",
+          "value": 121,
+          "x": 0,
+          "y": 0,
+          "w": -1,
+          "h": 12
+        }
+      ],
+      "original_native_sha256": "5709EA9CCD731A358D994C9571A0C965590B4B68006E14A451988DF1DD3F1A71"
+    }
+  ]
+}

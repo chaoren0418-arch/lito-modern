@@ -1,0 +1,7 @@
+#[cfg(test)]mod resurrection61_definition_development_tests {
+ use super::*;
+ fn raw(id:u32)->&'static[u8]{match id{3944=>include_bytes!(r"D:\lineage開發\3-lito開發\lito重建版\驗證紀錄\current\native-E149-resurrection61-inspection\20261024-122925-908479\3944.definition.txt"),230=>include_bytes!(r"D:\lineage開發\3-lito開發\lito重建版\驗證紀錄\current\native-E149-resurrection61-inspection\20261024-122925-908479\230.definition.txt"),_=>panic!()}}
+ fn qualify(id:u32,bytes:&[u8])->Animation {let c=SpriteActionCatalog::parse_for_inspection(&[b"11297 0 0\n".as_slice(),bytes].concat(),super::super::sprite_actions::ActionLimits::default()).unwrap();qualify_one(&c,SPECS.iter().find(|s|s.sprite==id).unwrap()).unwrap()}
+ #[test]fn cast_is_eight_way_sound1362_source2_and_success_is_separate_sound124_source1(){let a=qualify(3944,raw(3944));let b=qualify(230,raw(230));assert_eq!(a.directionality,Directionality::EightWay);assert_eq!(a.frames.len(),24);assert_eq!(a.frames[2].events,vec![FrameEvent::Sound(1362)]);assert_eq!(b.directionality,Directionality::Undirected);assert_eq!(b.frames.len(),7);assert_eq!(b.frames[1].events,vec![FrameEvent::Sound(124)]);}
+ #[test]fn exact_individual_millisecond_delays_are_visual_only(){for(id,end)in[(3944,3371),(230,830)]{let mut p=super::super::native_effect_timing::Clip::new(std::sync::Arc::new(qualify(id,raw(id)))).unwrap().start();let mut s=p.advance(0).unwrap();let mut at=0;while !s.finished{at=p.next_callback_millis().unwrap();s=p.advance(at*1_000_000).unwrap();}assert_eq!(at,end);}}
+}

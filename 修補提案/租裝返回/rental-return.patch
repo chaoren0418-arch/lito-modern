@@ -1,0 +1,33 @@
+--- a/src/main/java/local/lito381/server/ClientSession.java
++++ b/src/main/java/local/lito381/server/ClientSession.java
+@@ -14555,7 +14555,13 @@
+     }
+ 
+     private void exitRoom(boolean notifySelf) throws IOException {
+-        if (phase == Phase.BATTLE) { settleRequestedBattleExit(); return; }
++        // A rental restart ACK must retire its service state, not a synthetic room.
++        boolean stagedRentalReturn = rentalTownRoomState
++                && pendingTransition == PendingTransition.RESTART_AWAIT_RETURN;
++        if (phase == Phase.BATTLE && !stagedRentalReturn) {
++            settleRequestedBattleExit();
++            return;
++        }
+         pendingWarehousePassword = null;
+         pendingShapeChange = null;
+         pendingSlaveTarget = null;
+@@ -14860,7 +14866,14 @@
+     }
+ 
+     private void quitFight() throws IOException {
+-        if (phase == Phase.BATTLE) { settleRequestedBattleExit(); return; }
++        // Only an already-staged rental transition precedes ordinary battle exit.
++        boolean stagedRentalTransition = rentalTownRoomState
++                && (rentalTownTransferPending
++                    || pendingTransition == PendingTransition.RESTART_AWAIT_QUIT_FIGHT);
++        if (phase == Phase.BATTLE && !stagedRentalTransition) {
++            settleRequestedBattleExit();
++            return;
++        }
+         pendingWarehousePassword = null;
+         pendingSlaveTarget = null;
+         pendingPetRename = null;

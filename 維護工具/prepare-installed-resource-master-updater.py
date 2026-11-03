@@ -1,0 +1,20 @@
+from pathlib import Path
+import ast
+R=Path(__file__).resolve().parents[1];T=R/'維護工具'
+s=(T/'update-master-report-render-placement.py').read_text('utf-8-sig')
+s=s.replace("app=w['current_native_render_placement_application']", "app=w['current_native_installed_resource_profile_application']")
+s=s.replace("source=='B0628AC904FE5AB7C2227FF176811A4A6208EAC7B5BA8892C73D0AFD99F2F2C4'", "source=='9F99C1203C0BB3F2CF87A873C7A81F7B20B08AFD3546A2282A84B62F6C8124C8'")
+s=s.replace("normal=w.get('current_native_render_placement_normal_qualification',{})", "normal=w.get('current_native_installed_resource_profile_normal_qualification',{})")
+s=s.replace("(V/'native-render-placement-normal').glob", "(V/'native-installed-resource-profile-normal').glob")
+s=s.replace('已套一檔原生繪製回傳修補；', '保留原生繪製回傳修補，並套五檔cfg(test)資源資格更新；')
+s=s.replace("{link('套用／回復證據',applications[0])}：光柵", "{link('原生修補／回復',V/'native-render-placement-normal/application-20261019-200357-854061/application.json')}：光柵")
+s=s.replace('候選與前版失敗皆封存。', "候選與前版失敗皆封存。\n\n{link('資源測試更新／回復',applications[0])}只改測試：Text現行參考以完整idx／pak雜湊及{link('獨立C#1.5.4核對',V/'native-installed-Text-reference/20261019-200910/readback.json')}綁定37497筆／28361名稱，保留舊37496／28360參考與全部payload／重名拒絕斷言。另新增四項明選現行launcher TW的忽略案例，共用原SPR／合成像素／時鐘／所有權斷言；舊根目錄案例與載入入口均保留，不做fallback。四項新本文尚未執行。")
+s=s.replace('| BC2CA7E9正常兩版 |', "| B0628AC9正常兩版 | 各19過0敗0忽略；11記錄程序皆終止 | {link('限定資格',w['qualification_before_installed_resource_profiles']['normal']['qualification'])}；該版library未跑，非當版資格 |\n| BC2CA7E9正常兩版 |")
+s=s.replace('Text索引實際37497筆／舊C#參考37496筆須獨立核對；目標回傳排序／遮罩一項已套當版修補、尚待實跑。', 'Text索引實際37497筆／舊C#參考37496筆已完成獨立來源核對並套測試擴充、待Rust實跑；目標回傳排序／遮罩一項已套修補、尚待實跑。')
+s=s.replace('run／qualify／checkpoint-native-render-placement-normal.py', 'run／qualify／checkpoint-native-installed-resource-profile-normal.py')
+s=s.replace('run-native-render-placement-library-default.py', 'run-native-installed-resource-profile-library-default.py')
+s=s.replace("V/'native-render-placement-tooling/20261019-200430-627396/tooling.json'", "V/'native-installed-resource-profile-tooling/validation-preparation-20261019-201342-436781/tooling.json'")
+s=s.replace('驗新fragment重現案與原Honor原資源斷言，再處理六項舊資源／Text參考條件；逐名／逐資源區分已跑、失敗與缺條件，兩版都需實跑。不要以改SHA期待、接受缺檔、資料命名空間fallback或全開484忽略規避條件。', '驗新fragment重現案與原Honor原資源斷言；當版資源計畫為71項現行共用案例加原生77十項，需依實際library名稱／來源核對後逐版執行。五項舊根目錄TW案例缺其歷史封包，保留缺條件，不能移記現行四項資格；其餘402原本文條件逐項處理。獨立來源核對後擴充明選參考，不能直接改舊SHA期待、接受缺檔、fallback或全開忽略規避條件。')
+s=s.replace('新增1項原生fragment重現案，須核對實際名稱／總數', '保留新增1項fragment重現案，另新增4項明選現行TW忽略案；須核對實際名稱／總數')
+ast.parse(s)
+p=T/'update-master-report-installed-resource-profile.py';assert not p.exists();p.write_text(s,encoding='utf-8',newline='\n');print(str(p))

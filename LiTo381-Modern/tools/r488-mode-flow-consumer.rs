@@ -1,0 +1,40 @@
+use std::{fs,path::{Path,PathBuf},thread,time::{Duration,Instant},sync::atomic::Ordering};
+use lito_modern::modern_lito::{native_mode_menu::{Hit,Filter},native_multisector_resources::Inputs,native_city_runtime::{Runtime,Action,UiPage,mode_selection::{ModeSelection,ModeError,Outcome}},native_resources::BytePin};
+use serde_json::{Value,json};use sha2::{Digest,Sha256};
+fn input(p:&Path)->Inputs{let manifest=p.join("logs/continuation-20261003/r486-map-binding.json");let b=fs::read(&manifest).unwrap();Inputs{project:p.into(),manifest,manifest_pin:BytePin{bytes:b.len()as u64,sha256:Sha256::digest(b).into()}}}
+fn wait(mut f:impl FnMut()->bool){let end=Instant::now()+Duration::from_secs(60);while !f(){assert!(Instant::now()<end,"R488 bounded mode flow wait");thread::sleep(Duration::from_millis(2));}}
+fn packet(identifier:u32,low:u8)->Vec<u8>{let mut p=vec![213,2];p.extend(identifier.to_le_bytes());p.push(low);p}
+fn outcome(r:Result<Outcome,ModeError>)->Value{match r{
+ Ok(Outcome::IgnoredIdentifier)=>json!({"kind":"IgnoredIdentifier"}),
+ Ok(Outcome::Applied{previous,current,identifier_rebound})=>json!({"kind":"Applied","previous":previous,"current":current,"identifier_rebound":identifier_rebound}),
+ Err(ModeError::Length{actual})=>json!({"kind":"Length","actual":actual}),
+ Err(ModeError::Opcode{actual})=>json!({"kind":"Opcode","actual":actual}),
+ Err(ModeError::Subtype{actual})=>json!({"kind":"Subtype","actual":actual}),
+ Err(e)=>panic!("unexpected apply error {e}")}}
+fn presentation(rt:&Runtime)->Value{let m=rt.menu().unwrap();json!({"page":format!("{:?}",rt.page()),"status":rt.status(),"filter":format!("{:?}",m.filter),"rows":format!("{:?}",m.rows()),"top":m.top,"menu_selected":m.selected,"selected_index":rt.selected_index(),"choice":rt.choice().map(|c|(c.mode,c.map_id)),"pressed":m.pressed.map(|h|format!("{h:?}")),"repeat_due":m.repeat_deadline(),"frame_identity":rt.frame().map(|f|f.identity()),"pan_pending":rt.pan_pending()})}
+fn reset(rt:&Runtime,mode:u8){let m=rt.menu().unwrap();assert_eq!(m.filter,Filter::Mode{mode,alternate:false});assert_eq!(m.top,0);assert_eq!(m.selected,None);assert_eq!(m.pressed,None);assert_eq!(m.repeat_deadline(),None);assert!(rt.choice().is_none());assert!(rt.frame().is_none());assert_eq!(rt.page(),UiPage::Menu);}
+fn main()->anyhow::Result<()>{
+ let p=PathBuf::from(std::env::args_os().nth(1).expect("project"));let begin=Instant::now();
+ let spec:Value=serde_json::from_slice(&fs::read(p.join("logs/continuation-20261003/r488-event-input.json"))?)?;
+ let mut traces=Vec::new();
+ for case in spec["cases"].as_array().unwrap(){let mut s=ModeSelection::from_known_state(case["initial"]["raw_mode"].as_u64().unwrap()as u16,case["initial"]["identifier"].as_u64().unwrap()as u32);let packet:Vec<u8>=case["packet"].as_array().unwrap().iter().map(|n|n.as_u64().unwrap()as u8).collect();let result=outcome(s.apply(&packet,case["phase"].as_u64().unwrap()as u32));let actual=json!({"raw_mode":s.raw_mode(),"identifier":s.identifier(),"outcome":result,"catalog_mode":s.catalog_mode().ok()});assert_eq!(actual,case["expected"],"{}",case["name"]);traces.push(json!({"input":case,"actual":actual,"matches_expected":true}));}
+ assert_eq!(traces.len(),spec["case_count"].as_u64().unwrap()as usize);
+ let mut rt=Runtime::start(input(&p))?;let mut flow=Vec::new();
+ assert_eq!(rt.native_mode(),ModeSelection::default());assert!(rt.apply_native_mode_packet(&packet(17,1),6).is_err());assert!(rt.open_native_mode_menu().is_err());assert_eq!(rt.native_mode(),ModeSelection::default());
+ flow.push(json!({"case":"Booting refuses both APIs without mutation","passed":true}));
+ wait(||{rt.poll();rt.page()==UiPage::Menu});assert_eq!(rt.rows().len(),40);
+ rt.apply_native_mode_packet(&packet(0x12345678,1),6)?;rt.handle(Action::Select(1,506))?;rt.menu_mut().unwrap().top=1;rt.menu_mut().unwrap().down_at(Some(Hit::Down),100);
+ let before=presentation(&rt);assert_eq!(rt.apply_native_mode_packet(&packet(0x12345678,3),5)?,Outcome::Applied{previous:1,current:3,identifier_rebound:false});assert_eq!(presentation(&rt),before);assert_eq!(rt.native_mode().raw_mode(),3);
+ assert_eq!(rt.apply_native_mode_packet(&packet(0x78563412,4),5)?,Outcome::IgnoredIdentifier);let context=rt.native_mode();assert!(rt.apply_native_mode_packet(&packet(18,4)[..6],6).is_err());assert_eq!(rt.native_mode(),context);assert_eq!(presentation(&rt),before);
+ flow.push(json!({"case":"accepted update, mismatch, truncated input retain selected menu/scroll/hold","before":before,"after":presentation(&rt),"mode_word":3,"passed":true}));
+ rt.open_native_mode_menu()?;reset(&rt,3);assert!(!rt.menu_mut().unwrap().repeat_at(1000));flow.push(json!({"case":"explicit different-mode open fresh list cancels hold","after":presentation(&rt),"passed":true}));
+ rt.handle(Action::Select(3,563))?;rt.menu_mut().unwrap().top=1;rt.menu_mut().unwrap().down_at(Some(Hit::Down),2000);let before=presentation(&rt);rt.open_native_mode_menu()?;reset(&rt,3);assert!(!rt.menu_mut().unwrap().repeat_at(4000));flow.push(json!({"case":"same-mode open also fresh list","before":before,"after":presentation(&rt),"passed":true}));
+ rt.menu_mut().unwrap().top=1;rt.menu_mut().unwrap().down_at(Some(Hit::Down),5000);let before=presentation(&rt);rt.apply_native_mode_packet(&packet(0x12345678,7),5)?;assert_eq!(presentation(&rt),before);assert!(rt.open_native_mode_menu().is_err());assert_eq!(presentation(&rt),before);assert_eq!(rt.native_mode().raw_mode(),7);flow.push(json!({"case":"unqualified raw mode refuses open without partial mutation or fallback","before":before,"after":presentation(&rt),"passed":true}));
+ rt.apply_native_mode_packet(&packet(0x12345678,3),5)?;rt.handle(Action::Select(3,563))?;
+ // Let the earlier menu Back commands drain; this is finite worker scheduling,
+ // not a replay of the historical city preview batch.
+ thread::sleep(Duration::from_millis(10));rt.handle(Action::Enter)?;wait(||rt.progress().load_active.load(Ordering::Acquire));let before=presentation(&rt);rt.apply_native_mode_packet(&packet(0x78563412,4),6)?;assert_eq!(rt.native_mode().identifier(),0x78563412);assert_eq!(presentation(&rt),before);
+ rt.open_native_mode_menu()?;reset(&rt,4);wait(||!rt.progress().load_active.load(Ordering::Acquire));rt.poll();assert!(rt.frame().is_none());assert_eq!(rt.progress().frames_produced.load(Ordering::Acquire),0);flow.push(json!({"case":"phase6 update during actual563 active load preserves loading;explicit open cancels generation","before":before,"after":presentation(&rt),"actual_active_load_observed":true,"no_frame_published":true,"passed":true}));
+ rt.handle(Action::Close)?;let context=rt.native_mode();assert!(rt.apply_native_mode_packet(&packet(18,5),6).is_err());assert!(rt.open_native_mode_menu().is_err());assert_eq!(rt.native_mode(),context);wait(||{rt.poll();rt.page()==UiPage::Closed});assert!(rt.progress().retired.load(Ordering::Acquire));assert!(rt.apply_native_mode_packet(&packet(18,5),6).is_err());assert!(rt.open_native_mode_menu().is_err());assert_eq!(rt.native_mode(),context);flow.push(json!({"case":"Closing/Closed refuse both APIs;actual worker retired","passed":true}));
+ let d=json!({"state":"R488_SCOPED_NATIVE_MODE_EVENT_AND_ACTUAL_RUNTIME_MENU_FLOW_FINITE_PASS_GUI_PENDING","event_cases":traces.len(),"traces":traces,"runtime_flow_cases":flow.len(),"runtime_flow":flow,"actual_active_load_observed":true,"actual_worker_retired":true,"frames_published":0,"high_byte_retained":true,"no_catalog_mode_truncation":true,"packet_does_not_rebuild_menu":true,"explicit_open_same_mode_resets":true,"live_network_dispatch_connected":false,"full_snapshot_decoded":false,"historical_PASS_batches_rerun":0,"focused_seconds":begin.elapsed().as_secs_f64(),"GUI":0,"LOADED":false,"complete_modes":16,"total_modes":40,"static_CPU_previews":40});fs::write(p.join("logs/continuation-20261003/r488-event-details.json"),serde_json::to_vec_pretty(&d)?)?;println!("R488 focused PASS:{}fixed source events/{}runtime flow cases;active563 cancelled/worker retired;noGUI;{:.3}s",traces.len(),flow.len(),begin.elapsed().as_secs_f64());Ok(())
+}

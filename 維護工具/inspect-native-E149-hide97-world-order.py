@@ -1,0 +1,15 @@
+"""Static ordinary-loop and reentrant-redraw source; no original process execution."""
+from pathlib import Path
+from datetime import datetime,timezone
+import json,re
+from native_E149_recovery_contract import R,read,sha,encoded,require
+V=R/'驗證紀錄/current'
+def main():
+ pe=Path('D:/lineage開發/3-lito開發/lito登入器/舊版分析與驗收/runtime/LiTo.unpacked-oep-current.exe');asm=pe.parents[1]/'ida-client-oep-v2/full-disassembly.asm';require(sha(pe)=='4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9'and sha(asm)=='2A3A6E1026EE65288C07EFF00990BDDDBEFA5ACEC9EED551F528A0CC0A7DEA9A','native changed');s=asm.read_text('utf-8-sig');out=V/'native-E149-hide97-world-order'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f');out.mkdir(parents=True);functions={}
+ for name in ['47F340','4C6B30','4B37C0','4B2970','488860','4E2150']:
+  a=s.index('sub_'+name+' proc near');b=s.index('sub_'+name+' endp',a)+len('sub_'+name+' endp');text=s[a:b]+'\n';p=out/(name+'.asm.txt');p.write_text(text,encoding='utf-8',newline='\n');functions[name]=dict(path=str(p),sha256=sha(p),lines=len(text.splitlines()))
+ for start,end,name in [('loc_47CDB0:','sub_47CDC0 proc near','47CDB0-trampoline'),('loc_48AF60:','sub_48AF90 proc near','48AF60-trampoline')]:
+  a=s.index(start);b=s.index(end,a);p=out/(name+'.asm.txt');p.write_text(s[a:b],encoding='utf-8',newline='\n')
+ window=(out/'47F340.asm.txt').read_text('utf-8');receive=(out/'4C6B30.asm.txt').read_text('utf-8');network=(out/'4B37C0.asm.txt').read_text('utf-8');actor=(out/'4E2150.asm.txt').read_text('utf-8');require('call    sub_4C6B30'in window and 'loc_4C7062:'in receive and 'call    sub_4B37C0'in receive and 'call    sub_4B2970'in network,'network caller source differs');require(actor.count('call    sub_488860')==2,'reentrant draw call count differs');world=(out/'488860.asm.txt').read_text('utf-8');require('call    sub_4B37C0'not in world and 'call    sub_4B2970'not in world,'direct world dispatch changed')
+ (out/'inspector.py').write_bytes(Path(__file__).read_bytes());pins={str(p):sha(p)for p in out.iterdir()};p=out/'world-order.json';p.write_bytes(encoded(dict(schema='E149-hide97-static-world-order-open-v1',source_pins=pins,external_readonly_pins={str(pe):sha(pe),str(asm):sha(asm)},function_asm_sources=functions,observed_network_path=['47F340','4C6B30/loc_4C7062','4B37C0','4B2970','4ADDA0'],active_world_path=['off_62C9C0','loc_47CDB0','loc_48AF60','488860'],actor_4E2150_contains_two_reentrant_world_redraw_calls=True,regular_main_timer_drain_precedes_active_tick=True,therefore_all_zero_delay_effects_never_draw=False,all_packet_delivery_paths_and_reentrancy_qualified=False,static97_present_or_absent_pixels_qualified=False,next_required='Bind conditions and due-order around both 4E2150→488860 redraw calls; do not infer no pixels merely from outer timer drain order.',tests_executed=0,PE_executed=False,whole_goal_complete=False)));print(json.dumps(dict(world_order=str(p),sha256=sha(p),full_asm_functions=len(functions),reentrant_world_redraw_calls=2,pixel_visibility_qualified=False,tests_executed=0),ensure_ascii=False))
+if __name__=='__main__':main()

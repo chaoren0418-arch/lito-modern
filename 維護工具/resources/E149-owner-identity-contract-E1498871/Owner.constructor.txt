@@ -1,0 +1,51 @@
+  local.lito381.server.NativeDeItemApplication$Owner(local.lito381.server.NativeDeItemApplication, local.lito381.server.ClientSession);
+    Code:
+       0: aload_0
+       1: invokespecial #34                 // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: iconst_1
+       6: putfield      #36                 // Field active:Z
+       9: aload_0
+      10: new           #38                 // class java/lang/ref/WeakReference
+      13: dup
+      14: aload_1
+      15: invokespecial #41                 // Method java/lang/ref/WeakReference."<init>":(Ljava/lang/Object;)V
+      18: putfield      #43                 // Field application:Ljava/lang/ref/WeakReference;
+      21: aload_0
+      22: new           #38                 // class java/lang/ref/WeakReference
+      25: dup
+      26: aload_2
+      27: invokespecial #41                 // Method java/lang/ref/WeakReference."<init>":(Ljava/lang/Object;)V
+      30: putfield      #45                 // Field session:Ljava/lang/ref/WeakReference;
+      33: aload_0
+      34: aload_2
+      35: invokevirtual #51                 // Method local/lito381/server/ClientSession.playerObjectId:()J
+      38: putfield      #53                 // Field objectId:J
+      41: aload_0
+      42: aload_2
+      43: invokevirtual #57                 // Method local/lito381/server/ClientSession.selectedCharacterName:()Ljava/lang/String;
+      46: putfield      #59                 // Field selected:Ljava/lang/String;
+      49: aload_0
+      50: aload_2
+      51: invokevirtual #62                 // Method local/lito381/server/ClientSession.sourceCharacterIdentity:()Ljava/lang/String;
+      54: putfield      #64                 // Field source:Ljava/lang/String;
+      57: aload_0
+      58: aload_2
+      59: invokevirtual #67                 // Method local/lito381/server/ClientSession.sourceAccountIdentity:()Ljava/lang/String;
+      62: putfield      #69                 // Field account:Ljava/lang/String;
+      65: aload_0
+      66: getfield      #53                 // Field objectId:J
+      69: lconst_0
+      70: lcmp
+      71: ifle          85
+      74: aload_0
+      75: getfield      #53                 // Field objectId:J
+      78: ldc2_w        #70                 // long 4294967295l
+      81: lcmp
+      82: ifle          95
+      85: new           #73                 // class java/lang/IllegalArgumentException
+      88: dup
+      89: ldc           #75                 // String native item owner requires unsigned dword player identity
+      91: invokespecial #78                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+      94: athrow
+      95: return

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "profile_id": "lito-modern",
+  "display_name": "LiTo Modern",
+  "shared_resource_root": "D:\\lineage開發\\0-客戶端",
+  "endpoint": "127.0.0.1:25400",
+  "tls_server_name": "localhost",
+  "trust": { "kind": "web_pki" },
+  "connect_timeout_ms": 2000,
+  "exchange_timeout_ms": 5000
+}

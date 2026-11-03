@@ -1,0 +1,35 @@
+{
+  "status": "detached_returns_services_shared_guest_and_ordinary_withdrawal_verified_formal_unchanged",
+  "utc": "2026-10-13T21:06:49.282885+00:00",
+  "formal_jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "candidate_jar": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\current\\rental-return-repair-draft\\matching-donor\\rental-return-review-candidate.jar",
+  "candidate_sha256": "6887A337E347D561366E0EB7EB8E93A2B7EA03ADD7A3888FC4BE2B70C3479DA7",
+  "changed_jar_entries": [
+    "local/lito381/server/ClientSession.class"
+  ],
+  "unchanged_client_session_methods": 2148,
+  "modified_methods": [
+    "quitFight()V",
+    "exitRoom(Z)V"
+  ],
+  "method_change": "Insert conditional dispatch prefix only; original method bodies preserved; no donor body replacement",
+  "formal_replaced": false,
+  "deployed": false,
+  "vm_verification": true,
+  "actual_sessions_run": true,
+  "latest_observed_scope": "Candidate advanced two actual sessions to RESTART_AWAIT_RETURN; first client C_CB was blocked by original rental opcode filter; C_D0 correction being built",
+  "normal_return_verified": true,
+  "active_hotel_and_purchased_item_departure_verified": true,
+  "ordinary_two_rounds_verified": true,
+  "ordinary_active_withdrawal_verified": true,
+  "duplicate_ack_verified": false,
+  "formal_deployed": false,
+  "basic_evidence": "驗證紀錄/current/native-world-integration/rental-return-candidate-qualified.json",
+  "services_evidence": "驗證紀錄/current/native-world-integration/rental-return-services-candidate-qualified.json",
+  "shared_guest_eviction_verified": true,
+  "shared_guest_evidence": "驗證紀錄/current/native-world-integration/rental-return-shared-guest-candidate-qualified.json",
+  "client_ack_guard_evidence": "驗證紀錄/current/native-world-integration/rental-return-ack-guards-qualified.json",
+  "ordinary_active_withdrawal_evidence": "驗證紀錄/current/native-world-integration/battle-withdrawal-qualified.json",
+  "server_negative_return_verified": true,
+  "server_negative_return_evidence": "驗證紀錄/current/native-world-integration/rental-return-server-negative-qualified.json"
+}

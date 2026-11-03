@@ -1,0 +1,197 @@
+use lito_modern::modern_lito::{
+    native_city_runtime::{
+        login_events::FixtureProfile, login_form::Stage, player_entry_commands::Command, Runtime,
+        UiPage, entry_navigation::{Scene,decode}, source_send::WriteOutcome,
+    },
+    native_multisector_resources::Inputs,
+    native_resources::BytePin,
+};
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
+use std::{
+    collections::BTreeSet,
+    fs,
+    io::{Read, Write},
+    net::{Shutdown, SocketAddr, TcpListener, TcpStream},
+    path::{Path, PathBuf},
+    sync::mpsc,
+    thread,
+    time::{Duration, Instant},
+};
+fn bytes(v: &Value) -> Vec<u8> {
+    v.as_array()
+        .unwrap()
+        .iter()
+        .map(|n| n.as_u64().unwrap() as u8)
+        .collect()
+}
+fn inputs(p: &Path, name: &str) -> Inputs {
+    let manifest = p.join("logs/continuation-20261003").join(name);
+    let b = fs::read(&manifest).unwrap();
+    Inputs {
+        project: p.into(),
+        manifest,
+        manifest_pin: BytePin {
+            bytes: b.len() as u64,
+            sha256: Sha256::digest(b).into(),
+        },
+    }
+}
+fn ready(p: &Path) -> anyhow::Result<Runtime> {
+    let mut rt = Runtime::start_with_menu_skin(
+        inputs(p, "r486-map-binding.json"),
+        inputs(p, "r506-native-menu-skin-binding.json"),
+    )?;
+    let end = Instant::now() + Duration::from_secs(60);
+    while rt.page() != UiPage::Menu {
+        assert!(Instant::now() < end);
+        rt.poll();
+        thread::sleep(Duration::from_millis(2));
+    }
+    Ok(rt)
+}
+#[derive(Default)]
+struct Metrics {
+    calls: usize,
+    max_us: u128,
+    partial: BTreeSet<usize>,
+}
+fn tick(r: &mut Runtime, m: &mut Metrics) {
+    let at = Instant::now();
+    r.poll();
+    m.calls += 1;
+    m.max_us = m.max_us.max(at.elapsed().as_micros());
+    if let Some((_, n, offset)) = r.source_send_snapshot().pending {
+        if offset > 0 && offset < n {
+            m.partial.insert(offset);
+        }
+    }
+    assert!(r.player_fixture_snapshot().queued_events <= 4);
+}
+fn until(r: &mut Runtime, m: &mut Metrics, goal: impl Fn(&Runtime) -> bool) {
+    let end = Instant::now() + Duration::from_secs(20);
+    while !goal(r) {
+        assert!(
+            Instant::now() < end,
+            "bounded new fixture wait expired; page={:?},stage={:?},status={}",
+            r.page(),
+            r.source_login_snapshot().stage,
+            r.status()
+        );
+        tick(r, m);
+        thread::sleep(Duration::from_millis(2));
+    }
+}
+fn pause_until(mut goal: impl FnMut() -> bool) {
+    let end = Instant::now() + Duration::from_secs(5);
+    while !goal() {
+        assert!(Instant::now() < end);
+        thread::sleep(Duration::from_millis(2));
+    }
+}
+fn profile(
+    endpoint: SocketAddr,
+    special: bool,
+    read_cap: usize,
+    write_cap: usize,
+    delay: u64,
+) -> Value {
+    json!({"kind":"modern_synthetic_loopback_fixture_v1","label":if special{"SYNTHETIC:R508_SPECIAL"}else{"SYNTHETIC:R508_NORMAL"},"endpoint":endpoint.to_string(),"code_page":950,"from_cd_registry_dword":0x123456A5u32,"revision_word_source":0x112345u32,"supplemental":if special{Some("FIXTURE-EXTRA")}else{None},"read_cap":read_cap,"write_cap":write_cap,"connect_delay_ms":delay})
+}
+fn configure(r: &mut Runtime, v: &Value) -> anyhow::Result<()> {
+    r.configure_synthetic_player_fixture(FixtureProfile::parse(&serde_json::to_vec(v)?)?)
+}
+fn edit_submit(r: &mut Runtime, a: &[u8], p: &[u8]) -> anyhow::Result<()> {
+    let c = r.source_login_control().unwrap();
+    r.handle_player_entry_command(Command::EditLogin {
+        control: &c,
+        account: a,
+        password: p,
+    })?;
+    let c = r.source_login_control().unwrap();
+    r.handle_player_entry_command(Command::SubmitLogin(&c))
+}
+fn expect(s: &mut TcpStream, v: &Value) {
+    let mut h = [0; 2];
+    s.read_exact(&mut h).unwrap();
+    let n = u16::from_le_bytes(h) as usize;
+    assert!((3..=157).contains(&n));
+    let mut raw = h.to_vec();
+    raw.resize(n, 0);
+    s.read_exact(&mut raw[2..]).unwrap();
+    assert_eq!(raw, bytes(&v["wire"]));
+}
+fn wiped(r: &Runtime) {
+    let s = r.source_login_snapshot();
+    assert_eq!(
+        (
+            s.account_len,
+            s.password_len,
+            s.staged_account_len,
+            s.staged_password_len
+        ),
+        (0, 0, 0, 0)
+    );
+}
+fn closed(r: &mut Runtime, m: &mut Metrics) -> anyhow::Result<()> {
+    let at = Instant::now();
+    r.handle_player_entry_command(Command::Close)?;
+    assert!(at.elapsed() < Duration::from_millis(200));
+    wiped(r);
+    assert!(r.source_connection_epoch().is_none());
+    until(r, m, |r| r.page() == UiPage::Closed);
+    let s = r.player_fixture_snapshot();
+    assert_eq!(s.workers_started, s.workers_joined);
+    assert_eq!(s.retiring_workers, 0);
+    assert!(!s.active);
+    Ok(())
+}
+fn snapshot(r: &Runtime, m: &Metrics) -> Value {
+    let s = r.player_fixture_snapshot();
+    json!({"poll_calls":m.calls,"max_poll_us":m.max_us,"partial_offsets":m.partial,"workers_started":s.workers_started,"workers_joined":s.workers_joined,"late_events_discarded":s.discarded_late_events,"max_event_queue":s.max_queued_events,"max_receiver_tail":s.max_receiver_tail_bytes,"actual_read_events":s.read_events,"actual_write_reports":s.write_reports,"actual_socket_read_bytes":s.bytes_read})
+}
+use lito_modern::modern_lito::native_city_runtime::{login_bootstrap::{JavaFixtureAdapter,CONTRACT_SHA,PRODUCER_SHA,Stage as BootstrapStage},java_character_flow::{self as jf,Stage as SelectionStage},source_identity};
+fn hex(s:&str)->Vec<u8>{s.as_bytes().chunks_exact(2).map(|v|u8::from_str_radix(std::str::from_utf8(v).unwrap(),16).unwrap()).collect()}
+fn adapter()->anyhow::Result<JavaFixtureAdapter>{JavaFixtureAdapter::parse(&serde_json::to_vec(&json!({"kind":"modern_synthetic_AD368_bootstrap_v1","producer_sha256":PRODUCER_SHA,"contract_sha256":CONTRACT_SHA}))?)}
+fn memory(p:&Path)->anyhow::Result<()> {
+ let base=p.join("logs/continuation-20261003");let g:Value=serde_json::from_slice(&fs::read(base.join("r509-character-inputs/existing-AD368-directory-goldens.json"))?)?;
+ let original=hex(g["existing_actual_single_row_packets"][0]["captured_AD368_body_hex"].as_str().unwrap());let mut row=original.clone();let name_end=row[1..].iter().position(|v|*v==0).unwrap()+1;let suffix=row[name_end+1..].iter().position(|v|*v==0).unwrap()+name_end+2;
+ row[suffix+2..suffix+4].copy_from_slice(&(-1234i16).to_le_bytes());row[suffix+8]=(-10i8)as u8;row[suffix+17..suffix+21].copy_from_slice(&0x11223344u32.to_le_bytes());for(i,v)in [11u32,22,33,44,55].iter().enumerate(){row[suffix+21+i*4..suffix+25+i*4].copy_from_slice(&v.to_le_bytes());}for(i,v)in [-1i32,i32::MIN,3,-4,i32::MAX].iter().enumerate(){row[suffix+58+i*4..suffix+62+i*4].copy_from_slice(&v.to_le_bytes());}
+ let mut r=ready(p)?;let mut m=Metrics::default();let e=r.begin_source_connection_candidate()?;r.feed_source_stream_candidate(&e,&hex("07000178563412"))?;r.consume_source_identity_event(&e.decoded_packet(&[3,2])?)?;r.consume_source_identity_event(&e.decoded_packet(&row)?)?;assert!(!r.source_identity().complete());r.consume_source_identity_event(&e.decoded_packet(&original)?)?;assert!(r.source_identity().complete());let f=r.source_identity().records()[0].fields();assert_eq!((f.lawful,f.armor_class,f.native_time),(-1234,-10,0x11223344));assert_eq!((f.ranks.overall,f.ranks.level,f.ranks.classic_source,f.ranks.channel,f.ranks.race),(11,22,33,44,55));assert_eq!((f.movements.overall,f.movements.level,f.movements.classic_source,f.movements.channel,f.movements.race),(-1,i32::MIN,3,-4,i32::MAX));f.validate_java_projection()?;
+ r.select_source_character_candidate(&e,0)?;assert!(r.source_identity().selected().unwrap().actor_identifier().is_none());let token=r.source_character_control(1).unwrap();let mut foreign=ready(p)?;let mut fm=Metrics::default();foreign.begin_source_connection_candidate()?;assert!(foreign.handle_player_entry_command(Command::ChooseCharacter{control:&token,double_click:false}).is_err());closed(&mut foreign,&mut fm)?;
+ r.consume_source_identity_event(&e.decoded_packet(&[3,0])?)?;assert!(r.source_identity().complete());assert!(r.source_character_control(0).is_none());assert!(r.handle_player_entry_command(Command::ChooseCharacter{control:&token,double_click:false}).is_err());
+ assert!(r.consume_source_identity_event(&e.decoded_packet(&[3,8])?).is_err());assert!(e.decoded_packet(&[3,9]).is_err());assert!(e.decoded_packet(&[3,255]).is_err());
+ for n in 0..row.len(){assert!(e.decoded_packet(&row[..n]).is_err(),"truncated CB {n}");}let mut extra=row.clone();extra.push(0);assert!(e.decoded_packet(&extra).is_err());r.consume_source_identity_event(&e.decoded_packet(&[3,1])?)?;r.consume_source_identity_event(&e.decoded_packet(&original)?)?;assert!(r.consume_source_identity_event(&e.decoded_packet(&original)?).is_err());let old=r.source_character_control(0).unwrap();let e2=r.begin_source_connection_candidate()?;assert!(r.handle_player_entry_command(Command::ChooseCharacter{control:&old,double_click:false}).is_err());assert!(r.consume_source_identity_event(&e.decoded_packet(&original)?).is_err());assert_ne!(e.serial(),e2.serial());closed(&mut r,&mut m)?;
+ assert_eq!(source_identity::fields::display_ms950(&hex("b4fab8d5a4b9"))?,"測試乙");assert!(source_identity::fields::display_ms950(&[0x81]).is_err());
+ let mut inventory=vec![124,1];inventory.extend_from_slice(&84u32.to_le_bytes());inventory.extend([0,3]);inventory.extend_from_slice(&464u16.to_le_bytes());inventory.push(0);inventory.extend_from_slice(&3u32.to_le_bytes());inventory.push(1);inventory.extend(b"paper\0");inventory.extend([3,1,2,3]);let jf::Packet::Inventory(items)=jf::decode(&inventory)? else{panic!()};assert_eq!(items.len(),1);assert_eq!((items[0].item_wire_id,items[0].icon,items[0].count),(84,464,3));assert_eq!(items[0].detail,[1,2,3]);for n in 0..inventory.len(){assert!(jf::decode(&inventory[..n]).is_err());}let jf::Packet::Inventory(empty)=jf::decode(&[124,0])? else{panic!()};assert!(empty.is_empty());let jf::Packet::Channel(c)=jf::decode(&[202,2,1,0,100,0])? else{panic!()};assert_eq!((c.channel,c.users,c.capacity),(2,1,100));assert!(jf::decode(&[202,4,1,0,100,0]).is_err());
+ fs::write(base.join("r509-memory-results.json"),serde_json::to_vec_pretty(&json!({"passed":5,"cases":["34_fields_signed_lawful_AC_movement_wire_order","MS950_raw_display_and_no_objectID_derivation","zero_two_counts_exact_rows_truncation_excess_and_Native4_Java8_policy","opaque_control_roster_revision_foreign_and_retired_epoch","bounded_S7C_inventory_and_normal_S_CA_receipts"],"GUI":0,"old_PASS_reruns":0}))?)?;println!("5 new R509 typed-directory/receipt checks passed");Ok(())
+}
+fn setup(p:&Path,address:SocketAddr,account:&str,source:usize)->anyhow::Result<(Runtime,Metrics)> {
+ let mut r=ready(p)?;let mut m=Metrics::default();let mut prof=profile(address,false,31,3,0);prof["revision_word_source"]=json!(0x14f8);prof["from_cd_registry_dword"]=json!(2);configure(&mut r,&prof)?;r.configure_login_producer_fixture(adapter()?)?;r.handle_player_entry_command(Command::OpenLogin)?;edit_submit(&mut r,account.as_bytes(),b"WireOnly1")?;
+ until(&mut r,&mut m,|r|r.source_bootstrap_snapshot().stage==BootstrapStage::SourceChoice||r.source_connection_epoch().is_none());assert!(r.source_connection_epoch().is_some(),"new setup blocker {:?}",r.last_source_rejection());let c=r.source_choice_control(source).unwrap();r.handle_player_entry_command(Command::ChooseSource(&c))?;
+ until(&mut r,&mut m,|r|r.source_news_control().is_some()||r.source_connection_epoch().is_none());assert!(r.source_connection_epoch().is_some(),"new GAME blocker {:?}",r.last_source_rejection());let c=r.source_news_control().unwrap();r.handle_player_entry_command(Command::ContinueNews(&c))?;until(&mut r,&mut m,|r|r.source_identity().complete()||r.source_connection_epoch().is_none());assert!(r.source_connection_epoch().is_some(),"new roster blocker {:?}",r.last_source_rejection());Ok((r,m))
+}
+fn main()->anyhow::Result<()> {
+ let p=PathBuf::from(std::env::args_os().nth(1).unwrap());let arg=std::env::args_os().nth(2).unwrap();if arg=="--memory" {return memory(&p);}
+ let root=PathBuf::from(arg);let base=p.join("logs/continuation-20261003");let ready_json:Value=serde_json::from_slice(&fs::read(root.join("r509-ready.json"))?)?;let address:SocketAddr=format!("127.0.0.1:{}",ready_json["port"].as_u64().unwrap()).parse()?;let mut cases=Vec::new();
+ for(label,account,source,row,channel)in [("zero_directory","RosterEmpty",0,None,0),("multiple_MS950_selection_channel","RosterMulti",1,Some(1),2),("single_alias_inventory_channel","WireSend",0,Some(0),1),("low_level_channel_refusal","RosterLow",0,Some(0),0)] {
+  let(mut r,mut m)=setup(&p,address,account,source)?;let count=r.source_identity().records().len();let initial_aliases:Vec<_>=r.source_identity().records().iter().map(|v|v.display_name().unwrap()).collect();let details;
+  if row.is_none(){assert_eq!(count,0);assert!(r.source_character_control(0).is_none());assert!(r.source_character_submit().is_none());assert!(r.source_channel_control(0).is_none());details=json!({"actual_S03_count":0,"complete_without_rows_or_terminator":true,"C_C9_not_sent":true});}
+  else {
+   assert_eq!(count,if account=="RosterMulti"{2}else{1});let slot=row.unwrap();let alias=r.source_identity().records()[slot].name().to_vec();assert!(r.source_channel_control(0).is_none());let c=r.source_character_control(slot).unwrap();
+   let mut other=ready(&p)?;let mut om=Metrics::default();other.begin_source_connection_candidate()?;assert!(other.handle_player_entry_command(Command::ChooseCharacter{control:&c,double_click:false}).is_err());closed(&mut other,&mut om)?;
+   r.handle_player_entry_command(Command::ChooseCharacter{control:&c,double_click:false})?;let submit=r.source_character_submit().unwrap();r.handle_player_entry_command(Command::SubmitCharacter(&submit))?;assert!(r.handle_player_entry_command(Command::SubmitCharacter(&submit)).is_err());
+   until(&mut r,&mut m,|r|r.java_character_snapshot().stage==SelectionStage::ChooseChannel||r.source_connection_epoch().is_none());
+   if r.source_connection_epoch().is_none(){let checkpoint=r.last_java_character_checkpoint();fs::write(base.join("r509-first-selection-blocker.json"),serde_json::to_vec_pretty(&json!({"case":label,"rejection":format!("{:?}",r.last_source_rejection()),"checkpoint":format!("{checkpoint:?}")}))?)?;closed(&mut r,&mut m)?;anyhow::bail!("new C9 first blocker retained");}
+   let selection=r.java_character_snapshot();assert_eq!(selection.character_result,Some(0));assert_eq!(selection.selected_name.as_deref(),Some(alias.as_slice()));assert!(selection.inventory.is_some());assert!(r.source_identity().selected().unwrap().actor_identifier().is_none());assert!(r.handle_player_entry_command(Command::ChooseCharacter{control:&c,double_click:false}).is_err());let ca=r.source_channel_control(channel).unwrap();r.handle_player_entry_command(Command::ChooseChannel(&ca))?;assert!(r.handle_player_entry_command(Command::ChooseChannel(&ca)).is_err());
+   until(&mut r,&mut m,|r|r.source_connection_epoch().is_none());let checkpoint=r.last_java_character_checkpoint().unwrap();let rejected=r.last_source_rejection();
+   if account=="RosterLow" {assert_eq!(checkpoint.refusal,Some((201,10)));assert!(checkpoint.channel_info.is_none());details=json!({"actual_S03_count":count,"C_C9_from_received_MS950_name":true,"S_C8_accepted":true,"S7C_count":selection.inventory.unwrap().len(),"actual_channel_refusal":10,"no_ChannelInfo_or_ready":true});}
+   else {
+    assert_eq!(checkpoint.character_result,Some(0));assert_eq!(checkpoint.channel_result,Some(0));assert_eq!(checkpoint.channel_info.unwrap().channel,channel as u8);let rejected=rejected.unwrap();
+    details=json!({"actual_S03_count":count,"received_names":initial_aliases,"echoed_name_bytes":alias,"S_C8_result":0,"S7C_count":selection.inventory.unwrap().len(),"C_CA_user_slot":channel,"S_C9_result":0,"S_CA_channel":checkpoint.channel_info.unwrap().channel,"S_CA_users":checkpoint.channel_info.unwrap().users,"S_CA_capacity":checkpoint.channel_info.unwrap().capacity,"first_following_unsupported_opcode":rejected.opcode,"first_following_body_bytes":rejected.body_bytes,"precise_boundary":rejected.reason,"full_lobby_status_owner_or_skill_ready":false});
+   }
+  }
+  closed(&mut r,&mut m)?;cases.push(json!({"case":label,"passed_new_finite_boundary":true,"details":details,"after_Close":snapshot(&r,&m)}));fs::write(base.join("r509-event-partial.json"),serde_json::to_vec_pretty(&cases)?)?;
+ }
+ fs::write(base.join("r509-event-details.json"),serde_json::to_vec_pretty(&cases)?)?;println!("4 new AD368 typed-directory/selection/channel boundaries passed; later owner/status boundary retained");Ok(())
+}

@@ -1,0 +1,13 @@
+{
+  "status": "detached_candidate_three_role_return_verified",
+  "candidate_sha256": "A1F119F5BCBF0159E8CFB3396B7B601BF0930983B375F374704B81874591E27C",
+  "base_sha256": "9719F45DB324206617726CE06D1A9E2184E9A3B3AEFAB3D50F3EBBDFBF09CFAC",
+  "changed_methods": [
+    "broadcastDefaultRoomReset(J)V"
+  ],
+  "other_methods_unchanged": 2149,
+  "reproduced_class_exactly": true,
+  "java_verify_all_passed": true,
+  "validation_evidence": "\u9a57\u8b49\u7d00\u9304/current/native-world-integration/observer-live-candidate-qualified.json",
+  "formal_deployed": false
+}

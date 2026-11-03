@@ -1,0 +1,51 @@
+﻿# ===== 產物與證據 =====
+LiTo381-Modern/target/
+LiTo381-Modern/dist/
+LiTo381-Modern/logs/
+LiTo381-Modern/reports/
+LiTo381-Modern/provenance/
+LiTo381-Modern/.cargo/
+驗證紀錄/
+維護工具/candidates/
+維護工具/**/partial/
+封存/
+交付/
+整理紀錄/
+歷史暫存證據/
+
+# ===== 巨型狀態檔（停用） =====
+工作佇列.json
+監製進度.json
+continuous-goal-*.json
+
+# ===== 暫存 =====
+scratch/
+tmp/
+**/__pycache__/
+*.pyc
+*.log
+*.tmp
+*.dmp
+
+# ===== 二進位 =====
+*.exe
+*.dll
+*.pdb
+*.jar
+*.pak
+*.idx
+*.spr
+*.til
+*.zip
+*.7z
+*.rar
+*.zst
+*.sqlite
+
+# ===== OS / IDE =====
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+.cursor/*
+!.cursor/rules/

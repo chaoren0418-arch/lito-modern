@@ -1,0 +1,33 @@
+//! Restored input514 selected ordinary release and its later held-false stop.
+use super::*;
+#[derive(Clone,Debug)]pub(crate) struct Release{pub at:Option<u32>,pub fresh75a830:Option<u32>,pub message:Option<u32>,pub capture64bc36:Option<bool>,pub source_dispatcher_reached:Option<bool>,pub ui_nonconsuming:Option<bool>,pub viewport_list_member:Option<bool>,pub viewport_vtable:Option<u32>,pub viewport:Option<[i32;4]>,pub image1048_height:Option<i32>,pub layout64bbf0:Option<i32>,pub mouse:Option<crate::modern_lito::world_map::PixelPoint>,pub disabled64b8ec:Option<bool>,pub decoded831708:Option<i32>,pub popup_absent:Option<bool>,pub spell_absent:Option<bool>,pub movement:movement::release_stop::ReleaseInputs}
+pub(crate) struct PreparedRelease{identity:Arc<InputIdentity>,revision:u64,incarnation:u64,process_revision:u64,table:Vec<NativeTimer>,generation:u64,scene_last:u32,q:Release}
+pub(crate) struct Receipt{identity:Arc<InputIdentity>,incarnation:u64,movement:movement::release_stop::Receipt,pub fact:movement::release_stop::ReleaseFact}
+pub(crate) struct PreparedStop{identity:Arc<InputIdentity>,revision:u64,incarnation:u64,process_revision:u64,table:Vec<NativeTimer>,generation:u64,scene_last:u32,event:Event,q:movement::release_stop::StopInputs}
+impl Control<'_>{
+ pub fn prepare_release(&self,b:&Binding,now:i64,t:&Token,q:&Release)->Result<PreparedRelease>{
+  self.active(b,now)?;self.token_valid(t)?;ensure!(self.handlers==Handlers::Restored,"Release input handlers not restored");let at=q.at.context("Release clock absent")?;self.before(at)?;
+  ensure!(q.message==Some(514)&&q.capture64bc36==Some(false)&&q.source_dispatcher_reached==Some(true)&&q.ui_nonconsuming==Some(true)&&q.viewport_list_member==Some(true)&&q.viewport_vtable==Some(0x4f96d8),"514 capture/dispatcher/UI/list/vtable unqualified");
+  let mouse=q.mouse.context("Release mouse unknown")?;ensure!(q.mouse==self.first_mouse&&(0..=65535).contains(&mouse.x)&&(0..=65535).contains(&mouse.y),"Selected release only unchanged unsigned global mouse");let[l,top,r,bottom]=q.viewport.context("Release viewport unknown")?;ensure!(l<r&&top<bottom&&mouse.x>=l&&mouse.x<r&&mouse.y>=top&&mouse.y<bottom,"Release outside viewport");
+  let h=q.image1048_height.context("Release HUD height unknown")?;let layout=q.layout64bbf0.context("Release layout unknown")?;ensure!((0..=480).contains(&h)&&(-2..=2).contains(&layout),"Release HUD arithmetic bound");let hud=620-34*layout-h;ensure!(!(mouse.x>=136&&mouse.x<485&&mouse.y>=hud&&mouse.y<480),"Release consumed by HUD");
+  ensure!(q.disabled64b8ec==Some(false)&&q.decoded831708==Some(0)&&q.popup_absent==Some(true)&&q.spell_absent==Some(true),"Only selected normal release tail qualified");let fresh=q.fresh75a830.context("Release tail clock absent")?;ensure!(fresh==q.movement.fresh&&at==q.movement.at&&fresh>=at&&self.process.timers.first().is_none_or(|t|fresh<t.at),"Release clock crosses process FIFO");self.process.current.movement.prepare_release(b,now,&q.movement)?;
+  Ok(PreparedRelease{identity:self.identity.clone(),revision:self.revision,incarnation:self.incarnation,process_revision:self.process.revision,table:self.process.timers.clone(),generation:self.process.current.scene.generation,scene_last:self.process.current.scene.last,q:q.clone()})
+ }
+ pub fn commit_release(&mut self,b:&Binding,now:i64,p:PreparedRelease)->Result<Receipt>{
+  self.active(b,now)?;ensure!(Arc::ptr_eq(&self.identity,&p.identity)&&p.revision==self.revision&&p.incarnation==self.incarnation&&p.process_revision==self.process.revision&&p.table==self.process.timers&&p.generation==self.process.current.scene.generation&&p.scene_last==self.process.current.scene.last,"Stale/foreign prepared514 release");self.before(p.q.at.unwrap())?;
+  let prepared=self.process.current.movement.prepare_release(b,now,&p.q.movement)?;let(fact,movement)=self.process.current.movement.commit_release(b,now,prepared)?;
+  // Native selected release writes held0, globalmouse and75A830 only.
+  // No draw, camera/position/roof write, queue insertion or timer cancellation.
+  self.process.current.scene.last=fact.fresh;self.last=fact.fresh;self.process.last=fact.fresh;self.process.revision+=1;self.revision+=1;Ok(Receipt{identity:self.identity.clone(),incarnation:self.incarnation,movement,fact})
+ }
+ pub fn prepare_released_stop(&self,b:&Binding,now:i64,token:&Token,r:&Receipt,t:&Ticket,q:&movement::release_stop::StopInputs)->Result<PreparedStop>{
+  self.active(b,now)?;self.token_valid(token)?;ensure!(self.handlers==Handlers::Restored&&Arc::ptr_eq(&self.identity,&r.identity)&&r.incarnation==self.incarnation,"Released receipt source/input identity mismatch");ensure!(Arc::ptr_eq(&self.process.current.scene.identity,&t.identity)&&self.process.current.scene.events.first()==Some(&t.event),"Stop old/foreign root");
+  let root=owned(&self.process.current,b,now,self.incarnation)?.into_iter().next().context("Stop root absent")?;ensure!(self.process.timers.first().is_some_and(|v|(v.at,v.callback,v.owner)==root)&&root.0==t.event.at&&t.event.at>=self.last,"Stop bypasses joint process FIFO");let timer=self.process.current.movement.next(b,now)?;ensure!(t.event.kind==Kind::Locomotion(timer.serial)&&timer.at==t.event.at,"Stop movement/root mismatch");self.process.current.movement.prepare_released_stop(b,now,&r.movement,timer,q)?;
+  let fresh=q.callback.fresh_schedule_samples.as_ref().and_then(|v|v.last()).context("Stop fresh clock absent")?;ensure!(self.process.timers.iter().skip(1).all(|v|*fresh<v.at),"Stop fresh clock crosses another callback");
+  Ok(PreparedStop{identity:self.identity.clone(),revision:self.revision,incarnation:self.incarnation,process_revision:self.process.revision,table:self.process.timers.clone(),generation:self.process.current.scene.generation,scene_last:self.process.current.scene.last,event:t.event,q:q.clone()})
+ }
+ pub fn commit_released_stop(&mut self,b:&Binding,now:i64,p:PreparedStop,r:&Receipt,t:&Ticket,draw:&DrawInputs)->Result<(Frame,movement::Step,movement::release_stop::StopFact)>{
+  self.active(b,now)?;ensure!(Arc::ptr_eq(&self.identity,&p.identity)&&Arc::ptr_eq(&self.identity,&r.identity)&&r.incarnation==self.incarnation&&p.revision==self.revision&&p.incarnation==self.incarnation&&p.process_revision==self.process.revision&&p.table==self.process.timers&&p.generation==self.process.current.scene.generation&&p.scene_last==self.process.current.scene.last&&p.event==t.event,"Stale/foreign prepared released stop");
+  let result=self.process.current.released_stop(b,now,&r.movement,t,&p.q,draw)?;self.sync_owned(b,now)?;self.last=p.q.callback.fresh_schedule_samples.as_ref().unwrap()[0];self.process.last=self.last;self.process.revision+=1;self.revision+=1;Ok(result)
+ }
+}

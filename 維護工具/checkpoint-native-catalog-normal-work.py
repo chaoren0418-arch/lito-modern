@@ -1,0 +1,71 @@
+"""Track the exact current normal build/test process without implying acceptance."""
+from pathlib import Path
+from datetime import datetime,timezone,timedelta
+import argparse,hashlib,json,subprocess,time,zipfile
+ROOT=Path(__file__).resolve().parents[1];V=ROOT/'驗證紀錄/current'
+def read(p):
+    for i in range(10):
+        try:return json.loads(Path(p).read_text('utf-8-sig'))
+        except json.JSONDecodeError:
+            if i==9:raise
+            time.sleep(.05)
+def sha(p):
+    with Path(p).open('rb')as f:return hashlib.file_digest(f,'sha256').hexdigest().upper()
+def save(p,x):Path(p).write_text(json.dumps(x,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+ap=argparse.ArgumentParser();ap.add_argument('run',type=Path);ap.add_argument('--session',type=int,required=True);ap.add_argument('--terminal-chunk');ap.add_argument('--exit-code',type=int);ap.add_argument('--qualification',type=Path);a=ap.parse_args()
+run=a.run.resolve(strict=True);assert run.is_relative_to(V/'native-same-endpoint-catalog-normal')and a.session>0;c=read(run/'cohort.json');terminal=a.terminal_chunk is not None
+inputs=read(run/'compiled-inputs.json');assert len(inputs)==1048 and sha(run/'source-inputs.json')==c['source_manifest_sha256']
+for n,h in inputs.items():assert sha(ROOT/n)==h,n
+queue=read(ROOT/'工作佇列.json');assert queue['current_product_identity']['source_manifest_sha256']==c['source_manifest_sha256']and queue['active_workload_sessions']in [{},{'catalog_normal':a.session}]
+identities=[c['runner'],*c['process_history']];filters=' OR '.join('ProcessId='+str(pid)for pid in sorted({row['pid']for row in identities}));cmd="[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);@(Get-CimInstance Win32_Process -Filter '"+filters+"'|Select-Object ProcessId,@{n='created';e={$_.CreationDate.ToUniversalTime().ToString('o')}})|ConvertTo-Json -Compress"
+raw=subprocess.check_output(['pwsh','-NoProfile','-Command',cmd]);actual=json.loads(raw.decode('utf-8-sig'))if raw.strip()else[];actual=[actual]if isinstance(actual,dict)else actual
+def live(row):return any(x['ProcessId']==row['pid']and abs((datetime.fromisoformat(x['created'])-datetime.fromisoformat(row['creation_utc'])).total_seconds())<.001 for x in actual)
+if terminal:
+    assert a.exit_code in [0,1]and a.terminal_chunk not in ['','pending','unknown']and c['owned_process']is None and not any(live(row)for row in identities)
+    assert c['status']in ['executed_same_endpoint_catalog_normal_related_both_profiles','failed_preserved']
+else:
+    assert a.exit_code is None and live(c['runner'])and c['status']in ['building_same_endpoint_catalog_normal','compiling_same_endpoint_catalog_related','running_same_endpoint_catalog_related']
+qualified=a.qualification is not None
+if qualified:
+    assert terminal and a.exit_code==0
+    qp=a.qualification.resolve(strict=True);assert qp==(run/'qualified/qualified.json').resolve()
+    q=read(qp);assert q['status']=='independently_qualified_same_endpoint_catalog_normal_related_both_profiles'and q['cohort_sha256']==sha(run/'cohort.json')
+    assert q['source_manifest_sha256']==c['source_manifest_sha256']and q['original_session']==a.session and q['terminal_tool_chunk']==a.terminal_chunk
+    assert q['observed_terminal_exit_code']==0 and q['recorded_owned_processes_all_terminal']and q['passed_per_profile']==16 and q['actual_sessions']==0
+    assert sha(qp.parent/'raw.zip')==q['raw_archive_sha256']and sha(q['compiled_source_archive'])==q['compiled_source_archive_sha256']
+before=read(Path(queue['last_goal_turn_evidence']).with_name('readback.json'))['after_files'];assert len(before)==8 and all(sha(ROOT/n)==h for n,h in before.items())
+out=run/('checkpoint-'+('terminal-'if terminal else'active-')+datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f'));out.mkdir()
+with zipfile.ZipFile(out/'before.zip','x',zipfile.ZIP_DEFLATED)as z:
+    for n in before:z.write(ROOT/n,n)
+with zipfile.ZipFile(out/'before.zip')as z:assert all(hashlib.sha256(z.read(n)).hexdigest().upper()==h for n,h in before.items())
+record=dict(status='catalog_normal_related_scope_qualified_limited'if qualified else'catalog_normal_terminal_readback_pending'if terminal else'original_catalog_normal_build_and_related_tests_live',run=str(run),source_manifest_sha256=c['source_manifest_sha256'],original_session=a.session,runner=c['runner'],terminal_tool_chunk=a.terminal_chunk,observed_actual_exit_code=a.exit_code,recorded_owned_processes_terminal=terminal,profiles_observed=c['profiles'],qualification_granted=qualified,qualification=str(qp)if qualified else None,qualification_sha256=sha(qp)if qualified else None,source_overlays_used=False,normal_product_build=True,actual_sessions=0,current75_same_endpoint_verified=False,GUI_verified=False,whole_G06_complete=False,whole_goal_complete=False)
+save(out/'evidence.json',record);(out/'process-CIM.json').write_bytes(raw);(out/'checkpoint.py').write_bytes(Path(__file__).read_bytes())
+stage='已actual exit0與獨立讀回：兩版正常EXE與每版16相關測試均符，六個新目錄生命週期案例已跑過；只通過相關範圍。'if qualified else'已actual exit'+str(a.exit_code)+'，結果仍待獨立讀回；原程序身分皆終止。'if terminal else'沿原程序建置／執行正常兩版及相關測試，來源固定，不重啟。'
+work='來源'+c['source_manifest_sha256'][:8]+'同端點路由目錄正常整合原'+str(a.session)+'：'+stage+'本版尚未取得雙玩家接續或GUI資格；須依正式租裝物品暫存範圍核對，不以整份來源背包相等代替。舊33A3廣域／library只保留原來源，原33451失敗保留。開發期間不請使用者登入，8秒／60秒／Release與G11預算不變，相鄰只讀且登入器產物獨立，完整G01–G12未完成。'
+date=(datetime.now(timezone.utc)+timedelta(hours=8)).strftime('%Y-%m-%d')
+for n in before:
+    path=ROOT/n
+    if path.suffix=='.json':
+        value=read(path);identity=value['current_product_identity'];assert identity['source_manifest_sha256']==c['source_manifest_sha256']
+        for profile,info in c['profiles'].items():
+            if 'normal'in info:
+                assert sha(info['normal']['path'])==info['normal']['sha256'];identity[profile+'_normal_sha256']=info['normal']['sha256'];identity[profile+'_normal_source_manifest_sha256']=c['source_manifest_sha256'];identity[profile+'_normal_qualified_for_current_source']=qualified
+        if all('normal'in c['profiles'].get(profile,{})for profile in ['Debug','Release']):identity['existing_normal_source_manifest_sha256']=c['source_manifest_sha256']
+        identity['source_qualification_pending']=not qualified
+        if qualified:
+            value['current_native_catalog_normal_qualification']=record
+            value['current_source_goal_validation']['G01-current-baseline']=dict(state='catalog_normal_two_profile_related_baseline_qualified_limited',complete=True,evidence=record)
+            value['current_source_goal_validation']['G03-current-regression']=dict(state='catalog_related16_each_qualified_broad_and_library_current_source_pending',complete=False,evidence=record)
+            value['current_source_goal_validation']['G06-room-service-branches']=dict(state='catalog_components_qualified_current75_actual_handoff_and_other_branches_pending',complete=False,evidence=record)
+            for item in value.get('items',[]):
+                if item.get('id')=='G01-current-baseline':item.update(state='catalog_normal_two_profile_related_baseline_qualified_limited',complete=True,current_evidence=record,current_evidence_applies_to_current_source=True)
+        value.update(current_native_catalog_normal_work=record,active_workloads={}if terminal else{'catalog_normal':record},active_workload_sessions={}if terminal else{'catalog_normal':a.session},source_and_corresponding_QA_frozen=not terminal,source_freeze_while_Cargo=not terminal,next_task=work,next_focus=work,last_goal_turn_classification='progress'if terminal else'verified_wait',last_goal_turn_evidence=str(out/'evidence.json'),goal_complete=False,whole_goal_complete=False)
+        value['current_focus']=dict(item='same-endpoint-catalog-normal-build-and-related-tests',work=work,applies_to_current_source=True,goal_complete=False)
+        if n.endswith('next-validation-action.json'):value['next_action']=work
+        if 'updated_date'in value:value['updated_date']=date
+        save(path,value)
+    else:
+        first,sep,rest=path.read_text('utf-8-sig').partition('\n\n');assert sep;datetime.strptime(first[:10],'%Y-%m-%d');path.write_text(date+'：'+work+'\n\n'+rest,encoding='utf-8',newline='\n')
+save(out/'readback.json',dict(before_files=before,after_files={n:sha(ROOT/n)for n in before},before_archive_sha256=sha(out/'before.zip'),evidence_sha256=sha(out/'evidence.json')))
+save(run.parent/'current-continuation.json',dict(**record,latest_checkpoint=str(out),latest_readback=str(out/'readback.json'),must_poll_original_before_restart=not terminal,next_action='Poll original normal build/test job. After actual terminal, independently bind both normal products and affected test names; then fresh same-endpoint cases using current75 staged-rental inventory semantics.'))
+print(json.dumps(dict(checkpoint=str(out),original_session=a.session,terminal=terminal,qualification_granted=qualified),ensure_ascii=False))

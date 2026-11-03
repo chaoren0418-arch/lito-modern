@@ -1,0 +1,1337 @@
+{
+  "jar_sha256": "bbc59308c43df89ee5029d3b3c802be8ad55fee65c41faca99a76912dd5dce43",
+  "source": "驗證紀錄\\current\\native-real-peers\\20261013-171744-401\\a-client.json",
+  "source_sha256": "152EF7D47FE3DF5CDD6D9BF5BBEFDD5ECB9BE019A1AB15710440B044DA3DA20E",
+  "shops": [
+    {
+      "npc": 1812987906,
+      "resource": 2,
+      "name": "武器商人-瑪雅",
+      "html": "Maya_Start",
+      "items": [
+        {
+          "resource": 13,
+          "source_id": 19000,
+          "catalog_id": 19000,
+          "name": "黑魔石匕首",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20013,
+          "ground_gfx": 355
+        },
+        {
+          "resource": 14,
+          "source_id": 19001,
+          "catalog_id": 19001,
+          "name": "暗殺者匕首",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20014,
+          "ground_gfx": 355
+        },
+        {
+          "resource": 15,
+          "source_id": 19002,
+          "catalog_id": 19002,
+          "name": "格利芬羽毛",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20015,
+          "ground_gfx": 355
+        },
+        {
+          "resource": 16,
+          "source_id": 19003,
+          "catalog_id": 19003,
+          "name": "工匠之劍",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20016,
+          "ground_gfx": 26
+        },
+        {
+          "resource": 17,
+          "source_id": 19004,
+          "catalog_id": 19004,
+          "name": "水晶劍",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20017,
+          "ground_gfx": 26
+        },
+        {
+          "resource": 18,
+          "source_id": 19005,
+          "catalog_id": 19005,
+          "name": "光輝之劍",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20018,
+          "ground_gfx": 26
+        },
+        {
+          "resource": 19,
+          "source_id": 19006,
+          "catalog_id": 19006,
+          "name": "混沌長劍",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 100000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20019,
+          "ground_gfx": 59
+        },
+        {
+          "resource": 20,
+          "source_id": 19007,
+          "catalog_id": 19007,
+          "name": "光威之劍",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 100000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20020,
+          "ground_gfx": 59
+        },
+        {
+          "resource": 21,
+          "source_id": 19008,
+          "catalog_id": 19008,
+          "name": "寂滅之劍",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 100000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20021,
+          "ground_gfx": 59
+        },
+        {
+          "resource": 22,
+          "source_id": 19009,
+          "catalog_id": 19009,
+          "name": "亡靈之錘",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 80000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20022,
+          "ground_gfx": 3287
+        },
+        {
+          "resource": 23,
+          "source_id": 19010,
+          "catalog_id": 19010,
+          "name": "狂暴巨斧",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 80000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20023,
+          "ground_gfx": 3287
+        },
+        {
+          "resource": 24,
+          "source_id": 19011,
+          "catalog_id": 19011,
+          "name": "暴風錘",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 60000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20024,
+          "ground_gfx": 3287
+        },
+        {
+          "resource": 25,
+          "source_id": 19012,
+          "catalog_id": 19012,
+          "name": "賢者法杖",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20025,
+          "ground_gfx": 3262
+        },
+        {
+          "resource": 26,
+          "source_id": 19013,
+          "catalog_id": 19013,
+          "name": "咒術師法杖",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20026,
+          "ground_gfx": 3262
+        },
+        {
+          "resource": 27,
+          "source_id": 19014,
+          "catalog_id": 19014,
+          "name": "炎龍之矛",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 100000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20027,
+          "ground_gfx": 5607
+        },
+        {
+          "resource": 28,
+          "source_id": 19015,
+          "catalog_id": 19015,
+          "name": "冰之矛",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 100000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20028,
+          "ground_gfx": 5607
+        },
+        {
+          "resource": 29,
+          "source_id": 19016,
+          "catalog_id": 19016,
+          "name": "不死鳥長弓",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20029,
+          "ground_gfx": 2918
+        },
+        {
+          "resource": 30,
+          "source_id": 19017,
+          "catalog_id": 19017,
+          "name": "光速魔法弓",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20030,
+          "ground_gfx": 2918
+        },
+        {
+          "resource": 31,
+          "source_id": 19018,
+          "catalog_id": 19018,
+          "name": "妖精二重弓",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20031,
+          "ground_gfx": 2918
+        },
+        {
+          "resource": 32,
+          "source_id": 19019,
+          "catalog_id": 19019,
+          "name": "暗殺者十字弓",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20032,
+          "ground_gfx": 5601
+        },
+        {
+          "resource": 33,
+          "source_id": 19020,
+          "catalog_id": 19020,
+          "name": "神射手鐵手甲",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 20000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20033,
+          "ground_gfx": 2921
+        },
+        {
+          "resource": 34,
+          "source_id": 19021,
+          "catalog_id": 19021,
+          "name": "斷頭雙刀",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20034,
+          "ground_gfx": 4362
+        },
+        {
+          "resource": 35,
+          "source_id": 19022,
+          "catalog_id": 19022,
+          "name": "亡靈雙刀",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20035,
+          "ground_gfx": 4362
+        },
+        {
+          "resource": 36,
+          "source_id": 19023,
+          "catalog_id": 19023,
+          "name": "巫妖之爪",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20036,
+          "ground_gfx": 4318
+        },
+        {
+          "resource": 37,
+          "source_id": 19024,
+          "catalog_id": 19024,
+          "name": "惡魔之爪",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 1,
+          "icon": 20037,
+          "ground_gfx": 4318
+        }
+      ],
+      "steps": [
+        {
+          "after": [
+            32769,
+            32819
+          ],
+          "before": [
+            32770,
+            32818
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32768,
+            32820
+          ],
+          "before": [
+            32769,
+            32819
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32767,
+            32821
+          ],
+          "before": [
+            32768,
+            32820
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32766,
+            32822
+          ],
+          "before": [
+            32767,
+            32821
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32765,
+            32823
+          ],
+          "before": [
+            32766,
+            32822
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32765,
+            32824
+          ],
+          "before": [
+            32765,
+            32823
+          ],
+          "heading": 4,
+          "key": 98
+        },
+        {
+          "after": [
+            32764,
+            32825
+          ],
+          "before": [
+            32765,
+            32824
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32763,
+            32826
+          ],
+          "before": [
+            32764,
+            32825
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32762,
+            32827
+          ],
+          "before": [
+            32763,
+            32826
+          ],
+          "heading": 5,
+          "key": 97
+        }
+      ]
+    },
+    {
+      "npc": 1812987914,
+      "resource": 10,
+      "name": "防具商人-菲佛",
+      "html": "Paper_start",
+      "items": [
+        {
+          "resource": 38,
+          "source_id": 29011,
+          "catalog_id": 29011,
+          "name": "權能的皇冠",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 30000,
+          "stackable": false,
+          "use_type": 22,
+          "icon": 20038,
+          "ground_gfx": 357
+        },
+        {
+          "resource": 39,
+          "source_id": 29012,
+          "catalog_id": 29012,
+          "name": "破壞者頭盔",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 22,
+          "icon": 20039,
+          "ground_gfx": 357
+        },
+        {
+          "resource": 40,
+          "source_id": 29013,
+          "catalog_id": 29013,
+          "name": "生命樹之帽",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 22,
+          "icon": 20040,
+          "ground_gfx": 1503
+        },
+        {
+          "resource": 41,
+          "source_id": 29014,
+          "catalog_id": 29014,
+          "name": "魔法絲質帽",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 22,
+          "icon": 20041,
+          "ground_gfx": 1503
+        },
+        {
+          "resource": 42,
+          "source_id": 29015,
+          "catalog_id": 29015,
+          "name": "獵人皮帽",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 22,
+          "icon": 20042,
+          "ground_gfx": 1503
+        },
+        {
+          "resource": 43,
+          "source_id": 29016,
+          "catalog_id": 29016,
+          "name": "全覆式頭盔",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 40000,
+          "stackable": false,
+          "use_type": 22,
+          "icon": 20043,
+          "ground_gfx": 357
+        },
+        {
+          "resource": 44,
+          "source_id": 29017,
+          "catalog_id": 29017,
+          "name": "權能的金屬盔甲",
+          "seconds": 3600,
+          "gems": 12,
+          "weight": 250000,
+          "stackable": false,
+          "use_type": 2,
+          "icon": 20044,
+          "ground_gfx": 9
+        },
+        {
+          "resource": 45,
+          "source_id": 29018,
+          "catalog_id": 29018,
+          "name": "破壞者鋼鐵盔甲",
+          "seconds": 3600,
+          "gems": 12,
+          "weight": 250000,
+          "stackable": false,
+          "use_type": 2,
+          "icon": 20045,
+          "ground_gfx": 9
+        },
+        {
+          "resource": 46,
+          "source_id": 29019,
+          "catalog_id": 29019,
+          "name": "生命樹盔甲",
+          "seconds": 3600,
+          "gems": 12,
+          "weight": 150000,
+          "stackable": false,
+          "use_type": 2,
+          "icon": 20046,
+          "ground_gfx": 9
+        },
+        {
+          "resource": 47,
+          "source_id": 29020,
+          "catalog_id": 29020,
+          "name": "魔法絲質長袍",
+          "seconds": 3600,
+          "gems": 12,
+          "weight": 60000,
+          "stackable": false,
+          "use_type": 2,
+          "icon": 20047,
+          "ground_gfx": 2933
+        },
+        {
+          "resource": 48,
+          "source_id": 29021,
+          "catalog_id": 29021,
+          "name": "獵人皮盔甲",
+          "seconds": 3600,
+          "gems": 12,
+          "weight": 150000,
+          "stackable": false,
+          "use_type": 2,
+          "icon": 20048,
+          "ground_gfx": 9
+        },
+        {
+          "resource": 49,
+          "source_id": 29022,
+          "catalog_id": 29022,
+          "name": "全覆式盔甲",
+          "seconds": 3600,
+          "gems": 12,
+          "weight": 250000,
+          "stackable": false,
+          "use_type": 2,
+          "icon": 20049,
+          "ground_gfx": 9
+        },
+        {
+          "resource": 50,
+          "source_id": 29023,
+          "catalog_id": 29023,
+          "name": "權能金屬長靴",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 30000,
+          "stackable": false,
+          "use_type": 21,
+          "icon": 20050,
+          "ground_gfx": 25
+        },
+        {
+          "resource": 51,
+          "source_id": 29024,
+          "catalog_id": 29024,
+          "name": "破壞者鋼鐵長靴",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 30000,
+          "stackable": false,
+          "use_type": 21,
+          "icon": 20051,
+          "ground_gfx": 25
+        },
+        {
+          "resource": 52,
+          "source_id": 29009,
+          "catalog_id": 29009,
+          "name": "生命樹之鞋",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 21,
+          "icon": 20052,
+          "ground_gfx": 25
+        },
+        {
+          "resource": 53,
+          "source_id": 29006,
+          "catalog_id": 29006,
+          "name": "魔法絲質鞋",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 21,
+          "icon": 20053,
+          "ground_gfx": 25
+        },
+        {
+          "resource": 54,
+          "source_id": 29007,
+          "catalog_id": 29007,
+          "name": "獵人皮鞋",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 21,
+          "icon": 20054,
+          "ground_gfx": 25
+        },
+        {
+          "resource": 55,
+          "source_id": 29008,
+          "catalog_id": 29008,
+          "name": "全覆式長靴",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 21,
+          "icon": 20055,
+          "ground_gfx": 25
+        },
+        {
+          "resource": 56,
+          "source_id": 29000,
+          "catalog_id": 29000,
+          "name": "權能金屬手套",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 25000,
+          "stackable": false,
+          "use_type": 20,
+          "icon": 20056,
+          "ground_gfx": 182
+        },
+        {
+          "resource": 57,
+          "source_id": 29001,
+          "catalog_id": 29001,
+          "name": "破壞者鋼鐵手套",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 25000,
+          "stackable": false,
+          "use_type": 20,
+          "icon": 20057,
+          "ground_gfx": 182
+        },
+        {
+          "resource": 58,
+          "source_id": 29002,
+          "catalog_id": 29002,
+          "name": "生命樹手套",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 20,
+          "icon": 20058,
+          "ground_gfx": 182
+        },
+        {
+          "resource": 59,
+          "source_id": 29003,
+          "catalog_id": 29003,
+          "name": "魔法絲質手套",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 20,
+          "icon": 20059,
+          "ground_gfx": 182
+        },
+        {
+          "resource": 60,
+          "source_id": 29004,
+          "catalog_id": 29004,
+          "name": "獵人皮手套",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 15000,
+          "stackable": false,
+          "use_type": 20,
+          "icon": 20060,
+          "ground_gfx": 182
+        },
+        {
+          "resource": 61,
+          "source_id": 29005,
+          "catalog_id": 29005,
+          "name": "全覆式手套",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 30000,
+          "stackable": false,
+          "use_type": 20,
+          "icon": 20061,
+          "ground_gfx": 182
+        }
+      ],
+      "steps": [
+        {
+          "after": [
+            32761,
+            32826
+          ],
+          "before": [
+            32762,
+            32827
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32760,
+            32825
+          ],
+          "before": [
+            32761,
+            32826
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32759,
+            32824
+          ],
+          "before": [
+            32760,
+            32825
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32758,
+            32823
+          ],
+          "before": [
+            32759,
+            32824
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32757,
+            32822
+          ],
+          "before": [
+            32758,
+            32823
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32757,
+            32821
+          ],
+          "before": [
+            32757,
+            32822
+          ],
+          "heading": 0,
+          "key": 104
+        }
+      ]
+    },
+    {
+      "npc": 1812987915,
+      "resource": 11,
+      "name": "防具商人-克里",
+      "html": "Click_Start",
+      "items": [
+        {
+          "resource": 62,
+          "source_id": 29010,
+          "catalog_id": 29010,
+          "name": "太陽盾牌",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 70000,
+          "stackable": false,
+          "use_type": 25,
+          "icon": 20062,
+          "ground_gfx": 23
+        },
+        {
+          "resource": 63,
+          "source_id": 29026,
+          "catalog_id": 29026,
+          "name": "古老樹圓盾",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 30000,
+          "stackable": false,
+          "use_type": 25,
+          "icon": 20063,
+          "ground_gfx": 23
+        },
+        {
+          "resource": 64,
+          "source_id": 29025,
+          "catalog_id": 29025,
+          "name": "邪惡蜥蜴皮盾牌",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 20000,
+          "stackable": false,
+          "use_type": 25,
+          "icon": 20064,
+          "ground_gfx": 23
+        },
+        {
+          "resource": 65,
+          "source_id": 29027,
+          "catalog_id": 29027,
+          "name": "生命的樹枝",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 25,
+          "icon": 20065,
+          "ground_gfx": 23
+        },
+        {
+          "resource": 66,
+          "source_id": 29028,
+          "catalog_id": 29028,
+          "name": "咒術師的圖騰",
+          "seconds": 3600,
+          "gems": 10,
+          "weight": 20000,
+          "stackable": false,
+          "use_type": 25,
+          "icon": 20066,
+          "ground_gfx": 23
+        },
+        {
+          "resource": 67,
+          "source_id": 29031,
+          "catalog_id": 29031,
+          "name": "權威的斗篷",
+          "seconds": 3600,
+          "gems": 7,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 19,
+          "icon": 20067,
+          "ground_gfx": 13
+        },
+        {
+          "resource": 68,
+          "source_id": 29032,
+          "catalog_id": 29032,
+          "name": "戈爾公皮斗篷",
+          "seconds": 3600,
+          "gems": 7,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 19,
+          "icon": 20068,
+          "ground_gfx": 13
+        },
+        {
+          "resource": 69,
+          "source_id": 29033,
+          "catalog_id": 29033,
+          "name": "蜘蛛絲斗篷",
+          "seconds": 3600,
+          "gems": 7,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 19,
+          "icon": 20069,
+          "ground_gfx": 13
+        },
+        {
+          "resource": 70,
+          "source_id": 29034,
+          "catalog_id": 29034,
+          "name": "名譽紋路斗篷",
+          "seconds": 3600,
+          "gems": 7,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 19,
+          "icon": 20070,
+          "ground_gfx": 13
+        },
+        {
+          "resource": 71,
+          "source_id": 29035,
+          "catalog_id": 29035,
+          "name": "隱士斗篷",
+          "seconds": 3600,
+          "gems": 7,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 19,
+          "icon": 20071,
+          "ground_gfx": 13
+        },
+        {
+          "resource": 72,
+          "source_id": 29029,
+          "catalog_id": 29029,
+          "name": "強化皮斗篷",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 18,
+          "icon": 20072,
+          "ground_gfx": 24
+        },
+        {
+          "resource": 73,
+          "source_id": 29030,
+          "catalog_id": 29030,
+          "name": "魔法絲質衣",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 10000,
+          "stackable": false,
+          "use_type": 18,
+          "icon": 20073,
+          "ground_gfx": 24
+        }
+      ],
+      "steps": [
+        {
+          "after": [
+            32758,
+            32821
+          ],
+          "before": [
+            32757,
+            32821
+          ],
+          "heading": 2,
+          "key": 102
+        },
+        {
+          "after": [
+            32759,
+            32820
+          ],
+          "before": [
+            32758,
+            32821
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32760,
+            32819
+          ],
+          "before": [
+            32759,
+            32820
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32761,
+            32819
+          ],
+          "before": [
+            32760,
+            32819
+          ],
+          "heading": 2,
+          "key": 102
+        }
+      ]
+    },
+    {
+      "npc": 1812987916,
+      "resource": 12,
+      "name": "飾品商人-勒夫",
+      "html": "Love_Start",
+      "items": [
+        {
+          "resource": 74,
+          "source_id": 29036,
+          "catalog_id": 29036,
+          "name": "權力魔法項鍊",
+          "seconds": 3600,
+          "gems": 4,
+          "weight": 5000,
+          "stackable": false,
+          "use_type": 24,
+          "icon": 20074,
+          "ground_gfx": 8
+        },
+        {
+          "resource": 75,
+          "source_id": 29037,
+          "catalog_id": 29037,
+          "name": "保護者魔法項鍊",
+          "seconds": 3600,
+          "gems": 4,
+          "weight": 5000,
+          "stackable": false,
+          "use_type": 24,
+          "icon": 20075,
+          "ground_gfx": 8
+        },
+        {
+          "resource": 76,
+          "source_id": 29038,
+          "catalog_id": 29038,
+          "name": "增幅魔法項鍊",
+          "seconds": 3600,
+          "gems": 4,
+          "weight": 5000,
+          "stackable": false,
+          "use_type": 24,
+          "icon": 20076,
+          "ground_gfx": 8
+        },
+        {
+          "resource": 77,
+          "source_id": 29039,
+          "catalog_id": 29039,
+          "name": "督伊德魔法項鍊",
+          "seconds": 3600,
+          "gems": 4,
+          "weight": 5000,
+          "stackable": false,
+          "use_type": 24,
+          "icon": 20077,
+          "ground_gfx": 8
+        },
+        {
+          "resource": 78,
+          "source_id": 29040,
+          "catalog_id": 29040,
+          "name": "赤龍之牙",
+          "seconds": 3600,
+          "gems": 4,
+          "weight": 5000,
+          "stackable": false,
+          "use_type": 24,
+          "icon": 20078,
+          "ground_gfx": 8
+        },
+        {
+          "resource": 79,
+          "source_id": 29041,
+          "catalog_id": 29041,
+          "name": "惡魔之眼",
+          "seconds": 3600,
+          "gems": 4,
+          "weight": 5000,
+          "stackable": false,
+          "use_type": 24,
+          "icon": 20079,
+          "ground_gfx": 8
+        },
+        {
+          "resource": 80,
+          "source_id": 29047,
+          "catalog_id": 29047,
+          "name": "火蜥蝪紋樣戒指",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 3000,
+          "stackable": false,
+          "use_type": 23,
+          "icon": 20080,
+          "ground_gfx": 21
+        },
+        {
+          "resource": 81,
+          "source_id": 29048,
+          "catalog_id": 29048,
+          "name": "風精靈紋樣戒指",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 3000,
+          "stackable": false,
+          "use_type": 23,
+          "icon": 20081,
+          "ground_gfx": 21
+        },
+        {
+          "resource": 82,
+          "source_id": 29049,
+          "catalog_id": 29049,
+          "name": "高崙紋樣戒指",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 3000,
+          "stackable": false,
+          "use_type": 23,
+          "icon": 20082,
+          "ground_gfx": 21
+        },
+        {
+          "resource": 83,
+          "source_id": 29050,
+          "catalog_id": 29050,
+          "name": "水精靈紋樣戒指",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 3000,
+          "stackable": false,
+          "use_type": 23,
+          "icon": 20083,
+          "ground_gfx": 21
+        },
+        {
+          "resource": 84,
+          "source_id": 29051,
+          "catalog_id": 29051,
+          "name": "咒術師的戒指",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 3000,
+          "stackable": false,
+          "use_type": 23,
+          "icon": 20084,
+          "ground_gfx": 21
+        },
+        {
+          "resource": 85,
+          "source_id": 29052,
+          "catalog_id": 29052,
+          "name": "督伊德的戒指",
+          "seconds": 3600,
+          "gems": 3,
+          "weight": 3000,
+          "stackable": false,
+          "use_type": 23,
+          "icon": 20085,
+          "ground_gfx": 21
+        },
+        {
+          "resource": 86,
+          "source_id": 29042,
+          "catalog_id": 29042,
+          "name": "靈魂的皮帶",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 37,
+          "icon": 20086,
+          "ground_gfx": 1165
+        },
+        {
+          "resource": 87,
+          "source_id": 29043,
+          "catalog_id": 29043,
+          "name": "古代法師的皮帶",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 37,
+          "icon": 20087,
+          "ground_gfx": 1165
+        },
+        {
+          "resource": 88,
+          "source_id": 29044,
+          "catalog_id": 29044,
+          "name": "冰原老虎皮帶",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 37,
+          "icon": 20088,
+          "ground_gfx": 1165
+        },
+        {
+          "resource": 89,
+          "source_id": 29045,
+          "catalog_id": 29045,
+          "name": "權能的紋樣皮帶",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 37,
+          "icon": 20089,
+          "ground_gfx": 1165
+        },
+        {
+          "resource": 90,
+          "source_id": 29046,
+          "catalog_id": 29046,
+          "name": "自然的守護皮帶",
+          "seconds": 3600,
+          "gems": 5,
+          "weight": 50000,
+          "stackable": false,
+          "use_type": 37,
+          "icon": 20090,
+          "ground_gfx": 1165
+        }
+      ],
+      "steps": [
+        {
+          "after": [
+            32762,
+            32818
+          ],
+          "before": [
+            32761,
+            32819
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32763,
+            32817
+          ],
+          "before": [
+            32762,
+            32818
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32764,
+            32818
+          ],
+          "before": [
+            32763,
+            32817
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32765,
+            32819
+          ],
+          "before": [
+            32764,
+            32818
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    }
+  ]
+}

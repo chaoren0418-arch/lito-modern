@@ -1,0 +1,34 @@
+"""Bind reviewed original #69/#70 routes, packets and native default-start bytes; data only."""
+from pathlib import Path
+from datetime import datetime,timezone
+import json,re,zipfile,capstone
+from native_E149_recovery_contract import R,P,SOURCE,FORMAL,read,sha,encoded,require,check_pins
+from native_E149_classfile_scan import parse,instructions
+from native_E149_classfile_bootstraps import bootstraps
+T=R/'維護工具';V=R/'驗證紀錄/current'
+def methods(path):
+ s=Path(path).read_text('utf-8-sig');hs=list(re.finditer(r'^  [^ \n].*\([^\n]*\)[^\n]*;\s*$',s,re.M));return [(h.group().strip(),s[h.start():hs[i+1].start()if i+1<len(hs)else len(s)])for i,h in enumerate(hs)]
+def main():
+ original=V/'native-E149-mass69-fire70-inspection/20261024-155206-240172/inspection.json';require(sha(original)=='F4E3DEFF391EA98C4BA29885E3C7B1365B25D930433C70CAA554F204C386F128','primary copy changed');j=read(original);check_pins(j['source_pins']);require(all(sha(p)==h for p,h in j['external_readonly_pins'].items()),'readonly source changed');out=V/'native-E149-mass69-fire70-review'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f');out.mkdir(parents=True)
+ session=V/'native-formal-reference-refresh/20261023-192435-953238/ClientSession.stdout.txt';protocol=V/'native-E149-area2253053-contract/Protocol.stdout.txt';copied={}
+ for label,path,names in [('Session',session,['returnSummon','addClassicBookmark','deleteClassicBookmark','sendStoredBookmarks']),('Protocol',protocol,['massTeleportAsk','requestSummon','returnSummon','addBookmark','bookmarkName'])]:
+  for h,s in methods(path):
+   if any(' '+n+'('in h for n in names):p=out/(label+'-'+h.split('(')[0].split()[-1]+'.txt');p.write_text(s,encoding='utf-8',newline='\n');copied[h]=str(p)
+ def source(name):return Path(next(v for h,v in {**j['method_files'],**copied}.items()if ' '+name+'('in h)).read_text('utf-8-sig')
+ for name,checks in [('nativeMaterialMassTeleportBody',{1:'Protocol.massTeleportSpellRequest:',722:'reserveMassTeleportPortal:',1065:'BattleMassTeleport.withinInviteRange:',1113:'30000000000l',1139:'Protocol.massTeleportAsk:',1196:'Protocol.effectObject:',1354:'sendMassTeleportPortalRequest:'}),('nativeMassTeleportAnswerBody',{12:'NativeMassTeleportAnswerLife.capture:',38:'748',241:'sameNonemptyClan:',581:'reserveMassTeleportPortal:',786:'NativeMassTeleportAnswerLife.publish:',796:'sendMassTeleportPortalRequest:'}),('useCenteredAreaAttackSpell',{4:'Protocol.selectorOnlySpellRequest:',2939:'iconst_0',2942:'Protocol.attackMany:'}),('useClassicWorldCenteredAreaAttackSpell',{9:'Protocol.selectorOnlySpellRequest:',3959:'iconst_0',3962:'Protocol.attackMany:'}),('sendStoredBookmarks',{42:'Bookmark.x:',46:'Bookmark.y:',50:'Bookmark.mapId:',53:'Protocol.addBookmark:'})]:
+  for at,text in checks.items():require(re.search(r'^\s*'+str(at)+r':[^\n]*'+re.escape(text),source(name),re.M),'original offset differs '+name+str(at))
+ require('bipush        78'in source('returnSummon') if 'bipush        78'in source('returnSummon')else 'Protocol.returnSummon:'in source('returnSummon'),'return summon parser absent')
+ jar=P/'target/current/server-reference/formal-server-E1498871.jar';require(sha(jar)==FORMAL,'formal differs')
+ with zipfile.ZipFile(jar)as z:
+  raw=z.read('local/lito381/server/NativeAreaMaterialAction.class');c=parse(raw);_,bindings=bootstraps(raw);rows=[dict(name=m['name'],descriptor=m['descriptor'],instructions=instructions(m['code']['bytes'],c['cp']))for m in c['methods']if m['code']];(out/'NativeAreaMaterialAction-Code.json').write_bytes(encoded(rows));(out/'NativeAreaMaterialAction-bootstraps.json').write_bytes(encoded(bindings));route=next(m for m in rows if m['name']=='massTeleport');require(any(i.get('member',{}).get('name')=='run'for i in route['instructions']),'material owner absent');callbacks=[m['name']for m in rows if m['name'].startswith('lambda$massTeleport$') and any(i.get('member',{}).get('name')=='nativeMaterialMassTeleportBody'for i in m['instructions'])];require(len(callbacks)==1 and any(any(h['name']==callbacks[0]for h in b['method_handles'])for b in bindings.values()),'actual material callback absent')
+ pe=Path('D:/lineage開發/3-lito開發/lito登入器/舊版分析與驗收/runtime/LiTo.unpacked-oep-current.exe');require(sha(pe)=='4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9','PE differs');start=V/'native-E149-blizzard59-inspection/20261024-115029-671040/start.bin';require(sha(start)=='6937E97AE98ACA01232582E90F70DBD2BA2D656D92E92837105A233B6A318A77','native bytes differ');md=capstone.Cs(capstone.CS_ARCH_X86,capstone.CS_MODE_32);code={i.address:i for i in md.disasm(start.read_bytes(),0x44f350)};pc=0x44f370;equal=None;trace=[]
+ while pc!=0x45001a:
+  require(pc in code and len(trace)<40,'native trace bound');i=code[pc];trace.append(dict(address=pc,hex=i.bytes.hex(),mnemonic=i.mnemonic,operands=i.op_str));next_pc=pc+i.size
+  if i.mnemonic=='mov':require(i.op_str=='ax, word ptr [esi + 0x14]','unreviewed native load')
+  elif i.mnemonic=='cmp':a,b=i.op_str.split(', ');require(a=='ax','unreviewed compare');equal=1819==int(b,0)
+  elif i.mnemonic in ['je','jne']:require(equal is not None,'missing compare');next_pc=int(i.op_str,0)if equal==(i.mnemonic=='je')else next_pc
+  else:raise RuntimeError('unreviewed native branch')
+  pc=next_pc
+ (out/'start1819-default-route.json').write_bytes(encoded(dict(graphics=1819,trace=trace,default_start=pc,PE_executed=False)))
+ (out/'reviewer.py').write_bytes(Path(__file__).read_bytes());pins=dict(j['source_pins']);pins.update({str(p):sha(p)for p in out.iterdir()});pins.update({str(p):sha(p)for p in [original,jar,start,T/'native_E149_classfile_scan.py',T/'native_E149_classfile_bootstraps.py']});p=out/'review.json';p.write_bytes(encoded(dict(schema='E149-mass69-fire70-reviewed-primary-v1',source_manifest_sha256=SOURCE,formal_target_sha256=FORMAL,source_pins=pins,external_readonly_pins={**j['external_readonly_pins'],str(pe):sha(pe)},primary_copy=str(original),primary_copy_sha256=sha(original),definitions=j['definitions'],raw_definitions=j['raw_definitions'],additional_method_files=copied,mass_request_nine_bytes_map_xy=True,bookmark_S30_name_xy_map=True,stored_bookmarks_and_random_both_required=True,ask748_exact_empty_NUL=True,ask30_seconds_server_owned=True,recipient_no_local_spell_or_MP_requirement=True,material_callback=callbacks[0],S55_exact_own_id_and_C4E_one_byte_codec=True,C4E_value_not_used_for_authorization=True,fire70_selector_only=True,fire70_S39_class0_fixed_wire_origin=True,fire70_fourteen_frames_Sound710_at_source1_Hit7=True,fire70_native_default_start_static=True,fire70_Hit_hurt_binding_unresolved=True,tests_executed=0,game_classes_loaded=0,game_methods_invoked=0,PE_executed=False,whole_goal_complete=False)));print(json.dumps(dict(review=str(p),sha256=sha(p),tests_executed=0),ensure_ascii=False))
+if __name__=='__main__':main()

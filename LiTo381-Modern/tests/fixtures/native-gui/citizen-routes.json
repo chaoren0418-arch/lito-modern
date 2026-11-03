@@ -1,0 +1,1494 @@
+{
+  "canonical_sha256": [
+    192,
+    78,
+    83,
+    132,
+    99,
+    80,
+    28,
+    20,
+    114,
+    163,
+    213,
+    153,
+    170,
+    190,
+    217,
+    67,
+    80,
+    25,
+    221,
+    115,
+    204,
+    200,
+    66,
+    205,
+    223,
+    169,
+    197,
+    47,
+    142,
+    157,
+    215,
+    183
+  ],
+  "failed_manual_edge_passable": true,
+  "jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "map": 500,
+  "routes": [
+    {
+      "end": [
+        32766,
+        32824
+      ],
+      "npc": {
+        "action": "request LTC emblem of authority",
+        "end_html": "Soul_End",
+        "id": 1812987905,
+        "name": "血盟管理員-蘇耳",
+        "resource": 1,
+        "role": "EMBLEM",
+        "start_html": "Soul_Start",
+        "x": 32767,
+        "y": 32825
+      },
+      "resource": 1,
+      "start": [
+        32770,
+        32818
+      ],
+      "steps": [
+        {
+          "after": [
+            32769,
+            32819
+          ],
+          "before": [
+            32770,
+            32818
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32768,
+            32820
+          ],
+          "before": [
+            32769,
+            32819
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32767,
+            32821
+          ],
+          "before": [
+            32768,
+            32820
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32766,
+            32822
+          ],
+          "before": [
+            32767,
+            32821
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32765,
+            32823
+          ],
+          "before": [
+            32766,
+            32822
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32766,
+            32824
+          ],
+          "before": [
+            32765,
+            32823
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    },
+    {
+      "end": [
+        32763,
+        32827
+      ],
+      "npc": {
+        "action": "request LTC emblem of craftsman",
+        "end_html": "Maya_End",
+        "id": 1812987906,
+        "name": "武器商人-瑪雅",
+        "resource": 2,
+        "role": "EMBLEM",
+        "start_html": "Maya_Start",
+        "x": 32762,
+        "y": 32828
+      },
+      "resource": 2,
+      "start": [
+        32766,
+        32824
+      ],
+      "steps": [
+        {
+          "after": [
+            32765,
+            32825
+          ],
+          "before": [
+            32766,
+            32824
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32764,
+            32826
+          ],
+          "before": [
+            32765,
+            32825
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32763,
+            32827
+          ],
+          "before": [
+            32764,
+            32826
+          ],
+          "heading": 5,
+          "key": 97
+        }
+      ]
+    },
+    {
+      "end": [
+        32774,
+        32823
+      ],
+      "npc": {
+        "action": "request LTC emblem of delight",
+        "end_html": "Ezee_End",
+        "id": 1812987907,
+        "name": "首席傳送師-伊奇",
+        "resource": 3,
+        "role": "EMBLEM",
+        "start_html": "Ezee_Start",
+        "x": 32775,
+        "y": 32824
+      },
+      "resource": 3,
+      "start": [
+        32763,
+        32827
+      ],
+      "steps": [
+        {
+          "after": [
+            32764,
+            32826
+          ],
+          "before": [
+            32763,
+            32827
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32765,
+            32825
+          ],
+          "before": [
+            32764,
+            32826
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32766,
+            32824
+          ],
+          "before": [
+            32765,
+            32825
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32767,
+            32823
+          ],
+          "before": [
+            32766,
+            32824
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32768,
+            32822
+          ],
+          "before": [
+            32767,
+            32823
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32769,
+            32821
+          ],
+          "before": [
+            32768,
+            32822
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32770,
+            32820
+          ],
+          "before": [
+            32769,
+            32821
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32771,
+            32820
+          ],
+          "before": [
+            32770,
+            32820
+          ],
+          "heading": 2,
+          "key": 102
+        },
+        {
+          "after": [
+            32772,
+            32821
+          ],
+          "before": [
+            32771,
+            32820
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32773,
+            32822
+          ],
+          "before": [
+            32772,
+            32821
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32774,
+            32823
+          ],
+          "before": [
+            32773,
+            32822
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    },
+    {
+      "end": [
+        32774,
+        32831
+      ],
+      "npc": {
+        "action": "request LTC emblem of peace",
+        "end_html": "Aria_End",
+        "id": 1812987908,
+        "name": "旅館主人-阿里亞",
+        "resource": 4,
+        "role": "EMBLEM",
+        "start_html": "Aria_Start",
+        "x": 32774,
+        "y": 32832
+      },
+      "resource": 4,
+      "start": [
+        32774,
+        32823
+      ],
+      "steps": [
+        {
+          "after": [
+            32773,
+            32824
+          ],
+          "before": [
+            32774,
+            32823
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32772,
+            32825
+          ],
+          "before": [
+            32773,
+            32824
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32771,
+            32826
+          ],
+          "before": [
+            32772,
+            32825
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32772,
+            32827
+          ],
+          "before": [
+            32771,
+            32826
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32773,
+            32828
+          ],
+          "before": [
+            32772,
+            32827
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32774,
+            32829
+          ],
+          "before": [
+            32773,
+            32828
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32775,
+            32830
+          ],
+          "before": [
+            32774,
+            32829
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32774,
+            32831
+          ],
+          "before": [
+            32775,
+            32830
+          ],
+          "heading": 5,
+          "key": 97
+        }
+      ]
+    },
+    {
+      "end": [
+        32773,
+        32835
+      ],
+      "npc": {
+        "action": "request LTC light jewel",
+        "end_html": "Phan_End_k",
+        "id": 1812987904,
+        "name": "指導員-潘塔休",
+        "resource": 0,
+        "role": "GUIDE",
+        "start_html": "Phan_Start",
+        "x": 32772,
+        "y": 32836
+      },
+      "resource": 0,
+      "start": [
+        32774,
+        32831
+      ],
+      "steps": [
+        {
+          "after": [
+            32775,
+            32832
+          ],
+          "before": [
+            32774,
+            32831
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32774,
+            32833
+          ],
+          "before": [
+            32775,
+            32832
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32773,
+            32834
+          ],
+          "before": [
+            32774,
+            32833
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32773,
+            32835
+          ],
+          "before": [
+            32773,
+            32834
+          ],
+          "heading": 4,
+          "key": 98
+        }
+      ]
+    },
+    {
+      "end": [
+        32759,
+        32819
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987914,
+        "name": "防具商人-菲佛",
+        "resource": 10,
+        "role": "RENTAL_MERCHANT",
+        "start_html": "Paper_start",
+        "x": 32758,
+        "y": 32820
+      },
+      "resource": 10,
+      "start": [
+        32773,
+        32835
+      ],
+      "steps": [
+        {
+          "after": [
+            32773,
+            32834
+          ],
+          "before": [
+            32773,
+            32835
+          ],
+          "heading": 0,
+          "key": 104
+        },
+        {
+          "after": [
+            32774,
+            32833
+          ],
+          "before": [
+            32773,
+            32834
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32775,
+            32832
+          ],
+          "before": [
+            32774,
+            32833
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32774,
+            32831
+          ],
+          "before": [
+            32775,
+            32832
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32775,
+            32830
+          ],
+          "before": [
+            32774,
+            32831
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32774,
+            32829
+          ],
+          "before": [
+            32775,
+            32830
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32773,
+            32828
+          ],
+          "before": [
+            32774,
+            32829
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32772,
+            32827
+          ],
+          "before": [
+            32773,
+            32828
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32771,
+            32826
+          ],
+          "before": [
+            32772,
+            32827
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32770,
+            32825
+          ],
+          "before": [
+            32771,
+            32826
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32769,
+            32825
+          ],
+          "before": [
+            32770,
+            32825
+          ],
+          "heading": 6,
+          "key": 100
+        },
+        {
+          "after": [
+            32768,
+            32824
+          ],
+          "before": [
+            32769,
+            32825
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32767,
+            32823
+          ],
+          "before": [
+            32768,
+            32824
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32766,
+            32822
+          ],
+          "before": [
+            32767,
+            32823
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32765,
+            32821
+          ],
+          "before": [
+            32766,
+            32822
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32764,
+            32820
+          ],
+          "before": [
+            32765,
+            32821
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32763,
+            32819
+          ],
+          "before": [
+            32764,
+            32820
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32762,
+            32818
+          ],
+          "before": [
+            32763,
+            32819
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32761,
+            32817
+          ],
+          "before": [
+            32762,
+            32818
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32760,
+            32818
+          ],
+          "before": [
+            32761,
+            32817
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32759,
+            32819
+          ],
+          "before": [
+            32760,
+            32818
+          ],
+          "heading": 5,
+          "key": 97
+        }
+      ]
+    },
+    {
+      "end": [
+        32761,
+        32819
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987915,
+        "name": "防具商人-克里",
+        "resource": 11,
+        "role": "RENTAL_MERCHANT",
+        "start_html": "Click_Start",
+        "x": 32762,
+        "y": 32820
+      },
+      "resource": 11,
+      "start": [
+        32759,
+        32819
+      ],
+      "steps": [
+        {
+          "after": [
+            32760,
+            32818
+          ],
+          "before": [
+            32759,
+            32819
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32761,
+            32819
+          ],
+          "before": [
+            32760,
+            32818
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    },
+    {
+      "end": [
+        32765,
+        32819
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987916,
+        "name": "飾品商人-勒夫",
+        "resource": 12,
+        "role": "RENTAL_MERCHANT",
+        "start_html": "Love_Start",
+        "x": 32766,
+        "y": 32820
+      },
+      "resource": 12,
+      "start": [
+        32761,
+        32819
+      ],
+      "steps": [
+        {
+          "after": [
+            32762,
+            32818
+          ],
+          "before": [
+            32761,
+            32819
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32763,
+            32817
+          ],
+          "before": [
+            32762,
+            32818
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32764,
+            32818
+          ],
+          "before": [
+            32763,
+            32817
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32765,
+            32819
+          ],
+          "before": [
+            32764,
+            32818
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    },
+    {
+      "end": [
+        32779,
+        32831
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987995,
+        "name": "旅館服務生-席巴",
+        "resource": 91,
+        "role": "HOTEL_SERVICE",
+        "start_html": "inn",
+        "x": 32780,
+        "y": 32832
+      },
+      "resource": 91,
+      "start": [
+        32765,
+        32819
+      ],
+      "steps": [
+        {
+          "after": [
+            32766,
+            32818
+          ],
+          "before": [
+            32765,
+            32819
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32767,
+            32819
+          ],
+          "before": [
+            32766,
+            32818
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32768,
+            32820
+          ],
+          "before": [
+            32767,
+            32819
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32769,
+            32821
+          ],
+          "before": [
+            32768,
+            32820
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32770,
+            32822
+          ],
+          "before": [
+            32769,
+            32821
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32771,
+            32823
+          ],
+          "before": [
+            32770,
+            32822
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32772,
+            32824
+          ],
+          "before": [
+            32771,
+            32823
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32773,
+            32825
+          ],
+          "before": [
+            32772,
+            32824
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32774,
+            32826
+          ],
+          "before": [
+            32773,
+            32825
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32775,
+            32827
+          ],
+          "before": [
+            32774,
+            32826
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32776,
+            32828
+          ],
+          "before": [
+            32775,
+            32827
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32777,
+            32829
+          ],
+          "before": [
+            32776,
+            32828
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32778,
+            32830
+          ],
+          "before": [
+            32777,
+            32829
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32779,
+            32831
+          ],
+          "before": [
+            32778,
+            32830
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    },
+    {
+      "end": [
+        32777,
+        32821
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987996,
+        "name": "傳送師-尤依琳",
+        "resource": 92,
+        "role": "TELEPORT_SERVICE",
+        "start_html": "TeleportMe",
+        "x": 32778,
+        "y": 32820
+      },
+      "resource": 92,
+      "start": [
+        32779,
+        32831
+      ],
+      "steps": [
+        {
+          "after": [
+            32778,
+            32830
+          ],
+          "before": [
+            32779,
+            32831
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32777,
+            32829
+          ],
+          "before": [
+            32778,
+            32830
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32776,
+            32828
+          ],
+          "before": [
+            32777,
+            32829
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32775,
+            32827
+          ],
+          "before": [
+            32776,
+            32828
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32774,
+            32826
+          ],
+          "before": [
+            32775,
+            32827
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32773,
+            32825
+          ],
+          "before": [
+            32774,
+            32826
+          ],
+          "heading": 7,
+          "key": 103
+        },
+        {
+          "after": [
+            32774,
+            32824
+          ],
+          "before": [
+            32773,
+            32825
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32775,
+            32823
+          ],
+          "before": [
+            32774,
+            32824
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32776,
+            32822
+          ],
+          "before": [
+            32775,
+            32823
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32777,
+            32821
+          ],
+          "before": [
+            32776,
+            32822
+          ],
+          "heading": 1,
+          "key": 105
+        }
+      ]
+    },
+    {
+      "end": [
+        32781,
+        32819
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987997,
+        "name": "傳送師-艾恩",
+        "resource": 93,
+        "role": "TELEPORT_SERVICE",
+        "start_html": "TeleportMe",
+        "x": 32782,
+        "y": 32820
+      },
+      "resource": 93,
+      "start": [
+        32777,
+        32821
+      ],
+      "steps": [
+        {
+          "after": [
+            32778,
+            32821
+          ],
+          "before": [
+            32777,
+            32821
+          ],
+          "heading": 2,
+          "key": 102
+        },
+        {
+          "after": [
+            32779,
+            32820
+          ],
+          "before": [
+            32778,
+            32821
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32780,
+            32819
+          ],
+          "before": [
+            32779,
+            32820
+          ],
+          "heading": 1,
+          "key": 105
+        },
+        {
+          "after": [
+            32781,
+            32819
+          ],
+          "before": [
+            32780,
+            32819
+          ],
+          "heading": 2,
+          "key": 102
+        }
+      ]
+    },
+    {
+      "end": [
+        32781,
+        32823
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987998,
+        "name": "傳送師-尤蘿雅",
+        "resource": 94,
+        "role": "TELEPORT_SERVICE",
+        "start_html": "TeleportMe",
+        "x": 32782,
+        "y": 32824
+      },
+      "resource": 94,
+      "start": [
+        32781,
+        32819
+      ],
+      "steps": [
+        {
+          "after": [
+            32780,
+            32820
+          ],
+          "before": [
+            32781,
+            32819
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32779,
+            32821
+          ],
+          "before": [
+            32780,
+            32820
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32780,
+            32822
+          ],
+          "before": [
+            32779,
+            32821
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32781,
+            32823
+          ],
+          "before": [
+            32780,
+            32822
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    },
+    {
+      "end": [
+        32781,
+        32827
+      ],
+      "npc": {
+        "action": null,
+        "end_html": null,
+        "id": 1812987999,
+        "name": "傳送師-阿霞",
+        "resource": 95,
+        "role": "TELEPORT_SERVICE",
+        "start_html": "TeleportMe",
+        "x": 32782,
+        "y": 32828
+      },
+      "resource": 95,
+      "start": [
+        32781,
+        32823
+      ],
+      "steps": [
+        {
+          "after": [
+            32780,
+            32824
+          ],
+          "before": [
+            32781,
+            32823
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32779,
+            32825
+          ],
+          "before": [
+            32780,
+            32824
+          ],
+          "heading": 5,
+          "key": 97
+        },
+        {
+          "after": [
+            32780,
+            32826
+          ],
+          "before": [
+            32779,
+            32825
+          ],
+          "heading": 3,
+          "key": 99
+        },
+        {
+          "after": [
+            32781,
+            32827
+          ],
+          "before": [
+            32780,
+            32826
+          ],
+          "heading": 3,
+          "key": 99
+        }
+      ]
+    }
+  ],
+  "scope": "Static original-geometry route plan; live server movement acceptance remains separate"
+}

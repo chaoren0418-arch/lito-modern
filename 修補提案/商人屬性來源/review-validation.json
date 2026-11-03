@@ -1,0 +1,37 @@
+{
+  "status": "verified_detached_review_patch_not_deployed",
+  "utc": "2026-10-13T20:15:00.508306+00:00",
+  "formal_jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+  "source_provenance": {
+    "source": "D:\\lineage開發\\3-lito開發\\lito伺服器\\LiTo381-Server\\src\\main\\java\\local\\lito381\\server\\RentalEquipmentBonuses.java",
+    "source_sha256": "39DB4A689D061FAA54F992620A83BC83445B6D3CE05A6658194C01E4407EDC61",
+    "formal_jar_sha256": "BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43",
+    "deployed": false,
+    "formal_source_modified": false,
+    "candidate_scope": "Detached pure bonus computation; not formal ClientSession qualification"
+  },
+  "unchanged_selected_catalog_rows": 57,
+  "retained_merchant_rows_against_independent_tsv": 78,
+  "unworn_and_source_bound_exclusions": 270,
+  "catalog_state_cases": 405,
+  "aggregate_fields_checked": 35,
+  "ring29047_fire_baseline": 0,
+  "ring29047_fire_review_candidate": 10,
+  "inputs": {
+    "LiTo381-Modern\\target\\current\\merchant-bonus-repair-draft\\src\\RentalEquipmentBonuses.java": "C4DAEFAB3C66BDFBB1E10F11F87BB451270D361127A27E247E1EACFB2677D6B6",
+    "LiTo381-Modern\\target\\current\\merchant-bonus-repair-draft\\src\\MerchantBonusRepairOracle.java": "A2778E2F9971D092DA1D9383E819CAF609CE930E89C65509314393736CD168D4",
+    "LiTo381-Modern\\target\\current\\merchant-bonus-repair-draft\\merchant-bonuses.patch": "9349A18675347113CC609BD36E90B10CB06314F4B413B707172E11F040936CD8",
+    "LiTo381-Modern\\target\\current\\merchant-bonus-repair-draft\\formal-baseline.json": "A69D1EAE47BA19C564E1291C55F37171C74F3AFF49B83ED8F9CBA46FDBE2CA41",
+    "LiTo381-Modern\\target\\current\\merchant-bonus-repair-draft\\review-candidate.json": "2B7C522C93E2D570F64BB5B343BAD58762DB8404675E8E6DD7DC32B8A96A9B8F"
+  },
+  "formal_source_modified": false,
+  "deployed": false,
+  "client_prediction_added": false,
+  "not_verified": [
+    "formal ClientSession integration with patched source",
+    "equip and unequip emitted attribute packets",
+    "natural expiry of extended bonuses",
+    "cross-service handoff",
+    "formal server full regression"
+  ]
+}

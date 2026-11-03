@@ -1,0 +1,13 @@
+{
+  "schema": 2,
+  "gameplay_protocol": "modern_v47",
+  "profile_id": "lito-modern-v47",
+  "display_name": "LiTo Modern",
+  "shared_resource_root": "D:\\lineage開發\\0-客戶端",
+  "effect_catalog_path": "D:\\lineage開發\\客戶端xml\\effectlist2.xml",
+  "endpoint": "127.0.0.1:25400",
+  "tls_server_name": "localhost",
+  "trust": { "kind": "web_pki" },
+  "connect_timeout_ms": 2000,
+  "exchange_timeout_ms": 5000
+}

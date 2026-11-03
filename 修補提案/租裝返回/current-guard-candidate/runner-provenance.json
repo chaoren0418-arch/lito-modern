@@ -1,0 +1,10 @@
+{
+  "original": "D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\verify-native-real-peers.ps1",
+  "original_sha256": "025CBCA0910C5D129A923ABCE75D389D0513055EE436420AD6A9304C3244F170",
+  "adaptations": [
+    "Owned separate candidate JAR and separate outputs; formal source pins checked unchanged",
+    "Existing real clients, fixture, cleanup, identity/phase checks preserved",
+    "Existing ordinary two-round battle comparator retained",
+    "Original rental-return boundary comparator deliberately not used: candidate outcome saved for independent review"
+  ]
+}
