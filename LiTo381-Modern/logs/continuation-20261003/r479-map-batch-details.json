@@ -1,0 +1,144 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "actual_new516_load_Back_cancel_and_old564_select_retirement": true,
+  "actual_queued_old564_and_new516_pan_rejections": 2,
+  "catalog_rows": 40,
+  "failure_cases": [
+    {
+      "kind": "missing_complete_sector",
+      "map_id": 509,
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "kind": "missing_complete_sector",
+      "map_id": 508,
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "kind": "missing_complete_sector",
+      "map_id": 505,
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "kind": "missing_complete_sector",
+      "map_id": 516,
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "kind": "corrupt_sector_hash",
+      "map_id": 509,
+      "no_fallback_frame": true,
+      "status": "載入失敗，可重試或返回：Native opened bytes differ from pin"
+    },
+    {
+      "kind": "valid_byte_pin_unsupported_truncated_s32",
+      "map_id": 509,
+      "no_fallback_frame": true,
+      "status": "載入失敗，可重試或返回：shared world S32: S32 Layer1 truncated at 0: need 32768 bytes, 1 available"
+    },
+    {
+      "kind": "corrupt_native_tile_index",
+      "map_id": 509,
+      "no_fallback_frame": true,
+      "status": "載入失敗，可重試或返回：Native opened bytes differ from pin"
+    }
+  ],
+  "four_images_distinct_and_match_fixed_R478_library_probe_all_pixels": true,
+  "held_old_new_frames_revoked": true,
+  "historical_PASS_reruns": 0,
+  "images": [
+    {
+      "bytes": 1493176,
+      "identity": [
+        1,
+        509
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r479-map-batch\\cpu-native509.png",
+      "rgba_sha256": "42D3EC88DBF60EFFFEB4B6087F036F6FF72D3C5BFE93890F2A5DDD50D917DB00",
+      "sha256": "0B1D981FD915CC6D9830D036B7960A62592856C8CA41FB1053A35A2DDCFE2A85"
+    },
+    {
+      "bytes": 1488311,
+      "identity": [
+        1,
+        508
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r479-map-batch\\cpu-native508.png",
+      "rgba_sha256": "B3D172A3B9CAB237852092E90F6FFD5CE794B79AA85F56F03A8FA2777949A121",
+      "sha256": "DEE75717A8D4A1E13989D28D9F4B7FF612DE970EBC952F9B13F2D521800A53DB"
+    },
+    {
+      "bytes": 1463464,
+      "identity": [
+        1,
+        505
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r479-map-batch\\cpu-native505.png",
+      "rgba_sha256": "C78CE83AF9E8437F0565F501BA591C93D5592C5649CFFB3086E7DC1B37B1B23F",
+      "sha256": "181B3F87189F364FF3E8EC409860C31C94888C4D863B8F5A2DE449FFA0E289B6"
+    },
+    {
+      "bytes": 1595840,
+      "identity": [
+        1,
+        516
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r479-map-batch\\cpu-native516.png",
+      "rgba_sha256": "FFA5C2CFD9AFEF8978CD5B694C76AAFE54B0A5C2F7AD292A622A91EB1686CC27",
+      "sha256": "6F2F06FEE8FE675E641A86F8FDFE244F4E1FEC9996035E04B5E5565ECA969EAF"
+    }
+  ],
+  "multi_sector_seams_needed_for_this_batch": false,
+  "negative_cases": 13,
+  "new_complete_source_sectors": 4,
+  "new_focused": 1,
+  "new_maps": [
+    509,
+    508,
+    505,
+    516
+  ],
+  "qualified_maps": [
+    [
+      1,
+      564
+    ],
+    [
+      1,
+      514
+    ],
+    [
+      1,
+      509
+    ],
+    [
+      1,
+      508
+    ],
+    [
+      1,
+      505
+    ],
+    [
+      1,
+      516
+    ]
+  ],
+  "remaining_unqualified_maps": 34,
+  "source_camera_adaptation": [
+    1136,
+    468,
+    800,
+    600
+  ],
+  "state": "R479_ACTUAL_FOUR_NEW_NATIVE_COMPLETE_MAPS_PLAYER_FLOW_PIXEL_REFERENCE_AND_REJECTION_PASS_GUI_PENDING"
+}

@@ -1,0 +1,613 @@
+{
+  "CPU_frames": 12,
+  "GUI": 0,
+  "all_idle_subframes_qualified": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "clock_branch_neutral_nonplayer_explicit": true,
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    },
+    {
+      "bytes": 1146,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r429-catalog-snapshot.json",
+      "sha256": "1544325f7ba7f899da7fb7e89d15969b3314700cc7520d7462fbacd3045ef4ea"
+    },
+    {
+      "bytes": 9888,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.idx",
+      "sha256": "b8c0bb8c43affe59a90ebd2d26182269b6d60af388c80963eaaeedc8d8ae23c8"
+    },
+    {
+      "bytes": 292553,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.pak",
+      "sha256": "517d853e3fe91b504953ff4b9b2eed682a3612d063f2d18e75e39fd5580f342d"
+    },
+    {
+      "bytes": 39135,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\decoded-LTlist.spr",
+      "sha256": "f55779aeb5c3982d8b366068cdbe4003d802619074e54388f26ee87368f42603"
+    },
+    {
+      "bytes": 117352,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-source-input/38-0.spr",
+      "sha256": "b4507d8337497aef8b3fc3a28f8fef87e344d176b8a31a7e634c08a0976aef8d"
+    }
+  ],
+  "first_seed_derived_from_actual_private_attack_end_queue_and_idle_pop": true,
+  "idle2637_executed": true,
+  "images": [
+    {
+      "RGBA_sha256": "0516cd58eddd5e08b35e72f4027ed6bdfa06c8c3a17d9e01dbb06b8eceafd33a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\00-2469-owned-first-idle.png",
+      "sha256": "c0f0884e956e54204a057001aa7793435297c408262f612e379de14ba10b6069"
+    },
+    {
+      "RGBA_sha256": "f25d1e603140a55c27b8f28487dccbc249873955b28fc47cd333463145a524fd",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\01-2500-fire-removed-before-idle2637.png",
+      "sha256": "c0058e1e92edfcf980d85178546d98b2e4964da13699304987c92b844ce9143e"
+    },
+    {
+      "RGBA_sha256": "10f06a4b5ca590b44703c445392d329afcb019fafb7d425ba82a58e268b8d5de",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\02-2637-idle49-frame2.png",
+      "sha256": "2ffd52e27c6b1721a38946389eb36e8eb01b7b375ac925e8e850b0e7d3f1d0fb"
+    },
+    {
+      "RGBA_sha256": "899c6309ca1333839af6d767ac02c2d3f37f5bb99aca57e8dee70a2a5635af9e",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\03-2805-idle49-frame3.png",
+      "sha256": "876b4bd780054e8dab37714364ff898be55a502dac349777ef2da5d66afee4c0"
+    },
+    {
+      "RGBA_sha256": "d92aa4852d9c7ac810e8acc3fd7cb421ba04430f5c4aa590ae71abdfaf70977b",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\04-2973-idle49-frame4.png",
+      "sha256": "83c2d7fbd7b97653f1b219ae93f45f740275e704d3b8663e5f2674659d6c822d"
+    },
+    {
+      "RGBA_sha256": "2ec523f9e375e0a12d0633130f843fb59616224651fc7e1f25afe7539927d923",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\05-3141-idle49-frame5.png",
+      "sha256": "13776d8238ca5748bf7470a4927378d22472354bc29152c78d9e4242d3817132"
+    },
+    {
+      "RGBA_sha256": "5359b5660a32c7aed93005cccc82e7ff7fc292fe15431d402907eaafd8c4b89b",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\06-3309-idle49-frame6.png",
+      "sha256": "95a283c1cc6a362853120c8aa5cbba91c7346873421100b520a44f7a0adb5825"
+    },
+    {
+      "RGBA_sha256": "f7df4d9c150710e0b73e61634373eefefa4fc2b78250b8fb38e949743e7b2750",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\07-3477-idle49-frame7.png",
+      "sha256": "f3bd36e943792975e53ae39913080d5d9d5fdb5ffc2c7eb154e09f7de3b2eb72"
+    },
+    {
+      "RGBA_sha256": "9a39a4bdaf23aa64c31f39261e5888d52e986c472ddcfd5828df4720ed2c2991",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\08-3645-idle49-frame8.png",
+      "sha256": "dbbcb9167b9194c4b2b67b4af022599325997ba04761ee7971487f4c69126ded"
+    },
+    {
+      "RGBA_sha256": "2d2122423838ffbe82797580dc9101de9efb23bd421f74e8c2c53454938cbf51",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\09-3813-idle49-frame0.png",
+      "sha256": "2d6aa6a2735b3dbec312d1ab6e8cab7eb2909aaa28429762e4c9f2a482fbdb2c"
+    },
+    {
+      "RGBA_sha256": "f25d1e603140a55c27b8f28487dccbc249873955b28fc47cd333463145a524fd",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\10-3979-idle49-frame1.png",
+      "sha256": "c0058e1e92edfcf980d85178546d98b2e4964da13699304987c92b844ce9143e"
+    },
+    {
+      "RGBA_sha256": "0d1a200a822fefbceee5633daaff01466da29934ec7887bac800c84017e9b0fd",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r460-owned-idle-cycle-scene-cpu\\reentered-new-private-owner-player-start.png",
+      "sha256": "b6fa9ae84de813220ab3a296d760633470a6202817011a5685435d88641a5727"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-72.spr": {
+      "bytes": 5941,
+      "path": "resources/3476-72.spr",
+      "sha256": "8FDDCE5AF2C5906A891AD2FF8FFA20CBCE292115AA47EA1F65520B1BA29E692A"
+    },
+    "resources/3476-80.spr": {
+      "bytes": 12169,
+      "path": "resources/3476-80.spr",
+      "sha256": "86DF8C6D5E013A759338CAD0269C252AD7D6B2E5A455092C1FD5618095DD64D2"
+    },
+    "resources/3476-88.spr": {
+      "bytes": 12043,
+      "path": "resources/3476-88.spr",
+      "sha256": "641ABA44DCC8315DBCBBED698777A976A851B1B98F7A9EDBDBA0CE2EB98BDB17"
+    },
+    "resources/3477-72.spr": {
+      "bytes": 1187,
+      "path": "resources/3477-72.spr",
+      "sha256": "ABE30991607C86CFA27E1334FEF0A08A9C90F24EDF08E184B5557A1F7E6FF2F5"
+    },
+    "resources/3477-80.spr": {
+      "bytes": 2026,
+      "path": "resources/3477-80.spr",
+      "sha256": "F521ECA19FD9497503D660791C91610D64DCDB304533388200FB6D673DEAA644"
+    },
+    "resources/3477-88.spr": {
+      "bytes": 2001,
+      "path": "resources/3477-88.spr",
+      "sha256": "7C1FD85B5FD7580CD9A91499B38D1B4AC38DEF1AEE1BF3858215930BF212CD6D"
+    },
+    "resources/6260-72.spr": {
+      "bytes": 65,
+      "path": "resources/6260-72.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-80.spr": {
+      "bytes": 135,
+      "path": "resources/6260-80.spr",
+      "sha256": "1B15E29C7271BB18CAC44C6E41D19811A383EBDB6D3005B5EF0EC3F581CB8813"
+    },
+    "resources/6260-88.spr": {
+      "bytes": 93,
+      "path": "resources/6260-88.spr",
+      "sha256": "EF06D41DF96C7BB073B6FA331448A1C407D9D0B7BC61B0EA3A8EC5BBCF1EC6E1"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "late_clock_preview": {
+    "committed": false,
+    "delay": 155,
+    "dispatch": 2637,
+    "expected": 2805,
+    "fresh": 2650,
+    "next": 2805
+  },
+  "live_appearance_authority_bound": false,
+  "native_framebuffer_parity_qualified": false,
+  "negative_cases": 66,
+  "new_private_owner_reentry_stale_callbacks_frames_seed_refused": true,
+  "prerequisite_new_recipe_trace": [
+    {
+      "clock": 1000,
+      "fire": null,
+      "kind": "PlayerStart",
+      "player": [
+        88,
+        0
+      ]
+    },
+    {
+      "clock": 1084,
+      "fire": 1,
+      "kind": "FireFirst",
+      "player": [
+        88,
+        0
+      ]
+    },
+    {
+      "clock": 1168,
+      "fire": 1,
+      "kind": "PlayerAdvance",
+      "player": [
+        88,
+        1
+      ]
+    },
+    {
+      "clock": 1169,
+      "fire": 2,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        1
+      ]
+    },
+    {
+      "clock": 1254,
+      "fire": 3,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        1
+      ]
+    },
+    {
+      "clock": 1336,
+      "fire": 3,
+      "kind": "PlayerAdvance",
+      "player": [
+        88,
+        2
+      ]
+    },
+    {
+      "clock": 1339,
+      "fire": 4,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        2
+      ]
+    },
+    {
+      "clock": 1424,
+      "fire": 5,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        2
+      ]
+    },
+    {
+      "clock": 1504,
+      "fire": 5,
+      "kind": "PlayerAdvance",
+      "player": [
+        88,
+        3
+      ]
+    },
+    {
+      "clock": 1509,
+      "fire": 6,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        3
+      ]
+    },
+    {
+      "clock": 1594,
+      "fire": 7,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        3
+      ]
+    },
+    {
+      "clock": 1631,
+      "fire": 7,
+      "kind": "PlayerAdvance",
+      "player": [
+        88,
+        4
+      ]
+    },
+    {
+      "clock": 1679,
+      "fire": 8,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        4
+      ]
+    },
+    {
+      "clock": 1758,
+      "fire": 8,
+      "kind": "PlayerAdvance",
+      "player": [
+        88,
+        5
+      ]
+    },
+    {
+      "clock": 1764,
+      "fire": 9,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        5
+      ]
+    },
+    {
+      "clock": 1849,
+      "fire": 10,
+      "kind": "FireAdvance",
+      "player": [
+        88,
+        5
+      ]
+    },
+    {
+      "clock": 1885,
+      "fire": 10,
+      "kind": "PlayerAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 1934,
+      "fire": 0,
+      "kind": "FireAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 2017,
+      "fire": 1,
+      "kind": "FireAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 2102,
+      "fire": 2,
+      "kind": "FireAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 2187,
+      "fire": 3,
+      "kind": "FireAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 2272,
+      "fire": 4,
+      "kind": "FireAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 2357,
+      "fire": 5,
+      "kind": "FireAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 2442,
+      "fire": 6,
+      "kind": "FireAdvance",
+      "player": [
+        72,
+        0
+      ]
+    },
+    {
+      "clock": 2469,
+      "fire": 6,
+      "kind": "PlayerIdle",
+      "player": [
+        80,
+        0
+      ]
+    }
+  ],
+  "real_world_reload_executed": false,
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "RGBA_sha256": "10f06a4b5ca590b44703c445392d329afcb019fafb7d425ba82a58e268b8d5de",
+      "bank": 80,
+      "clock": 2637,
+      "delay": 168,
+      "ended": false,
+      "expected": 2805,
+      "frame": 2,
+      "next": 2805,
+      "queue32": false,
+      "sampled": 2637,
+      "sub": 1
+    },
+    {
+      "RGBA_sha256": "899c6309ca1333839af6d767ac02c2d3f37f5bb99aca57e8dee70a2a5635af9e",
+      "bank": 80,
+      "clock": 2805,
+      "delay": 168,
+      "ended": false,
+      "expected": 2973,
+      "frame": 3,
+      "next": 2973,
+      "queue32": false,
+      "sampled": 2805,
+      "sub": 2
+    },
+    {
+      "RGBA_sha256": "d92aa4852d9c7ac810e8acc3fd7cb421ba04430f5c4aa590ae71abdfaf70977b",
+      "bank": 80,
+      "clock": 2973,
+      "delay": 168,
+      "ended": false,
+      "expected": 3141,
+      "frame": 4,
+      "next": 3141,
+      "queue32": false,
+      "sampled": 2973,
+      "sub": 3
+    },
+    {
+      "RGBA_sha256": "2ec523f9e375e0a12d0633130f843fb59616224651fc7e1f25afe7539927d923",
+      "bank": 80,
+      "clock": 3141,
+      "delay": 168,
+      "ended": false,
+      "expected": 3309,
+      "frame": 5,
+      "next": 3309,
+      "queue32": false,
+      "sampled": 3141,
+      "sub": 4
+    },
+    {
+      "RGBA_sha256": "5359b5660a32c7aed93005cccc82e7ff7fc292fe15431d402907eaafd8c4b89b",
+      "bank": 80,
+      "clock": 3309,
+      "delay": 168,
+      "ended": false,
+      "expected": 3477,
+      "frame": 6,
+      "next": 3477,
+      "queue32": false,
+      "sampled": 3309,
+      "sub": 5
+    },
+    {
+      "RGBA_sha256": "f7df4d9c150710e0b73e61634373eefefa4fc2b78250b8fb38e949743e7b2750",
+      "bank": 80,
+      "clock": 3477,
+      "delay": 168,
+      "ended": false,
+      "expected": 3645,
+      "frame": 7,
+      "next": 3645,
+      "queue32": false,
+      "sampled": 3477,
+      "sub": 6
+    },
+    {
+      "RGBA_sha256": "9a39a4bdaf23aa64c31f39261e5888d52e986c472ddcfd5828df4720ed2c2991",
+      "bank": 80,
+      "clock": 3645,
+      "delay": 168,
+      "ended": false,
+      "expected": 3813,
+      "frame": 8,
+      "next": 3813,
+      "queue32": false,
+      "sampled": 3645,
+      "sub": 7
+    },
+    {
+      "RGBA_sha256": "2d2122423838ffbe82797580dc9101de9efb23bd421f74e8c2c53454938cbf51",
+      "bank": 80,
+      "clock": 3813,
+      "delay": 166,
+      "ended": true,
+      "expected": 3813,
+      "frame": 0,
+      "next": 3979,
+      "queue32": true,
+      "sampled": 3813,
+      "sub": 8
+    },
+    {
+      "RGBA_sha256": "f25d1e603140a55c27b8f28487dccbc249873955b28fc47cd333463145a524fd",
+      "bank": 80,
+      "clock": 3979,
+      "delay": 168,
+      "ended": false,
+      "expected": 4147,
+      "frame": 1,
+      "next": 4147,
+      "queue32": false,
+      "sampled": 3979,
+      "sub": 0
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "seed_cannot_be_created_from_JSON_or_reused": true,
+  "source_end0_same_action49_delay166": true,
+  "source_queue32_repeat_first_frame3979": true,
+  "state": "OWNED_FIRST_IDLE2637_SOURCE_FULL_IDLE49_END0_REPEAT_PRIVATE_SCENE",
+  "unexecuted_future4147_retired": true
+}

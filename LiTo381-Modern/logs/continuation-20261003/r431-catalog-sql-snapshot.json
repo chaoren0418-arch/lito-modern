@@ -1,0 +1,38 @@
+{
+  "input": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-sql-candidate-aad16a30440c40cf84b3385a3945af1f\\consumer-input.json",
+  "input_sha256": "3C0FE0F7F4ADE443E9249B7416AA0F8C15025E0DD8C921F9464256EE7CF2B6B9",
+  "candidate": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-sql-candidate-aad16a30440c40cf84b3385a3945af1f",
+    "manifest_sha256": "9294928365A0C5A2269688BCBCDD1CF31E7772E979C4750A530B80F9D1EE1277",
+    "files_verified": 3086,
+    "vectors": [
+      {
+        "name": "catalog-sql-wire90-91.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-sql-candidate-aad16a30440c40cf84b3385a3945af1f\\evidence\\catalog-sql-wire90-91.json",
+        "sha256": "2C03345C8E8DFF4BEA9F119929C0650DC1B62B1DA0E347D24DC4D29C81BBBF6D"
+      },
+      {
+        "name": "catalog-sql-tls-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-sql-candidate-aad16a30440c40cf84b3385a3945af1f\\evidence\\catalog-sql-tls-vectors.json",
+        "sha256": "B811280296B533D78EFD6F654797BA1201CCDA3713959D699FEC15032A1970CC"
+      }
+    ]
+  },
+  "replay": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-sql-replay-b5157671efcf4c4e99d173873ca61b8d",
+    "manifest_sha256": "FF8D3E7F2D153FB1B65A3AAF6B87638B742062B70095F5C80ED3F7DEC38BC746",
+    "files_verified": 14,
+    "vectors": [
+      {
+        "name": "catalog-sql-wire90-91.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-sql-replay-b5157671efcf4c4e99d173873ca61b8d\\catalog-sql-wire90-91.json",
+        "sha256": "B4273FE10092ADBE6BC8F018C21789B7A178861EF7BF1450FAACC8A3EF345653"
+      },
+      {
+        "name": "catalog-sql-tls-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-sql-replay-b5157671efcf4c4e99d173873ca61b8d\\catalog-sql-tls-vectors.json",
+        "sha256": "E0EBED0284832BFA09ADFD7F9FD42026348322CD8B922021056BF6FC0EAE59A1"
+      }
+    ]
+  }
+}

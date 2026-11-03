@@ -1,0 +1,60 @@
+{
+  "Class_query_same_Work_as_historical_LPL": false,
+  "GUI": 0,
+  "frame_member_checks": 1184,
+  "live_selection_authority": false,
+  "plans": 160,
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "case": "source7-initial",
+      "epoch_u64_hex": "8000000000000000",
+      "object": 10275,
+      "persisted_Class": 0,
+      "raw_inventory_flag_is_action_authority": false,
+      "retainedType": 3,
+      "revision": 0,
+      "same_Work_SQL_Class": false,
+      "selected_weapon": 10304,
+      "source": 7
+    },
+    {
+      "case": "source7-after-CAS",
+      "epoch_u64_hex": "8000000000000000",
+      "object": 10275,
+      "persisted_Class": 0,
+      "raw_inventory_flag_is_action_authority": false,
+      "retainedType": 0,
+      "revision": 1,
+      "same_Work_SQL_Class": false,
+      "selected_weapon": 0,
+      "source": 7
+    },
+    {
+      "case": "source42-initial",
+      "epoch_u64_hex": "8000000000000000",
+      "object": 10275,
+      "persisted_Class": 0,
+      "raw_inventory_flag_is_action_authority": false,
+      "retainedType": 3,
+      "revision": 0,
+      "same_Work_SQL_Class": false,
+      "selected_weapon": 10304,
+      "source": 42
+    },
+    {
+      "case": "source7-reselected-actual-character",
+      "epoch_u64_hex": "8000000000000001",
+      "object": 10163,
+      "persisted_Class": 734,
+      "raw_inventory_flag_is_action_authority": false,
+      "retainedType": 2,
+      "revision": 0,
+      "same_Work_SQL_Class": false,
+      "selected_weapon": 10252,
+      "source": 7
+    }
+  ],
+  "runtimeAppearanceQualified": false,
+  "state": "FOUR_FULL_NAB_WORK_LPL_SEPARATE_CLASS_FACTS_160_PLANS_1184_FRAMES"
+}

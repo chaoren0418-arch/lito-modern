@@ -1,0 +1,241 @@
+{
+  "CPU_frames": 7,
+  "GUI": 0,
+  "Layer8_effect_animation_included": false,
+  "conditional_player_cell": [
+    32724,
+    32784
+  ],
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    }
+  ],
+  "floor_source_references": 8192,
+  "idle_callback_executed": false,
+  "images": [
+    {
+      "RGBA_sha256": "b796b77e81ac2d32f32b66ec23a710e35eb6d258ff19505d4c4d8048101bf402",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r451-finite-terrain-player-cpu\\attack47-frame1-bank88-sub0-native564.png",
+      "sha256": "6995d1ca3f415cd0f8b46dce59c6694b4ee63839956e8cc376c7c087e704b28b"
+    },
+    {
+      "RGBA_sha256": "a91684ad34e27b18a48df06aadc2d571351de88c7c385bd2d39e076598d6d931",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r451-finite-terrain-player-cpu\\attack47-frame2-bank88-sub1-native564.png",
+      "sha256": "ddcc52b807cac18b45d6a9230fb1d087a63060523159b9bad4e36e33672c6a1a"
+    },
+    {
+      "RGBA_sha256": "94db684760e12adcc892fc9c494778417b20c243be646db073e1f52d4b9714dd",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r451-finite-terrain-player-cpu\\attack47-frame3-bank88-sub2-native564.png",
+      "sha256": "81be867307f81fb51949ed322b997901fe5afa91a8b42e1a215d93a5247d8f6a"
+    },
+    {
+      "RGBA_sha256": "ff4ec5a9d5eb776c076d4c618288e8a8b732c657906de19cc0790b36bcc2df1c",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r451-finite-terrain-player-cpu\\attack47-frame4-bank88-sub3-native564.png",
+      "sha256": "421e5f005c0880a9642a369a4705d539572701e5814efbeec0006e52f71af265"
+    },
+    {
+      "RGBA_sha256": "84cdb8218c7e42ff6dbe31b95f675b0483297b4c72aa7f76775e2161d80e78a0",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r451-finite-terrain-player-cpu\\attack47-frame5-bank88-sub4-native564.png",
+      "sha256": "9a00a7d81a75e8631c521bc6b43bf58b097c76c8deb0f2ec412aa882034978ea"
+    },
+    {
+      "RGBA_sha256": "b2667e0cf40e3ea15639e0524437058661853772c7caed8752cdbf74108dcf4d",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r451-finite-terrain-player-cpu\\attack47-frame6-bank88-sub5-native564.png",
+      "sha256": "1ea3fc0cfb025868dd668bc4ffd326615280b11c573074b19a53679bdce52ea2"
+    },
+    {
+      "RGBA_sha256": "e4adc82c8e5ac267aeabf838d4b51e18c18f19b5595c735d63f02c9b25420cd3",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r451-finite-terrain-player-cpu\\attack47-frame0-bank72-sub0-native564.png",
+      "sha256": "678fa59cc935573352efa070369caf4d5f60151c25fa0fca8677c1f124386a81"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-72.spr": {
+      "bytes": 5941,
+      "path": "resources/3476-72.spr",
+      "sha256": "8FDDCE5AF2C5906A891AD2FF8FFA20CBCE292115AA47EA1F65520B1BA29E692A"
+    },
+    "resources/3476-88.spr": {
+      "bytes": 12043,
+      "path": "resources/3476-88.spr",
+      "sha256": "641ABA44DCC8315DBCBBED698777A976A851B1B98F7A9EDBDBA0CE2EB98BDB17"
+    },
+    "resources/3477-72.spr": {
+      "bytes": 1187,
+      "path": "resources/3477-72.spr",
+      "sha256": "ABE30991607C86CFA27E1334FEF0A08A9C90F24EDF08E184B5557A1F7E6FF2F5"
+    },
+    "resources/3477-88.spr": {
+      "bytes": 2001,
+      "path": "resources/3477-88.spr",
+      "sha256": "7C1FD85B5FD7580CD9A91499B38D1B4AC38DEF1AEE1BF3858215930BF212CD6D"
+    },
+    "resources/6260-72.spr": {
+      "bytes": 65,
+      "path": "resources/6260-72.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-88.spr": {
+      "bytes": 93,
+      "path": "resources/6260-88.spr",
+      "sha256": "EF06D41DF96C7BB073B6FA331448A1C407D9D0B7BC61B0EA3A8EC5BBCF1EC6E1"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "logical_map": 564,
+  "object_source_references": 10802,
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "RGBA_sha256": "b796b77e81ac2d32f32b66ec23a710e35eb6d258ff19505d4c4d8048101bf402",
+      "bank": 88,
+      "body_visible_pixels": 1012,
+      "catalog_frame": 1,
+      "dispatch_ms": 1000,
+      "ended": false,
+      "next_due_ms": 1168,
+      "subframe": 0,
+      "visible_terrain_references": 2118
+    },
+    {
+      "RGBA_sha256": "a91684ad34e27b18a48df06aadc2d571351de88c7c385bd2d39e076598d6d931",
+      "bank": 88,
+      "body_visible_pixels": 1083,
+      "catalog_frame": 2,
+      "dispatch_ms": 1168,
+      "ended": false,
+      "next_due_ms": 1336,
+      "subframe": 1,
+      "visible_terrain_references": 2118
+    },
+    {
+      "RGBA_sha256": "94db684760e12adcc892fc9c494778417b20c243be646db073e1f52d4b9714dd",
+      "bank": 88,
+      "body_visible_pixels": 1060,
+      "catalog_frame": 3,
+      "dispatch_ms": 1336,
+      "ended": false,
+      "next_due_ms": 1504,
+      "subframe": 2,
+      "visible_terrain_references": 2118
+    },
+    {
+      "RGBA_sha256": "ff4ec5a9d5eb776c076d4c618288e8a8b732c657906de19cc0790b36bcc2df1c",
+      "bank": 88,
+      "body_visible_pixels": 1050,
+      "catalog_frame": 4,
+      "dispatch_ms": 1504,
+      "ended": false,
+      "next_due_ms": 1631,
+      "subframe": 3,
+      "visible_terrain_references": 2118
+    },
+    {
+      "RGBA_sha256": "84cdb8218c7e42ff6dbe31b95f675b0483297b4c72aa7f76775e2161d80e78a0",
+      "bank": 88,
+      "body_visible_pixels": 1034,
+      "catalog_frame": 5,
+      "dispatch_ms": 1631,
+      "ended": false,
+      "next_due_ms": 1758,
+      "subframe": 4,
+      "visible_terrain_references": 2118
+    },
+    {
+      "RGBA_sha256": "b2667e0cf40e3ea15639e0524437058661853772c7caed8752cdbf74108dcf4d",
+      "bank": 88,
+      "body_visible_pixels": 938,
+      "catalog_frame": 6,
+      "dispatch_ms": 1758,
+      "ended": false,
+      "next_due_ms": 1885,
+      "subframe": 5,
+      "visible_terrain_references": 2118
+    },
+    {
+      "RGBA_sha256": "e4adc82c8e5ac267aeabf838d4b51e18c18f19b5595c735d63f02c9b25420cd3",
+      "bank": 72,
+      "body_visible_pixels": 807,
+      "catalog_frame": 0,
+      "dispatch_ms": 1885,
+      "ended": true,
+      "next_due_ms": 2469,
+      "subframe": 0,
+      "visible_terrain_references": 2118
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "runtime_roof_state_observed": false,
+  "state": "FINITE_CONDITIONAL_ATTACK47_WITH_ACTUAL_NATIVE564_STATIC_TERRAIN_END72_STOP",
+  "static_source_roof_policy": true
+}

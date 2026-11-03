@@ -1,0 +1,1048 @@
+{
+  "FirePot_integer_ms_samples": [
+    {
+      "elapsed_ms": 0,
+      "rgba_sha256": "e1a460990a0a8a3ed44581349f9b7fdc894e27677e2715684d22f49b35872c5f",
+      "sprite": 38,
+      "subframe": 0
+    },
+    {
+      "elapsed_ms": 82,
+      "rgba_sha256": "e1a460990a0a8a3ed44581349f9b7fdc894e27677e2715684d22f49b35872c5f",
+      "sprite": 38,
+      "subframe": 0
+    },
+    {
+      "elapsed_ms": 83,
+      "rgba_sha256": "23247f7e246129800152da8fae17088d6dd5ec2527d3f835868df6a5f6f16623",
+      "sprite": 38,
+      "subframe": 1
+    },
+    {
+      "elapsed_ms": 912,
+      "rgba_sha256": "57a267d0559914acc0f2e9bf2c77e4c4a017416a1fa94ddd2f7a104a5bfa53cf",
+      "sprite": 38,
+      "subframe": 10
+    },
+    {
+      "elapsed_ms": 0,
+      "rgba_sha256": "3b4355a3c5898c42b3d2625d69d201cbe59b99293ed7f8261ecb88954491a580",
+      "sprite": 123,
+      "subframe": 0
+    },
+    {
+      "elapsed_ms": 82,
+      "rgba_sha256": "3b4355a3c5898c42b3d2625d69d201cbe59b99293ed7f8261ecb88954491a580",
+      "sprite": 123,
+      "subframe": 0
+    },
+    {
+      "elapsed_ms": 83,
+      "rgba_sha256": "6f9ce6afa87acaee2ae5cdb582fa14aab84d1043ea35e000fdd30ee1e87a5e36",
+      "sprite": 123,
+      "subframe": 1
+    },
+    {
+      "elapsed_ms": 912,
+      "rgba_sha256": "24b7bfde90a20bc25836da12162ad269864afbf27541221f1184941221ce3727",
+      "sprite": 123,
+      "subframe": 10
+    }
+  ],
+  "GUI": 0,
+  "LOADED": false,
+  "Native_catalog_fps_origin": "43DE10 explicit native default24 and opcode110",
+  "Rust_live_SQL_TLS": false,
+  "SPR_members": [
+    {
+      "bytes": 5469,
+      "name": "3225-0.spr",
+      "sha256": "cbf1d6832b05dd5b86a14f5a4dda9c783f42feae7a06963acad80f20a87f6eec"
+    },
+    {
+      "bytes": 5910,
+      "name": "3225-1.spr",
+      "sha256": "15a660df9a2985212f2f12f22c54aa5f12ecf4e6f7029e488bedac316fec1d9d"
+    },
+    {
+      "bytes": 10492,
+      "name": "3225-8.spr",
+      "sha256": "06bdb6c76aa963c412ee0210e5a00db06fee8ad2cd8bc3dcec9d6eca8f226078"
+    },
+    {
+      "bytes": 10646,
+      "name": "3225-9.spr",
+      "sha256": "f38bc852178ad403c177f5141a4ad7d57a94150c58a30ebb00b9d1910c0cd8c0"
+    }
+  ],
+  "SourceAttachment_base_body_binding": false,
+  "actual_SQL_class": 0,
+  "actual_SQL_sex": 0,
+  "explicit_phase_zero_single_interval": true,
+  "frame_ms": 166,
+  "graphics_alias": 3225,
+  "headings": [
+    0,
+    1
+  ],
+  "logical": 0,
+  "native_wall_start_or_loop_qualified": false,
+  "opaque_partial_actor_completion": true,
+  "samples": [
+    {
+      "action": "Idle",
+      "elapsed_ms": 0,
+      "events_retained_unplayed": "[]",
+      "frame": 0,
+      "heading": 0,
+      "image": 8,
+      "ordered_fragments": [
+        {
+          "block": 71,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 34, insertion: Reverse(1) }",
+          "y": -2
+        },
+        {
+          "block": 72,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 34, insertion: Reverse(2) }",
+          "y": -2
+        },
+        {
+          "block": 70,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 30, insertion: Reverse(0) }",
+          "y": -2
+        },
+        {
+          "block": 76,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 30, insertion: Reverse(6) }",
+          "y": -1
+        },
+        {
+          "block": 74,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 75,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 73,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32902, column: 98284, depth: 22, insertion: Reverse(3) }",
+          "y": -1
+        },
+        {
+          "block": 79,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32902, column: 98286, depth: 22, insertion: Reverse(9) }",
+          "y": 0
+        },
+        {
+          "block": 77,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32904, column: 98284, depth: 18, insertion: Reverse(7) }",
+          "y": 0
+        },
+        {
+          "block": 78,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32904, column: 98286, depth: 18, insertion: Reverse(8) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 1,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-Loading-Idle-0ms.png",
+      "publication": "Loading",
+      "rgba_sha256": "5c53aebf2fb4faa69ba63f3b9c24f12d8fba28ea56e6735605cb9da0e0149c13",
+      "subframe": 7
+    },
+    {
+      "action": "Idle",
+      "elapsed_ms": 166,
+      "events_retained_unplayed": "[]",
+      "frame": 1,
+      "heading": 0,
+      "image": 8,
+      "ordered_fragments": [
+        {
+          "block": 1,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 34, insertion: Reverse(1) }",
+          "y": -2
+        },
+        {
+          "block": 2,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 34, insertion: Reverse(2) }",
+          "y": -2
+        },
+        {
+          "block": 0,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 30, insertion: Reverse(0) }",
+          "y": -2
+        },
+        {
+          "block": 6,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 30, insertion: Reverse(6) }",
+          "y": -1
+        },
+        {
+          "block": 4,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 5,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 3,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32902, column: 98284, depth: 22, insertion: Reverse(3) }",
+          "y": -1
+        },
+        {
+          "block": 9,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32902, column: 98286, depth: 22, insertion: Reverse(9) }",
+          "y": 0
+        },
+        {
+          "block": 7,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32904, column: 98284, depth: 18, insertion: Reverse(7) }",
+          "y": 0
+        },
+        {
+          "block": 8,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32904, column: 98286, depth: 18, insertion: Reverse(8) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 1,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-Loading-Idle-166ms.png",
+      "publication": "Loading",
+      "rgba_sha256": "a2d1a3af1bef92b65bf728fe443706929d085f7e61a9aa2b7f92f7101588d9bd",
+      "subframe": 0
+    },
+    {
+      "action": "Idle",
+      "elapsed_ms": 1327,
+      "events_retained_unplayed": "[]",
+      "frame": 7,
+      "heading": 0,
+      "image": 8,
+      "ordered_fragments": [
+        {
+          "block": 68,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 34, insertion: Reverse(8) }",
+          "y": -2
+        },
+        {
+          "block": 69,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 34, insertion: Reverse(9) }",
+          "y": -2
+        },
+        {
+          "block": 66,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 30, insertion: Reverse(6) }",
+          "y": -2
+        },
+        {
+          "block": 67,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 30, insertion: Reverse(7) }",
+          "y": -1
+        },
+        {
+          "block": 64,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 65,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 62,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32902, column: 98284, depth: 22, insertion: Reverse(2) }",
+          "y": -1
+        },
+        {
+          "block": 63,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32902, column: 98286, depth: 22, insertion: Reverse(3) }",
+          "y": 0
+        },
+        {
+          "block": 60,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32904, column: 98284, depth: 18, insertion: Reverse(0) }",
+          "y": 0
+        },
+        {
+          "block": 61,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32904, column: 98286, depth: 18, insertion: Reverse(1) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 1,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-Loading-Idle-1327ms.png",
+      "publication": "Loading",
+      "rgba_sha256": "f7e90ca4c62faae937df718841472b40352631775ce0c64c1d42cc79a63225aa",
+      "subframe": 6
+    },
+    {
+      "action": "Walk",
+      "elapsed_ms": 0,
+      "events_retained_unplayed": "[Effect(479)]",
+      "frame": 0,
+      "heading": 0,
+      "image": 0,
+      "ordered_fragments": [
+        {
+          "block": 8,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 34, insertion: Reverse(8) }",
+          "y": -2
+        },
+        {
+          "block": 9,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 34, insertion: Reverse(9) }",
+          "y": -2
+        },
+        {
+          "block": 6,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 30, insertion: Reverse(6) }",
+          "y": -2
+        },
+        {
+          "block": 7,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 30, insertion: Reverse(7) }",
+          "y": -1
+        },
+        {
+          "block": 4,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 5,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 2,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32902, column: 98284, depth: 22, insertion: Reverse(2) }",
+          "y": -1
+        },
+        {
+          "block": 3,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32902, column: 98286, depth: 22, insertion: Reverse(3) }",
+          "y": 0
+        },
+        {
+          "block": 0,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32904, column: 98284, depth: 18, insertion: Reverse(0) }",
+          "y": 0
+        },
+        {
+          "block": 1,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32904, column: 98286, depth: 18, insertion: Reverse(1) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 1,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-Loading-Walk-0ms.png",
+      "publication": "Loading",
+      "rgba_sha256": "acf8ab6839b47df325d226180f288abd5cf4bcb6e1c64ca81c7bced257663c28",
+      "subframe": 0
+    },
+    {
+      "action": "Walk",
+      "elapsed_ms": 166,
+      "events_retained_unplayed": "[]",
+      "frame": 1,
+      "heading": 0,
+      "image": 0,
+      "ordered_fragments": [
+        {
+          "block": 11,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 34, insertion: Reverse(1) }",
+          "y": -2
+        },
+        {
+          "block": 12,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 34, insertion: Reverse(2) }",
+          "y": -2
+        },
+        {
+          "block": 10,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 30, insertion: Reverse(0) }",
+          "y": -2
+        },
+        {
+          "block": 16,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 30, insertion: Reverse(6) }",
+          "y": -1
+        },
+        {
+          "block": 14,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 15,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 13,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32902, column: 98284, depth: 22, insertion: Reverse(3) }",
+          "y": -1
+        },
+        {
+          "block": 19,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32902, column: 98286, depth: 22, insertion: Reverse(9) }",
+          "y": 0
+        },
+        {
+          "block": 17,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32904, column: 98284, depth: 18, insertion: Reverse(7) }",
+          "y": 0
+        },
+        {
+          "block": 18,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32904, column: 98286, depth: 18, insertion: Reverse(8) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 1,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-Loading-Walk-166ms.png",
+      "publication": "Loading",
+      "rgba_sha256": "02e632aa45348a648c752c1b797c4e3389c7f7af1f6c6b38471b1c03c6a735f3",
+      "subframe": 1
+    },
+    {
+      "action": "Walk",
+      "elapsed_ms": 663,
+      "events_retained_unplayed": "[]",
+      "frame": 3,
+      "heading": 0,
+      "image": 0,
+      "ordered_fragments": [
+        {
+          "block": 31,
+          "depth": 38,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32894, column: 98284, depth: 38, insertion: Reverse(4) }",
+          "y": -3
+        },
+        {
+          "block": 35,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32896, column: 98282, depth: 30, insertion: Reverse(8) }",
+          "y": -3
+        },
+        {
+          "block": 30,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 34, insertion: Reverse(3) }",
+          "y": -2
+        },
+        {
+          "block": 34,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32898, column: 98282, depth: 26, insertion: Reverse(7) }",
+          "y": -2
+        },
+        {
+          "block": 29,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 30, insertion: Reverse(2) }",
+          "y": -2
+        },
+        {
+          "block": 33,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32900, column: 98282, depth: 22, insertion: Reverse(6) }",
+          "y": -2
+        },
+        {
+          "block": 28,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 26, insertion: Reverse(1) }",
+          "y": -1
+        },
+        {
+          "block": 32,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32902, column: 98282, depth: 18, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 27,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32902, column: 98284, depth: 22, insertion: Reverse(0) }",
+          "y": -1
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 1,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-Loading-Walk-663ms.png",
+      "publication": "Loading",
+      "rgba_sha256": "888b25a0623d9bef60d20c42860a6a56555f3f92ffcf76417ca503d7e6bee747",
+      "subframe": 3
+    },
+    {
+      "action": "Walk",
+      "elapsed_ms": 0,
+      "events_retained_unplayed": "[Effect(479)]",
+      "frame": 0,
+      "heading": 1,
+      "image": 1,
+      "ordered_fragments": [
+        {
+          "block": 8,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32892, column: 98284, depth: 34, insertion: Reverse(8) }",
+          "y": -2
+        },
+        {
+          "block": 9,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32892, column: 98286, depth: 34, insertion: Reverse(9) }",
+          "y": -2
+        },
+        {
+          "block": 6,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32894, column: 98284, depth: 30, insertion: Reverse(6) }",
+          "y": -2
+        },
+        {
+          "block": 7,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32894, column: 98286, depth: 30, insertion: Reverse(7) }",
+          "y": -1
+        },
+        {
+          "block": 4,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 5,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 2,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 22, insertion: Reverse(2) }",
+          "y": -1
+        },
+        {
+          "block": 3,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 22, insertion: Reverse(3) }",
+          "y": 0
+        },
+        {
+          "block": 0,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 18, insertion: Reverse(0) }",
+          "y": 0
+        },
+        {
+          "block": 1,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 18, insertion: Reverse(1) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 4,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-MOVE-Walk-0ms.png",
+      "publication": "MOVE",
+      "rgba_sha256": "c4cab61c29a32140885c2149e9283cf8b53bd498b1a98a4d462d766c39cd9df7",
+      "subframe": 0
+    },
+    {
+      "action": "Walk",
+      "elapsed_ms": 166,
+      "events_retained_unplayed": "[]",
+      "frame": 1,
+      "heading": 1,
+      "image": 1,
+      "ordered_fragments": [
+        {
+          "block": 18,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32892, column: 98284, depth: 34, insertion: Reverse(8) }",
+          "y": -2
+        },
+        {
+          "block": 19,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32892, column: 98286, depth: 34, insertion: Reverse(9) }",
+          "y": -2
+        },
+        {
+          "block": 16,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32894, column: 98284, depth: 30, insertion: Reverse(6) }",
+          "y": -2
+        },
+        {
+          "block": 17,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32894, column: 98286, depth: 30, insertion: Reverse(7) }",
+          "y": -1
+        },
+        {
+          "block": 14,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 15,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 12,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 22, insertion: Reverse(2) }",
+          "y": -1
+        },
+        {
+          "block": 13,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 22, insertion: Reverse(3) }",
+          "y": 0
+        },
+        {
+          "block": 10,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 18, insertion: Reverse(0) }",
+          "y": 0
+        },
+        {
+          "block": 11,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 18, insertion: Reverse(1) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 4,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-MOVE-Walk-166ms.png",
+      "publication": "MOVE",
+      "rgba_sha256": "77fe74b85f18b608ea6d185149863ecc44009f187d89fb363c3366fb0b505b61",
+      "subframe": 1
+    },
+    {
+      "action": "Walk",
+      "elapsed_ms": 663,
+      "events_retained_unplayed": "[]",
+      "frame": 3,
+      "heading": 1,
+      "image": 1,
+      "ordered_fragments": [
+        {
+          "block": 41,
+          "depth": 42,
+          "half_x": 6,
+          "key": "NativeDrawKey { row: 32888, column: 98284, depth: 42, insertion: Reverse(8) }",
+          "y": -3
+        },
+        {
+          "block": 42,
+          "depth": 42,
+          "half_x": 7,
+          "key": "NativeDrawKey { row: 32888, column: 98286, depth: 42, insertion: Reverse(9) }",
+          "y": -3
+        },
+        {
+          "block": 39,
+          "depth": 38,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32890, column: 98284, depth: 38, insertion: Reverse(6) }",
+          "y": -3
+        },
+        {
+          "block": 40,
+          "depth": 38,
+          "half_x": 6,
+          "key": "NativeDrawKey { row: 32890, column: 98286, depth: 38, insertion: Reverse(7) }",
+          "y": -2
+        },
+        {
+          "block": 37,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32892, column: 98284, depth: 34, insertion: Reverse(4) }",
+          "y": -2
+        },
+        {
+          "block": 38,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32892, column: 98286, depth: 34, insertion: Reverse(5) }",
+          "y": -2
+        },
+        {
+          "block": 35,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32894, column: 98284, depth: 30, insertion: Reverse(2) }",
+          "y": -2
+        },
+        {
+          "block": 36,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32894, column: 98286, depth: 30, insertion: Reverse(3) }",
+          "y": -1
+        },
+        {
+          "block": 33,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 26, insertion: Reverse(0) }",
+          "y": -1
+        },
+        {
+          "block": 34,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 26, insertion: Reverse(1) }",
+          "y": -1
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 4,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-MOVE-Walk-663ms.png",
+      "publication": "MOVE",
+      "rgba_sha256": "17d2241a952ec174369d5c15ce37b00d85b859a7c17513e411dcb40379d918d8",
+      "subframe": 3
+    },
+    {
+      "action": "Idle",
+      "elapsed_ms": 0,
+      "events_retained_unplayed": "[]",
+      "frame": 0,
+      "heading": 1,
+      "image": 9,
+      "ordered_fragments": [
+        {
+          "block": 78,
+          "depth": 34,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32892, column: 98284, depth: 34, insertion: Reverse(8) }",
+          "y": -2
+        },
+        {
+          "block": 79,
+          "depth": 34,
+          "half_x": 5,
+          "key": "NativeDrawKey { row: 32892, column: 98286, depth: 34, insertion: Reverse(9) }",
+          "y": -2
+        },
+        {
+          "block": 76,
+          "depth": 30,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32894, column: 98284, depth: 30, insertion: Reverse(6) }",
+          "y": -2
+        },
+        {
+          "block": 77,
+          "depth": 30,
+          "half_x": 4,
+          "key": "NativeDrawKey { row: 32894, column: 98286, depth: 30, insertion: Reverse(7) }",
+          "y": -1
+        },
+        {
+          "block": 74,
+          "depth": 26,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32896, column: 98284, depth: 26, insertion: Reverse(4) }",
+          "y": -1
+        },
+        {
+          "block": 75,
+          "depth": 26,
+          "half_x": 3,
+          "key": "NativeDrawKey { row: 32896, column: 98286, depth: 26, insertion: Reverse(5) }",
+          "y": -1
+        },
+        {
+          "block": 72,
+          "depth": 22,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32898, column: 98284, depth: 22, insertion: Reverse(2) }",
+          "y": -1
+        },
+        {
+          "block": 73,
+          "depth": 22,
+          "half_x": 2,
+          "key": "NativeDrawKey { row: 32898, column: 98286, depth: 22, insertion: Reverse(3) }",
+          "y": 0
+        },
+        {
+          "block": 70,
+          "depth": 18,
+          "half_x": 0,
+          "key": "NativeDrawKey { row: 32900, column: 98284, depth: 18, insertion: Reverse(0) }",
+          "y": 0
+        },
+        {
+          "block": 71,
+          "depth": 18,
+          "half_x": 1,
+          "key": "NativeDrawKey { row: 32900, column: 98286, depth: 18, insertion: Reverse(1) }",
+          "y": 0
+        }
+      ],
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 4,
+        "room": 1,
+        "source": 7
+      },
+      "png": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r430-native-prince-slices\\prince-MOVE-Idle-0ms.png",
+      "publication": "MOVE",
+      "rgba_sha256": "2f0079b1a3ed26bbde138da5ee28ade59451a585fb0b3671f7e1ca146d9acc8b",
+      "subframe": 7
+    }
+  ],
+  "state": "PINNED_PRINCE_UNARMED_SOURCE_STUDY_PASSED",
+  "unarmed_study_not_actual_equipment": true
+}

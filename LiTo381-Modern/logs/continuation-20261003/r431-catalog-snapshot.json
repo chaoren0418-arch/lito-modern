@@ -1,0 +1,48 @@
+{
+  "input": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-candidate-11407f54adba4c28b6bf045fad5fd868\\consumer-input.json",
+  "input_sha256": "4F6AFE307CA4F83C96DD96B00CAB762F22858A1D703A335051C7DF3175EB7A30",
+  "candidate": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-candidate-11407f54adba4c28b6bf045fad5fd868",
+    "files_verified": 3049,
+    "manifest_sha256": "D3DB8A157D1E49ED5F4E8F9A3FF2A4B7B33CEE2C33B02684F40293B0D955662D",
+    "vectors": [
+      {
+        "name": "catalog-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-candidate-11407f54adba4c28b6bf045fad5fd868\\evidence\\catalog-vectors.json",
+        "sha256": "B6C107622297362BEA2D1813D372CD185C70CC6D93E239F9276FE9C5E78AE357"
+      },
+      {
+        "name": "catalog-negative-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-candidate-11407f54adba4c28b6bf045fad5fd868\\evidence\\catalog-negative-vectors.json",
+        "sha256": "F92FA8DB70BD2A4D2BBD5A8DA0088B2F67468E9D4B2B37568245808FB88208F4"
+      },
+      {
+        "name": "catalog-tls-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-candidate-11407f54adba4c28b6bf045fad5fd868\\evidence\\catalog-tls-vectors.json",
+        "sha256": "C3AE68E15479FC03AA278EAE456D814E83847BD5F6DBA816D784AC3090D5051B"
+      }
+    ]
+  },
+  "replay": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-replay-fa83d4e508004bf2a5c1dfed1c37685a",
+    "files_verified": 8,
+    "manifest_sha256": "53A0E37BC8D2FC5121C7D809F40F3203A8A08788531385B0971FE530CED57CF5",
+    "vectors": [
+      {
+        "name": "catalog-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-replay-fa83d4e508004bf2a5c1dfed1c37685a\\catalog-vectors.json",
+        "sha256": "3B9424A05B02A80DF506F3DC7DD6642BC022173C8CA043CBA96219F567F2231D"
+      },
+      {
+        "name": "catalog-negative-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-replay-fa83d4e508004bf2a5c1dfed1c37685a\\catalog-negative-vectors.json",
+        "sha256": "F92FA8DB70BD2A4D2BBD5A8DA0088B2F67468E9D4B2B37568245808FB88208F4"
+      },
+      {
+        "name": "catalog-tls-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r431-catalog-replay-fa83d4e508004bf2a5c1dfed1c37685a\\catalog-tls-vectors.json",
+        "sha256": "F3A095B812744183D16B4BF1ECE3EA7AE02C261C7D01E727545F380A8A3E9419"
+      }
+    ]
+  }
+}

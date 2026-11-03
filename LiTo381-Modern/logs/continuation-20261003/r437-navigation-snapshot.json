@@ -1,0 +1,21 @@
+{
+  "state": "FIXED_OFFLINE_NAVIGATION_BYTES_COPIED",
+  "candidate": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r437-navigation-candidate-fac65b914843467dbeb6e64b8e2a890b",
+    "files_verified": 3564,
+    "manifest_sha256": "B20D6C58A8CC52376164FCFCC7059CB52E9C76EFFAC408CA9039534543A9055A"
+  },
+  "replay": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r437-navigation-replay-24bc9985209e443fb86c53dd5256cd94",
+    "files_verified": 34,
+    "manifest_sha256": "3E37EFF166D0AF2EC1438DA169F3D2EEE7BA73537FCD618CE7BC71691C896A0B"
+  },
+  "handoff": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r437-navigation-candidate-fac65b914843467dbeb6e64b8e2a890b\\consumer-handoff.json",
+  "handoff_sha256": "50440E1895E0163FDE8F8C118132D238B341CCF7D102853F3DA156109B20AB99",
+  "producer_SQL": true,
+  "producer_TLS": true,
+  "Rust_live_SQL_TLS": false,
+  "game_wire": false,
+  "LOADED": false,
+  "GUI": 0
+}

@@ -1,0 +1,910 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "Rust_live_SQL_TLS": false,
+  "actor_renderer_qualified": false,
+  "producer_SQL_TLS": true,
+  "rows": [
+    {
+      "bytes": 584,
+      "case": "discovery89_hex",
+      "demands": null,
+      "family": "candidate",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "91c26db5b410fbbe8d4232401fe3f6be4a69645f2ae513f1a555a2575673457b",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 584,
+      "case": "preparing89_hex",
+      "demands": null,
+      "family": "candidate",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "8cf11044db4c2a71e489245bece07ce1dc4b4d4822a18f79829a17bf39658653",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 1311,
+      "case": "loading89_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": false,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": false,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 0,
+          "revision": 1,
+          "room": 1
+        }
+      },
+      "family": "candidate",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "d737ff2e0c53d34d029726044f0e4a6949e578821878b23cf6187a30f3665075",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 1311,
+      "case": "loaded89_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": false,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 0,
+          "revision": 2,
+          "room": 1
+        }
+      },
+      "family": "candidate",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "04a4224aa516af8ed4764edc5ab3d8292feeccaa83485078e9d713284334c469",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 1311,
+      "case": "active89_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 3,
+          "room": 1
+        }
+      },
+      "family": "candidate",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 42
+      },
+      "sha256": "b8b5f8cfbf5cb4900440e38e5a1c7cda3287332e1249fb7e0d734bfca3f78cf0",
+      "source_exact_reencode": true
+    },
+    {
+      "case": "READ61",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 3,
+          "room": 1
+        }
+      },
+      "family": "candidate",
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 3,
+        "room": 1,
+        "source": 7
+      },
+      "sha256": "6f2a2c267aacf8a805f21d3600025c6bed100477fadce9b378dfdcaefe0e90db"
+    },
+    {
+      "captured_request_verified": false,
+      "case": "move65_source7_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 1,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32730,
+            "y": 32796
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 4,
+          "room": 1
+        }
+      },
+      "disposition": "Applied",
+      "expected_request_reconstructed_from_echo": true,
+      "family": "candidate",
+      "guard": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 3,
+        "room": 1,
+        "source": 7
+      },
+      "sha256": "726155feb1420d4d5412e1e0716ce75c16cd348585737d5194c09c0cfb274c47",
+      "typed_receipt": true
+    },
+    {
+      "captured_request_verified": false,
+      "case": "stale_life65_source7_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 3,
+          "room": 1
+        }
+      },
+      "disposition": "Rejected",
+      "expected_request_reconstructed_from_echo": true,
+      "family": "candidate",
+      "guard": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 2,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 3,
+        "room": 1,
+        "source": 7
+      },
+      "sha256": "8218c6497b2eac55ea3e21537be923979def2167e7ccffa9bf4a164b9c264a08",
+      "typed_receipt": true
+    },
+    {
+      "bytes": 584,
+      "case": "discovery89_hex",
+      "demands": null,
+      "family": "replay",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "91c26db5b410fbbe8d4232401fe3f6be4a69645f2ae513f1a555a2575673457b",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 584,
+      "case": "preparing89_hex",
+      "demands": null,
+      "family": "replay",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "8cf11044db4c2a71e489245bece07ce1dc4b4d4822a18f79829a17bf39658653",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 1311,
+      "case": "loading89_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": false,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": false,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 0,
+          "revision": 1,
+          "room": 1
+        }
+      },
+      "family": "replay",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "3a220f522d28874eaad934a01ab11ff9b28a64198a562d83055db7e4fbbad025",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 1311,
+      "case": "loaded89_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": false,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 0,
+          "revision": 2,
+          "room": 1
+        }
+      },
+      "family": "replay",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 7
+      },
+      "sha256": "25ac1186ab5db922e3a198b64e68d3f6f3919a596633d0f79df507780b973517",
+      "source_exact_reencode": true
+    },
+    {
+      "bytes": 1311,
+      "case": "active89_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 3,
+          "room": 1
+        }
+      },
+      "family": "replay",
+      "scope": {
+        "channel": 0,
+        "epoch_u64_hex": "8000000000000000",
+        "object_u64_hex": "0000000000002823",
+        "source": 42
+      },
+      "sha256": "10df2b0aa583cd70e6981973aee205aec78f08643e7c07490e7e8eae170a15d3",
+      "source_exact_reencode": true
+    },
+    {
+      "case": "READ61",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 3,
+          "room": 1
+        }
+      },
+      "family": "replay",
+      "owner": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 3,
+        "room": 1,
+        "source": 7
+      },
+      "sha256": "82812d127e43639fb701daf865d9302f0690531f2c79cb3b37192a214362176b"
+    },
+    {
+      "captured_request_verified": false,
+      "case": "move65_source7_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 1,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32730,
+            "y": 32796
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 4,
+          "room": 1
+        }
+      },
+      "disposition": "Applied",
+      "expected_request_reconstructed_from_echo": true,
+      "family": "replay",
+      "guard": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 1,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 3,
+        "room": 1,
+        "source": 7
+      },
+      "sha256": "0aeaaff7831dee391f2d14f1585aed4a756b698665cb562c87452ab59bf57145",
+      "typed_receipt": true
+    },
+    {
+      "captured_request_verified": false,
+      "case": "stale_life65_source7_hex",
+      "demands": {
+        "actors": [
+          {
+            "entity": 1,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32797
+          },
+          {
+            "entity": 2,
+            "has_buffs": false,
+            "has_resources": false,
+            "has_vital": false,
+            "heading": 0,
+            "loaded_by_test_peer": true,
+            "weapon_type": null,
+            "x": 32729,
+            "y": 32796
+          }
+        ],
+        "catalog_actor_route_qualified": false,
+        "map": 564,
+        "members": [
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 7
+          },
+          {
+            "class": 0,
+            "level": 60,
+            "object": 10275,
+            "sex": 0,
+            "source": 42
+          }
+        ],
+        "npcs": false,
+        "personal_gear": null,
+        "public_presentation_rows": 2,
+        "world": {
+          "generation": 5,
+          "match": 1,
+          "phase": 2,
+          "revision": 3,
+          "room": 1
+        }
+      },
+      "disposition": "Rejected",
+      "expected_request_reconstructed_from_echo": true,
+      "family": "replay",
+      "guard": {
+        "channel": 0,
+        "entity": 1,
+        "epoch_u64_hex": "8000000000000000",
+        "generation": 5,
+        "life": 2,
+        "match": 1,
+        "object_u64_hex": "0000000000002823",
+        "revision": 3,
+        "room": 1,
+        "source": 7
+      },
+      "sha256": "4562bdbf7ec4d9f909a9dd666a058998ac21dfb5b1fb06246dca0ceebe118436",
+      "typed_receipt": true
+    }
+  ],
+  "state": "FIXED_SQL_PUBLICATION_BYTES_CONSUMED"
+}

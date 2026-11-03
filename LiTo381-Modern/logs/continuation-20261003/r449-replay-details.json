@@ -1,0 +1,219 @@
+{
+  "CPU_frames": 7,
+  "GUI": 0,
+  "end0_bank72_layers_qualified_conditionally": true,
+  "idle_callback_executed": false,
+  "images": [
+    {
+      "RGBA_sha256": "900b1aca6df823d2cc766eed22f57a1962be52f6db2f17a9e6c3df7bc7ac4853",
+      "dimensions": [
+        1400,
+        200
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r449-finite-player-action-cpu\\attack47-finite-clock-body105-shadow-bank88-to-end72.png",
+      "sha256": "227e84644b9304e6eb0a2ee86f4743328ea7e844e9d8c6a499cabd1ca516bc71"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-72.spr": {
+      "bytes": 5941,
+      "path": "resources/3476-72.spr",
+      "sha256": "8FDDCE5AF2C5906A891AD2FF8FFA20CBCE292115AA47EA1F65520B1BA29E692A"
+    },
+    "resources/3476-88.spr": {
+      "bytes": 12043,
+      "path": "resources/3476-88.spr",
+      "sha256": "641ABA44DCC8315DBCBBED698777A976A851B1B98F7A9EDBDBA0CE2EB98BDB17"
+    },
+    "resources/3477-72.spr": {
+      "bytes": 1187,
+      "path": "resources/3477-72.spr",
+      "sha256": "ABE30991607C86CFA27E1334FEF0A08A9C90F24EDF08E184B5557A1F7E6FF2F5"
+    },
+    "resources/3477-88.spr": {
+      "bytes": 2001,
+      "path": "resources/3477-88.spr",
+      "sha256": "7C1FD85B5FD7580CD9A91499B38D1B4AC38DEF1AEE1BF3858215930BF212CD6D"
+    },
+    "resources/6260-72.spr": {
+      "bytes": 65,
+      "path": "resources/6260-72.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-88.spr": {
+      "bytes": 93,
+      "path": "resources/6260-88.spr",
+      "sha256": "EF06D41DF96C7BB073B6FA331448A1C407D9D0B7BC61B0EA3A8EC5BBCF1EC6E1"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "preflight_missing_condition_refusals": 21,
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "RGBA_sha256": "b8bbfb9e3cf4aefbd98978f9eb7b81dcf07d3f597d1ac52e283b832e5497a32d",
+      "bank": 88,
+      "catalog_frame": 1,
+      "delay_ms": 168,
+      "dispatch_ms": 1000,
+      "ended": false,
+      "fragment_counts": [
+        12,
+        0,
+        5
+      ],
+      "members": [
+        "3476-88.spr",
+        "6260-88.spr",
+        "3477-88.spr"
+      ],
+      "next_due_ms": 1168,
+      "queued_idle": null,
+      "subframe": 0
+    },
+    {
+      "RGBA_sha256": "59e9f04ed8505ba33d866b3e3dae6497e00cb41d8a85040e50d45c4eb619eabe",
+      "bank": 88,
+      "catalog_frame": 2,
+      "delay_ms": 168,
+      "dispatch_ms": 1168,
+      "ended": false,
+      "fragment_counts": [
+        13,
+        0,
+        5
+      ],
+      "members": [
+        "3476-88.spr",
+        "6260-88.spr",
+        "3477-88.spr"
+      ],
+      "next_due_ms": 1336,
+      "queued_idle": null,
+      "subframe": 1
+    },
+    {
+      "RGBA_sha256": "f0520663626cbf65a9f64c98ef1e9c5310943ec3e3a678e75f60a75bf1d634a8",
+      "bank": 88,
+      "catalog_frame": 3,
+      "delay_ms": 168,
+      "dispatch_ms": 1336,
+      "ended": false,
+      "fragment_counts": [
+        13,
+        0,
+        5
+      ],
+      "members": [
+        "3476-88.spr",
+        "6260-88.spr",
+        "3477-88.spr"
+      ],
+      "next_due_ms": 1504,
+      "queued_idle": null,
+      "subframe": 2
+    },
+    {
+      "RGBA_sha256": "0414b8a3fb5bc1191d263518602e9381951f47d3a0c021a0e7d4e31a633fcd77",
+      "bank": 88,
+      "catalog_frame": 4,
+      "delay_ms": 127,
+      "dispatch_ms": 1504,
+      "ended": false,
+      "fragment_counts": [
+        13,
+        0,
+        4
+      ],
+      "members": [
+        "3476-88.spr",
+        "6260-88.spr",
+        "3477-88.spr"
+      ],
+      "next_due_ms": 1631,
+      "queued_idle": null,
+      "subframe": 3
+    },
+    {
+      "RGBA_sha256": "c2dcd0fc03d14c047a59f3cee15dfe6d752fe52379d64f06a1af9b0876c9e5fd",
+      "bank": 88,
+      "catalog_frame": 5,
+      "delay_ms": 127,
+      "dispatch_ms": 1631,
+      "ended": false,
+      "fragment_counts": [
+        16,
+        0,
+        6
+      ],
+      "members": [
+        "3476-88.spr",
+        "6260-88.spr",
+        "3477-88.spr"
+      ],
+      "next_due_ms": 1758,
+      "queued_idle": null,
+      "subframe": 4
+    },
+    {
+      "RGBA_sha256": "00440a07f7a91dd0898ce0159785212f3c4b8741de1453308b8f43c269b028c2",
+      "bank": 88,
+      "catalog_frame": 6,
+      "delay_ms": 127,
+      "dispatch_ms": 1758,
+      "ended": false,
+      "fragment_counts": [
+        15,
+        0,
+        7
+      ],
+      "members": [
+        "3476-88.spr",
+        "6260-88.spr",
+        "3477-88.spr"
+      ],
+      "next_due_ms": 1885,
+      "queued_idle": null,
+      "subframe": 5
+    },
+    {
+      "RGBA_sha256": "9f5f4b4ba965e20dcf7954ac8a2373a9f17b82ce8d422c15a877b061c51e3faf",
+      "bank": 72,
+      "catalog_frame": 0,
+      "delay_ms": 584,
+      "dispatch_ms": 1885,
+      "ended": true,
+      "fragment_counts": [
+        10,
+        0,
+        4
+      ],
+      "members": [
+        "3476-72.spr",
+        "6260-72.spr",
+        "3477-72.spr"
+      ],
+      "next_due_ms": 2469,
+      "queued_idle": 49,
+      "subframe": 0
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "state": "SINGLE_FINITE_CONDITIONAL_ATTACK47_CLOCK_LAYER_REPLAY_END0_BANK72_STOP",
+  "visible_residency_qualified": false,
+  "wrong_bank_refusals": 7
+}

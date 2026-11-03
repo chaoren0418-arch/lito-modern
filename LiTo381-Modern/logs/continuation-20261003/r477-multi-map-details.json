@@ -1,0 +1,55 @@
+{
+  "Back_preserves_selection": true,
+  "Battle_equals_fixed_R474_pixels": true,
+  "GUI": 0,
+  "LOADED": false,
+  "Modern_keys_and_scaled_clipped_font": true,
+  "Temple_equals_fixed_R476_library_probe_pixels": true,
+  "actual_missing514_no_564_fallback": true,
+  "actual_old_map_queued_frame_and_old_pan_discarded": 2,
+  "actual_select_during_native_load_cancelled": true,
+  "catalog_rows": 40,
+  "coordinate_checks": 1016547,
+  "held_old_map_frame_revoked": true,
+  "historical_PASS_reruns": 0,
+  "images": [
+    {
+      "bytes": 1478650,
+      "identity": [
+        1,
+        514
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r477-multi-map\\cpu-temple514.png",
+      "rgba_sha256": "BE8C22947FC61507324468FB650CE7EAD7126592F6175F0F1BBC18CD1B68FF51",
+      "sha256": "592BDE06E9006F7A2451B235030A7584E1F748340AB92A33E057CD135B26C065"
+    },
+    {
+      "bytes": 1703732,
+      "identity": [
+        1,
+        564
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r477-multi-map\\cpu-battle564.png",
+      "rgba_sha256": "2F3B9D9EEBF896A54F11118F6D90164DA66A286AE2F81E9D450CE0BF76E24B06",
+      "sha256": "0860A7A7EF306984D9F3AB979522EA3A6038166F6F6AB4997D38033E1F1B7240"
+    }
+  ],
+  "native_arrow_press_release_no_repeat_timer": true,
+  "native_top_maximum": "count-1 (not count-6)",
+  "negative_cases": 16,
+  "new_focused_tests": 1,
+  "qualified_maps": [
+    [
+      1,
+      564
+    ],
+    [
+      1,
+      514
+    ]
+  ],
+  "row_pitch": 12,
+  "state": "REAL_TWO_NATIVE_MAPS_EXACT_IDENTITIES_AND_MULTIROW_MENU_STATE_PASS_GUI_PENDING",
+  "unqualified_rows": 38,
+  "visible_rows": 6
+}

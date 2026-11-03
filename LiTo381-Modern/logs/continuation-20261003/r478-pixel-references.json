@@ -1,0 +1,125 @@
+{
+  "thumb_reference": {
+    "id": 6231,
+    "name": "6231.img",
+    "index_row": 932,
+    "offset": 49116871,
+    "bytes": 148,
+    "sha256": "19F992442517B02887A76A1B5BD08274431728C1106DCB12400B15454D3B7EC2",
+    "raw": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\source\\6231.img",
+      "bytes": 148,
+      "sha256": "19F992442517B02887A76A1B5BD08274431728C1106DCB12400B15454D3B7EC2"
+    },
+    "reference_png": {
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\6231.png",
+      "bytes": 229,
+      "sha256": "E1EF06CF3015CE70E48F9EE26F47CA1B7FCD1DD60A7BC62AA8A26ABD0A249E96"
+    },
+    "rgba_sha256": "31F6B1353663EE9170D6EA2D6BB457D2B0F411F932A9D50D445E82A89B5604D5",
+    "width": 7,
+    "height": 10,
+    "mask_flag": 0,
+    "mask_word": 16775,
+    "localized_candidates_present": []
+  },
+  "composites": [
+    {
+      "top": 0,
+      "count": 0,
+      "pressed": "normal",
+      "thumb_y": 15,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-0-0-normal.png",
+        "bytes": 1144,
+        "sha256": "41AEB1E47F0D082E94917ED69708050DD8F9A0F43DF6B70896E15D2BAD4E1B88"
+      },
+      "rgba_sha256": "C0C01E60B5E4001730A4E3B2AB22D3346215360838B8DBC187492CB1B717C2D9"
+    },
+    {
+      "top": 0,
+      "count": 1,
+      "pressed": "normal",
+      "thumb_y": 15,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-1-0-normal.png",
+        "bytes": 1144,
+        "sha256": "41AEB1E47F0D082E94917ED69708050DD8F9A0F43DF6B70896E15D2BAD4E1B88"
+      },
+      "rgba_sha256": "C0C01E60B5E4001730A4E3B2AB22D3346215360838B8DBC187492CB1B717C2D9"
+    },
+    {
+      "top": 0,
+      "count": 17,
+      "pressed": "normal",
+      "thumb_y": 15,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-17-0-normal.png",
+        "bytes": 1144,
+        "sha256": "41AEB1E47F0D082E94917ED69708050DD8F9A0F43DF6B70896E15D2BAD4E1B88"
+      },
+      "rgba_sha256": "C0C01E60B5E4001730A4E3B2AB22D3346215360838B8DBC187492CB1B717C2D9"
+    },
+    {
+      "top": 1,
+      "count": 17,
+      "pressed": "down",
+      "thumb_y": 17,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-17-1-down.png",
+        "bytes": 1162,
+        "sha256": "7821FF28A2521F29A317AA8277ADC1651C337202B7F7C0E1603ABCD6A29DCF0A"
+      },
+      "rgba_sha256": "8883C736479FC943AED1F7D974D0D496699DB56AD59F8B3B714BF717F973B0AB"
+    },
+    {
+      "top": 8,
+      "count": 17,
+      "pressed": "up",
+      "thumb_y": 35,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-17-8-up.png",
+        "bytes": 1160,
+        "sha256": "98E5D52E18682262520593C96C1EFE467F8B2675BE185BB52603B7C16E4662FE"
+      },
+      "rgba_sha256": "D21CB85DD5087C259CBF215F45D5E62C19682FB3D5CC809541F942051CBD01E1"
+    },
+    {
+      "top": 16,
+      "count": 17,
+      "pressed": "normal",
+      "thumb_y": 56,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-17-16-normal.png",
+        "bytes": 1141,
+        "sha256": "BF9381D1DD4C50BFDFE85C642A534D38611223AF108D7899B3A80BB93ABDA6D8"
+      },
+      "rgba_sha256": "7C3013BE9C722EF518EDDA4DCCCB86B229DAC5EEEA8BF962CE6CA35C560411C7"
+    },
+    {
+      "top": 39,
+      "count": 40,
+      "pressed": "normal",
+      "thumb_y": 56,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-40-39-normal.png",
+        "bytes": 1141,
+        "sha256": "BF9381D1DD4C50BFDFE85C642A534D38611223AF108D7899B3A80BB93ABDA6D8"
+      },
+      "rgba_sha256": "7C3013BE9C722EF518EDDA4DCCCB86B229DAC5EEEA8BF962CE6CA35C560411C7"
+    },
+    {
+      "top": 41,
+      "count": 42,
+      "pressed": "normal",
+      "thumb_y": 56,
+      "pin": {
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r478-mode-menu\\reference\\menu-42-41-normal.png",
+        "bytes": 1141,
+        "sha256": "BF9381D1DD4C50BFDFE85C642A534D38611223AF108D7899B3A80BB93ABDA6D8"
+      },
+      "rgba_sha256": "7C3013BE9C722EF518EDDA4DCCCB86B229DAC5EEEA8BF962CE6CA35C560411C7"
+    }
+  ],
+  "order": "opaque panel crop; color-key thumb; color-key child arrows"
+}

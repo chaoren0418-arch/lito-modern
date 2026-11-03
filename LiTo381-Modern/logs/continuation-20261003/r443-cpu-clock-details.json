@@ -1,0 +1,651 @@
+{
+  "GUI": 0,
+  "attack_rows": "historical Type3/Class734 weapon2 only; Type0 attack1/51 refused because first tick0",
+  "columns": "catalog order sampled at exact integer-millisecond frame starts",
+  "member_pins": {
+    "3225-0.spr": "cbf1d6832b05dd5b86a14f5a4dda9c783f42feae7a06963acad80f20a87f6eec",
+    "3225-264.spr": "1d298726445dd548927532dc6e7cdb422fa6682221add6f9e33e447db027ff9d",
+    "3476-72.spr": "8fddce5af2c5906a891ad2ff8ffa20cbce292115aa47ea1f65520b1ba29e692a",
+    "3476-88.spr": "641aba44dcc8315dbcbbed698777a976a851b1b98f7a9edbdba0ce2eb98bdb17"
+  },
+  "outputs": [
+    {
+      "RGBA_sha256": "b730ab5109a8e95e380fae446463bd54dd783e22b1e07286392baa8d10c3a29e",
+      "cells": [
+        {
+          "Class": 0,
+          "action": 50,
+          "catalog_frame": 0,
+          "elapsed_ms": 0,
+          "end_ms": 166,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-264.spr",
+          "member_sha256": "1d298726445dd548927532dc6e7cdb422fa6682221add6f9e33e447db027ff9d",
+          "object": 10275,
+          "raw_events_hex": "3c343739",
+          "retainedType": 3,
+          "revision": 0,
+          "sample_size": [
+            72,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 0,
+          "subframe": 0,
+          "ticks": 4,
+          "visible_pixels": 952,
+          "weapon": 10304,
+          "world_placement": false
+        },
+        {
+          "Class": 0,
+          "action": 50,
+          "catalog_frame": 1,
+          "elapsed_ms": 166,
+          "end_ms": 332,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-264.spr",
+          "member_sha256": "1d298726445dd548927532dc6e7cdb422fa6682221add6f9e33e447db027ff9d",
+          "object": 10275,
+          "raw_events_hex": "",
+          "retainedType": 3,
+          "revision": 0,
+          "sample_size": [
+            72,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 166,
+          "subframe": 1,
+          "ticks": 4,
+          "visible_pixels": 876,
+          "weapon": 10304,
+          "world_placement": false
+        },
+        {
+          "Class": 0,
+          "action": 50,
+          "catalog_frame": 2,
+          "elapsed_ms": 332,
+          "end_ms": 498,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-264.spr",
+          "member_sha256": "1d298726445dd548927532dc6e7cdb422fa6682221add6f9e33e447db027ff9d",
+          "object": 10275,
+          "raw_events_hex": "3c343738",
+          "retainedType": 3,
+          "revision": 0,
+          "sample_size": [
+            72,
+            96
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -60
+          ],
+          "start_ms": 332,
+          "subframe": 2,
+          "ticks": 4,
+          "visible_pixels": 883,
+          "weapon": 10304,
+          "world_placement": false
+        },
+        {
+          "Class": 0,
+          "action": 50,
+          "catalog_frame": 3,
+          "elapsed_ms": 498,
+          "end_ms": 664,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-264.spr",
+          "member_sha256": "1d298726445dd548927532dc6e7cdb422fa6682221add6f9e33e447db027ff9d",
+          "object": 10275,
+          "raw_events_hex": "",
+          "retainedType": 3,
+          "revision": 0,
+          "sample_size": [
+            72,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            -24,
+            -60
+          ],
+          "start_ms": 498,
+          "subframe": 3,
+          "ticks": 4,
+          "visible_pixels": 863,
+          "weapon": 10304,
+          "world_placement": false
+        },
+        {
+          "Class": 0,
+          "action": 0,
+          "catalog_frame": 0,
+          "elapsed_ms": 0,
+          "end_ms": 166,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-0.spr",
+          "member_sha256": "cbf1d6832b05dd5b86a14f5a4dda9c783f42feae7a06963acad80f20a87f6eec",
+          "object": 10275,
+          "raw_events_hex": "3c343739",
+          "retainedType": 0,
+          "revision": 1,
+          "sample_size": [
+            48,
+            72
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 0,
+          "subframe": 0,
+          "ticks": 4,
+          "visible_pixels": 778,
+          "weapon": 0,
+          "world_placement": false
+        },
+        {
+          "Class": 0,
+          "action": 0,
+          "catalog_frame": 1,
+          "elapsed_ms": 166,
+          "end_ms": 332,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-0.spr",
+          "member_sha256": "cbf1d6832b05dd5b86a14f5a4dda9c783f42feae7a06963acad80f20a87f6eec",
+          "object": 10275,
+          "raw_events_hex": "",
+          "retainedType": 0,
+          "revision": 1,
+          "sample_size": [
+            48,
+            72
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 166,
+          "subframe": 1,
+          "ticks": 4,
+          "visible_pixels": 754,
+          "weapon": 0,
+          "world_placement": false
+        },
+        {
+          "Class": 0,
+          "action": 0,
+          "catalog_frame": 2,
+          "elapsed_ms": 332,
+          "end_ms": 498,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-0.spr",
+          "member_sha256": "cbf1d6832b05dd5b86a14f5a4dda9c783f42feae7a06963acad80f20a87f6eec",
+          "object": 10275,
+          "raw_events_hex": "3c343738",
+          "retainedType": 0,
+          "revision": 1,
+          "sample_size": [
+            48,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            -24,
+            -60
+          ],
+          "start_ms": 332,
+          "subframe": 2,
+          "ticks": 4,
+          "visible_pixels": 771,
+          "weapon": 0,
+          "world_placement": false
+        },
+        {
+          "Class": 0,
+          "action": 0,
+          "catalog_frame": 3,
+          "elapsed_ms": 498,
+          "end_ms": 664,
+          "epoch_hex": "8000000000000000",
+          "fps": 24,
+          "graphics": 3225,
+          "heading": 0,
+          "member": "3225-0.spr",
+          "member_sha256": "cbf1d6832b05dd5b86a14f5a4dda9c783f42feae7a06963acad80f20a87f6eec",
+          "object": 10275,
+          "raw_events_hex": "",
+          "retainedType": 0,
+          "revision": 1,
+          "sample_size": [
+            48,
+            72
+          ],
+          "source": 7,
+          "source_offset": [
+            -24,
+            -60
+          ],
+          "start_ms": 498,
+          "subframe": 3,
+          "ticks": 4,
+          "visible_pixels": 702,
+          "weapon": 0,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 46,
+          "catalog_frame": 0,
+          "elapsed_ms": 0,
+          "end_ms": 166,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-72.spr",
+          "member_sha256": "8fddce5af2c5906a891ad2ff8ffa20cbce292115aa47ea1f65520b1ba29e692a",
+          "object": 10163,
+          "raw_events_hex": "3c343738",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            48,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 0,
+          "subframe": 0,
+          "ticks": 4,
+          "visible_pixels": 920,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 46,
+          "catalog_frame": 1,
+          "elapsed_ms": 166,
+          "end_ms": 332,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-72.spr",
+          "member_sha256": "8fddce5af2c5906a891ad2ff8ffa20cbce292115aa47ea1f65520b1ba29e692a",
+          "object": 10163,
+          "raw_events_hex": "",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            48,
+            72
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 166,
+          "subframe": 1,
+          "ticks": 4,
+          "visible_pixels": 784,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 46,
+          "catalog_frame": 2,
+          "elapsed_ms": 332,
+          "end_ms": 498,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-72.spr",
+          "member_sha256": "8fddce5af2c5906a891ad2ff8ffa20cbce292115aa47ea1f65520b1ba29e692a",
+          "object": 10163,
+          "raw_events_hex": "3c343739",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            48,
+            72
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 332,
+          "subframe": 2,
+          "ticks": 4,
+          "visible_pixels": 873,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 46,
+          "catalog_frame": 3,
+          "elapsed_ms": 498,
+          "end_ms": 664,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-72.spr",
+          "member_sha256": "8fddce5af2c5906a891ad2ff8ffa20cbce292115aa47ea1f65520b1ba29e692a",
+          "object": 10163,
+          "raw_events_hex": "",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            24,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -60
+          ],
+          "start_ms": 498,
+          "subframe": 3,
+          "ticks": 4,
+          "visible_pixels": 790,
+          "weapon": 10252,
+          "world_placement": false
+        }
+      ],
+      "dimensions": [
+        720,
+        540
+      ],
+      "kind": "walk",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r443-appearance-clock-cpu\\body-walk-single-catalog-interval.png",
+      "sha256": "bfa461fbdfb64fc6e23e303df0943882a405c93598c40aa1cb7fb3439a5e1b18"
+    },
+    {
+      "RGBA_sha256": "5d9aede05a6bcf4131fd8841eb7ae0329af8a11e1f81e4bf34f29532d5eaa089",
+      "cells": [
+        {
+          "Class": 734,
+          "action": 47,
+          "catalog_frame": 0,
+          "elapsed_ms": 0,
+          "end_ms": 83,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-72.spr",
+          "member_sha256": "8fddce5af2c5906a891ad2ff8ffa20cbce292115aa47ea1f65520b1ba29e692a",
+          "object": 10163,
+          "raw_events_hex": "",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            48,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 0,
+          "subframe": 0,
+          "ticks": 2,
+          "visible_pixels": 920,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 47,
+          "catalog_frame": 1,
+          "elapsed_ms": 83,
+          "end_ms": 249,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-88.spr",
+          "member_sha256": "641aba44dcc8315dbcbbed698777a976a851b1b98f7a9edbdba0ce2eb98bdb17",
+          "object": 10163,
+          "raw_events_hex": "",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            72,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 83,
+          "subframe": 0,
+          "ticks": 4,
+          "visible_pixels": 1128,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 47,
+          "catalog_frame": 2,
+          "elapsed_ms": 249,
+          "end_ms": 415,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-88.spr",
+          "member_sha256": "641aba44dcc8315dbcbbed698777a976a851b1b98f7a9edbdba0ce2eb98bdb17",
+          "object": 10163,
+          "raw_events_hex": "",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            72,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 249,
+          "subframe": 1,
+          "ticks": 4,
+          "visible_pixels": 1302,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 47,
+          "catalog_frame": 3,
+          "elapsed_ms": 415,
+          "end_ms": 581,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-88.spr",
+          "member_sha256": "641aba44dcc8315dbcbbed698777a976a851b1b98f7a9edbdba0ce2eb98bdb17",
+          "object": 10163,
+          "raw_events_hex": "",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            72,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 415,
+          "subframe": 2,
+          "ticks": 4,
+          "visible_pixels": 1321,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 47,
+          "catalog_frame": 4,
+          "elapsed_ms": 581,
+          "end_ms": 706,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-88.spr",
+          "member_sha256": "641aba44dcc8315dbcbbed698777a976a851b1b98f7a9edbdba0ce2eb98bdb17",
+          "object": 10163,
+          "raw_events_hex": "5b313531335b31353137",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            72,
+            84
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -48
+          ],
+          "start_ms": 581,
+          "subframe": 3,
+          "ticks": 3,
+          "visible_pixels": 1222,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 47,
+          "catalog_frame": 5,
+          "elapsed_ms": 706,
+          "end_ms": 831,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-88.spr",
+          "member_sha256": "641aba44dcc8315dbcbbed698777a976a851b1b98f7a9edbdba0ce2eb98bdb17",
+          "object": 10163,
+          "raw_events_hex": "21",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            96,
+            96
+          ],
+          "source": 7,
+          "source_offset": [
+            -24,
+            -60
+          ],
+          "start_ms": 706,
+          "subframe": 4,
+          "ticks": 3,
+          "visible_pixels": 1267,
+          "weapon": 10252,
+          "world_placement": false
+        },
+        {
+          "Class": 734,
+          "action": 47,
+          "catalog_frame": 6,
+          "elapsed_ms": 831,
+          "end_ms": 956,
+          "epoch_hex": "8000000000000001",
+          "fps": 24,
+          "graphics": 3476,
+          "heading": 0,
+          "member": "3476-88.spr",
+          "member_sha256": "641aba44dcc8315dbcbbed698777a976a851b1b98f7a9edbdba0ce2eb98bdb17",
+          "object": 10163,
+          "raw_events_hex": "",
+          "retainedType": 2,
+          "revision": 0,
+          "sample_size": [
+            72,
+            96
+          ],
+          "source": 7,
+          "source_offset": [
+            0,
+            -60
+          ],
+          "start_ms": 831,
+          "subframe": 5,
+          "ticks": 3,
+          "visible_pixels": 1144,
+          "weapon": 10252,
+          "world_placement": false
+        }
+      ],
+      "dimensions": [
+        1260,
+        180
+      ],
+      "kind": "attack",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r443-appearance-clock-cpu\\body-attack-single-catalog-interval.png",
+      "sha256": "d4df76e3e737c49a67514d9f6e91beae88ae6fe436b4fcd96ec5dfa24e93042e"
+    }
+  ],
+  "renderer_LOADED": false,
+  "scope": "centered individual body frames only; events not dispatched; shadow/105/world/depth/loop unqualified",
+  "source_identity": "R439 historical NAB/Class separately observed; not R441/R442 live Class or appearance lease",
+  "state": "OFFLINE_BODY_WALK_ATTACK_SINGLE_INTERVAL_ACTUAL_SPR_CPU_STUDY",
+  "unique_members_decoded": 4,
+  "walk_rows": "historical Type0 weapon3;historical Type0 effective unarmed;historical Type3/Class734 weapon2"
+}

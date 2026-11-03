@@ -1,0 +1,18 @@
+{
+  "input": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r430-native-sql-8cae08ffa989403e97055b7cb978ba96\\consumer-input.json",
+  "input_sha256": "DE07269AA63248EC11FF2BDA63549CAB91CCF995C44112C6D753AC157EE22803",
+  "candidate": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r430-native-sql-8cae08ffa989403e97055b7cb978ba96",
+    "files_verified": 2857,
+    "manifest_sha256": "6590D75206C1AC3F2C7C318CA312E50DEB44A5B421A11B4BD530841979EAEACF",
+    "vectors": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r430-native-sql-8cae08ffa989403e97055b7cb978ba96\\evidence\\canonical-tls-vectors.json",
+    "vectors_sha256": "1D5BA5C1968A732329CA36694199E3111CF4828A386FC6182837A4A197CF5995"
+  },
+  "replay": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r430-sql-replay-5fb96fa8c61a4382a3b2fcd34712b479",
+    "files_verified": 10,
+    "manifest_sha256": "4962A0E19FAC4CCD2C1F3DE7F6A6F19396CA78A293A08B0C9249C2EB22BA1528",
+    "vectors": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r430-sql-replay-5fb96fa8c61a4382a3b2fcd34712b479\\canonical-tls-vectors.json",
+    "vectors_sha256": "E065CDE821C578D5690260E945FD14F191FBDE4C6CC57797CB0A912AAF11BCE6"
+  }
+}

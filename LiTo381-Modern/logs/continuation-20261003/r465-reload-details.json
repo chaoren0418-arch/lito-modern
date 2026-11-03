@@ -1,0 +1,1008 @@
+{
+  "CPU_frames": 22,
+  "GUI": 0,
+  "actor_ownerall_cancel_not_used_for_reload": true,
+  "after_destructor_table_unchanged": [
+    {
+      "callback": "4E34C0",
+      "clock": 1764,
+      "private_owner": "Fire(4651)",
+      "serial": 1
+    },
+    {
+      "callback": "4E34C0",
+      "clock": 1832,
+      "private_owner": "Actor(4651)",
+      "serial": 2
+    },
+    {
+      "callback": "47CEC0",
+      "clock": 1900,
+      "private_owner": "Zero",
+      "serial": 3
+    },
+    {
+      "callback": "47CE50",
+      "clock": 1901,
+      "private_owner": "Zero",
+      "serial": 4
+    },
+    {
+      "callback": "47CDF0",
+      "clock": 1902,
+      "private_owner": "Zero",
+      "serial": 5
+    },
+    {
+      "callback": "4159B0",
+      "clock": 1903,
+      "private_owner": "Zero",
+      "serial": 6
+    },
+    {
+      "callback": "4C32A0",
+      "clock": 1904,
+      "private_owner": "Actor(4651)",
+      "serial": 7
+    },
+    {
+      "callback": "48D700",
+      "clock": 1905,
+      "private_owner": "Zero",
+      "serial": 8
+    },
+    {
+      "callback": "4878C0",
+      "clock": 1906,
+      "private_owner": "Zero",
+      "serial": 9
+    },
+    {
+      "callback": "4875A0",
+      "clock": 1907,
+      "private_owner": "Zero",
+      "serial": 10
+    },
+    {
+      "callback": "4876E0",
+      "clock": 1908,
+      "private_owner": "Zero",
+      "serial": 11
+    },
+    {
+      "callback": "482F50",
+      "clock": 1990,
+      "private_owner": "Zero",
+      "serial": 12
+    },
+    {
+      "callback": "47B720",
+      "clock": 2150,
+      "private_owner": "Zero",
+      "serial": 14
+    },
+    {
+      "callback": "47B720",
+      "clock": 2200,
+      "private_owner": "Zero",
+      "serial": 15
+    },
+    {
+      "callback": "4A2D60",
+      "clock": 2300,
+      "private_owner": "Zero",
+      "serial": 13
+    }
+  ],
+  "appearance_manifest_sha256": "A82FD272D4F95E3C44940E7FCE16678C30B477057D0F4161B2588AE0825F5486",
+  "complete_native_constructor_unqualified": true,
+  "destroyed_node_args": [
+    1,
+    2
+  ],
+  "destroyed_node_serials": [
+    2,
+    3
+  ],
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    },
+    {
+      "bytes": 1146,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r429-catalog-snapshot.json",
+      "sha256": "1544325f7ba7f899da7fb7e89d15969b3314700cc7520d7462fbacd3045ef4ea"
+    },
+    {
+      "bytes": 9888,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.idx",
+      "sha256": "b8c0bb8c43affe59a90ebd2d26182269b6d60af388c80963eaaeedc8d8ae23c8"
+    },
+    {
+      "bytes": 292553,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.pak",
+      "sha256": "517d853e3fe91b504953ff4b9b2eed682a3612d063f2d18e75e39fd5580f342d"
+    },
+    {
+      "bytes": 39135,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\decoded-LTlist.spr",
+      "sha256": "f55779aeb5c3982d8b366068cdbe4003d802619074e54388f26ee87368f42603"
+    },
+    {
+      "bytes": 117352,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-source-input/38-0.spr",
+      "sha256": "b4507d8337497aef8b3fc3a28f8fef87e344d176b8a31a7e634c08a0976aef8d"
+    }
+  ],
+  "filtered": [
+    {
+      "callback": "4E34C0",
+      "clock": 1764,
+      "private_owner": "Fire(4651)",
+      "serial": 1
+    },
+    {
+      "callback": "4E34C0",
+      "clock": 1832,
+      "private_owner": "Actor(4651)",
+      "serial": 2
+    },
+    {
+      "callback": "47B720",
+      "clock": 2150,
+      "private_owner": "Zero",
+      "serial": 14
+    },
+    {
+      "callback": "47B720",
+      "clock": 2200,
+      "private_owner": "Zero",
+      "serial": 15
+    },
+    {
+      "callback": "4A2D60",
+      "clock": 2300,
+      "private_owner": "Zero",
+      "serial": 13
+    }
+  ],
+  "global_callback_bodies_not_executed": true,
+  "images": [
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\00-1000-SOURCE_CONDITIONAL_4E2150_START.png",
+      "sha256": "79d241a2e7ef85219791b6377d206f36e4e30592b5cdd5907b5f95d1b70f9b21"
+    },
+    {
+      "RGBA_sha256": "411eaf9a9796dcfb20200cdd1278ceabbd14e7f3eb19eb22826a6ac2451d0f4f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\01-1084-FireFirst.png",
+      "sha256": "12c4616870f9c05aace3671b6a80ae6ff6ff0faf0d9c882a5013e59fdd2256cb"
+    },
+    {
+      "RGBA_sha256": "56da8c28ffcc20138760c2babe457ec8b81218a9c7bd12672027c59dc2d52d0b",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\02-1166-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "e10ff2e1447c38493a783e7e6c9ec4170fc147fcefe7e6d65d27bbc54ffdd1c4"
+    },
+    {
+      "RGBA_sha256": "95713218499f8a00d2c0b255aefa37831e8dea1b5478d2c28d9c23ba6dc139db",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\03-1169-FireAdvance.png",
+      "sha256": "89d2aad9c9b9449e5f7f8608dbe571d91bbfef2ff3204b22f11ac750f20b8918"
+    },
+    {
+      "RGBA_sha256": "f437a04888bbd2ed221a24cf1ff0835c06161b90be327eff907aa9d1f32493d5",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\04-1254-FireAdvance.png",
+      "sha256": "f1fcf29e54f1f3885bfc75312ff12e20d865fa89f911a74b781aba5e5d8dd6ec"
+    },
+    {
+      "RGBA_sha256": "bae46aa1ccdd13afd7688c2c9b9ea4e18422b5748f66974f20e5f958a7918371",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\05-1332-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "74203bf24d1d6c1fca9cf57c238e9661d5bb533ca9aa3572854535b1950e51ab"
+    },
+    {
+      "RGBA_sha256": "57374bd671435d5f9f7e68ca422358eaa802036931ec822ce5a111b4291e171a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\06-1339-FireAdvance.png",
+      "sha256": "bb2fb1026acf94eaf63133d11795347067bd893c5356ab4573720a583ab0ebdc"
+    },
+    {
+      "RGBA_sha256": "bbc936820fffcc61a4de64c7720621408abd035567c350ea2347f9b49ab85d31",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\07-1424-FireAdvance.png",
+      "sha256": "7782a3771739eaa4dbb5c2b7ba39c38afa9831f01fd1c9c3e00ca62e9c87a8ff"
+    },
+    {
+      "RGBA_sha256": "0b03141e5e882c118ab1bd5e453c254ee25f6985761382a3ff003ae52835670e",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\08-1498-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "a02cdc1a71cedce439c0d14160e5614bb66e2331f57f055389348ceeb3df7ff2"
+    },
+    {
+      "RGBA_sha256": "aea18792c702e7509d2ef64bc8a70064fef41c9438b82a2b4a9acd6d09e57692",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\09-1509-FireAdvance.png",
+      "sha256": "7307cfa8af2054f354f9c90c6ca3bdc2aca054e9fa589cd48a68279e4703823d"
+    },
+    {
+      "RGBA_sha256": "5552772b09d15ca779b0662fb7461819ee7808e91c64051ae721c933d4980141",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\10-1548-Roof_1_.png",
+      "sha256": "8e37b77eea349033e58595d0720317b7f5ffc2a9b60b84d7c5c801e18bd028bd"
+    },
+    {
+      "RGBA_sha256": "1e4d04baef0ad290213ebf0274e11a1ca855a0f8a2c45f37bf4dfbd4129c37d2",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\11-1548-Roof_2_.png",
+      "sha256": "b5225d3907dd461f878f4e3686a0674a0ab0664cb037596a8255e676845644dc"
+    },
+    {
+      "RGBA_sha256": "e0f653cfa98c2759e3d90b5fa49fdf49b78fd37c1d1387170a4db03824f2e107",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\12-1594-FireAdvance.png",
+      "sha256": "66eb6e9ee9289acd6c23c42b4d5368760989c5d84f0434ee58aba6e2ae4eecaf"
+    },
+    {
+      "RGBA_sha256": "ebfa360e30e882f3da697b678252cdf9b708397f85df2ed88f8a96cad16b2af7",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\13-1598-Roof_3_.png",
+      "sha256": "a925cd03bef3c1d3b53abdd90b4dc333d85ecd7be159d761f8f625542c77835f"
+    },
+    {
+      "RGBA_sha256": "f1af1d033f33cf4f8ac1bdf671cbd00deb8456d742d2837059ddc6a752df5d27",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\14-1598-Roof_4_.png",
+      "sha256": "ccd36c4701d5b48ff596f1902e49e7749dcf8700f02b9e843b21daced2c2512c"
+    },
+    {
+      "RGBA_sha256": "6d60d8f72b4e0061a4f84c26490cec5dd11d5b0d87a5b35aff6ae7ad7d7b1e5a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\15-1648-Roof_5_.png",
+      "sha256": "5f384bf8edc9975a205f2ad92e35f831ac893745c9362d60212dd3f358deeb32"
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\16-1648-Roof_6_.png",
+      "sha256": "ce9ae2aa86015fcd72391d6cb4a4e47bad7824fd6bff9fa8d4b6675a3698e9e6"
+    },
+    {
+      "RGBA_sha256": "1ee684da37a48f7db521faa1e7a0eddd1aa40badbf5e815aee25a5f084a1f885",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\17-1664-SOURCE_CONDITIONAL_QueuedActionPop.png",
+      "sha256": "819d5c0be4bcfdd5dfbb74c4716a4c13d9ebb3b626df5a64e088bbaac519fd97"
+    },
+    {
+      "RGBA_sha256": "6fc34efb5e3edc2c12621ab04cd0942ca72dac4508d621a1c8f3cb8103c203b8",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\18-1679-FireAdvance.png",
+      "sha256": "bc5a9849d96bed123e003967b41f1026ad029653851a476617844f9bf0658927"
+    },
+    {
+      "RGBA_sha256": "1cf22c4afc5b220f3c01c81c64b3a1b6496452cad48e075c98e46d5266cf522d",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\19-1698-Roof_7_.png",
+      "sha256": "9a768118de263cdcfc847fc4f919b361fed355fcb2c19e91b819f271c099c5a7"
+    },
+    {
+      "RGBA_sha256": "cf2c1c6c9725680ef628fd6f0547dad262d55dffccb08ab82592ddeccbe2a484",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\20-1698-Roof_8_.png",
+      "sha256": "f5babd010e31276410055671baf29f184e997a333a0cfb1a07fce3577e16ae32"
+    },
+    {
+      "RGBA_sha256": "ea2f6a84ba32e71a871641597aa7a5c61be7847df2be4a90f1ec162ebd723c2f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r465-reload-new-owner-cpu\\21-1708-SOURCE_CONDITIONAL_RELOAD_NEW_REGISTRY_BASE46_FRAME0.png",
+      "sha256": "8eb973e9b64d8a23a71552db15081491291adfa714b0309f4dd62d199ba7a28e"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-74.spr": {
+      "bytes": 5904,
+      "path": "resources/3476-74.spr",
+      "sha256": "492DBF6342F7E33B06C5413414673B016C62BB431707BD677BFA093BA7DE2BCF"
+    },
+    "resources/3476-76.spr": {
+      "bytes": 8504,
+      "path": "resources/3476-76.spr",
+      "sha256": "AD5E88E26073E26B9DF6C725FE033F65F51D578FC5FFEBF91581A768E2E89377"
+    },
+    "resources/3476-84.spr": {
+      "bytes": 14332,
+      "path": "resources/3476-84.spr",
+      "sha256": "6C9314F042DBF63715EA94DBF8A77910ADD2BA27C5D58C46E79AF112F9D5B34B"
+    },
+    "resources/3476-92.spr": {
+      "bytes": 11476,
+      "path": "resources/3476-92.spr",
+      "sha256": "EBEE98F774CE9D47347318720819EA32D7A8A8EAB4B79B696046EA2AAA213E3D"
+    },
+    "resources/3477-74.spr": {
+      "bytes": 1106,
+      "path": "resources/3477-74.spr",
+      "sha256": "61E44DEE6BA5A1162FD1F3C47EBDD542431E3C0695423A54034A280DC29A3EB0"
+    },
+    "resources/3477-76.spr": {
+      "bytes": 1077,
+      "path": "resources/3477-76.spr",
+      "sha256": "8A3FB7AEC8D95D7B4B17644D31ED78B8F061C9D1B7BBFED17D02EDE57F8BBD84"
+    },
+    "resources/3477-84.spr": {
+      "bytes": 2291,
+      "path": "resources/3477-84.spr",
+      "sha256": "02B2F8699DE38CFA34B68F2D700615C7BFF72E3FC0BECD6A5A11A05607A083A8"
+    },
+    "resources/3477-92.spr": {
+      "bytes": 1921,
+      "path": "resources/3477-92.spr",
+      "sha256": "45EBB6B279D67AE4A3C0E6EEA7F9B7C8681B3F3DADECC90BCA2FFB4F8B59CB74"
+    },
+    "resources/6260-74.spr": {
+      "bytes": 65,
+      "path": "resources/6260-74.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-76.spr": {
+      "bytes": 65,
+      "path": "resources/6260-76.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-84.spr": {
+      "bytes": 135,
+      "path": "resources/6260-84.spr",
+      "sha256": "1B15E29C7271BB18CAC44C6E41D19811A383EBDB6D3005B5EF0EC3F581CB8813"
+    },
+    "resources/6260-92.spr": {
+      "bytes": 93,
+      "path": "resources/6260-92.spr",
+      "sha256": "EF06D41DF96C7BB073B6FA331448A1C407D9D0B7BC61B0EA3A8EC5BBCF1EC6E1"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "last_global_fresh_clock": 1704,
+  "native_canonical_sha256": "0de89778ac5b0642467cde6bc46e3f6e0f20e86ddb838eb14b7b50e8718009d6",
+  "native_map": 564,
+  "negative_cases": 53,
+  "new_base46_frame0_bank74": true,
+  "new_camera_globals_explicit_not_inferred": true,
+  "new_private_incarnation": 4652,
+  "new_queue_initial_capacity4_prefix_conditional": true,
+  "new_registration_clock": 1708,
+  "new_roots": [
+    {
+      "callback": "47CEC0",
+      "clock": 1900,
+      "private_owner": "Zero",
+      "serial": 3
+    },
+    {
+      "callback": "47CE50",
+      "clock": 1901,
+      "private_owner": "Zero",
+      "serial": 4
+    },
+    {
+      "callback": "47CDF0",
+      "clock": 1902,
+      "private_owner": "Zero",
+      "serial": 5
+    },
+    {
+      "callback": "4159B0",
+      "clock": 1903,
+      "private_owner": "Zero",
+      "serial": 6
+    },
+    {
+      "callback": "4C32A0",
+      "clock": 1904,
+      "private_owner": "Actor(4651)",
+      "serial": 7
+    },
+    {
+      "callback": "48D700",
+      "clock": 1905,
+      "private_owner": "Zero",
+      "serial": 8
+    },
+    {
+      "callback": "4878C0",
+      "clock": 1906,
+      "private_owner": "Zero",
+      "serial": 9
+    },
+    {
+      "callback": "4875A0",
+      "clock": 1907,
+      "private_owner": "Zero",
+      "serial": 10
+    },
+    {
+      "callback": "4876E0",
+      "clock": 1908,
+      "private_owner": "Zero",
+      "serial": 11
+    },
+    {
+      "callback": "47B720",
+      "clock": 2152,
+      "private_owner": "Zero",
+      "serial": 16
+    },
+    {
+      "callback": "4E9300",
+      "clock": 2292,
+      "private_owner": "Fire(4652)",
+      "serial": 18
+    },
+    {
+      "callback": "47B750",
+      "clock": 151704,
+      "private_owner": "Zero",
+      "serial": 17
+    }
+  ],
+  "old_binding_not_minted_new_live_authority": true,
+  "old_callback_and_frame_rejected_by_new_private_arc": true,
+  "old_private_incarnation": 4651,
+  "opaque_epoch_hex": "8000000000000001",
+  "order": [
+    "OLD_ACTOR_DRAW_UNLINK",
+    "RESOURCE_TRANSITION",
+    "ACTOR_DESTRUCTORS_QUEUE_FREE_TABLE_UNCHANGED",
+    "REGISTRY_AND_GLOBAL_POINTERS_CLEAR",
+    "SPECIAL482F50_CANCEL",
+    "QUERY47B720",
+    "CALLBACK_WHITELIST_FILTER",
+    "GLOBAL_CALLBACK_REBUILD",
+    "NEW_SOURCE_REGISTRY_INSERT_LOCAL_POINTER",
+    "NEW_SOURCE_CAMERA_ROOF_BASE46_FRAME0"
+  ],
+  "other_native_registry_objects_unqualified": true,
+  "rebuilt": [
+    {
+      "callback": "47B720",
+      "clock": 2152,
+      "private_owner": "Zero",
+      "serial": 16
+    },
+    {
+      "callback": "47B750",
+      "clock": 151704,
+      "private_owner": "Zero",
+      "serial": 17
+    }
+  ],
+  "reload_clock": 1700,
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "clock": 1000,
+      "fire": null,
+      "kind": "SOURCE_CONDITIONAL_4E2150_START",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "411eaf9a9796dcfb20200cdd1278ceabbd14e7f3eb19eb22826a6ac2451d0f4f",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": null,
+      "clock": 1084,
+      "fire": 1,
+      "kind": "FireFirst",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "56da8c28ffcc20138760c2babe457ec8b81218a9c7bd12672027c59dc2d52d0b",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "clock": 1166,
+      "fire": 1,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "95713218499f8a00d2c0b255aefa37831e8dea1b5478d2c28d9c23ba6dc139db",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": null,
+      "clock": 1169,
+      "fire": 2,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "f437a04888bbd2ed221a24cf1ff0835c06161b90be327eff907aa9d1f32493d5",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": null,
+      "clock": 1254,
+      "fire": 3,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "bae46aa1ccdd13afd7688c2c9b9ea4e18422b5748f66974f20e5f958a7918371",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "clock": 1332,
+      "fire": 3,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "57374bd671435d5f9f7e68ca422358eaa802036931ec822ce5a111b4291e171a",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": null,
+      "clock": 1339,
+      "fire": 4,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "bbc936820fffcc61a4de64c7720621408abd035567c350ea2347f9b49ab85d31",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": null,
+      "clock": 1424,
+      "fire": 5,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "0b03141e5e882c118ab1bd5e453c254ee25f6985761382a3ff003ae52835670e",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "clock": 1498,
+      "fire": 5,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "aea18792c702e7509d2ef64bc8a70064fef41c9438b82a2b4a9acd6d09e57692",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1509,
+      "fire": 6,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "5552772b09d15ca779b0662fb7461819ee7808e91c64051ae721c933d4980141",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1548,
+      "fire": 6,
+      "kind": "Roof(1)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "1e4d04baef0ad290213ebf0274e11a1ca855a0f8a2c45f37bf4dfbd4129c37d2",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1548,
+      "fire": 6,
+      "kind": "Roof(2)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "e0f653cfa98c2759e3d90b5fa49fdf49b78fd37c1d1387170a4db03824f2e107",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1594,
+      "fire": 7,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "ebfa360e30e882f3da697b678252cdf9b708397f85df2ed88f8a96cad16b2af7",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1598,
+      "fire": 7,
+      "kind": "Roof(3)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "f1af1d033f33cf4f8ac1bdf671cbd00deb8456d742d2837059ddc6a752df5d27",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1598,
+      "fire": 7,
+      "kind": "Roof(4)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6d60d8f72b4e0061a4f84c26490cec5dd11d5b0d87a5b35aff6ae7ad7d7b1e5a",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1648,
+      "fire": 7,
+      "kind": "Roof(5)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1648,
+      "fire": 7,
+      "kind": "Roof(6)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "1ee684da37a48f7db521faa1e7a0eddd1aa40badbf5e815aee25a5f084a1f885",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "clock": 1664,
+      "fire": 7,
+      "kind": "SOURCE_CONDITIONAL_QueuedActionPop",
+      "player": [
+        92,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6fc34efb5e3edc2c12621ab04cd0942ca72dac4508d621a1c8f3cb8103c203b8",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1679,
+      "fire": 8,
+      "kind": "FireAdvance",
+      "player": [
+        92,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "1cf22c4afc5b220f3c01c81c64b3a1b6496452cad48e075c98e46d5266cf522d",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1698,
+      "fire": 8,
+      "kind": "Roof(7)",
+      "player": [
+        92,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "cf2c1c6c9725680ef628fd6f0547dad262d55dffccb08ab82592ddeccbe2a484",
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "cell": null,
+      "clock": 1698,
+      "fire": 8,
+      "kind": "Roof(8)",
+      "player": [
+        92,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "ea2f6a84ba32e71a871641597aa7a5c61be7847df2be4a90f1ec162ebd723c2f",
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "cell": null,
+      "clock": 1708,
+      "fire": null,
+      "kind": "SOURCE_CONDITIONAL_RELOAD_NEW_REGISTRY_BASE46_FRAME0",
+      "player": [
+        74,
+        0
+      ]
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "same_opaque_NAB_binding_source": 7,
+  "saved47b720_due": 2150,
+  "source_expired_saved_preview_due1702": true,
+  "source_zero_saved_preview_due61700": true,
+  "special_removed": [
+    {
+      "callback": "482F50",
+      "clock": 1990,
+      "private_owner": "Zero",
+      "serial": 12
+    }
+  ],
+  "state": "SOURCE_48BC80_DESTRUCTOR_WHITELIST_GLOBAL_REBUILD_NEW_PRIVATE_REGISTRY_FRAME0",
+  "whitelist_kept": [
+    {
+      "callback": "47CEC0",
+      "clock": 1900,
+      "private_owner": "Zero",
+      "serial": 3
+    },
+    {
+      "callback": "47CE50",
+      "clock": 1901,
+      "private_owner": "Zero",
+      "serial": 4
+    },
+    {
+      "callback": "47CDF0",
+      "clock": 1902,
+      "private_owner": "Zero",
+      "serial": 5
+    },
+    {
+      "callback": "4159B0",
+      "clock": 1903,
+      "private_owner": "Zero",
+      "serial": 6
+    },
+    {
+      "callback": "4C32A0",
+      "clock": 1904,
+      "private_owner": "Actor(4651)",
+      "serial": 7
+    },
+    {
+      "callback": "48D700",
+      "clock": 1905,
+      "private_owner": "Zero",
+      "serial": 8
+    },
+    {
+      "callback": "4878C0",
+      "clock": 1906,
+      "private_owner": "Zero",
+      "serial": 9
+    },
+    {
+      "callback": "4875A0",
+      "clock": 1907,
+      "private_owner": "Zero",
+      "serial": 10
+    },
+    {
+      "callback": "4876E0",
+      "clock": 1908,
+      "private_owner": "Zero",
+      "serial": 11
+    }
+  ],
+  "whitelisted_old_actor_record_kept_not_new_scene_submission": true
+}

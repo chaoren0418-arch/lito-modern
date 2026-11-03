@@ -1,0 +1,3073 @@
+{
+  "state": "R482_CROSS_MODE_NINE_MAPS_AND_TWO_WHOLE_CITY_MEASUREMENTS",
+  "batch": [
+    {
+      "mode": 1,
+      "map_id": 534,
+      "name": "Lodun City (Death)",
+      "shape": "source-exact-16sector",
+      "measurement_only": true,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7ffe7fff.s32",
+            "bytes": 109148,
+            "sha256": "AC84DB3783FA1B25358198C71D589245E314BC8E834A42E6B33BA330DEB8A618"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7ffe8000.s32",
+            "bytes": 155424,
+            "sha256": "3E4BEC3875F702B51929F1110C29828223437962C80A19209199DAA6080368D0"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7ffe8001.s32",
+            "bytes": 148169,
+            "sha256": "99D6D5545B4BDB8781D379D1663333C010BB7F48AB3117B2467E75EFD296D08D"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7ffe8002.s32",
+            "bytes": 101496,
+            "sha256": "AE8E851F1B6AEE31057AFC40EC0AC23CEB5D1CF14724A8AEE95A3250130DA9E1"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7fff7fff.s32",
+            "bytes": 131866,
+            "sha256": "05C940ACEAFD30969545E18ABE317EC56696757F1CD0A03F6993EDD011EB627B"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7fff8000.s32",
+            "bytes": 188697,
+            "sha256": "E9C27D71199F06690DEBA601D77B5C3BFCB324B3AADC7E15E049E640A3AB4A87"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7fff8001.s32",
+            "bytes": 193623,
+            "sha256": "4C284795D39439A454D7FEDFB8738D32D2027056949104F9226CAF28972DF98C"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\7fff8002.s32",
+            "bytes": 120864,
+            "sha256": "C19A47155D6D4E42F7B2B4D82C21AA3740F8E1B9F2382E5FECD436908EBDCEFA"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80007fff.s32",
+            "bytes": 134266,
+            "sha256": "0415C65955783161D03F8F1194A47A109071D5A93B4284437D1E3B4C28FAD996"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80008000.s32",
+            "bytes": 191747,
+            "sha256": "D731A274923AE27F0782C4FDBD9A8E4FF1314DF1F093BF4B2C43706BA8B90303"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80008001.s32",
+            "bytes": 214412,
+            "sha256": "6EC276177C4886E87AA97E681C8153E8BB1387FE419AA973A507C67C4CB2FF87"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80008002.s32",
+            "bytes": 113627,
+            "sha256": "542A94A0704AC0FEA434EE2BCD6B09E00772F1C1E85FFF834CA8984D9E2BC3CA"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80017fff.s32",
+            "bytes": 109086,
+            "sha256": "0893B985BF34504E0177481FAB33D9208EE77CA3FC03CA1AC5D0766457087868"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80018000.s32",
+            "bytes": 129275,
+            "sha256": "7AB78EB7CAAE40567BC2C2CD109FC0AAC7B2E45F4E8F3A53E05B684ECF98094C"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80018001.s32",
+            "bytes": 124891,
+            "sha256": "D782CAA3CD9557DA5EA52AE10905FAA9C6273B4920FDF1A1D41C91452623142D"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\534\\80018002.s32",
+            "bytes": 99232,
+            "sha256": "69563EA46F9558A230FA89F9817EED4BCBE034DF4C312D76FEDBFABBA3E6976B"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7ffe7fff.s32",
+            "bytes": 109148,
+            "sha256": "AC84DB3783FA1B25358198C71D589245E314BC8E834A42E6B33BA330DEB8A618"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7ffe8000.s32",
+            "bytes": 155424,
+            "sha256": "3E4BEC3875F702B51929F1110C29828223437962C80A19209199DAA6080368D0"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7ffe8001.s32",
+            "bytes": 148169,
+            "sha256": "99D6D5545B4BDB8781D379D1663333C010BB7F48AB3117B2467E75EFD296D08D"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32766,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7ffe8002.s32",
+            "bytes": 101496,
+            "sha256": "AE8E851F1B6AEE31057AFC40EC0AC23CEB5D1CF14724A8AEE95A3250130DA9E1"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7fff7fff.s32",
+            "bytes": 131866,
+            "sha256": "05C940ACEAFD30969545E18ABE317EC56696757F1CD0A03F6993EDD011EB627B"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7fff8000.s32",
+            "bytes": 188697,
+            "sha256": "E9C27D71199F06690DEBA601D77B5C3BFCB324B3AADC7E15E049E640A3AB4A87"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7fff8001.s32",
+            "bytes": 193623,
+            "sha256": "4C284795D39439A454D7FEDFB8738D32D2027056949104F9226CAF28972DF98C"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32767,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\7fff8002.s32",
+            "bytes": 120864,
+            "sha256": "C19A47155D6D4E42F7B2B4D82C21AA3740F8E1B9F2382E5FECD436908EBDCEFA"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80007fff.s32",
+            "bytes": 134266,
+            "sha256": "0415C65955783161D03F8F1194A47A109071D5A93B4284437D1E3B4C28FAD996"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80008000.s32",
+            "bytes": 191747,
+            "sha256": "D731A274923AE27F0782C4FDBD9A8E4FF1314DF1F093BF4B2C43706BA8B90303"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80008001.s32",
+            "bytes": 214412,
+            "sha256": "6EC276177C4886E87AA97E681C8153E8BB1387FE419AA973A507C67C4CB2FF87"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32768,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80008002.s32",
+            "bytes": 113627,
+            "sha256": "542A94A0704AC0FEA434EE2BCD6B09E00772F1C1E85FFF834CA8984D9E2BC3CA"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80017fff.s32",
+            "bytes": 109086,
+            "sha256": "0893B985BF34504E0177481FAB33D9208EE77CA3FC03CA1AC5D0766457087868"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80018000.s32",
+            "bytes": 129275,
+            "sha256": "7AB78EB7CAAE40567BC2C2CD109FC0AAC7B2E45F4E8F3A53E05B684ECF98094C"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80018001.s32",
+            "bytes": 124891,
+            "sha256": "D782CAA3CD9557DA5EA52AE10905FAA9C6273B4920FDF1A1D41C91452623142D"
+          }
+        },
+        {
+          "map_id": 534,
+          "x": 32769,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534\\80018002.s32",
+            "bytes": 99232,
+            "sha256": "69563EA46F9558A230FA89F9817EED4BCBE034DF4C312D76FEDBFABBA3E6976B"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\534",
+      "catalog_record": {
+        "mode": 1,
+        "map_id": 534,
+        "name": "Lodun City (Death)",
+        "source_row": 22,
+        "raw_line": "534#deathmatch#Lodun City (Death)#minimap#xseg2#yseg2#xPos32831#yPos32768"
+      },
+      "expected_bounds": [
+        0,
+        -2304,
+        12288,
+        3840
+      ],
+      "anchor": [
+        32766,
+        32767
+      ],
+      "source_bytes": 2265823
+    },
+    {
+      "mode": 5,
+      "map_id": 535,
+      "name": "Lodun City (Honor)",
+      "shape": "source-exact-25sector",
+      "measurement_only": true,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffd8000.s32",
+            "bytes": 109796,
+            "sha256": "8318E701EB881DCC33F6636892E4EEC8ECE5F18480690621A81D350F8C8F93BB"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffd8001.s32",
+            "bytes": 146355,
+            "sha256": "FCFE1003FED2BF54B9FF101C6724C3DF5B7A1BA2A38D9F2449A63A5197358CF0"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffd8002.s32",
+            "bytes": 141292,
+            "sha256": "2F7B5FF8E1FC597A28C27400A54DC1EBAF83A6589344AF805FDE30A6E9DEA722"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffd8003.s32",
+            "bytes": 148009,
+            "sha256": "6842C4E0668A4A295FDDE3A2E9097A5ABF1EC75A84711594CCBDCA6B4C1FA2EC"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffd8004.s32",
+            "bytes": 98330,
+            "sha256": "17FD6B37DFE72E7EE889378C85AE4A676314B39F329B5F0CD65953C4F06A886A"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffe8000.s32",
+            "bytes": 127313,
+            "sha256": "929B68B3119D278B7A18FCD18F5F61A63F19C95BA44C421E8F81E5F46CD7425B"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffe8001.s32",
+            "bytes": 211409,
+            "sha256": "688B2B7A979683DE295C73112D21FB9EAD0ED0818383512B66519026EA02DF68"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffe8002.s32",
+            "bytes": 181669,
+            "sha256": "08DAE3FEAE97B355E5F1FF22EFC3765C1A6BF6C076C8D58B114DB2C63038ABC5"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffe8003.s32",
+            "bytes": 206293,
+            "sha256": "A232A6D2539FFF3BF9C430EC679CFC13CB9A5A9C4F816A828B45A48A97F27652"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7ffe8004.s32",
+            "bytes": 106561,
+            "sha256": "DE3D4D31AD87DA8B64623796ACEA57A56118C79426B344A24FE446EE6293D926"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7fff8000.s32",
+            "bytes": 119746,
+            "sha256": "535D5A8041D727E42ED473A228E82233747DA78FE31A967BF19A00DA9C7D3973"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7fff8001.s32",
+            "bytes": 190721,
+            "sha256": "F0160A1596481D41E633AA39053387B976B252B794B96684FE71C181F2621647"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7fff8002.s32",
+            "bytes": 123155,
+            "sha256": "BDF46CCC51260C04C656F9EE2519FB014C5338EB45A774CCB5F366D546C14B70"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7fff8003.s32",
+            "bytes": 200736,
+            "sha256": "EF2840B389AB76808EAED464B64FC3E6A35D843BDECD2986C96EBCD55134AF1C"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\7fff8004.s32",
+            "bytes": 105269,
+            "sha256": "77A0869287D10443EE1E4689B3EDCC7313ABBD4842AC4AE9EF8DB97337B035DD"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80008000.s32",
+            "bytes": 124645,
+            "sha256": "6C082B0066ACF1F6C3CB36CE147F89F3194E13AF25BE47087C6687ABD7333D7F"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80008001.s32",
+            "bytes": 215406,
+            "sha256": "23C641F0AB4A4E334C85DE2BE3EB7EAD8F03F67F712521B6D044EE9543D0C114"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80008002.s32",
+            "bytes": 177383,
+            "sha256": "0C3FE74D9115E98D45894915B9801C78BE763F7C1ED810BA4E17678E18D59E84"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80008003.s32",
+            "bytes": 214793,
+            "sha256": "AE6A71DD70F20191FBE7524383D3AF280B0FC55B78FFCA15C99BCDF9F512A13B"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80008004.s32",
+            "bytes": 102526,
+            "sha256": "077FC6811489764E9C0DA98F61F7C0D713DD684B069B6BAA877183BBE704A49D"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80018000.s32",
+            "bytes": 99992,
+            "sha256": "5AA5515D8FF2E0C6FD32F3CB7DA6C170525C351BA40BA231BFA8AB00F0077481"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80018001.s32",
+            "bytes": 135494,
+            "sha256": "5D2705792925AC496E2CBF4DEA15C7852452C81BEBC584811DD8CFB583F59C8E"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80018002.s32",
+            "bytes": 140004,
+            "sha256": "05C849AC42D1ECF035E0738314A383CE233CEB937549A5AB5D5FD9D6F21ADC40"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80018003.s32",
+            "bytes": 130870,
+            "sha256": "A23C8961EEABA65F4C2C177AA502E57582918520555AD890D447B9D2BF274079"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\535\\80018004.s32",
+            "bytes": 98330,
+            "sha256": "17FD6B37DFE72E7EE889378C85AE4A676314B39F329B5F0CD65953C4F06A886A"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffd8000.s32",
+            "bytes": 109796,
+            "sha256": "8318E701EB881DCC33F6636892E4EEC8ECE5F18480690621A81D350F8C8F93BB"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffd8001.s32",
+            "bytes": 146355,
+            "sha256": "FCFE1003FED2BF54B9FF101C6724C3DF5B7A1BA2A38D9F2449A63A5197358CF0"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffd8002.s32",
+            "bytes": 141292,
+            "sha256": "2F7B5FF8E1FC597A28C27400A54DC1EBAF83A6589344AF805FDE30A6E9DEA722"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffd8003.s32",
+            "bytes": 148009,
+            "sha256": "6842C4E0668A4A295FDDE3A2E9097A5ABF1EC75A84711594CCBDCA6B4C1FA2EC"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32765,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffd8004.s32",
+            "bytes": 98330,
+            "sha256": "17FD6B37DFE72E7EE889378C85AE4A676314B39F329B5F0CD65953C4F06A886A"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffe8000.s32",
+            "bytes": 127313,
+            "sha256": "929B68B3119D278B7A18FCD18F5F61A63F19C95BA44C421E8F81E5F46CD7425B"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffe8001.s32",
+            "bytes": 211409,
+            "sha256": "688B2B7A979683DE295C73112D21FB9EAD0ED0818383512B66519026EA02DF68"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffe8002.s32",
+            "bytes": 181669,
+            "sha256": "08DAE3FEAE97B355E5F1FF22EFC3765C1A6BF6C076C8D58B114DB2C63038ABC5"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffe8003.s32",
+            "bytes": 206293,
+            "sha256": "A232A6D2539FFF3BF9C430EC679CFC13CB9A5A9C4F816A828B45A48A97F27652"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32766,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7ffe8004.s32",
+            "bytes": 106561,
+            "sha256": "DE3D4D31AD87DA8B64623796ACEA57A56118C79426B344A24FE446EE6293D926"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7fff8000.s32",
+            "bytes": 119746,
+            "sha256": "535D5A8041D727E42ED473A228E82233747DA78FE31A967BF19A00DA9C7D3973"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7fff8001.s32",
+            "bytes": 190721,
+            "sha256": "F0160A1596481D41E633AA39053387B976B252B794B96684FE71C181F2621647"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7fff8002.s32",
+            "bytes": 123155,
+            "sha256": "BDF46CCC51260C04C656F9EE2519FB014C5338EB45A774CCB5F366D546C14B70"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7fff8003.s32",
+            "bytes": 200736,
+            "sha256": "EF2840B389AB76808EAED464B64FC3E6A35D843BDECD2986C96EBCD55134AF1C"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32767,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\7fff8004.s32",
+            "bytes": 105269,
+            "sha256": "77A0869287D10443EE1E4689B3EDCC7313ABBD4842AC4AE9EF8DB97337B035DD"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80008000.s32",
+            "bytes": 124645,
+            "sha256": "6C082B0066ACF1F6C3CB36CE147F89F3194E13AF25BE47087C6687ABD7333D7F"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80008001.s32",
+            "bytes": 215406,
+            "sha256": "23C641F0AB4A4E334C85DE2BE3EB7EAD8F03F67F712521B6D044EE9543D0C114"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80008002.s32",
+            "bytes": 177383,
+            "sha256": "0C3FE74D9115E98D45894915B9801C78BE763F7C1ED810BA4E17678E18D59E84"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80008003.s32",
+            "bytes": 214793,
+            "sha256": "AE6A71DD70F20191FBE7524383D3AF280B0FC55B78FFCA15C99BCDF9F512A13B"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32768,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80008004.s32",
+            "bytes": 102526,
+            "sha256": "077FC6811489764E9C0DA98F61F7C0D713DD684B069B6BAA877183BBE704A49D"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80018000.s32",
+            "bytes": 99992,
+            "sha256": "5AA5515D8FF2E0C6FD32F3CB7DA6C170525C351BA40BA231BFA8AB00F0077481"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80018001.s32",
+            "bytes": 135494,
+            "sha256": "5D2705792925AC496E2CBF4DEA15C7852452C81BEBC584811DD8CFB583F59C8E"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32770,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80018002.s32",
+            "bytes": 140004,
+            "sha256": "05C849AC42D1ECF035E0738314A383CE233CEB937549A5AB5D5FD9D6F21ADC40"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32771,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80018003.s32",
+            "bytes": 130870,
+            "sha256": "A23C8961EEABA65F4C2C177AA502E57582918520555AD890D447B9D2BF274079"
+          }
+        },
+        {
+          "map_id": 535,
+          "x": 32769,
+          "y": 32772,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535\\80018004.s32",
+            "bytes": 98330,
+            "sha256": "17FD6B37DFE72E7EE889378C85AE4A676314B39F329B5F0CD65953C4F06A886A"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\535",
+      "catalog_record": {
+        "mode": 5,
+        "map_id": 535,
+        "name": "Lodun City (Honor)",
+        "source_row": 38,
+        "raw_line": "535#honormatch#Lodun City (Honor)#minimap#xseg3#yseg3#xPos32831#yPos32832"
+      },
+      "expected_bounds": [
+        0,
+        -3072,
+        15360,
+        4608
+      ],
+      "anchor": [
+        32765,
+        32768
+      ],
+      "source_bytes": 3656097
+    },
+    {
+      "mode": 0,
+      "map_id": 565,
+      "name": "Racing City",
+      "shape": "source-exact-4sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 565,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\565\\7fff8000.s32",
+            "bytes": 153601,
+            "sha256": "D9795467F61BEA5071EFA8FE286CFE519BC48F4B871806D68C13C3FC70E96D29"
+          }
+        },
+        {
+          "map_id": 565,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\565\\7fff8001.s32",
+            "bytes": 140044,
+            "sha256": "5892F291ED06197E561CA7481128F74C9435D752292C52DF428E7A8908C25392"
+          }
+        },
+        {
+          "map_id": 565,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\565\\80008000.s32",
+            "bytes": 140200,
+            "sha256": "3479226819B9C87E1DF9B1456808FB27059BE6A4CEFB138DEE2EA27F8764AABC"
+          }
+        },
+        {
+          "map_id": 565,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\565\\80008001.s32",
+            "bytes": 121212,
+            "sha256": "40D53FC21474186D666CA753A10FD02524646B36779618C182FD10B491C596B3"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 565,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\565\\7fff8000.s32",
+            "bytes": 153601,
+            "sha256": "D9795467F61BEA5071EFA8FE286CFE519BC48F4B871806D68C13C3FC70E96D29"
+          }
+        },
+        {
+          "map_id": 565,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\565\\7fff8001.s32",
+            "bytes": 140044,
+            "sha256": "5892F291ED06197E561CA7481128F74C9435D752292C52DF428E7A8908C25392"
+          }
+        },
+        {
+          "map_id": 565,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\565\\80008000.s32",
+            "bytes": 140200,
+            "sha256": "3479226819B9C87E1DF9B1456808FB27059BE6A4CEFB138DEE2EA27F8764AABC"
+          }
+        },
+        {
+          "map_id": 565,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\565\\80008001.s32",
+            "bytes": 121212,
+            "sha256": "40D53FC21474186D666CA753A10FD02524646B36779618C182FD10B491C596B3"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\565",
+      "catalog_record": {
+        "mode": 0,
+        "map_id": 565,
+        "name": "Racing City",
+        "source_row": 4,
+        "raw_line": "565#petRace#Racing City"
+      },
+      "expected_bounds": [
+        0,
+        -768,
+        6144,
+        2304
+      ],
+      "anchor": [
+        32767,
+        32768
+      ],
+      "source_bytes": 555057
+    },
+    {
+      "mode": 0,
+      "map_id": 569,
+      "name": "Racing City (R)",
+      "shape": "source-exact-4sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 569,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\569\\7fff8000.s32",
+            "bytes": 161557,
+            "sha256": "348CE5EB4178152D8ABF6E576136091BE16A4BA0B032963FE3A6921E3D4D4390"
+          }
+        },
+        {
+          "map_id": 569,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\569\\7fff8001.s32",
+            "bytes": 171116,
+            "sha256": "DE904F74AB5775A9BB994B1140C6F129441754AB642617B20414E463F889678D"
+          }
+        },
+        {
+          "map_id": 569,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\569\\80008000.s32",
+            "bytes": 154252,
+            "sha256": "3C59A5106C43DB8F758126C5F2C9B2AF0CD880C182E43CFAA7B4FB90627EE045"
+          }
+        },
+        {
+          "map_id": 569,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\569\\80008001.s32",
+            "bytes": 151927,
+            "sha256": "D259C5BBE06C1FE5B2299A47436B74AAB868E9A0722D7F8BD3BF334DEDBC2B3A"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 569,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\569\\7fff8000.s32",
+            "bytes": 161557,
+            "sha256": "348CE5EB4178152D8ABF6E576136091BE16A4BA0B032963FE3A6921E3D4D4390"
+          }
+        },
+        {
+          "map_id": 569,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\569\\7fff8001.s32",
+            "bytes": 171116,
+            "sha256": "DE904F74AB5775A9BB994B1140C6F129441754AB642617B20414E463F889678D"
+          }
+        },
+        {
+          "map_id": 569,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\569\\80008000.s32",
+            "bytes": 154252,
+            "sha256": "3C59A5106C43DB8F758126C5F2C9B2AF0CD880C182E43CFAA7B4FB90627EE045"
+          }
+        },
+        {
+          "map_id": 569,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\569\\80008001.s32",
+            "bytes": 151927,
+            "sha256": "D259C5BBE06C1FE5B2299A47436B74AAB868E9A0722D7F8BD3BF334DEDBC2B3A"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\569",
+      "catalog_record": {
+        "mode": 0,
+        "map_id": 569,
+        "name": "Racing City (R)",
+        "source_row": 7,
+        "raw_line": "569#petRace#Racing City (R)"
+      },
+      "expected_bounds": [
+        0,
+        -768,
+        6144,
+        2304
+      ],
+      "anchor": [
+        32767,
+        32768
+      ],
+      "source_bytes": 638852
+    },
+    {
+      "mode": 2,
+      "map_id": 519,
+      "name": "Quest Race (Lv2)",
+      "shape": "source-exact-8sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\7fff7ffd.s32",
+            "bytes": 118368,
+            "sha256": "67A65A1E230713BB7C5373813E255D8B0D61E23D57BCB6AD7BDA089E7E431D44"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\7fff7ffe.s32",
+            "bytes": 145202,
+            "sha256": "AA4563EF30417FCF5312D41EE8B1D7F96BC00F270FE66CAF6AE18D9F87C994EB"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\7fff7fff.s32",
+            "bytes": 141436,
+            "sha256": "59DB340B217DB0170D955F4D676DFA0A301688A62F834D91D256E4E8BD60CFFC"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\7fff8000.s32",
+            "bytes": 132265,
+            "sha256": "4D6927715A9E77D38DF7D7158F8C2AF6DEFB56583F846AC37BCBFB50A0DE46D2"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\80007ffd.s32",
+            "bytes": 113523,
+            "sha256": "14CFE7415D109C422888FBA9C3BC3D233F73B37B3D9A6B6EAF9DB5AD0ACD6EF5"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\80007ffe.s32",
+            "bytes": 132448,
+            "sha256": "B7BB3D16A87FEECA81463D74793B7A34D01690C631D66B05CA6B5459D0FE1F5F"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\80007fff.s32",
+            "bytes": 136947,
+            "sha256": "B936FABF07A3BBE079576CB1A2AE96B8C53CF475A844EA358A5468F07869C51A"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\519\\80008000.s32",
+            "bytes": 123438,
+            "sha256": "24C6B41432DED5DCA81F45B657155D0C0A043BA348426E03EC95817A82EE382A"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\7fff7ffd.s32",
+            "bytes": 118368,
+            "sha256": "67A65A1E230713BB7C5373813E255D8B0D61E23D57BCB6AD7BDA089E7E431D44"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\7fff7ffe.s32",
+            "bytes": 145202,
+            "sha256": "AA4563EF30417FCF5312D41EE8B1D7F96BC00F270FE66CAF6AE18D9F87C994EB"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\7fff7fff.s32",
+            "bytes": 141436,
+            "sha256": "59DB340B217DB0170D955F4D676DFA0A301688A62F834D91D256E4E8BD60CFFC"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\7fff8000.s32",
+            "bytes": 132265,
+            "sha256": "4D6927715A9E77D38DF7D7158F8C2AF6DEFB56583F846AC37BCBFB50A0DE46D2"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\80007ffd.s32",
+            "bytes": 113523,
+            "sha256": "14CFE7415D109C422888FBA9C3BC3D233F73B37B3D9A6B6EAF9DB5AD0ACD6EF5"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\80007ffe.s32",
+            "bytes": 132448,
+            "sha256": "B7BB3D16A87FEECA81463D74793B7A34D01690C631D66B05CA6B5459D0FE1F5F"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\80007fff.s32",
+            "bytes": 136947,
+            "sha256": "B936FABF07A3BBE079576CB1A2AE96B8C53CF475A844EA358A5468F07869C51A"
+          }
+        },
+        {
+          "map_id": 519,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519\\80008000.s32",
+            "bytes": 123438,
+            "sha256": "24C6B41432DED5DCA81F45B657155D0C0A043BA348426E03EC95817A82EE382A"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\519",
+      "catalog_record": {
+        "mode": 2,
+        "map_id": 519,
+        "name": "Quest Race (Lv2)",
+        "source_row": 46,
+        "raw_line": "519#questbattle#Quest Race (Lv2)"
+      },
+      "expected_bounds": [
+        0,
+        -768,
+        9216,
+        3840
+      ],
+      "anchor": [
+        32767,
+        32765
+      ],
+      "source_bytes": 1043627
+    },
+    {
+      "mode": 2,
+      "map_id": 520,
+      "name": "Quest Race (Lv3)",
+      "shape": "source-exact-8sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\7fff7ffd.s32",
+            "bytes": 118368,
+            "sha256": "67A65A1E230713BB7C5373813E255D8B0D61E23D57BCB6AD7BDA089E7E431D44"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\7fff7ffe.s32",
+            "bytes": 145202,
+            "sha256": "AA4563EF30417FCF5312D41EE8B1D7F96BC00F270FE66CAF6AE18D9F87C994EB"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\7fff7fff.s32",
+            "bytes": 141436,
+            "sha256": "59DB340B217DB0170D955F4D676DFA0A301688A62F834D91D256E4E8BD60CFFC"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\7fff8000.s32",
+            "bytes": 132265,
+            "sha256": "4D6927715A9E77D38DF7D7158F8C2AF6DEFB56583F846AC37BCBFB50A0DE46D2"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\80007ffd.s32",
+            "bytes": 113523,
+            "sha256": "14CFE7415D109C422888FBA9C3BC3D233F73B37B3D9A6B6EAF9DB5AD0ACD6EF5"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\80007ffe.s32",
+            "bytes": 132448,
+            "sha256": "B7BB3D16A87FEECA81463D74793B7A34D01690C631D66B05CA6B5459D0FE1F5F"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\80007fff.s32",
+            "bytes": 136947,
+            "sha256": "B936FABF07A3BBE079576CB1A2AE96B8C53CF475A844EA358A5468F07869C51A"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\520\\80008000.s32",
+            "bytes": 123438,
+            "sha256": "24C6B41432DED5DCA81F45B657155D0C0A043BA348426E03EC95817A82EE382A"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\7fff7ffd.s32",
+            "bytes": 118368,
+            "sha256": "67A65A1E230713BB7C5373813E255D8B0D61E23D57BCB6AD7BDA089E7E431D44"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\7fff7ffe.s32",
+            "bytes": 145202,
+            "sha256": "AA4563EF30417FCF5312D41EE8B1D7F96BC00F270FE66CAF6AE18D9F87C994EB"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\7fff7fff.s32",
+            "bytes": 141436,
+            "sha256": "59DB340B217DB0170D955F4D676DFA0A301688A62F834D91D256E4E8BD60CFFC"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\7fff8000.s32",
+            "bytes": 132265,
+            "sha256": "4D6927715A9E77D38DF7D7158F8C2AF6DEFB56583F846AC37BCBFB50A0DE46D2"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\80007ffd.s32",
+            "bytes": 113523,
+            "sha256": "14CFE7415D109C422888FBA9C3BC3D233F73B37B3D9A6B6EAF9DB5AD0ACD6EF5"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\80007ffe.s32",
+            "bytes": 132448,
+            "sha256": "B7BB3D16A87FEECA81463D74793B7A34D01690C631D66B05CA6B5459D0FE1F5F"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\80007fff.s32",
+            "bytes": 136947,
+            "sha256": "B936FABF07A3BBE079576CB1A2AE96B8C53CF475A844EA358A5468F07869C51A"
+          }
+        },
+        {
+          "map_id": 520,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520\\80008000.s32",
+            "bytes": 123438,
+            "sha256": "24C6B41432DED5DCA81F45B657155D0C0A043BA348426E03EC95817A82EE382A"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\520",
+      "catalog_record": {
+        "mode": 2,
+        "map_id": 520,
+        "name": "Quest Race (Lv3)",
+        "source_row": 47,
+        "raw_line": "520#questbattle#Quest Race (Lv3)"
+      },
+      "expected_bounds": [
+        0,
+        -768,
+        9216,
+        3840
+      ],
+      "anchor": [
+        32767,
+        32765
+      ],
+      "source_bytes": 1043627
+    },
+    {
+      "mode": 2,
+      "map_id": 553,
+      "name": "Abyss",
+      "shape": "source-exact-15sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32764,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\7fff7ffc.s32",
+            "bytes": 49178,
+            "sha256": "143DF46789212495827ECB10D5B6FCD7984CBD23085C98EF4BE124C6C5FEA984"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\7fff7ffd.s32",
+            "bytes": 58605,
+            "sha256": "99C5C1C7EAE7220F764D64C2DE7BE58A1448992068D6FFCD2D3F2A7379A9DF45"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\7fff7ffe.s32",
+            "bytes": 75203,
+            "sha256": "13BCE9EFAFF53416BC655221C73DF5C0B6D47915913C9B1964CF01E0FE928CD5"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\7fff7fff.s32",
+            "bytes": 89485,
+            "sha256": "CC59265A1008AC48F4FB4C7AFE30CD46A0A5B5A4A86FC177682E8763675C74E1"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\7fff8000.s32",
+            "bytes": 61406,
+            "sha256": "192698AFE1B1DF0F874C55BB5E9D06FEDC8A055006ADBBCDFF86855DA03DA228"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32764,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80007ffc.s32",
+            "bytes": 57002,
+            "sha256": "888150A0119A10E659B3A8EF3F242A2EC5516CC92EDC9B4FD5D337F5C11DCE6A"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80007ffd.s32",
+            "bytes": 120639,
+            "sha256": "A2CF32829D2FF72848E22AE43EE6C1F839674D4D813ED6D7882D3E9F3745A516"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80007ffe.s32",
+            "bytes": 138988,
+            "sha256": "2646641AE03E4C1D41BABB1CED0FB90A942945BB5CBAB30EEE32C60B78387702"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80007fff.s32",
+            "bytes": 65036,
+            "sha256": "AFE2286DE98D0771C5A1EBF484EF028464F2DA1905BB90419BD4806D8CAB1FA8"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80008000.s32",
+            "bytes": 80908,
+            "sha256": "1A8FC1F5290DD11FDAA6281DB870979A909A60AAB86F976357EC5C28BA8C1DFE"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32764,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80017ffc.s32",
+            "bytes": 49178,
+            "sha256": "143DF46789212495827ECB10D5B6FCD7984CBD23085C98EF4BE124C6C5FEA984"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80017ffd.s32",
+            "bytes": 55408,
+            "sha256": "C3F1ADBC16458695DD53F8D99517C5E9BE7C27DB93F96F9C94610288728B2B2F"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80017ffe.s32",
+            "bytes": 70926,
+            "sha256": "5AC43AC2F2BE922A97F106D59F36988E70B7AD61E8266C3BE708C4997BBC3EBC"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80017fff.s32",
+            "bytes": 85136,
+            "sha256": "6F84CD9E7F2B02306B0EDC6B87D5DC7FDAEB4130368631BC8651CF72CABAF9B1"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\553\\80018000.s32",
+            "bytes": 58451,
+            "sha256": "F190AF945D8D06C3A6847CAD6330B3A4B1AF4B9F24FC731D19712771BF3006DE"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32764,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\7fff7ffc.s32",
+            "bytes": 49178,
+            "sha256": "143DF46789212495827ECB10D5B6FCD7984CBD23085C98EF4BE124C6C5FEA984"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\7fff7ffd.s32",
+            "bytes": 58605,
+            "sha256": "99C5C1C7EAE7220F764D64C2DE7BE58A1448992068D6FFCD2D3F2A7379A9DF45"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\7fff7ffe.s32",
+            "bytes": 75203,
+            "sha256": "13BCE9EFAFF53416BC655221C73DF5C0B6D47915913C9B1964CF01E0FE928CD5"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\7fff7fff.s32",
+            "bytes": 89485,
+            "sha256": "CC59265A1008AC48F4FB4C7AFE30CD46A0A5B5A4A86FC177682E8763675C74E1"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\7fff8000.s32",
+            "bytes": 61406,
+            "sha256": "192698AFE1B1DF0F874C55BB5E9D06FEDC8A055006ADBBCDFF86855DA03DA228"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32764,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80007ffc.s32",
+            "bytes": 57002,
+            "sha256": "888150A0119A10E659B3A8EF3F242A2EC5516CC92EDC9B4FD5D337F5C11DCE6A"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80007ffd.s32",
+            "bytes": 120639,
+            "sha256": "A2CF32829D2FF72848E22AE43EE6C1F839674D4D813ED6D7882D3E9F3745A516"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80007ffe.s32",
+            "bytes": 138988,
+            "sha256": "2646641AE03E4C1D41BABB1CED0FB90A942945BB5CBAB30EEE32C60B78387702"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80007fff.s32",
+            "bytes": 65036,
+            "sha256": "AFE2286DE98D0771C5A1EBF484EF028464F2DA1905BB90419BD4806D8CAB1FA8"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80008000.s32",
+            "bytes": 80908,
+            "sha256": "1A8FC1F5290DD11FDAA6281DB870979A909A60AAB86F976357EC5C28BA8C1DFE"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32764,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80017ffc.s32",
+            "bytes": 49178,
+            "sha256": "143DF46789212495827ECB10D5B6FCD7984CBD23085C98EF4BE124C6C5FEA984"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32765,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80017ffd.s32",
+            "bytes": 55408,
+            "sha256": "C3F1ADBC16458695DD53F8D99517C5E9BE7C27DB93F96F9C94610288728B2B2F"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80017ffe.s32",
+            "bytes": 70926,
+            "sha256": "5AC43AC2F2BE922A97F106D59F36988E70B7AD61E8266C3BE708C4997BBC3EBC"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80017fff.s32",
+            "bytes": 85136,
+            "sha256": "6F84CD9E7F2B02306B0EDC6B87D5DC7FDAEB4130368631BC8651CF72CABAF9B1"
+          }
+        },
+        {
+          "map_id": 553,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553\\80018000.s32",
+            "bytes": 58451,
+            "sha256": "F190AF945D8D06C3A6847CAD6330B3A4B1AF4B9F24FC731D19712771BF3006DE"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\553",
+      "catalog_record": {
+        "mode": 2,
+        "map_id": 553,
+        "name": "Abyss",
+        "source_row": 42,
+        "raw_line": "553#questbattle#Abyss"
+      },
+      "expected_bounds": [
+        0,
+        -1536,
+        12288,
+        4608
+      ],
+      "anchor": [
+        32767,
+        32764
+      ],
+      "source_bytes": 1115549
+    },
+    {
+      "mode": 3,
+      "map_id": 547,
+      "name": "Rainbird (R)",
+      "shape": "source-exact-12sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 547,
+          "x": 32765,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7ffd7fff.s32",
+            "bytes": 190927,
+            "sha256": "78F832233AD70A4FE3942C6609C7AAA11D75200E6F618006151B9A0EB5660532"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32765,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7ffd8000.s32",
+            "bytes": 182249,
+            "sha256": "D579D8D074523335CC24CBA28953A170AD363321141516947D57E161F08C282F"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32765,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7ffd8001.s32",
+            "bytes": 171196,
+            "sha256": "095A13D5AF4D39837DE979FCB6C19DCA9972FEDDC15D37095A561A1B70E5B8E9"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32766,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7ffe7fff.s32",
+            "bytes": 136691,
+            "sha256": "E09AE88EE02C12AE8E5339F92C7ED585A1B97E2876085EE8D0C4922FFD805593"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7ffe8000.s32",
+            "bytes": 92537,
+            "sha256": "5A8A90D05F1A1EC9ACB44FF0A8248B151A347DE2E8B3473BD5CC61193BE5B241"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7ffe8001.s32",
+            "bytes": 110307,
+            "sha256": "527D3A5C68E46E9C64EF15EC79572D458A40FE18FCB92A69BB63D177097C943A"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7fff7fff.s32",
+            "bytes": 100107,
+            "sha256": "8F449FD24E59D770C22FEAA526CB32A22907EB45BD4423D126F8F249E1E6A86E"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7fff8000.s32",
+            "bytes": 177918,
+            "sha256": "A57A400CC7E4F259737CCD1568FC97ACA7571ADBC5F545D762460EBC60E676A7"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\7fff8001.s32",
+            "bytes": 59826,
+            "sha256": "BEDFD29C4AC852EA178C56C38E5638BE00D16765938DE8BD252BC7BD82EC2A7D"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\80007fff.s32",
+            "bytes": 67518,
+            "sha256": "555874951793C02FA7557BBF20B7CCF0D3A25F3AC8E72F2D118FA8493B219928"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\80008000.s32",
+            "bytes": 97564,
+            "sha256": "DCF1A2988CA00EA68ADF8D0A22E99E27E68A561EFE4C36B6CA4F31FCFDDE4C14"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\547\\80008001.s32",
+            "bytes": 51002,
+            "sha256": "D0AC5BB537400F6BA18BA0736ACDDB636783F5FD4187D224282153F9249EF182"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 547,
+          "x": 32765,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7ffd7fff.s32",
+            "bytes": 190927,
+            "sha256": "78F832233AD70A4FE3942C6609C7AAA11D75200E6F618006151B9A0EB5660532"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32765,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7ffd8000.s32",
+            "bytes": 182249,
+            "sha256": "D579D8D074523335CC24CBA28953A170AD363321141516947D57E161F08C282F"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32765,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7ffd8001.s32",
+            "bytes": 171196,
+            "sha256": "095A13D5AF4D39837DE979FCB6C19DCA9972FEDDC15D37095A561A1B70E5B8E9"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32766,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7ffe7fff.s32",
+            "bytes": 136691,
+            "sha256": "E09AE88EE02C12AE8E5339F92C7ED585A1B97E2876085EE8D0C4922FFD805593"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7ffe8000.s32",
+            "bytes": 92537,
+            "sha256": "5A8A90D05F1A1EC9ACB44FF0A8248B151A347DE2E8B3473BD5CC61193BE5B241"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7ffe8001.s32",
+            "bytes": 110307,
+            "sha256": "527D3A5C68E46E9C64EF15EC79572D458A40FE18FCB92A69BB63D177097C943A"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7fff7fff.s32",
+            "bytes": 100107,
+            "sha256": "8F449FD24E59D770C22FEAA526CB32A22907EB45BD4423D126F8F249E1E6A86E"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7fff8000.s32",
+            "bytes": 177918,
+            "sha256": "A57A400CC7E4F259737CCD1568FC97ACA7571ADBC5F545D762460EBC60E676A7"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\7fff8001.s32",
+            "bytes": 59826,
+            "sha256": "BEDFD29C4AC852EA178C56C38E5638BE00D16765938DE8BD252BC7BD82EC2A7D"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\80007fff.s32",
+            "bytes": 67518,
+            "sha256": "555874951793C02FA7557BBF20B7CCF0D3A25F3AC8E72F2D118FA8493B219928"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\80008000.s32",
+            "bytes": 97564,
+            "sha256": "DCF1A2988CA00EA68ADF8D0A22E99E27E68A561EFE4C36B6CA4F31FCFDDE4C14"
+          }
+        },
+        {
+          "map_id": 547,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547\\80008001.s32",
+            "bytes": 51002,
+            "sha256": "D0AC5BB537400F6BA18BA0736ACDDB636783F5FD4187D224282153F9249EF182"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\547",
+      "catalog_record": {
+        "mode": 3,
+        "map_id": 547,
+        "name": "Rainbird (R)",
+        "source_row": 63,
+        "raw_line": "547#siegewar#Rainbird (R)#minimap#xseg3#yseg3#xPos32767#yPos32704"
+      },
+      "expected_bounds": [
+        0,
+        -2304,
+        10752,
+        3072
+      ],
+      "anchor": [
+        32765,
+        32767
+      ],
+      "source_bytes": 1437842
+    },
+    {
+      "mode": 4,
+      "map_id": 540,
+      "name": "Field of Hell (R)",
+      "shape": "source-exact-13sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 540,
+          "x": 32766,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\7ffe7fff.s32",
+            "bytes": 104940,
+            "sha256": "3A5415DB8ACD410D2608968E502815D52C47AC875F270F4A758FE11032F2644C"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\7ffe8000.s32",
+            "bytes": 114893,
+            "sha256": "750C910693446CF41AD039D7E83D777E5CCE08A8490FEFBBE20452F83EFF6824"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\7ffe8001.s32",
+            "bytes": 92938,
+            "sha256": "DF8FEF00D816C81A02F2DE34DEAFAD80496F9AAC88C98DA6C06D869731B2B04A"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\7fff7fff.s32",
+            "bytes": 118867,
+            "sha256": "37A0DA6E9D6DDF484A501DB5527D5E271F93A1458A0848F41D5BAE959EACA1DB"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\7fff8000.s32",
+            "bytes": 100020,
+            "sha256": "F967296DDEFDA849126D27497AD6C1078963CDE3EC9027CDEB4EC0FFB5E56D66"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\7fff8001.s32",
+            "bytes": 78775,
+            "sha256": "0CDC1BCB98539246F318A4D83449FCE7AFC3F3D378C9882E53B1CDFA97A6EA52"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\80007ffe.s32",
+            "bytes": 98330,
+            "sha256": "68D771E033B2BE6B621291F7BE48F8D982FE239EB37271CB41C14AEC8C9D6F8B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\80007fff.s32",
+            "bytes": 71455,
+            "sha256": "5AFF8117CD9A61F541E1498A2BCB5FBA4BDB4479C7D8A02653A23C843F1D1AD0"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\80008000.s32",
+            "bytes": 85351,
+            "sha256": "0F05205336D8A5E7F7F37700BE9BCFA4F95FD77099C0602F1E18B0D518187C9B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\80008001.s32",
+            "bytes": 54958,
+            "sha256": "4AD00F37707E63B14A7FF1D24F29DE35AA1CEA9C16D02B408BA395CEE23A0D6B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32769,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\80017ffe.s32",
+            "bytes": 98330,
+            "sha256": "68D771E033B2BE6B621291F7BE48F8D982FE239EB37271CB41C14AEC8C9D6F8B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\80017fff.s32",
+            "bytes": 98330,
+            "sha256": "68D771E033B2BE6B621291F7BE48F8D982FE239EB37271CB41C14AEC8C9D6F8B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\540\\80018000.s32",
+            "bytes": 98338,
+            "sha256": "9C1212D87D01406A02A3C81FEF0D457BE0AB7B93D922FDD4822EC807BDF16722"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 540,
+          "x": 32766,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\7ffe7fff.s32",
+            "bytes": 104940,
+            "sha256": "3A5415DB8ACD410D2608968E502815D52C47AC875F270F4A758FE11032F2644C"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32766,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\7ffe8000.s32",
+            "bytes": 114893,
+            "sha256": "750C910693446CF41AD039D7E83D777E5CCE08A8490FEFBBE20452F83EFF6824"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32766,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\7ffe8001.s32",
+            "bytes": 92938,
+            "sha256": "DF8FEF00D816C81A02F2DE34DEAFAD80496F9AAC88C98DA6C06D869731B2B04A"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\7fff7fff.s32",
+            "bytes": 118867,
+            "sha256": "37A0DA6E9D6DDF484A501DB5527D5E271F93A1458A0848F41D5BAE959EACA1DB"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\7fff8000.s32",
+            "bytes": 100020,
+            "sha256": "F967296DDEFDA849126D27497AD6C1078963CDE3EC9027CDEB4EC0FFB5E56D66"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\7fff8001.s32",
+            "bytes": 78775,
+            "sha256": "0CDC1BCB98539246F318A4D83449FCE7AFC3F3D378C9882E53B1CDFA97A6EA52"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\80007ffe.s32",
+            "bytes": 98330,
+            "sha256": "68D771E033B2BE6B621291F7BE48F8D982FE239EB37271CB41C14AEC8C9D6F8B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\80007fff.s32",
+            "bytes": 71455,
+            "sha256": "5AFF8117CD9A61F541E1498A2BCB5FBA4BDB4479C7D8A02653A23C843F1D1AD0"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\80008000.s32",
+            "bytes": 85351,
+            "sha256": "0F05205336D8A5E7F7F37700BE9BCFA4F95FD77099C0602F1E18B0D518187C9B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\80008001.s32",
+            "bytes": 54958,
+            "sha256": "4AD00F37707E63B14A7FF1D24F29DE35AA1CEA9C16D02B408BA395CEE23A0D6B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32769,
+          "y": 32766,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\80017ffe.s32",
+            "bytes": 98330,
+            "sha256": "68D771E033B2BE6B621291F7BE48F8D982FE239EB37271CB41C14AEC8C9D6F8B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\80017fff.s32",
+            "bytes": 98330,
+            "sha256": "68D771E033B2BE6B621291F7BE48F8D982FE239EB37271CB41C14AEC8C9D6F8B"
+          }
+        },
+        {
+          "map_id": 540,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540\\80018000.s32",
+            "bytes": 98338,
+            "sha256": "9C1212D87D01406A02A3C81FEF0D457BE0AB7B93D922FDD4822EC807BDF16722"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\540",
+      "catalog_record": {
+        "mode": 4,
+        "map_id": 540,
+        "name": "Field of Hell (R)",
+        "source_row": 53,
+        "raw_line": "540#timeattack#Field of Hell (R)"
+      },
+      "expected_bounds": [
+        0,
+        -3072,
+        9216,
+        3072
+      ],
+      "anchor": [
+        32766,
+        32767
+      ],
+      "source_bytes": 1215525
+    },
+    {
+      "mode": 5,
+      "map_id": 510,
+      "name": "The Glory",
+      "shape": "source-exact-9sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 510,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\7fff7fff.s32",
+            "bytes": 69652,
+            "sha256": "7F0217F1BC0CA4F02F7C3BFDF1DC6774361C539A83416F570BD20D032B63D27B"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\7fff8000.s32",
+            "bytes": 107007,
+            "sha256": "6676A96344E71E913C47619410ED5882DF0DAFDED13FB512E18B1B536F4C0E46"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\7fff8001.s32",
+            "bytes": 49174,
+            "sha256": "BFD5EA923323FE90593478F0397FA63D19CD90E86ABAC199F381DDC2E64D9095"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\80007fff.s32",
+            "bytes": 107068,
+            "sha256": "8AF3089B57B2176DC399F2B416F41DCAFD68C4D6791AAFC3EE18D84963CCA781"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\80008000.s32",
+            "bytes": 148188,
+            "sha256": "2D3A7EBE8E550B08811258BC943593E330EEA4BA9FD0D63649F89DB847776CD1"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\80008001.s32",
+            "bytes": 96510,
+            "sha256": "F1D45E3D2CD42A0C84B6BBA65360BDD4396FE6F0A0E51CF5C1EDCEAFA740C68A"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\80017fff.s32",
+            "bytes": 59526,
+            "sha256": "05535BD668F426AA10755F025BE126631C92F5979B87285FFD8E26CDD87A4216"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\80018000.s32",
+            "bytes": 87585,
+            "sha256": "3BCC960505F43A2289547C090DB734375D4D6E4AEB29C0C7317DB26C39755ED0"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32769,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\510\\80018001.s32",
+            "bytes": 49174,
+            "sha256": "CC2A60FB8922C24B75EE8B2C5A7B06643961170229BD1C25469075C7CDA0F3B4"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 510,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\7fff7fff.s32",
+            "bytes": 69652,
+            "sha256": "7F0217F1BC0CA4F02F7C3BFDF1DC6774361C539A83416F570BD20D032B63D27B"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\7fff8000.s32",
+            "bytes": 107007,
+            "sha256": "6676A96344E71E913C47619410ED5882DF0DAFDED13FB512E18B1B536F4C0E46"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\7fff8001.s32",
+            "bytes": 49174,
+            "sha256": "BFD5EA923323FE90593478F0397FA63D19CD90E86ABAC199F381DDC2E64D9095"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\80007fff.s32",
+            "bytes": 107068,
+            "sha256": "8AF3089B57B2176DC399F2B416F41DCAFD68C4D6791AAFC3EE18D84963CCA781"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\80008000.s32",
+            "bytes": 148188,
+            "sha256": "2D3A7EBE8E550B08811258BC943593E330EEA4BA9FD0D63649F89DB847776CD1"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32768,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\80008001.s32",
+            "bytes": 96510,
+            "sha256": "F1D45E3D2CD42A0C84B6BBA65360BDD4396FE6F0A0E51CF5C1EDCEAFA740C68A"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32769,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\80017fff.s32",
+            "bytes": 59526,
+            "sha256": "05535BD668F426AA10755F025BE126631C92F5979B87285FFD8E26CDD87A4216"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32769,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\80018000.s32",
+            "bytes": 87585,
+            "sha256": "3BCC960505F43A2289547C090DB734375D4D6E4AEB29C0C7317DB26C39755ED0"
+          }
+        },
+        {
+          "map_id": 510,
+          "x": 32769,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510\\80018001.s32",
+            "bytes": 49174,
+            "sha256": "CC2A60FB8922C24B75EE8B2C5A7B06643961170229BD1C25469075C7CDA0F3B4"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\510",
+      "catalog_record": {
+        "mode": 5,
+        "map_id": 510,
+        "name": "The Glory",
+        "source_row": 31,
+        "raw_line": "510#honormatch#The Glory#minimap#xseg1#yseg1#xPos32831#yPos32768"
+      },
+      "expected_bounds": [
+        0,
+        -1536,
+        9216,
+        3072
+      ],
+      "anchor": [
+        32767,
+        32767
+      ],
+      "source_bytes": 773884
+    },
+    {
+      "mode": 5,
+      "map_id": 528,
+      "name": "Enterance",
+      "shape": "source-exact-5sector",
+      "measurement_only": false,
+      "namespace": "NATIVE_LITO_LTMAP_V1",
+      "map_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map",
+      "archive_root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives",
+      "sectors": [
+        {
+          "map_id": 528,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\528\\7fff7fff.s32",
+            "bytes": 53436,
+            "sha256": "D66FA69165583708A2FFBB44415E60CC3E35B87FE9F94AE054E83E0FFAF3109B"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\528\\7fff8000.s32",
+            "bytes": 122138,
+            "sha256": "BF62326873D97C85432B1D1DE7681B8BB42AF88D8E6BEB7429D12D81FD50AD05"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\528\\7fff8001.s32",
+            "bytes": 50051,
+            "sha256": "7BB5892D483583E583EEEDCC82C7D7430C37DC2600364ED1AC4FB3D4BC26398C"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\528\\80007fff.s32",
+            "bytes": 49178,
+            "sha256": "F888D649628C4F547389B57FBFACAE284FDC13DD1BE84263513BED0332F97323"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r482-cross-mode-batch\\native-map\\528\\80008000.s32",
+            "bytes": 49618,
+            "sha256": "27E02A2420B03E20E2A3607CCD01E743F3F7C75FE2D0FDB8D4D4F3BB06B1F729"
+          }
+        }
+      ],
+      "archives": [
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+          "bytes": 33884,
+          "sha256": "EFD13705C355BAAE6E1C95C88E24FDCDB2948D17F8936167486F97C8C0DE330E"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTTILE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+          "bytes": 148485306,
+          "sha256": "6E80F46CA19D32BFA53FB360D2398755F4BBBA7383A6B4CAD811BCB79F910D22"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+          "bytes": 13136,
+          "sha256": "73536646591E04BFB62B55320E075F0C6D5F8DC17FE29BC012C7925EED670BD8"
+        },
+        {
+          "namespace": "NATIVE_LITO_LTSPRITE_V1",
+          "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+          "bytes": 63004112,
+          "sha256": "7029D561D8EF1420128D318E827BAE07D552E5316839CDDB362D9223F2FB3962"
+        }
+      ],
+      "original_sectors": [
+        {
+          "map_id": 528,
+          "x": 32767,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\528\\7fff7fff.s32",
+            "bytes": 53436,
+            "sha256": "D66FA69165583708A2FFBB44415E60CC3E35B87FE9F94AE054E83E0FFAF3109B"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32767,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\528\\7fff8000.s32",
+            "bytes": 122138,
+            "sha256": "BF62326873D97C85432B1D1DE7681B8BB42AF88D8E6BEB7429D12D81FD50AD05"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32767,
+          "y": 32769,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\528\\7fff8001.s32",
+            "bytes": 50051,
+            "sha256": "7BB5892D483583E583EEEDCC82C7D7430C37DC2600364ED1AC4FB3D4BC26398C"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32768,
+          "y": 32767,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\528\\80007fff.s32",
+            "bytes": 49178,
+            "sha256": "F888D649628C4F547389B57FBFACAE284FDC13DD1BE84263513BED0332F97323"
+          }
+        },
+        {
+          "map_id": 528,
+          "x": 32768,
+          "y": 32768,
+          "pin": {
+            "path": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\528\\80008000.s32",
+            "bytes": 49618,
+            "sha256": "27E02A2420B03E20E2A3607CCD01E743F3F7C75FE2D0FDB8D4D4F3BB06B1F729"
+          }
+        }
+      ],
+      "original_directory": "D:\\lineage開發\\0-客戶端\\LiTo\\LTmap\\528",
+      "catalog_record": {
+        "mode": 5,
+        "map_id": 528,
+        "name": "Enterance",
+        "source_row": 32,
+        "raw_line": "528#honormatch#Enterance#minimap#xseg1#yseg1#xPos32767#yPos32768"
+      },
+      "expected_bounds": [
+        0,
+        -768,
+        6144,
+        3072
+      ],
+      "anchor": [
+        32767,
+        32767
+      ],
+      "source_bytes": 324421
+    }
+  ],
+  "previous_inventory": {
+    "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\r479-resource-inventory-input.json",
+    "bytes": 304294,
+    "sha256": "4241A8A49EDCF26DE7361476740D71711CA97B98E75C59B590C46588A66A101A"
+  },
+  "previous_R481_handoff": {
+    "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\r481-six-complete-multisector-batch-handoff.json",
+    "bytes": 77135,
+    "sha256": "D812A428F1C7568AEFF891089A24B94D0C1F8A27F12D7483FBD940BCA275D4B7"
+  },
+  "source_identical_map_pair": [
+    519,
+    520
+  ],
+  "catalog_map_ids_unique_across_modes": true,
+  "wrong_mode_same_map_id_must_refuse": true,
+  "known_format_gaps": [
+    {
+      "map_id": 506,
+      "types": [
+        22,
+        23
+      ],
+      "members": [
+        "198.til",
+        "199.til"
+      ]
+    },
+    {
+      "map_id": 573,
+      "format": "Layer7"
+    },
+    {
+      "map_id": 563,
+      "format": "Layer7"
+    }
+  ],
+  "GUI": 0,
+  "LOADED": false
+}
