@@ -26,7 +26,7 @@
 
 本輪在 Linux 雲端工作環境實際執行。伺服器 clone 位於 `/home/user/lito-launcher-server`，HEAD 為 `2066774824b314b2c65834f9afe72b68f7391f06`。
 
-1. 產生與完整性檢查：只要有任何技能無法判定、skillId 與 row/column 不一致，或來源 HEAD 不符，腳本就以非零結束碼結束。
+1. 產生與完整性檢查：只要有任何技能無法判定，或 skillId 與 row/column 不一致，腳本就以非零結束碼結束。來源驗證（第 3 次嘗試修正）：四個檔案都從固定 commit `2066774` 的 git 物件讀到時，以該 commit 為準，checkout 的 HEAD 不影響結果；只有退回讀工作目錄時，才要求工作目錄 HEAD 等於固定 commit，否則 exit 2。
 
    ```
    $ python3 -I 維護工具/generate-spell-request-shapes.py /home/user/lito-launcher-server; echo "exit=$?"
@@ -70,7 +70,26 @@
    - TELEPORT：列出 `useTeleportSpell` 的行號。
    - 腳本只要有任何一列缺 handler 行號，就會列為 UNRESOLVED。
 2. **歷史證據逐文件標出版本**，並補上冰箭 6。
-3. **WORLD 改為逐技能比對**，見上方的驗收對照。另外，腳本改成優先用 `git show 2066774:<path>` 讀伺服器來源，所以伺服器 checkout 已經移到其他版本時，仍可以直接重現同一結果（審查者第一次重現時就遇到這個情況）。
+3. **WORLD 改為逐技能比對**，見上方的驗收對照。另外，腳本改成優先用 `git show 2066774:<path>` 讀伺服器來源。第 2 次嘗試時，結尾仍無條件比對 checkout HEAD，所以 checkout 不在 2066774 時一定會失敗（審查第 3 輪指出）。第 3 次嘗試已修正，實測見下節。
+
+### 第 3 次嘗試：checkout 不在固定 commit 時的重現實測
+
+在雲端工作環境，把伺服器 clone 切到 origin/main 的 `536154574e6c5d9abeb55e4c29365166f55207d1`（不是 2066774），然後執行：
+
+```
+$ git -C /home/user/lito-launcher-server checkout --detach FETCH_HEAD   # 5361545
+$ python3 -I 維護工具/generate-spell-request-shapes.py /home/user/lito-launcher-server; echo "exit=$?"
+source commit 2066774824b314b2c65834f9afe72b68f7391f06 (pinned git objects; checkout HEAD 536154574e6c5d9abeb55e4c29365166f55207d1); skills=181 unresolved=0 wrapper-not-in-catalog=[]
+shapes: ① 無尾段=70; ② d(clientTick)=1; ③ h(x) h(y)=2; ④ d(target)=35; ⑤ h(map) h(x) h(y)=1; ⑥ h(map) h(x) h(y)=1; ⑦ s(name)=1; ⑧ s(name)=1; ⑨ d(selection)=1; ⑩ d(target) h(x) h(y)=67; ⑪ d(target) h(x) h(y) s(text)=1
+source=git:2066774; mode check per skill: BATTLE／WORLD 不同 handler、逐筆比對形狀相同=54; wrapper（兩種模式都先經過外層）=21; 兩種模式共用同一 handler=106
+exit=0
+$ python3 -I 維護工具/generate-spell-request-shapes.py /home/user/lito-launcher-server --markdown | sha256sum   # 結束碼 0
+de8b8af800822703edf6a28aa52fd5d7cac115e83a09d93fa187e9615e4c9fa0  -
+```
+
+`--markdown` 的輸出共 181 列，與本分支 commit 的 §6.3 表格逐字相同（以字串包含比對確認）。測完已把 clone 切回 `2066774`。
+
+worktree fallback 分支沒有實測：沒有建立一個缺少 2066774 物件的 clone 來試。依程式碼，這種情況會印出 `WARN worktree fallback` 和每個檔案的來源，HEAD 不符時以 exit 2 結束。
 
 ### 順帶修訂（依 #13 結論）
 
@@ -92,4 +111,4 @@
 ## 給下一棒的提示
 
 - T004-2（#14）的 Rust 端可以直接依 §6.3 實作「技能 → 尾段形狀」查表。wrapper 那 21 個技能一定要送 11 bytes。
-- 伺服器版本更新時，重跑這支腳本和 `check-protocol-contract-citations.py`；HEAD 不符時兩支腳本都會失敗，先更新 `EXPECTED_HEAD` 再重產表格。
+- 伺服器版本更新時，把兩支腳本的 `EXPECTED_HEAD` 改成新的 commit，再重產表格、重跑核對。本腳本只要能取得固定 commit 物件，就不受 checkout 影響；`check-protocol-contract-citations.py` 讀的是工作目錄，仍要求 checkout 在固定 commit。

@@ -24,11 +24,14 @@ def source(name):
     if r.returncode == 0:
         return r.stdout.decode("utf-8"), f"git:{EXPECTED_HEAD[:7]}"
     return (root / SRV / name).read_text(encoding="utf-8"), "worktree"
-cs_text, SOURCE_MODE = source("ClientSession.java")
-cs_lines = cs_text.split("\n")
-cat = source("BattleSpellCatalog.java")[0]
-illusion = source("IllusionSkillRequests.java")[0]
-dragon = source("DragonSkillRequests.java")[0]
+FILES = ["ClientSession.java", "BattleSpellCatalog.java", "IllusionSkillRequests.java", "DragonSkillRequests.java"]
+loaded = {name: source(name) for name in FILES}
+MODES = {name: mode for name, (_, mode) in loaded.items()}
+cs_lines = loaded["ClientSession.java"][0].split("\n")
+cat = loaded["BattleSpellCatalog.java"][0]
+illusion = loaded["IllusionSkillRequests.java"][0]
+dragon = loaded["DragonSkillRequests.java"][0]
+SOURCE_MODE = ",".join(sorted(set(MODES.values())))
 
 SHAPE = {
     "selectorOnlySpellRequest": "① 無尾段", "selfSpellRequest": "② d(clientTick)",
@@ -193,17 +196,23 @@ rows.sort(key=lambda x: (x[0] is None, x[0] or 0))
 wrapper_missing = sorted(s for s in wrapper if s not in {x[0] for x in rows})
 
 head = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+# 來源驗證：四個檔案都從固定 commit 物件讀到時，以該 commit 為準（checkout 的 HEAD 不影響結果）；
+# 任何一個檔案退回讀工作目錄時，才要求工作目錄 HEAD 必須等於固定 commit。
+all_pinned = all(m.startswith("git:") for m in MODES.values())
+source_commit = EXPECTED_HEAD if all_pinned else head
 if markdown:
     print("| skillId | 常數 | row | col | 記錄類型 | 尾段形狀 | 判定依據 |\n|---:|---|---:|---:|---|---|---|")
     for x in rows:
         print("| %d | `%s` | %d | %d | %s | %s | %s |" % x)
 else:
     cnt = collections.Counter(x[5] for x in rows)
-    print(f"source HEAD {head}; skills={len(rows)} unresolved={len(unresolved)} wrapper-not-in-catalog={wrapper_missing}")
+    print(f"source commit {source_commit} ({'pinned git objects' if all_pinned else 'worktree'}; checkout HEAD {head}); skills={len(rows)} unresolved={len(unresolved)} wrapper-not-in-catalog={wrapper_missing}")
     print("shapes: " + "; ".join(f"{k}={v}" for k, v in sorted(cnt.items())))
     for u in unresolved:
         print("UNRESOLVED", u)
     print(f"source={SOURCE_MODE}; mode check per skill: " + "; ".join(f"{k}={v}" for k, v in sorted(mode.items())))
-if head != EXPECTED_HEAD:
-    print(f"FAIL source HEAD {head} != expected {EXPECTED_HEAD}", file=sys.stderr); sys.exit(2)
+if not all_pinned:
+    print("WARN worktree fallback: " + ", ".join(f"{n}={m}" for n, m in sorted(MODES.items())), file=sys.stderr)
+    if head != EXPECTED_HEAD:
+        print(f"FAIL worktree HEAD {head} != expected {EXPECTED_HEAD}", file=sys.stderr); sys.exit(2)
 sys.exit(1 if unresolved else 0)
