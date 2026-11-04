@@ -4,6 +4,10 @@ use super::{
         self as native_source_identity, fields::Fields, Record,
     },
     native_login::decode_text,
+    native_opcodes::{
+        C_LITO_SELECT_CHAR, C_LOGIN_RESULT, C_READ_NOTICE, S_LITO_CHARACTER_INFO, S_LITO_NEWS,
+        S_LITO_SELECT_CHAR_RESULT, S_NEWS, S_NOTICE, S_NUM_CHARACTER,
+    },
 };
 use anyhow::{ensure, Context, Result};
 use zeroize::Zeroizing;
@@ -31,17 +35,17 @@ pub fn parse(body: &[u8]) -> Result<Packet> {
             ensure!(body.len()==6&&matches!(body[1],0|3),"classic entry check envelope/domain");
             Packet::ClassicEntry(ClassicEntryCheck{accepted:body[1]==3,value:u32::from_le_bytes(body[2..6].try_into()?)})
         }
-        0x4b => {
+        S_NOTICE => {
             ensure!(body.len() == 3, "native notice envelope");
             let id = u16::from_le_bytes([body[1], body[2]]);
             ensure!(id <= 32767, "native notice id");
             Packet::Notice(id)
         }
-        0xe6 => {
+        S_LITO_NEWS => {
             ensure!(body.len() == 1, "native readiness envelope");
             Packet::Ready
         }
-        0x38 => {
+        S_NEWS => {
             ensure!(
                 (3..=257).contains(&body.len()) && body.last() == Some(&0),
                 "native common news envelope"
@@ -51,7 +55,7 @@ pub fn parse(body: &[u8]) -> Result<Packet> {
                 true,
             )?)
         }
-        3 | 0xcb => match native_source_identity::decode(body)? {
+        S_NUM_CHARACTER | S_LITO_CHARACTER_INFO => match native_source_identity::decode(body)? {
             native_source_identity::Packet::Start(n) => Packet::Count(n),
             native_source_identity::Packet::Record(row) => {
                 row.fields().validate_java_projection()?;
@@ -62,7 +66,7 @@ pub fn parse(body: &[u8]) -> Result<Packet> {
                 Packet::Row(row)
             }
         },
-        0xc8 => {
+        S_LITO_SELECT_CHAR_RESULT => {
             ensure!(
                 body.len() == 2 && [0, 1, 7, 8].contains(&body[1]),
                 "native character selection result"
@@ -126,7 +130,7 @@ impl Directory {
     pub fn select(&self, index: usize) -> Result<Zeroizing<Vec<u8>>> {
         ensure!(self.complete(), "character directory not ready");
         let row = self.rows.get(index).context("character selection index")?;
-        let mut body = Zeroizing::new(vec![0xc9]);
+        let mut body = Zeroizing::new(vec![C_LITO_SELECT_CHAR]);
         body.extend_from_slice(row.name());
         body.push(0);
         Ok(body)
@@ -140,8 +144,8 @@ pub struct Notice {
 impl Notice {
     pub fn acknowledgement(&self) -> Option<u8> {
         match self.message_id {
-            Some(438) => Some(0x61),
-            Some(_) => Some(0x46),
+            Some(438) => Some(C_LOGIN_RESULT),
+            Some(_) => Some(C_READ_NOTICE),
             // S_NEWS is an announcement. C_33 requests another copy; it is not an ACK.
             None => None,
         }

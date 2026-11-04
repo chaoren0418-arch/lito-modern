@@ -1,9 +1,7 @@
 //! Exact deployed Protocol.versionRequest / versionAccepted envelope.
 use anyhow::{ensure, Result};
 
-pub const C_VERSION: u8 = 0;
-pub const S_KEY: u8 = 1;
-pub const S_VERSION: u8 = 0x3a;
+pub use super::native_opcodes::{C_VERSION, S_KEY, S_VERSION_CHECK as S_VERSION};
 pub const VERSION_MAGIC: u16 = 0x8033;
 pub const VERSION_PRODUCT: u32 = 950;
 pub const VERSION_BUILD: u16 = 0x14f8;
