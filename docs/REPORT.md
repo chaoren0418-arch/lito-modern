@@ -27,3 +27,4 @@
 - 2026-11-05 — #21 T004-5: PROTOCOL-CONTRACT 補 S_LITO_GAME_INFO 0xD5（房間摘要子型別）（design，claude-chat，PR #28 已合併）→ [報告](reports/issue-21.md)
 - 2026-11-05 — #14 T004-2: T004-2: Rust 集中 opcode 常數表（native_opcodes.rs）（code，codex-local，PR #29 已合併）→ [報告](reports/issue-14.md)
 - 2026-11-05 — #32 主控：同步 TASKS.md 狀態（調度台進度圖的資料來源）（plan，claude-chat，PR #38 已合併）→ [報告](reports/issue-32.md)
+- 2026-11-05 — #33 T003-R: 裁定 44 檔隔離候選的併入策略（整包／分批／不套用）（design，claude-chat，PR #40 已合併）→ [報告](reports/issue-33.md)
