@@ -43,20 +43,17 @@
 ### 已驗證
 
 - 靜態對照契約 §2–§5 與 Issue #13 正式 JAR 核對表：39 個常數名稱與十六進位值一致。
-- 單元測試 `opcode_constants_match_protocol_contract_sections_2_to_5` 逐項 `assert_eq!` 契約值。Linux 無法建置完整 crate（依賴 `windows` crate），改以獨立編譯該模組：
-
-  ```bash
-  rustc --edition 2021 --crate-type lib --test native_opcodes.rs
-  ./opcode_tests
-  ```
-
-  實際輸出：`test tests::opcode_constants_match_protocol_contract_sections_2_to_5 ... ok`（1 passed）。
+- 單元測試 `opcode_constants_match_protocol_contract_sections_2_to_5` 逐項 `assert_eq!` 契約值；執行結果以以下 GitHub Actions 證據為準。
+- 本次審查修正：無法查證先前獨立 `rustc` 測試的實際工作目錄、來源路徑、輸出選項與執行指令，因此移除該段指令與「實際輸出／1 passed」宣稱，不以推定修正後的指令補寫歷史紀錄。
 - 靜態 diff 確認四個檔只換 opcode 常數、沒有改欄位解析或組包順序。
 - `native_opcodes.rs`、`native_version.rs` 通過 `rustfmt --edition 2021 --check`。
 - GitHub Actions [run 41889440513](https://github.com/chaoren0418-arch/lito-modern/actions/runs/41889440513)（程式碼 head `ee1b196`，windows-latest；其後若僅修訂本報告，以 PR 最新 Checks 為準）：
   - `cargo check --locked --all-targets`：success。
   - `cargo test --locked --lib --no-fail-fast`：success；**1889 passed、0 failed、575 ignored**（較基線 1888 多 1，即新增的 opcode 測試）。
   - 日誌含 `test modern_lito::native_opcodes::tests::opcode_constants_match_protocol_contract_sections_2_to_5 ... ok`。
+
+- GitHub Actions [run 41890305160](https://github.com/chaoren0418-arch/lito-modern/actions/runs/41890305160)（head `be069f18b7527c0d287a9517bf44476c279a580c`）：本次重新讀取 [job 126785620160 原始日誌](https://github.com/chaoren0418-arch/lito-modern/actions/runs/41890305160/job/126785620160)，確認 `cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast` 均成功，新增 opcode 測試通過；結果為 **1889 passed、0 failed、575 ignored**。此為修正前 head 的既有 CI 證據；報告修正提交的結果須另看 PR 最新 Checks。
+- 本次僅修正本報告，未重新編譯或執行測試；既有 Rust 實作不變。
 
 ## 未驗證什麼
 
@@ -78,7 +75,7 @@
 
 ## 給下一棒的提示
 
-- 請 Claude 審查 PR #29：確認 C／S 未共用常數、四個檔沒有行為變更。CI 已綠（run 41889440513）。通過後由使用者合併。
+- 請 Claude 在既有 PR #29 的新 head 重審本次報告修正：確認已移除無法查證的獨立測試宣稱，改引用可追溯的 CI 證據（run 41889440513／41890305160），並另核對最新 Checks。不要以修正前 head 的 CI 取代新 head 的檢查；通過後由使用者合併。
 - 後續若要繼續去魔術數字：優先 `native_login.rs`（LOGIN 收包與大廳／戰鬥送包），再補 §6／§7 opcode 到同一張表。`native_lobby.rs` 的 `0xf5` 可在補 §7 時改成 `S_LITO_VS_SERVER_ALLOW_JOIN`。
 - `native_version::S_VERSION` 是公開別名，外部測試若仍用此名不必改。
 - 本任務不另拆 plan。調度器合併後自行加 `docs/REPORT.md` 索引。
