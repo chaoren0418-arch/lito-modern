@@ -13,10 +13,10 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 把需要視窗／socket／原資源的測試標 `#[ignore]` 並加註原因（`// requires: window | socket | assets`），讓 `cargo test --lib` 與 `cargo test --tests` 在乾淨機器可跑完。
 驗收：CI `cargo test` 不再 continue-on-error 也能綠；ignored 數量與原因列在 `docs/TESTING.md`。
 
-### T003 | review | Cursor | `docs/CANDIDATES.md`（新建）, `維護工具/candidates/**`（唯讀）
+### T003 | done | Cursor | `docs/CANDIDATES.md`（新建）, `維護工具/candidates/**`（唯讀）
 盤點 44 檔隔離候選：每檔對應 `src/` 哪個檔、是否已併入、差異行數、阻擋原因。
 驗收：表格完整；Claude 審閱後決定併入順序。
-現況（2026-11-05）：盤點已完成（Issue #2，`docs/CANDIDATES.md` 已合併）；Claude 尚未裁定併入順序，裁定後改為 done，T020 才能解除阻擋。
+現況（2026-11-05）：盤點已完成（Issue #2）。Claude 已裁定（Issue #33，`docs/CANDIDATES.md`「裁定」一節）：現在不套用，凍結為參考。等 M1 完成，且 T003-R1 的依賴分析回來後，再重新裁定可行的批次（目前的 G1／G2／G3 只是研究分組，彼此有交錯依賴）。
 
 ### T004 | done | Claude | `docs/PROTOCOL-CONTRACT.md`（新建）
 寫與 lito-launcher-server 0.6.71 的協定契約：登入握手、版本、加密、必用 opcode 清單，取代純 SHA pin。
@@ -38,7 +38,8 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 
 ## M2 #97–#100 與 G06
 
-### T020 | blocked(T003 Claude 裁定) | Cursor | #97：共享 callback、重入繪圖 producer、固定 sample／巢狀 drain 交錯
+### T020 | blocked(T010) | Cursor | #97：共享 callback、重入繪圖 producer、固定 sample／巢狀 drain 交錯
+在 `src/` 直接開發，不以候選第 29–30 列為基底（見 CANDIDATES.md「裁定」）；PLAN 把 #97 放在 M2，要等 M1 驗證完成。
 合法時機可提交；callback 後不能再發佈；不固定一幀、不借 32 秒期限。
 
 ### T021 | blocked(T020) | Cursor | #98 附加劇毒、#99、#100

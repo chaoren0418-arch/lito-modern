@@ -1,0 +1,10 @@
+[
+  {
+    "id": "T003-R1",
+    "title": "T003-R1: 44 檔隔離候選依 contract 取檔、SHA256、src/ diff 統計與依賴圖（本機靜態）",
+    "stage": "resource",
+    "priority": "P3",
+    "text": "runner: codex-local（候選目錄只在使用者電腦上）。\n範圍：只新增 `docs/reports/issue-<N>.md`；一次性腳本放 `scratch/`（不進 git）；不改其他檔，也不改 `docs/CANDIDATES.md`（由 Claude 依報告更新）。\n做：\n1. 取檔：不可用「ready 目錄＋overlay key」的公式拼路徑。改從 `驗證紀錄/current/native-E149-static2941-ready-development/20261024-211350-252315/evidence.json` 找到 candidate contract（預期是 `維護工具/candidates/native-E149-static2941-ready-20261024-210441-110315/contract.json`，SHA256 預期 `A5EAFAB92F673DEEE4D1E8EC4EEE39085B3B3C87C24C565DED2F0ACFBF831A97`），先核對 contract 本身的 SHA256，再對 `docs/CANDIDATES.md` 一覽表的 44 個 overlay key 逐一讀取 `contract.effective_overlay_paths[key]` 得到實體路徑。\n2. 對每個實體檔計算 SHA256，並和 `contract.effective_overlay_files[key]` 的預期 SHA256 比對（一致／不一致／缺檔）。\n3. `src/` 或 `tests/` 有同名檔的，用 `git diff --no-index --numstat <src檔> <候選檔>` 算出增刪行數；沒有同名檔的，只記行數。\n4. 依賴分析：對每個候選檔列出它透過 `super::`、`crate::`、`mod`、`#[path]` 引用的其他 overlay key（附候選檔行號）。至少要涵蓋審查已知的 native_login.rs:331 → native_static2941、native_attack_many.rs:198/204 → native_fire70／native_blizzard59。\n驗收：報告列出 evidence 與 contract 的路徑與 SHA256 實際計算值；44 列（overlay key／實體路徑／候選 SHA256／預期 SHA256／判定／src 同名檔 SHA256 或「無」／+行／−行）；一份依賴邊清單（來源 key:行號 → 目標 key）；缺檔或不一致要明確標示。只做靜態讀取：不套用候選、不建置、不跑測試、不啟動遊戲、不連 DB。",
+    "depends_on": []
+  }
+]
