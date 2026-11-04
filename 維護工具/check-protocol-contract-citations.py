@@ -65,7 +65,18 @@ checks = [
  (srv/CS,14802,"private void broadcastRoomOwner("),(srv/CS,15234,"broadcastRoomOwner(departedRoom"),(srv/CS,16402,"private void gameInfo("),
  (srv/CS,16423,"handleRentalTownGameInfo("),(srv/CS,16446,"sendRentalTownGameInfoSnapshot("),(srv/CS,16455,"private void sendGameInfoSnapshot()"),
  (srv/CS,16468,"private void broadcastGameInfoSnapshot()"),(srv/CS,16482,"private void changeRoomMode("),(srv/CS,16537,"private void changeRoomMap("),
- (srv/CS,16721,"private void editRoom("),(srv/CS,12034,"sendInventoryBootstrap();"),(srv/CS,44998,"Protocol.trueTargetRequest(payload)"),
+ (srv/CS,16721,"private void editRoom("),
+ # #21 第 2 次：發送路徑的分支層級引用
+ (srv/CS,16435,"Protocol.litoRoomMap(currentRoomId, rentalTownMapId)"),(srv/CS,16437,"return;"),
+ (srv/CS,16443,'sendRentalTownGameInfoSnapshot("mode-step='),(srv/CS,16447,"Protocol.litoRoomMode("),
+ (srv/CS,16486,"!previousMode.isBattleScene()"),(srv/CS,16491,"sendGameInfoSnapshot();"),
+ (srv/CS,16503,"!hub.updateSettings(currentRoomId, this, replacement)"),(srv/CS,16504,"sendGameInfoSnapshot();"),
+ (srv/CS,16509,"Protocol.litoRoomMode(currentRoomId, mode)"),(srv/CS,16512,"hub.roomMembers(currentRoomId)"),
+ (srv/CS,16540,"!mode.maps().contains(mapId) || mapId == 0xFFFF"),(srv/CS,16544,"Protocol.litoRoomMap(currentRoomId, selected)"),
+ (srv/CS,16549,"!hub.updateMap(currentRoomId, this, mapId)"),(srv/CS,16550,"sendGameInfoSnapshot();"),
+ (srv/CS,16557,"member.sendEncrypted(changed"),(srv/CS,16729,'sendRentalTownGameInfoSnapshot("edit-rejected")'),
+ (srv/CS,16735,"sendGameInfoSnapshot();"),(srv/CS,16757,"broadcastGameInfoSnapshot();"),(srv/CS,16760,"sendGameInfoSnapshot();"),
+ (srv/"GameHub.java",9874,"synchronized boolean updateMap("),(srv/"GameHub.java",9876,"room.owner != requester || room.battleStarted"),(srv/CS,12034,"sendInventoryBootstrap();"),(srv/CS,44998,"Protocol.trueTargetRequest(payload)"),
 ]
 EXPECTED_HEAD = "2066774824b314b2c65834f9afe72b68f7391f06"
 ok = 0
