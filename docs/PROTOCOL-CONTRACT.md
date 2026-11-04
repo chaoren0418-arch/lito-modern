@@ -204,6 +204,15 @@ C: C_LITO_SELECT_CHAR 0xC9(name) → S: S_LITO_SELECT_CHAR_RESULT 0xC8(code)
 | `C_LITO_EXIT_ROOM 0xD0` | opcode-only | `exitRoom` CS:14568 | ROOM／BATTLE／RESULT → CHANNEL（CS:14627／14675）；在 BATTLE 中送出時會先結算（CS:14605） |
 | `S_LITO_EXIT_ROOM 0xD0` | `c d(roomId) s(displayName)` | CS:14641 | — |
 | `S_LITO_DELETE_ROOM 0xCF` | `c d(roomId)` | `broadcastRoomDeleted` CS:14784 | — |
+| `S_LITO_GAME_INFO 0xD5`（房間資訊） | 共通開頭是 `c(0xD5) c(subtype) d(roomId≠0)`，後面依 subtype 而定；各 subtype 見下方 6 列。同一房間的狀態分散在 subtype 0（摘要）和 subtype 1（可編輯設定）兩筆記錄 | opcode P:701 | — |
+| ↳ subtype 0 摘要 | `s(name 1..0x59 bytes) c(option0＝模式) h(mapId) c(0) s(owner 1..0x1B bytes) c(0)×4` | `litoRoomSummary` P:16953 | — |
+| ↳ subtype 1 設定 | `s(name 1..0x59) s(password 0..4 bytes) c(attributes) c(capacity 2..200) c(option1) c(option2) c(option3) c(option4) c(count ≤8) c(selection≠0)×count`。builder 會驗證 eventFlags 0..7、eventType 0..2、winnerCount 1..0x7F、allowedClassMask 0..0x1F（這四個欄位加上 selections 全為 0／空時視為舊版，不檢查），實際寫出的則是 option1..4。**推測**：option1..4 依序對應這四個欄位；這層對應在 `GameHub.RoomSettings` 內，本文沒有逐一核對 | `litoRoomConfiguration` P:16981 | — |
+| ↳ subtype 2 模式 | `c(mode)`，值域是 `BattleRules.Mode` 的 wire 值 0..6 | `litoRoomMode` P:17073 | — |
+| ↳ subtype 3 地圖 | `h(mapId)`；`0xFFFF`、`0xFF9C` 是 client 端的哨兵值，必須原樣保留 | `litoRoomMap` P:17097 | — |
+| ↳ subtype 4、6、7、8、9 | `c(value)`（摘要純量）。**伺服器目前沒有任何發送點**，原始碼註解說明 client 映像中這五個目的地沒有讀取者；client 收到時只需解析並忽略 | `litoRoomSummaryScalar` P:17127 | — |
+| ↳ subtype 5 房主 | `s(owner 1..0x1B bytes)` | `litoRoomOwner` P:17159 | — |
+| 發送時機 | ① 房間設定修改成功（`editRoom` CS:16721）：對全體成員廣播 subtype 0＋1；修改被拒時只回給送出者（`broadcastGameInfoSnapshot` CS:16468、`sendGameInfoSnapshot` CS:16455）。② 換模式成功（`changeRoomMode` CS:16482）：對全體成員送 subtype 2＋3；被拒或模式不可切換時，只回 subtype 0＋1 給送出者。③ 換地圖（`changeRoomMap` CS:16537）：成功時廣播 subtype 3；地圖不合法時只回原本的 subtype 3。④ 房主轉移（`broadcastRoomOwner` CS:14802，在斷線 CS:1251、離房 CS:14670、restart CS:15234 時觸發）：廣播 subtype 5。⑤ 租裝城鎮房間另有自己的路徑（`handleRentalTownGameInfo` CS:16423、`sendRentalTownGameInfoSnapshot` CS:16446），只送 subtype 2＋3 | 同左 | ROOM |
+| `C_LITO_GAME_INFO 0xD1`（房主改模式／地圖） | `c(0xD1) c(2) c(direction)`：direction 1＝下一個、2＝上一個；或 `c(0xD1) c(3) h(mapId)`。其他 subtype 和長度都是格式錯誤 | `litoGameInfoRequest` P:14351；`LitoModeStepDirection` P:3847；`gameInfo` CS:16402（dispatch CS:1665） | ROOM，且必須在房間內；其他 phase 靜默忽略 |
 
 ## 6. 戰鬥
 

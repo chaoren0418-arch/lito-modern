@@ -56,7 +56,16 @@ checks = [
  (srv/CS,9734,"if (inventoryBootstrapSent) return;"),(srv/CS,9723,"inventoryBootstrapSent = false"),(srv/CS,20272,"inventoryBootstrapSent = false"),
  (srv/CS,20413,"inventoryBootstrapSent = false"),(srv/CS,20483,"inventoryBootstrapSent = false"),(srv/CS,10484,"Protocol.battleBootstrap(scene.mapId(), 1)"),
  (srv/CS,12008,"Protocol.battleBootstrap("),(srv/CS,12010,"sendEncrypted(bootstrap.world()"),(srv/CS,12017,"BattleRules.Mode.TIME_ATTACK"),
- (srv/CS,12021,"phase = Phase.BATTLE;"),(srv/CS,12034,"sendInventoryBootstrap();"),(srv/CS,44998,"Protocol.trueTargetRequest(payload)"),
+ (srv/CS,12021,"phase = Phase.BATTLE;"),
+ (srv/P,327,"C_LITO_GAME_INFO = 0xD1"),(srv/P,701,"S_LITO_GAME_INFO = 0xD5"),(srv/P,3847,"enum LitoModeStepDirection"),
+ (srv/P,14351,"static LitoGameInfoRequest litoGameInfoRequest"),(srv/P,16953,"static byte[] litoRoomSummary("),
+ (srv/P,16981,"static byte[] litoRoomConfiguration("),(srv/P,17073,"static byte[] litoRoomMode("),(srv/P,17097,"static byte[] litoRoomMap("),
+ (srv/P,17127,"static byte[] litoRoomSummaryScalar("),(srv/P,17159,"static byte[] litoRoomOwner("),
+ (srv/CS,1251,"broadcastRoomOwner(disconnectedRoom"),(srv/CS,1665,"case Protocol.C_LITO_GAME_INFO"),(srv/CS,14670,"broadcastRoomOwner(departedRoom"),
+ (srv/CS,14802,"private void broadcastRoomOwner("),(srv/CS,15234,"broadcastRoomOwner(departedRoom"),(srv/CS,16402,"private void gameInfo("),
+ (srv/CS,16423,"handleRentalTownGameInfo("),(srv/CS,16446,"sendRentalTownGameInfoSnapshot("),(srv/CS,16455,"private void sendGameInfoSnapshot()"),
+ (srv/CS,16468,"private void broadcastGameInfoSnapshot()"),(srv/CS,16482,"private void changeRoomMode("),(srv/CS,16537,"private void changeRoomMap("),
+ (srv/CS,16721,"private void editRoom("),(srv/CS,12034,"sendInventoryBootstrap();"),(srv/CS,44998,"Protocol.trueTargetRequest(payload)"),
 ]
 EXPECTED_HEAD = "2066774824b314b2c65834f9afe72b68f7391f06"
 ok = 0

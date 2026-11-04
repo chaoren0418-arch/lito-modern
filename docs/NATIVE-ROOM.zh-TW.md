@@ -17,7 +17,7 @@ pwsh -NoProfile -File .\啟動現代客戶端.ps1 -NativeLoginEndpoint 127.0.0.1
 | S_CD | [§5.3](PROTOCOL-CONTRACT.md#53-房間) | 收到與自己選角相同名稱的成員列後，才開放房間動作 |
 | C_D2 byte / S_D1 | [§6.1](PROTOCOL-CONTRACT.md#61-開戰與結束) | 只送 0 或 1，等正式成員狀態更新後才解除待回覆；接收端支援狀態 2（商店），本輪沒有商店操作 |
 | C_D0 / S_D0 | [§5.3](PROTOCOL-CONTRACT.md#53-房間) | 等自己的正式離開通知，清除房間狀態並重新查詢大廳；其他成員的通知依房間 ID 與名稱更新 |
-| S_CF / S_D5 subtype 5 | S_CF：[§5.3](PROTOCOL-CONTRACT.md#53-房間)；S_D5（`S_LITO_GAME_INFO` 0xD5）：**契約尚未涵蓋**，仍以本文與正式 JAR oracle 為準 | 刪除大廳房間列、更新房主；未知子型別不宣告處理完成 |
+| S_CF / S_D5 subtype 5 | [§5.3](PROTOCOL-CONTRACT.md#53-房間)（S_CF 刪除房間；S_D5 為 `S_LITO_GAME_INFO`，subtype 5 是房主） | 刪除大廳房間列、更新房主；未知子型別不宣告處理完成 |
 | S_E1 / S_D2 | [§6.1](PROTOCOL-CONTRACT.md#61-開戰與結束) | 顯示伺服器倒數；收到戰鬥開始只進入 BattlePending 並停用房間操作，世界場景尚未接入 |
 
 房名支援最多 89 bytes，房間成員最多 256 筆。成員名稱是伺服器提供的 wire alias，不能推導 actor ID。S_CE 的 users summary 不是 S_CD 筆數或串流結束標記，成員持續增量更新。所有已支援封包均檢查截斷、多餘尾端與各自欄位界限。
