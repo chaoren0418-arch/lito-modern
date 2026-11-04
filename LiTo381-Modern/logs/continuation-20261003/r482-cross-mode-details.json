@@ -1,0 +1,1513 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "actual_cross_mode_or_map_queued_load_pan_rejections": 18,
+  "actual_worker_retired": true,
+  "all45_player_frames_match_fixed_R481_independent_reference": true,
+  "background_queue_transient_busy_retries": 0,
+  "complete_city534535_draw_budget_refused_without_partial_frame": true,
+  "complete_modes": 16,
+  "failure_cases": [
+    {
+      "identity": [
+        0,
+        565
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32768,
+        32769
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        0,
+        569
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32768,
+        32769
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        2,
+        519
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32768,
+        32768
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        2,
+        520
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32768,
+        32768
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        2,
+        553
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32769,
+        32768
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        3,
+        547
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32768,
+        32769
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        4,
+        540
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32769,
+        32768
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        5,
+        510
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32769,
+        32769
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "identity": [
+        5,
+        528
+      ],
+      "kind": "missing_last_necessary_sector_after_earlier_complete_copies",
+      "missing_source_key": [
+        32768,
+        32768
+      ],
+      "no_fallback_frame": true,
+      "selected_identity_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "draw_limit": 262144,
+      "draw_references": 347528,
+      "identity": [
+        1,
+        534
+      ],
+      "kind": "whole_original_city_exceeds_existing_draw_budget",
+      "no_partial_or_fallback_frame": true,
+      "sectors": 16,
+      "status": "載入失敗，可重試或返回：Native draw budget exceeded"
+    },
+    {
+      "draw_limit": 262144,
+      "draw_references": 558061,
+      "identity": [
+        5,
+        535
+      ],
+      "kind": "whole_original_city_exceeds_existing_draw_budget",
+      "no_partial_or_fallback_frame": true,
+      "sectors": 25,
+      "status": "載入失敗，可重試或返回：Native draw budget exceeded"
+    }
+  ],
+  "historical_PASS_reruns": 0,
+  "images": [
+    {
+      "camera": [
+        2672,
+        468,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        565
+      ],
+      "image": {
+        "bytes": 1636401,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-565-initial.png",
+        "rgba_sha256": "38EFADF6022BA3633A1014DCE72F7984F1BB39F3776966B0BD973D838CF74922",
+        "sha256": "36BFEBF342AA4A830BC489E8071003C0D7F710A438705F9AD3795F07123BCF41"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        1832,
+        132,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        565
+      ],
+      "image": {
+        "bytes": 1588043,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-565-seam-before.png",
+        "rgba_sha256": "40EB9F57D98AB7C436C6286BB0F0A1DFB921C115B7CCD78E3B093B4E7C721247",
+        "sha256": "87A7832A3BBDCBB063281ED0AAED491A561D0A6C5CCB02DE2FBEF005B548D744"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        2024,
+        36,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        565
+      ],
+      "image": {
+        "bytes": 1579418,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-565-seam-after.png",
+        "rgba_sha256": "F9819A99DFE7DBE389B7DF96052EC8C477EFA2A98B99A29086BF2F1D49E3589E",
+        "sha256": "56A5890EF55C730FE05E6196A49B7D9090C8174C5E5E655D0F781A0E61AFA65D"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -768,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        565
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-565-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        5344,
+        1704,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        565
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-565-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        2672,
+        468,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        569
+      ],
+      "image": {
+        "bytes": 1696607,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-569-initial.png",
+        "rgba_sha256": "B296199FE8E736A68FDDCABDE02B3B67E910C1AADBEF2BCCDDC6B92965D2861A",
+        "sha256": "CBAFD73213B0163BBDCF9CFB24225A7638B57733880914EA14F86E324602678F"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        3752,
+        1092,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        569
+      ],
+      "image": {
+        "bytes": 1598978,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-569-seam-before.png",
+        "rgba_sha256": "0EB65511FA250EE40C955D9A0EB31245EBCC3F6642317514D0F40204C339082E",
+        "sha256": "146BAFA38AFF89910FA4C60999D2B0C8A5AEF464B54C131056098FD803471F2F"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        3944,
+        996,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        569
+      ],
+      "image": {
+        "bytes": 1600248,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-569-seam-after.png",
+        "rgba_sha256": "A0193D9D62461C9CB570641E061EC0E804781492E2598C4A8CE8AB2827F6AE5A",
+        "sha256": "7DB767754C3A52FBDCA221BBAF91F301DB9111F9C51D18BD3B8F37C6ECFC4BD7"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -768,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        569
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-569-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        5344,
+        1704,
+        800,
+        600
+      ],
+      "identity": [
+        0,
+        569
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-0-569-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        4208,
+        1236,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        519
+      ],
+      "image": {
+        "bytes": 1571479,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-519-initial.png",
+        "rgba_sha256": "580AF379EDA35F8C5BF804B008DC3C3DD1D61CD1AC94FA312EB5D258CD0CC7EB",
+        "sha256": "96D91F11049E06D6F82E5DCE64EDD1B62998D421B2140B86D30754C0F3EF7AAA"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        5288,
+        2148,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        519
+      ],
+      "image": {
+        "bytes": 1623371,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-519-seam-before.png",
+        "rgba_sha256": "5BEAE345A8837AED5CCF15321A1AF6C6E12EB6B1681A063702B2DC31134990C2",
+        "sha256": "B22AE7B1390FA14E3077FDD5FF110DFA212353AD3482B4A5A10444EA5B005868"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        5480,
+        2244,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        519
+      ],
+      "image": {
+        "bytes": 1626190,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-519-seam-after.png",
+        "rgba_sha256": "D157BDC10027D15BE43B0A97BAD87091BCEDEB8AE65926002BCD2FE942DF55EC",
+        "sha256": "2F685D02AA3CECFA6324AC7214C85813C242956D01F54295C54373EE7F3E9C6F"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -768,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        519
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-519-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        8416,
+        3240,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        519
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-519-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        4208,
+        1236,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        520
+      ],
+      "image": {
+        "bytes": 1571479,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-520-initial.png",
+        "rgba_sha256": "580AF379EDA35F8C5BF804B008DC3C3DD1D61CD1AC94FA312EB5D258CD0CC7EB",
+        "sha256": "96D91F11049E06D6F82E5DCE64EDD1B62998D421B2140B86D30754C0F3EF7AAA"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        5288,
+        2148,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        520
+      ],
+      "image": {
+        "bytes": 1623371,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-520-seam-before.png",
+        "rgba_sha256": "5BEAE345A8837AED5CCF15321A1AF6C6E12EB6B1681A063702B2DC31134990C2",
+        "sha256": "B22AE7B1390FA14E3077FDD5FF110DFA212353AD3482B4A5A10444EA5B005868"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        5480,
+        2244,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        520
+      ],
+      "image": {
+        "bytes": 1626190,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-520-seam-after.png",
+        "rgba_sha256": "D157BDC10027D15BE43B0A97BAD87091BCEDEB8AE65926002BCD2FE942DF55EC",
+        "sha256": "2F685D02AA3CECFA6324AC7214C85813C242956D01F54295C54373EE7F3E9C6F"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -768,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        520
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-520-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        8416,
+        3240,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        520
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-520-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        5744,
+        1236,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        553
+      ],
+      "image": {
+        "bytes": 1617774,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-553-initial.png",
+        "rgba_sha256": "CA57329F13C9F27591C7E8594F898FD1F563B1EA31669AF3F2F9A3078DF74D2B",
+        "sha256": "DE4ED1304D699E965AD03AD2E4B11E7609588A9B6B56E15C8261AC1E620F4DD4"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        4904,
+        804,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        553
+      ],
+      "image": {
+        "bytes": 1707535,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-553-seam-before.png",
+        "rgba_sha256": "A92FAD236DED310DF566EDE5143D3ECED703E8B39C3F710F156AE5B17B276B2A",
+        "sha256": "166CFDCE4BF7AE21E54E2E0A768F9C084895AC6DD048AF5259DE212076C35EE9"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        5096,
+        900,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        553
+      ],
+      "image": {
+        "bytes": 1697579,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-553-seam-after.png",
+        "rgba_sha256": "64F4DA1CEDA96C8E9BEB25E586B20E703B02AA90A26515845EB32393E76D93A9",
+        "sha256": "811FE5088B50DCCE5A193681FC99F031ADA64FA67CF9395D3AC79AA00DBFFA1C"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -1536,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        553
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-553-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        11488,
+        4008,
+        800,
+        600
+      ],
+      "identity": [
+        2,
+        553
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-2-553-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        4976,
+        84,
+        800,
+        600
+      ],
+      "identity": [
+        3,
+        547
+      ],
+      "image": {
+        "bytes": 1554909,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-3-547-initial.png",
+        "rgba_sha256": "11ADFFF591BC226AE3A36D15A930234F3AE277AE50513145F48F289FDBB0E9BD",
+        "sha256": "1F2BE37C5D555641760BB39F806A6C7BB631D2D60AC8BD31C88B6F9AF28CE2AA"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        6824,
+        -444,
+        800,
+        600
+      ],
+      "identity": [
+        3,
+        547
+      ],
+      "image": {
+        "bytes": 1666062,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-3-547-seam-before.png",
+        "rgba_sha256": "EC5C3E5E4767EFD7AC6D059B345AC48E78CD246CAE835CF76FC6E74D5B65EF82",
+        "sha256": "4FD00F284E2492F65BC03C04471B9864BE6D4BF5EF3196EFA4A073755FD5C985"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        7016,
+        -540,
+        800,
+        600
+      ],
+      "identity": [
+        3,
+        547
+      ],
+      "image": {
+        "bytes": 1639757,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-3-547-seam-after.png",
+        "rgba_sha256": "C55FDA89F4B7991D4A00A78A1DDD280290BFE3D59CA608676C88237D0ABC9FDD",
+        "sha256": "F92033F216E2B426C2270D8E3AA1AAD9941F75200124D42BCFEE4CEA1421DB8D"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -2304,
+        800,
+        600
+      ],
+      "identity": [
+        3,
+        547
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-3-547-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        9952,
+        2472,
+        800,
+        600
+      ],
+      "identity": [
+        3,
+        547
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-3-547-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        4208,
+        -300,
+        800,
+        600
+      ],
+      "identity": [
+        4,
+        540
+      ],
+      "image": {
+        "bytes": 1620122,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-4-540-initial.png",
+        "rgba_sha256": "EAFFB302C7DCB78EF4D118CD66E9667C7845B014155963C469F0142F854D5491",
+        "sha256": "8A2016146E11EDD54E26E466F29A2E8D60D8EF64FE5FD819160CFC9530DB381C"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        5288,
+        324,
+        800,
+        600
+      ],
+      "identity": [
+        4,
+        540
+      ],
+      "image": {
+        "bytes": 1601367,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-4-540-seam-before.png",
+        "rgba_sha256": "F76BA61DD6EFE91D83F977290D84FC5243CF120ABFF468212DF5B3E2D00058EC",
+        "sha256": "CAB5EECBF3FB173C1B38896BD1EC7D8230C4C6691B83743533EE7283933A55B2"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        5480,
+        228,
+        800,
+        600
+      ],
+      "identity": [
+        4,
+        540
+      ],
+      "image": {
+        "bytes": 1600473,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-4-540-seam-after.png",
+        "rgba_sha256": "673AFBB2FBC047DA4DEA001FCDC7BE573ED3C63AB229A4AE983C570020A85931",
+        "sha256": "4C3AEDB8D12CCE824D05524C312D0B9F17C7BC9D6931EE4017D2B53FA95BAA9A"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -3072,
+        800,
+        600
+      ],
+      "identity": [
+        4,
+        540
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-4-540-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        8416,
+        2472,
+        800,
+        600
+      ],
+      "identity": [
+        4,
+        540
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-4-540-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        4208,
+        468,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        510
+      ],
+      "image": {
+        "bytes": 1633747,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-510-initial.png",
+        "rgba_sha256": "D48A49051F3B9A0A52DE00EDD8CFE7B1E2A27B6931E27B77E122B9E4BED2197D",
+        "sha256": "F03B28F3093CB3AA27F13D2F271C4947C5FC50C0974C2F37DD73DE19917CE15D"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        2984,
+        228,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        510
+      ],
+      "image": {
+        "bytes": 1669350,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-510-seam-before.png",
+        "rgba_sha256": "C2C985C8BBA229249A7F50E8F924DA23CC37F8042E8FC49ADC179F2761F820C4",
+        "sha256": "AF89F3A1A5FF93F9AEF07428DB3E0C8375D26AF307C4470B18F6126DDA7D0277"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        3176,
+        324,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        510
+      ],
+      "image": {
+        "bytes": 1670345,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-510-seam-after.png",
+        "rgba_sha256": "6ADA630757D1909A8F00FE051877ED6A04A9939D02AE8129AA85607CF1A91A08",
+        "sha256": "0B1B420066650D21EF613C0CC81B31A630BA22FA156CF9ECEDA560EC62BA76A3"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -1536,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        510
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-510-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        8416,
+        2472,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        510
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-510-max-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "max-boundary"
+    },
+    {
+      "camera": [
+        2672,
+        852,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        528
+      ],
+      "image": {
+        "bytes": 1583105,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-528-initial.png",
+        "rgba_sha256": "F40E514D7F4B106C42AECB483F138BED76B9BD3F71B28D2E043EE9F9DC7D143D",
+        "sha256": "6BFA949D6B741EE21BC709965C8800A9DA83A68E806820BEB72D5D5D7D4AAF55"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        2216,
+        612,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        528
+      ],
+      "image": {
+        "bytes": 1093539,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-528-seam-before.png",
+        "rgba_sha256": "9864210C4B2C8269AE2256EB35826FD0BF7AE3D78BC92095299730BBCF145DE5",
+        "sha256": "CBA6A19F8010A8FD123B8F51EFC09515C85E5E814A3E0D477A4BDDD1EBFE11D4"
+      },
+      "name": "seam-before"
+    },
+    {
+      "camera": [
+        2408,
+        708,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        528
+      ],
+      "image": {
+        "bytes": 1469675,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-528-seam-after.png",
+        "rgba_sha256": "4F7059402D5512788730F4CFC032E5DB75DEBF6780EFBE117DF213E9A941A258",
+        "sha256": "2A4C3E0EC2DE6B4748A7DAF1A5C16B05A7B1F90B0F96C5312DFCC68F6D390E64"
+      },
+      "name": "seam-after"
+    },
+    {
+      "camera": [
+        0,
+        -768,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        528
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-528-min-boundary.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "min-boundary"
+    },
+    {
+      "camera": [
+        5344,
+        2472,
+        800,
+        600
+      ],
+      "identity": [
+        5,
+        528
+      ],
+      "image": {
+        "bytes": 14954,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r482-cross-mode-batch\\cpu-5-528-max-boundary.png",
+        "rgba_sha256": "1485149F851F889A2EDC48B88A0CE0C9F1892732D29FFB2AB651EED8E801AB02",
+        "sha256": "72032392C3C931D2495801398D73004421119E781300E30C88F35302E0FAFC74"
+      },
+      "name": "max-boundary"
+    }
+  ],
+  "map_cases": [
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32767,
+        32768
+      ],
+      "bounds": [
+        0,
+        -768,
+        6144,
+        2304
+      ],
+      "budget": {
+        "decoded_bytes": 18510336,
+        "decoded_limit": 67108864,
+        "decoded_slots": 8034,
+        "draw_limit": 262144,
+        "draw_references": 82769,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 555057,
+        "tile_entries": 68
+      },
+      "identity": [
+        0,
+        565
+      ],
+      "next_identity": [
+        0,
+        569
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "x",
+        "source_pair": [
+          [
+            32767,
+            32768
+          ],
+          [
+            32768,
+            32768
+          ]
+        ],
+        "static_object_reference_score": 4273
+      },
+      "source_sectors": 4,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32767,
+        32768
+      ],
+      "bounds": [
+        0,
+        -768,
+        6144,
+        2304
+      ],
+      "budget": {
+        "decoded_bytes": 11457792,
+        "decoded_limit": 67108864,
+        "decoded_slots": 4973,
+        "draw_limit": 262144,
+        "draw_references": 93989,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 638852,
+        "tile_entries": 63
+      },
+      "identity": [
+        0,
+        569
+      ],
+      "next_identity": [
+        2,
+        519
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "x",
+        "source_pair": [
+          [
+            32767,
+            32769
+          ],
+          [
+            32768,
+            32769
+          ]
+        ],
+        "static_object_reference_score": 2979
+      },
+      "source_sectors": 4,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32767,
+        32765
+      ],
+      "bounds": [
+        0,
+        -768,
+        9216,
+        3840
+      ],
+      "budget": {
+        "decoded_bytes": 10658304,
+        "decoded_limit": 67108864,
+        "decoded_slots": 4626,
+        "draw_limit": 262144,
+        "draw_references": 160849,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 1043627,
+        "tile_entries": 52
+      },
+      "identity": [
+        2,
+        519
+      ],
+      "next_identity": [
+        2,
+        520
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "y",
+        "source_pair": [
+          [
+            32767,
+            32767
+          ],
+          [
+            32767,
+            32768
+          ]
+        ],
+        "static_object_reference_score": 2949
+      },
+      "source_sectors": 8,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32767,
+        32765
+      ],
+      "bounds": [
+        0,
+        -768,
+        9216,
+        3840
+      ],
+      "budget": {
+        "decoded_bytes": 10658304,
+        "decoded_limit": 67108864,
+        "decoded_slots": 4626,
+        "draw_limit": 262144,
+        "draw_references": 160849,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 1043627,
+        "tile_entries": 52
+      },
+      "identity": [
+        2,
+        520
+      ],
+      "next_identity": [
+        2,
+        553
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "y",
+        "source_pair": [
+          [
+            32767,
+            32767
+          ],
+          [
+            32767,
+            32768
+          ]
+        ],
+        "static_object_reference_score": 2949
+      },
+      "source_sectors": 8,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32767,
+        32764
+      ],
+      "bounds": [
+        0,
+        -1536,
+        12288,
+        4608
+      ],
+      "budget": {
+        "decoded_bytes": 28488960,
+        "decoded_limit": 67108864,
+        "decoded_slots": 12365,
+        "draw_limit": 262144,
+        "draw_references": 175525,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 1115549,
+        "tile_entries": 68
+      },
+      "identity": [
+        2,
+        553
+      ],
+      "next_identity": [
+        3,
+        547
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "y",
+        "source_pair": [
+          [
+            32768,
+            32765
+          ],
+          [
+            32768,
+            32766
+          ]
+        ],
+        "static_object_reference_score": 2589
+      },
+      "source_sectors": 15,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32765,
+        32767
+      ],
+      "bounds": [
+        0,
+        -2304,
+        10752,
+        3072
+      ],
+      "budget": {
+        "decoded_bytes": 31198464,
+        "decoded_limit": 67108864,
+        "decoded_slots": 13541,
+        "draw_limit": 262144,
+        "draw_references": 213271,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 1437842,
+        "tile_entries": 120
+      },
+      "identity": [
+        3,
+        547
+      ],
+      "next_identity": [
+        4,
+        540
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "x",
+        "source_pair": [
+          [
+            32767,
+            32768
+          ],
+          [
+            32768,
+            32768
+          ]
+        ],
+        "static_object_reference_score": 4026
+      },
+      "source_sectors": 12,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32766,
+        32767
+      ],
+      "bounds": [
+        0,
+        -3072,
+        9216,
+        3072
+      ],
+      "budget": {
+        "decoded_bytes": 9273600,
+        "decoded_limit": 67108864,
+        "decoded_slots": 4025,
+        "draw_limit": 262144,
+        "draw_references": 197260,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 1215525,
+        "tile_entries": 38
+      },
+      "identity": [
+        4,
+        540
+      ],
+      "next_identity": [
+        5,
+        510
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "x",
+        "source_pair": [
+          [
+            32767,
+            32768
+          ],
+          [
+            32768,
+            32768
+          ]
+        ],
+        "static_object_reference_score": 2331
+      },
+      "source_sectors": 13,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32767,
+        32767
+      ],
+      "bounds": [
+        0,
+        -1536,
+        9216,
+        3072
+      ],
+      "budget": {
+        "decoded_bytes": 13095936,
+        "decoded_limit": 67108864,
+        "decoded_slots": 5684,
+        "draw_limit": 262144,
+        "draw_references": 114672,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 773884,
+        "tile_entries": 39
+      },
+      "identity": [
+        5,
+        510
+      ],
+      "next_identity": [
+        5,
+        528
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "y",
+        "source_pair": [
+          [
+            32768,
+            32767
+          ],
+          [
+            32768,
+            32768
+          ]
+        ],
+        "static_object_reference_score": 3585
+      },
+      "source_sectors": 9,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    },
+    {
+      "actual_active_load_Back_cancel_switch_no_frame": true,
+      "actual_load_and_five_player_frames": true,
+      "anchor": [
+        32767,
+        32767
+      ],
+      "bounds": [
+        0,
+        -768,
+        6144,
+        3072
+      ],
+      "budget": {
+        "decoded_bytes": 14349312,
+        "decoded_limit": 67108864,
+        "decoded_slots": 6228,
+        "draw_limit": 262144,
+        "draw_references": 51899,
+        "map_byte_limit": 33554432,
+        "sector_bytes": 324421,
+        "tile_entries": 52
+      },
+      "identity": [
+        5,
+        528
+      ],
+      "next_identity": [
+        0,
+        565
+      ],
+      "queued_load_and_pan_cross_mode_or_map_rejected": true,
+      "seam": {
+        "axis": "y",
+        "source_pair": [
+          [
+            32767,
+            32767
+          ],
+          [
+            32767,
+            32768
+          ]
+        ],
+        "static_object_reference_score": 1888
+      },
+      "source_sectors": 5,
+      "wrong_mode_same_ID_refusal_keeps_current_frame": true
+    }
+  ],
+  "negative_cases": 122,
+  "new_complete_sectors": 78,
+  "new_focused": 1,
+  "new_identities": [
+    [
+      0,
+      565
+    ],
+    [
+      0,
+      569
+    ],
+    [
+      2,
+      519
+    ],
+    [
+      2,
+      520
+    ],
+    [
+      2,
+      553
+    ],
+    [
+      3,
+      547
+    ],
+    [
+      4,
+      540
+    ],
+    [
+      5,
+      510
+    ],
+    [
+      5,
+      528
+    ]
+  ],
+  "nine_active_load_Back_cancel_switch_cases": true,
+  "original_catalog_has_no_same_map_ID_across_modes": true,
+  "qualified_catalog_previews": 22,
+  "remaining_unqualified": 18,
+  "shared_R480_adapter_renderer_flow_runtime_unchanged": true,
+  "source_identical_519_520_same_pixels_but_distinct_identity_and_canonical": true,
+  "state": "R482_NINE_COMPLETE_CROSS_MODE_MAPS_TRUE_PLAYER_IDENTITIES_PIXEL_PAIR_BUDGET_CANCEL_STALE_MISSING_AND_CITY_REFUSAL_PASS_GUI_PENDING",
+  "total_modes": 40,
+  "wrong_mode_same_ID_refused_without_current_frame_mutation": true
+}

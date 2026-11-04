@@ -1,0 +1,199 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "actual_full_multisector_load_Back_cancel_worker_retired": true,
+  "actual_old_multisector_load_and_pan_results_rejected": 2,
+  "all_nine_actual_player_frames_match_fixed_R479_reference_pixels": true,
+  "camera_is_Modern_inspection": true,
+  "central_junction_has_all_four_source_sectors": true,
+  "complete_modes": 16,
+  "exact_required_sectors": 4,
+  "failure_cases": [
+    {
+      "no_fallback_frame": true,
+      "omitted_sector": 0,
+      "selected_map552_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "no_fallback_frame": true,
+      "omitted_sector": 1,
+      "selected_map552_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "no_fallback_frame": true,
+      "omitted_sector": 2,
+      "selected_map552_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "no_fallback_frame": true,
+      "omitted_sector": 3,
+      "selected_map552_retained": true,
+      "status": "載入失敗，可重試或返回：shared resource I/O: 系統找不到指定的檔案。 (os error 2): 系統找不到指定的檔案。 (os error 2)"
+    },
+    {
+      "kind": "corrupt_last_required_sector",
+      "no_fallback_frame": true,
+      "status": "載入失敗，可重試或返回：Native opened bytes differ from pin"
+    },
+    {
+      "kind": "whole_map_canonical_mismatch",
+      "no_fallback_frame": true,
+      "status": "載入失敗，可重試或返回：Native source/identity invalid"
+    }
+  ],
+  "historical_PASS_reruns": 0,
+  "images": [
+    {
+      "camera": [
+        2672,
+        468,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 1250052,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-initial.png",
+        "rgba_sha256": "8FE13304192EC8FCBAE7EA59E590D65092BEFCA5EDF6CDA8F8B9B6D5882584A0",
+        "sha256": "2F25A50D5F445574BED24DDF84C8619877EF0AFB6BAC4692686415B5167F74DF"
+      },
+      "name": "initial"
+    },
+    {
+      "camera": [
+        2408,
+        420,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 986254,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-x-before.png",
+        "rgba_sha256": "C9377BF33F6F7C814F6B919553036C88B2B0C9BE84D027AC7E6FE5A19D9737CA",
+        "sha256": "123CF8109F521C4EDDFD996016B02A81A06E4D16BA19F6FEECB98960E55C6391"
+      },
+      "name": "x-before"
+    },
+    {
+      "camera": [
+        2600,
+        324,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 1084489,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-x-after.png",
+        "rgba_sha256": "70972A5198B6D44713CC083BDFFE7F28F1C18360FC3A9C79B580C5DEB1D80D12",
+        "sha256": "2FDF312A1FBD3F703833638097CE4711BC0B7D5CC60C6DADC8D1D6A12247F33C"
+      },
+      "name": "x-after"
+    },
+    {
+      "camera": [
+        1832,
+        804,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 977131,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-y-before.png",
+        "rgba_sha256": "942B339E1144680DBCFF7302C33EF0CD15D65CF464D36A6ABFE00D4B70426611",
+        "sha256": "625DABC8E64BFCC9FBAE0EF0902BB313FD72D98BC9B5851E9FCE893BED7A2543"
+      },
+      "name": "y-before"
+    },
+    {
+      "camera": [
+        2024,
+        900,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 1082885,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-y-after.png",
+        "rgba_sha256": "227D2E3ACAB5293D0E256C32E1A79B9ED18228C6212DD3E4FD66E03998B27A2A",
+        "sha256": "9F89DF521761CA4B4146F86B21BDDF46E54BC223D627C8787245152E2C1EEFEC"
+      },
+      "name": "y-after"
+    },
+    {
+      "camera": [
+        0,
+        -768,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-outer-left-top.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "outer-left-top"
+    },
+    {
+      "camera": [
+        5344,
+        -768,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-outer-right-top.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "outer-right-top"
+    },
+    {
+      "camera": [
+        0,
+        1704,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-outer-left-bottom.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "outer-left-bottom"
+    },
+    {
+      "camera": [
+        5344,
+        1704,
+        800,
+        600
+      ],
+      "image": {
+        "bytes": 13392,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r480-multisector\\cpu-outer-right-bottom.png",
+        "rgba_sha256": "A212614C469D48D0A870139FEE1FB635C38387211713ED7FF6556F253A7362B2",
+        "sha256": "0AFBC23047EC03C1B8924831C4B0FEF33D2435F31B23ABA7F63E17864871F79A"
+      },
+      "name": "outer-right-bottom"
+    }
+  ],
+  "negative_cases": 24,
+  "new_focused": 1,
+  "pan_camera_anchor_never_resets": true,
+  "qualified_catalog_previews": 7,
+  "remaining_unqualified": 33,
+  "signed_bounds": [
+    0,
+    -768,
+    6144,
+    2304
+  ],
+  "state": "R480_COMPLETE552_REAL_PLAYER_LOAD_XY_SEAM_PAN_BOUNDARY_REFERENCE_REJECTION_PASS_GUI_PENDING",
+  "total_modes": 40,
+  "whole_map_id": 552
+}

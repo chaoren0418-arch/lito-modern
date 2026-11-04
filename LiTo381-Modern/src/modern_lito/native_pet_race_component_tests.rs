@@ -20,6 +20,7 @@ fn cell(v: &Value, prefix: &str) -> Cell {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r533_pet_race_consumes_96_independent_java_observations() {
     let contract = Contract::parse(&inputs("r533-pet-race-contract.json")).unwrap();
     let bytes = inputs("r533-pet-race-replay-inputs.json");
@@ -123,6 +124,7 @@ fn r533_pet_race_consumes_96_independent_java_observations() {
 }
 
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r533_pet_race_namespace_and_panel_domains() {
     let bytes = inputs("r533-pet-race-contract.json");
     let c = Contract::parse(&bytes).unwrap();

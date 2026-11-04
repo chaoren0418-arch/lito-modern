@@ -122,6 +122,7 @@ fn save(name: &str, v: Value) {
     writeln!(f, "{}", serde_json::to_string_pretty(&v).unwrap()).unwrap();
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r536_native_quit_actual_generated_normal_io_peer_and_duplicate_sequences() {
     let r = replay();
     assert_eq!(r["client_delivery_ACK"], false);
@@ -214,6 +215,7 @@ fn r536_native_quit_actual_generated_normal_io_peer_and_duplicate_sequences() {
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r536_native_quit_intent_version_missing_reply_and_late_receipt_counterexamples() {
     let r = replay();
     let normal = &r["cases"][0];

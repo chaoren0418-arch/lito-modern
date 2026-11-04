@@ -5,11 +5,11 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 
 ## M0 可建置
 
-### T001 | review | Claude | `.github/workflows/build.yml`
+### T001 | done | Claude | `.github/workflows/build.yml`
 CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（允許失敗，先看結果）。
 驗收：check 綠；test 結果列在 PR／commit 說明。
 
-### T002 | todo | Cursor | `LiTo381-Modern/src/**`（只改測試 cfg）, `LiTo381-Modern/tests/**`
+### T002 | review | Claude | `LiTo381-Modern/src/**`（只改測試 cfg）, `logs/continuation-20261003/**`, `docs/TESTING.md`
 把需要視窗／socket／原資源的測試標 `#[ignore]` 並加註原因（`// requires: window | socket | assets`），讓 `cargo test --lib` 與 `cargo test --tests` 在乾淨機器可跑完。
 驗收：CI `cargo test` 不再 continue-on-error 也能綠；ignored 數量與原因列在 `docs/TESTING.md`。
 

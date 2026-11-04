@@ -1,0 +1,16 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "SQL": false,
+  "base_archives_streamed": true,
+  "body_rgba_sha256": "02e632aa45348a648c752c1b797c4e3389c7f7af1f6c6b38471b1c03c6a735f3",
+  "cross_owner_completion_refused": true,
+  "explicit_study_not_weapon_authority": true,
+  "four_pinned_MISS_then_base_members": true,
+  "identity_digest": "6337830c57f3adaf88e99d744381045ff93f493369cdfc3c6db57e408736e200",
+  "opaque_partial_accepted": true,
+  "profile1_class0_sex0": true,
+  "raw_decoded_text_and_selected_member_ranges_verified": true,
+  "retire_cancels": true,
+  "state": "REAL_ACTOR_DEPENDENCY_PARTIAL_VERIFIED"
+}

@@ -1,0 +1,78 @@
+{
+  "input": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f\\consumer-input.json",
+  "input_sha256": "068B0CBB91DB9DBD72A0FE03586445FE5B25868D0A9AE56B7ED8E7A1133471BB",
+  "candidate": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f",
+    "files_verified": 3401,
+    "manifest_sha256": "0FEA7CEDD03B4226BC0E9D6612F1DB2208577C84A57E5610C8EF099AF119942D",
+    "vectors": [
+      {
+        "name": "sql90/catalog-sql-wire-capture.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f\\evidence\\sql90\\catalog-sql-wire-capture.json",
+        "sha256": "D1098A78139C4C06355DA9AF6A7F514CB29F7BB80DC6CC62CAD65980D4504382"
+      },
+      {
+        "name": "sql90/catalog-sql-wire-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f\\evidence\\sql90\\catalog-sql-wire-vectors.json",
+        "sha256": "E9EF696C21252B4EB87418013B51A33F070B90F282E0453A0E65426DF814CF2E"
+      },
+      {
+        "name": "sql90/discovery-original-pairs.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f\\evidence\\sql90\\discovery-original-pairs.json",
+        "sha256": "9EE1524A872C69E53893AA4C77160EA9E6FA726F88324C1D98AA9DBC5FDAAB7B"
+      },
+      {
+        "name": "sql92/actor-sql-wire-capture.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f\\evidence\\sql92\\actor-sql-wire-capture.json",
+        "sha256": "1B17D28CB2949E646E14915A688F08065AFC531B436BCD7852E0F96B49C93CDB"
+      },
+      {
+        "name": "sql92/actor-sql-wire-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f\\evidence\\sql92\\actor-sql-wire-vectors.json",
+        "sha256": "061CC69F9494F145306E57432E061DC66F108CCF138B87A5DB938AE24DDADA3B"
+      },
+      {
+        "name": "sql92/discovery-original-pairs.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-candidate-757f60685b6546a08434cb470754a41f\\evidence\\sql92\\discovery-original-pairs.json",
+        "sha256": "508232DBB6C6B175F2E703637FCA54A32008527D61B1750CCDA07C0979678EAB"
+      }
+    ]
+  },
+  "replay": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-replay-79a822735d8e4d15bec73ceebc43fab0",
+    "files_verified": 35,
+    "manifest_sha256": "9F5317EADA81DAECAAD960295EDC364F870F9DC682507166CE8713AEF4AABC84",
+    "vectors": [
+      {
+        "name": "sql90/catalog-sql-wire-capture.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-replay-79a822735d8e4d15bec73ceebc43fab0\\sql90\\catalog-sql-wire-capture.json",
+        "sha256": "55FE8478EB8FD36558F8DA3A9AF1D37C2148B5020B6E1E6C60998AA0E09CEF87"
+      },
+      {
+        "name": "sql90/catalog-sql-wire-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-replay-79a822735d8e4d15bec73ceebc43fab0\\sql90\\catalog-sql-wire-vectors.json",
+        "sha256": "CF5B5ED7722F5F8B1BE1B1FFB546B3F2795CA5C8FEE30B92D65DF26C8D365334"
+      },
+      {
+        "name": "sql90/discovery-original-pairs.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-replay-79a822735d8e4d15bec73ceebc43fab0\\sql90\\discovery-original-pairs.json",
+        "sha256": "0A78457741D25EC5B991568AAB07C0B1A4A5E1C7209CF6B3CEA9E386BE47B3C5"
+      },
+      {
+        "name": "sql92/actor-sql-wire-capture.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-replay-79a822735d8e4d15bec73ceebc43fab0\\sql92\\actor-sql-wire-capture.json",
+        "sha256": "4F431B87623E8D673D1456C006F1EB1F1A5E34A07868755D872562812DE17C17"
+      },
+      {
+        "name": "sql92/actor-sql-wire-vectors.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-replay-79a822735d8e4d15bec73ceebc43fab0\\sql92\\actor-sql-wire-vectors.json",
+        "sha256": "C4C8FB651203D0BDB2798B2298D872C2FA727A1368442C8AE7FE0D1A20D41112"
+      },
+      {
+        "name": "sql92/discovery-original-pairs.json",
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r433-catalog-replay-79a822735d8e4d15bec73ceebc43fab0\\sql92\\discovery-original-pairs.json",
+        "sha256": "DE820C91C1C98614CB364644083AFEFED1327D97726B29DC01B24A106A5BE5B7"
+      }
+    ]
+  }
+}

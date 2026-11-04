@@ -1,0 +1,712 @@
+{
+  "FirePot_rows": 22,
+  "GUI": 0,
+  "LOADED": false,
+  "body_clock_table_substitution_refused": true,
+  "body_conditional_player_global": 20000,
+  "body_object_id": 10275,
+  "body_object_substitution_refused": true,
+  "body_rows": 8,
+  "first_frame_is1_after_opcode32": true,
+  "foreign_job_event_refused": true,
+  "images": [
+    {
+      "kind": "effect",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r434e-conditional-event-cpu\\firepot-38-step-1-frame-1.png",
+      "rgba_sha256": "23247f7e246129800152da8fae17088d6dd5ec2527d3f835868df6a5f6f16623",
+      "sha256": "39fd6714e9da85b41b0fe6942b0028820f92f802d84bae685847e32ca388a978",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 584,
+        "due_ms": 584,
+        "frame": 1,
+        "next_due_ms": 669,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 1,
+        "state": "OPCODE32_ACTION_FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "kind": "effect",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r434e-conditional-event-cpu\\firepot-38-step-11-frame-0.png",
+      "rgba_sha256": "e1a460990a0a8a3ed44581349f9b7fdc894e27677e2715684d22f49b35872c5f",
+      "sha256": "dd053a7d9fe78b8f70584ac3ba3151cf67cf2691b470bbcc382328b921059935",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1434,
+        "due_ms": 1434,
+        "frame": 0,
+        "next_due_ms": null,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 11,
+        "state": "FIRST_ANIMATION_END_CONTINUATION_UNQUALIFIED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "kind": "effect",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r434e-conditional-event-cpu\\firepot-123-step-1-frame-1.png",
+      "rgba_sha256": "6f9ce6afa87acaee2ae5cdb582fa14aab84d1043ea35e000fdd30ee1e87a5e36",
+      "sha256": "aefd087476700d853033e0a4de777f513085afcccd35d06eac027ad7d35b7497",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 584,
+        "due_ms": 584,
+        "frame": 1,
+        "next_due_ms": 669,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 1,
+        "state": "OPCODE32_ACTION_FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "kind": "effect",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r434e-conditional-event-cpu\\firepot-123-step-11-frame-0.png",
+      "rgba_sha256": "3b4355a3c5898c42b3d2625d69d201cbe59b99293ed7f8261ecb88954491a580",
+      "sha256": "2f872db45a296df375e07fe5aaafaf584145dcf51a10812fb2380995602a72a0",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1434,
+        "due_ms": 1434,
+        "frame": 0,
+        "next_due_ms": null,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 11,
+        "state": "FIRST_ANIMATION_END_CONTINUATION_UNQUALIFIED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "kind": "body",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r434e-conditional-event-cpu\\body-step-1-frame-1.png",
+      "rgba_sha256": "a2d1a3af1bef92b65bf728fe443706929d085f7e61a9aa2b7f92f7101588d9bd",
+      "sha256": "fc97a299a2a784f4fa6db5659658a807524b767069f3b0cb66f159fe12936d6f",
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 0,
+        "due_ms": 0,
+        "frame": 1,
+        "next_due_ms": 168,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 1,
+        "state": "OPCODE32_ACTION_FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "kind": "body",
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r434e-conditional-event-cpu\\body-step-8-frame-0.png",
+      "rgba_sha256": "5c53aebf2fb4faa69ba63f3b9c24f12d8fba28ea56e6735605cb9da0e0149c13",
+      "sha256": "7db4750f647dab53fc4d1eaa9fb28395b8d6a42f95d3e6e7e468354ace4b67da",
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1176,
+        "due_ms": 1176,
+        "frame": 0,
+        "next_due_ms": null,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 8,
+        "state": "FIRST_ANIMATION_END_CONTINUATION_UNQUALIFIED",
+        "timer_queue_after_removal": 0
+      }
+    }
+  ],
+  "model_retire_refuses_held_event": true,
+  "opaque_partial_completed": true,
+  "original_BIN_executed": false,
+  "original_loop_or_lifetime_inferred": false,
+  "owner_retire_cancels": true,
+  "rows": [
+    {
+      "RGBA_sha256": "23247f7e246129800152da8fae17088d6dd5ec2527d3f835868df6a5f6f16623",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 584,
+        "due_ms": 584,
+        "frame": 1,
+        "next_due_ms": 669,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 1,
+        "state": "OPCODE32_ACTION_FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "c2331a51d1547cfa3c7b8d06cc308016438d65da34a97f0c961f2273fa5a907d",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 669,
+        "due_ms": 669,
+        "frame": 2,
+        "next_due_ms": 754,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 2,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "decda2ac6b2dc3163ec42eaabf9a64d6a692e52e0d76aae6b904bcdfd1bfcc00",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 754,
+        "due_ms": 754,
+        "frame": 3,
+        "next_due_ms": 839,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 3,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "2b573c80239a155e681bcd49a9d45c90645d872bf7dea8729a385c349b13a39d",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 839,
+        "due_ms": 839,
+        "frame": 4,
+        "next_due_ms": 924,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 4,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "1b57be1525a92c3ecdcfc78010aaad9a4919ae8c7275095c4fac5a6089758e79",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 924,
+        "due_ms": 924,
+        "frame": 5,
+        "next_due_ms": 1009,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 5,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "79ff2a41145edc426edfb127eef33fee29d685ea03a3d405a5cb08922fcad2af",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1009,
+        "due_ms": 1009,
+        "frame": 6,
+        "next_due_ms": 1094,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 6,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "2e38ccb991caeca20358c3a6818b0bf9d866cba76406d4e5681661b8ae1635b7",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1094,
+        "due_ms": 1094,
+        "frame": 7,
+        "next_due_ms": 1179,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 7,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "03a367d8135a93daa0f24d60d65a1d2df90410a36ae5f84cb095b36c7ba951e4",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1179,
+        "due_ms": 1179,
+        "frame": 8,
+        "next_due_ms": 1264,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 8,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "df2bb584e1f7f2bb02fd12458481af76ac5abfa4baa5bc0e34883d701e347ca0",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1264,
+        "due_ms": 1264,
+        "frame": 9,
+        "next_due_ms": 1349,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 9,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "57a267d0559914acc0f2e9bf2c77e4c4a017416a1fa94ddd2f7a104a5bfa53cf",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1349,
+        "due_ms": 1349,
+        "frame": 10,
+        "next_due_ms": 1434,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 10,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "e1a460990a0a8a3ed44581349f9b7fdc894e27677e2715684d22f49b35872c5f",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 38,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1434,
+        "due_ms": 1434,
+        "frame": 0,
+        "next_due_ms": null,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 11,
+        "state": "FIRST_ANIMATION_END_CONTINUATION_UNQUALIFIED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "6f9ce6afa87acaee2ae5cdb582fa14aab84d1043ea35e000fdd30ee1e87a5e36",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 584,
+        "due_ms": 584,
+        "frame": 1,
+        "next_due_ms": 669,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 1,
+        "state": "OPCODE32_ACTION_FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "d5a18d1eebc62ded1196c463b60ae97b6d8a65fd17be67baf8b53bcee889710e",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 669,
+        "due_ms": 669,
+        "frame": 2,
+        "next_due_ms": 754,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 2,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "beeb735c2521f6396542e5578fdcba55b3cb7863aa2830a0f55fc2f0f8c7b757",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 754,
+        "due_ms": 754,
+        "frame": 3,
+        "next_due_ms": 839,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 3,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "d36d76495a05563832d529f993a5c49cbe3e59f07b409b39f4aa55260c4c58a0",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 839,
+        "due_ms": 839,
+        "frame": 4,
+        "next_due_ms": 924,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 4,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "aa0238e35c892afb45e4f29d8575113f06e855b70bec84afa9dee0a6c57ebf8b",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 924,
+        "due_ms": 924,
+        "frame": 5,
+        "next_due_ms": 1009,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 5,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "9a7598454742cfceaf286527f31dada28a70e76a41c883098fe57777f90430c1",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1009,
+        "due_ms": 1009,
+        "frame": 6,
+        "next_due_ms": 1094,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 6,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "23c2f41eeb2beda05a9b205517ded2269c781bcc8d902fe24ae9b5d60c12d757",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1094,
+        "due_ms": 1094,
+        "frame": 7,
+        "next_due_ms": 1179,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 7,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "8f85a1d0c94fdc5cc1b26cec0445d514363671f468cc58c3f28d1f108c3eab84",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1179,
+        "due_ms": 1179,
+        "frame": 8,
+        "next_due_ms": 1264,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 8,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "869dac6b8d699eb0ce50856117f18597ffeacfa575728d020318c4342b47111d",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1264,
+        "due_ms": 1264,
+        "frame": 9,
+        "next_due_ms": 1349,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 9,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "24b7bfde90a20bc25836da12162ad269864afbf27541221f1184941221ce3727",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1349,
+        "due_ms": 1349,
+        "frame": 10,
+        "next_due_ms": 1434,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 10,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "3b4355a3c5898c42b3d2625d69d201cbe59b99293ed7f8261ecb88954491a580",
+      "asset": "FirePot",
+      "clock_domain": "explicit conditional relative anchor0, original runtime not observed",
+      "sprite": 123,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1434,
+        "due_ms": 1434,
+        "frame": 0,
+        "next_due_ms": null,
+        "object_id": 1073741823,
+        "returned_duration_ms": 83,
+        "sequence": 11,
+        "state": "FIRST_ANIMATION_END_CONTINUATION_UNQUALIFIED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "a2d1a3af1bef92b65bf728fe443706929d085f7e61a9aa2b7f92f7101588d9bd",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 0,
+        "due_ms": 0,
+        "frame": 1,
+        "next_due_ms": 168,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 1,
+        "state": "OPCODE32_ACTION_FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "9715b78199d1522783e788023c621c5a6c845b202ec895299e74b55f59cc88ec",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 168,
+        "due_ms": 168,
+        "frame": 2,
+        "next_due_ms": 336,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 2,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "cfb784f973957852dbf250e692d3971a8f044a67825818b02508405207d5cc90",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 336,
+        "due_ms": 336,
+        "frame": 3,
+        "next_due_ms": 504,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 3,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "5064a92f02bc63265dcb790d2448c79c4e8b3b1faed31e9b85a8941e03e3e80b",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 504,
+        "due_ms": 504,
+        "frame": 4,
+        "next_due_ms": 672,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 4,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "59e7ec77a1ba1e1d2017f89b4f8026af7a8300be650ffefa8be256659094057f",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 672,
+        "due_ms": 672,
+        "frame": 5,
+        "next_due_ms": 840,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 5,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "dc64e9d1399f08d33ea2704cdfe64c3e968bc77e3c139382ef654eb47923cce7",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 840,
+        "due_ms": 840,
+        "frame": 6,
+        "next_due_ms": 1008,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 6,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "f7e90ca4c62faae937df718841472b40352631775ce0c64c1d42cc79a63225aa",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1008,
+        "due_ms": 1008,
+        "frame": 7,
+        "next_due_ms": 1176,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 7,
+        "state": "FRAME_ADVANCED",
+        "timer_queue_after_removal": 0
+      }
+    },
+    {
+      "RGBA_sha256": "5c53aebf2fb4faa69ba63f3b9c24f12d8fba28ea56e6735605cb9da0e0149c13",
+      "actual_equipment_inferred": false,
+      "asset": "PrinceIdle",
+      "events_retained_unplayed": 0,
+      "step": {
+        "action": 3,
+        "actor_queue_after_pop": 0,
+        "dispatch_ms": 1176,
+        "due_ms": 1176,
+        "frame": 0,
+        "next_due_ms": null,
+        "object_id": 10275,
+        "returned_duration_ms": 166,
+        "sequence": 8,
+        "state": "FIRST_ANIMATION_END_CONTINUATION_UNQUALIFIED",
+        "timer_queue_after_removal": 0
+      }
+    }
+  ],
+  "rows_count": 30,
+  "source_anchor_values_runtime_observed": false,
+  "state": "REAL_ASSET_CONDITIONAL_EVENT_SEQUENCES_AND_PARTIAL_VERIFIED"
+}

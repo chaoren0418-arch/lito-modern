@@ -1,0 +1,1113 @@
+{
+  "CPU_frames": 36,
+  "GUI": 0,
+  "UI_light_runtime_side_effects_unqualified": true,
+  "actor_cell_written_only_on_end0": true,
+  "arrival_decision_clock": 1664,
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    },
+    {
+      "bytes": 1146,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r429-catalog-snapshot.json",
+      "sha256": "1544325f7ba7f899da7fb7e89d15969b3314700cc7520d7462fbacd3045ef4ea"
+    },
+    {
+      "bytes": 9888,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.idx",
+      "sha256": "b8c0bb8c43affe59a90ebd2d26182269b6d60af388c80963eaaeedc8d8ae23c8"
+    },
+    {
+      "bytes": 292553,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.pak",
+      "sha256": "517d853e3fe91b504953ff4b9b2eed682a3612d063f2d18e75e39fd5580f342d"
+    },
+    {
+      "bytes": 39135,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\decoded-LTlist.spr",
+      "sha256": "f55779aeb5c3982d8b366068cdbe4003d802619074e54388f26ee87368f42603"
+    },
+    {
+      "bytes": 117352,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-source-input/38-0.spr",
+      "sha256": "b4507d8337497aef8b3fc3a28f8fef87e344d176b8a31a7e634c08a0976aef8d"
+    }
+  ],
+  "full_native_locomotion_execution_qualified": false,
+  "hardware_mouse_to_transformed_argument_producer_unobserved": true,
+  "idle_continuations_executed": [
+    2416,
+    2584,
+    2752
+  ],
+  "images": [
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\00-1000-SOURCE_CONDITIONAL_4E2150_START.png",
+      "sha256": "79d241a2e7ef85219791b6377d206f36e4e30592b5cdd5907b5f95d1b70f9b21"
+    },
+    {
+      "RGBA_sha256": "411eaf9a9796dcfb20200cdd1278ceabbd14e7f3eb19eb22826a6ac2451d0f4f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\01-1084-FireFirst.png",
+      "sha256": "12c4616870f9c05aace3671b6a80ae6ff6ff0faf0d9c882a5013e59fdd2256cb"
+    },
+    {
+      "RGBA_sha256": "56da8c28ffcc20138760c2babe457ec8b81218a9c7bd12672027c59dc2d52d0b",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\02-1166-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "e10ff2e1447c38493a783e7e6c9ec4170fc147fcefe7e6d65d27bbc54ffdd1c4"
+    },
+    {
+      "RGBA_sha256": "95713218499f8a00d2c0b255aefa37831e8dea1b5478d2c28d9c23ba6dc139db",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\03-1169-FireAdvance.png",
+      "sha256": "89d2aad9c9b9449e5f7f8608dbe571d91bbfef2ff3204b22f11ac750f20b8918"
+    },
+    {
+      "RGBA_sha256": "f437a04888bbd2ed221a24cf1ff0835c06161b90be327eff907aa9d1f32493d5",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\04-1254-FireAdvance.png",
+      "sha256": "f1fcf29e54f1f3885bfc75312ff12e20d865fa89f911a74b781aba5e5d8dd6ec"
+    },
+    {
+      "RGBA_sha256": "bae46aa1ccdd13afd7688c2c9b9ea4e18422b5748f66974f20e5f958a7918371",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\05-1332-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "74203bf24d1d6c1fca9cf57c238e9661d5bb533ca9aa3572854535b1950e51ab"
+    },
+    {
+      "RGBA_sha256": "57374bd671435d5f9f7e68ca422358eaa802036931ec822ce5a111b4291e171a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\06-1339-FireAdvance.png",
+      "sha256": "bb2fb1026acf94eaf63133d11795347067bd893c5356ab4573720a583ab0ebdc"
+    },
+    {
+      "RGBA_sha256": "bbc936820fffcc61a4de64c7720621408abd035567c350ea2347f9b49ab85d31",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\07-1424-FireAdvance.png",
+      "sha256": "7782a3771739eaa4dbb5c2b7ba39c38afa9831f01fd1c9c3e00ca62e9c87a8ff"
+    },
+    {
+      "RGBA_sha256": "0b03141e5e882c118ab1bd5e453c254ee25f6985761382a3ff003ae52835670e",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\08-1498-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "a02cdc1a71cedce439c0d14160e5614bb66e2331f57f055389348ceeb3df7ff2"
+    },
+    {
+      "RGBA_sha256": "aea18792c702e7509d2ef64bc8a70064fef41c9438b82a2b4a9acd6d09e57692",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\09-1509-FireAdvance.png",
+      "sha256": "7307cfa8af2054f354f9c90c6ca3bdc2aca054e9fa589cd48a68279e4703823d"
+    },
+    {
+      "RGBA_sha256": "5552772b09d15ca779b0662fb7461819ee7808e91c64051ae721c933d4980141",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\10-1548-Roof_1_.png",
+      "sha256": "8e37b77eea349033e58595d0720317b7f5ffc2a9b60b84d7c5c801e18bd028bd"
+    },
+    {
+      "RGBA_sha256": "1e4d04baef0ad290213ebf0274e11a1ca855a0f8a2c45f37bf4dfbd4129c37d2",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\11-1548-Roof_2_.png",
+      "sha256": "b5225d3907dd461f878f4e3686a0674a0ab0664cb037596a8255e676845644dc"
+    },
+    {
+      "RGBA_sha256": "e0f653cfa98c2759e3d90b5fa49fdf49b78fd37c1d1387170a4db03824f2e107",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\12-1594-FireAdvance.png",
+      "sha256": "66eb6e9ee9289acd6c23c42b4d5368760989c5d84f0434ee58aba6e2ae4eecaf"
+    },
+    {
+      "RGBA_sha256": "ebfa360e30e882f3da697b678252cdf9b708397f85df2ed88f8a96cad16b2af7",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\13-1598-Roof_3_.png",
+      "sha256": "a925cd03bef3c1d3b53abdd90b4dc333d85ecd7be159d761f8f625542c77835f"
+    },
+    {
+      "RGBA_sha256": "f1af1d033f33cf4f8ac1bdf671cbd00deb8456d742d2837059ddc6a752df5d27",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\14-1598-Roof_4_.png",
+      "sha256": "ccd36c4701d5b48ff596f1902e49e7749dcf8700f02b9e843b21daced2c2512c"
+    },
+    {
+      "RGBA_sha256": "6d60d8f72b4e0061a4f84c26490cec5dd11d5b0d87a5b35aff6ae7ad7d7b1e5a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\15-1648-Roof_5_.png",
+      "sha256": "5f384bf8edc9975a205f2ad92e35f831ac893745c9362d60212dd3f358deeb32"
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\16-1648-Roof_6_.png",
+      "sha256": "ce9ae2aa86015fcd72391d6cb4a4e47bad7824fd6bff9fa8d4b6675a3698e9e6"
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\17-1664-SOURCE_CONDITIONAL_Arrival.png",
+      "sha256": "ce9ae2aa86015fcd72391d6cb4a4e47bad7824fd6bff9fa8d4b6675a3698e9e6"
+    },
+    {
+      "RGBA_sha256": "61a5838b91c3a97eff1b38e77f00a7bc84b73beb9a78fd62bcabb9126b56a974",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\18-1679-FireAdvance.png",
+      "sha256": "77ac02d4bd4b46c5803454667e2799f467c87627c5e94cb3b53dec9559cbdde6"
+    },
+    {
+      "RGBA_sha256": "3a07bc4f2e89a14cd84225d591d4e41c8a2313a9b0f3773ba21e97c7cc576cdb",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\19-1698-Roof_7_.png",
+      "sha256": "6ef1dded973c1d6584b822aa9f012cc983d92c2e5f812cbc7369411467a5e19a"
+    },
+    {
+      "RGBA_sha256": "a011ea73c3fcbc8f612212a1040aa260cf8b1605e51bac92042ae92dcf3371bf",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\20-1698-Roof_8_.png",
+      "sha256": "7a1e2b77007e2e7f9a28540df7f8a1aaaff900898f8543c45ea8274b2f2b2c11"
+    },
+    {
+      "RGBA_sha256": "3ba7576456652e00da29ae431853f75773682b1217203aa13b8d0507bb262066",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\21-1764-FireAdvance.png",
+      "sha256": "593506412054f4ec81cf30a8577c8b28f2310cc48c1cf764196c56bda1aa101d"
+    },
+    {
+      "RGBA_sha256": "4475126340f16ee52ce98354352f1e172efb9623a63bdf05d364dbcfc15c9eb5",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\22-1849-FireAdvance.png",
+      "sha256": "aafb4363d9d9bbb027762131f77b4b24c4bb97df93497b38c584b4e45dbe8052"
+    },
+    {
+      "RGBA_sha256": "81ac619c79903802b4dbfae221e36d4639a4a068557d05f9c645f07e97b4bda3",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\23-1934-FireAdvance.png",
+      "sha256": "39885e41c3596dd42f6cefe230650cf5e64b7399d25313f13ee21318e5f25263"
+    },
+    {
+      "RGBA_sha256": "9ab3c543749dc18b5c7a7f11d2a2b3d18343f98353a6f0e34dc2a42e76e12299",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\24-2017-FireAdvance.png",
+      "sha256": "ee6e205089f6e5d54a47b4afbc08333a235937b3b14e6856d8e84cb7e4051505"
+    },
+    {
+      "RGBA_sha256": "9710026ce39121d63e000a346114e8671e2438e3317e25c30063d8badeca20e4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\25-2102-FireAdvance.png",
+      "sha256": "fe41b8fa7216cf4af14ad8f73c1370014a1fe27e8246a53dad2ad3d907e7603c"
+    },
+    {
+      "RGBA_sha256": "995a619956cff8578bac6b5b7992bcba6eab7dac17cf39c396aae7f421b1594a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\26-2187-FireAdvance.png",
+      "sha256": "c923fe115bd15a5345e1856e8e9da1785a7900efaeeb41855e1c98416a3e6b72"
+    },
+    {
+      "RGBA_sha256": "55dae90ab80eea76f51bc4b523a8a89cf3d9f8ec5c612de3c3c0cc590fb0b303",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\27-2248-SOURCE_CONDITIONAL_IdlePop.png",
+      "sha256": "72928409e5d2eedd070e3e10c5b267f1820dda2e29a534d11eda5264990526e9"
+    },
+    {
+      "RGBA_sha256": "e8b05e80833af969fc957e5ec0bc82cab8373f17cf217b07f2a69a731c47cef6",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\28-2272-FireAdvance.png",
+      "sha256": "43f897760c884dc7b9abfc020d647dda97356338622b991ef2bdc6104a2c1c16"
+    },
+    {
+      "RGBA_sha256": "6cf66b3b37015cb87d0951a4be67456ef61d20429e387f33cd706bb19b23880c",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\29-2357-FireAdvance.png",
+      "sha256": "d170bac22e68c952883d4b8435277cf358c714e6dd4c76efd3ff46ed7246c4b5"
+    },
+    {
+      "RGBA_sha256": "b01d40971d4093e96820a290a134ce8b2d792d7c46142fec94bc6209809fa0e7",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\30-2416-SOURCE_CONDITIONAL_IdleAdvance.png",
+      "sha256": "628bfdb24eddfcb0170a6ec1f5533213737aadfd0e970a9a85b2f03fab4696b3"
+    },
+    {
+      "RGBA_sha256": "5bcbe07f9146a58fde875062e10f7f4dde29222976e0034dbe72f78594b6f22d",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\31-2442-FireAdvance.png",
+      "sha256": "c9823307465c9b0a4dc70519751851ae5423ebbe3951dd90e0b6e60525c12eed"
+    },
+    {
+      "RGBA_sha256": "79d18ccaa9b57d18d79cdabaf87435334d5ebc6fbe85629fe6661c81fc632a96",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\32-2500-SOURCE_CONDITIONAL_SECTOR_FIREPOT_REMOVAL.png",
+      "sha256": "d088503838ab6e27bea463ab4864b748ba709197247ac6352ab72f5da15525e9"
+    },
+    {
+      "RGBA_sha256": "6e0ae84f79f9fd6673e869d5041490dfed99bd9496daaa9fb728ee0e5c5b8f6a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\33-2584-SOURCE_CONDITIONAL_IdleAdvance.png",
+      "sha256": "6386a4b1a4333dc0f17b9354eeab1624d38b5262575365265caa2aeefcbedb78"
+    },
+    {
+      "RGBA_sha256": "1899986e368f155bf5cc14deba9e2aa369b96c4f1250ad7d3664c0bd0abdcde8",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\34-2752-SOURCE_CONDITIONAL_IdleAdvance.png",
+      "sha256": "934376e6187c10bc0d58fef3ec0e0f7516adc270cd9a130ef9184cddf0c1c4e7"
+    },
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r459-source-locomotion-scene-cpu\\reentered-new-private-owner-start.png",
+      "sha256": "79d241a2e7ef85219791b6377d206f36e4e30592b5cdd5907b5f95d1b70f9b21"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-76.spr": {
+      "bytes": 8504,
+      "path": "resources/3476-76.spr",
+      "sha256": "AD5E88E26073E26B9DF6C725FE033F65F51D578FC5FFEBF91581A768E2E89377"
+    },
+    "resources/3476-84.spr": {
+      "bytes": 14332,
+      "path": "resources/3476-84.spr",
+      "sha256": "6C9314F042DBF63715EA94DBF8A77910ADD2BA27C5D58C46E79AF112F9D5B34B"
+    },
+    "resources/3476-88.spr": {
+      "bytes": 12043,
+      "path": "resources/3476-88.spr",
+      "sha256": "641ABA44DCC8315DBCBBED698777A976A851B1B98F7A9EDBDBA0CE2EB98BDB17"
+    },
+    "resources/3477-76.spr": {
+      "bytes": 1077,
+      "path": "resources/3477-76.spr",
+      "sha256": "8A3FB7AEC8D95D7B4B17644D31ED78B8F061C9D1B7BBFED17D02EDE57F8BBD84"
+    },
+    "resources/3477-84.spr": {
+      "bytes": 2291,
+      "path": "resources/3477-84.spr",
+      "sha256": "02B2F8699DE38CFA34B68F2D700615C7BFF72E3FC0BECD6A5A11A05607A083A8"
+    },
+    "resources/3477-88.spr": {
+      "bytes": 2001,
+      "path": "resources/3477-88.spr",
+      "sha256": "7C1FD85B5FD7580CD9A91499B38D1B4AC38DEF1AEE1BF3858215930BF212CD6D"
+    },
+    "resources/6260-76.spr": {
+      "bytes": 65,
+      "path": "resources/6260-76.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-84.spr": {
+      "bytes": 135,
+      "path": "resources/6260-84.spr",
+      "sha256": "1B15E29C7271BB18CAC44C6E41D19811A383EBDB6D3005B5EF0EC3F581CB8813"
+    },
+    "resources/6260-88.spr": {
+      "bytes": 93,
+      "path": "resources/6260-88.spr",
+      "sha256": "EF06D41DF96C7BB073B6FA331448A1C407D9D0B7BC61B0EA3A8EC5BBCF1EC6E1"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "live_appearance_authority_bound": false,
+  "locomotion": [
+    {
+      "action": 46,
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "camera_offset": [
+        518,
+        483
+      ],
+      "camera_ring": [
+        634,
+        417
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 1000,
+      "frame": 1,
+      "new_timer_clocks": [
+        1166,
+        1332,
+        1498
+      ],
+      "raw_events": "",
+      "sub": 1,
+      "wire_move_record": [
+        32755,
+        32788,
+        4
+      ]
+    },
+    {
+      "action": 46,
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "camera_offset": [
+        524,
+        486
+      ],
+      "camera_ring": [
+        628,
+        414
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 1166,
+      "frame": 2,
+      "new_timer_clocks": [],
+      "raw_events": "<479",
+      "sub": 2,
+      "wire_move_record": null
+    },
+    {
+      "action": 46,
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "camera_offset": [
+        530,
+        489
+      ],
+      "camera_ring": [
+        622,
+        411
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 1332,
+      "frame": 3,
+      "new_timer_clocks": [],
+      "raw_events": "",
+      "sub": 3,
+      "wire_move_record": null
+    },
+    {
+      "action": 46,
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "camera_ring": [
+        616,
+        408
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": true,
+      "clock": 1498,
+      "frame": 0,
+      "new_timer_clocks": [
+        1664
+      ],
+      "raw_events": "<478",
+      "sub": 0,
+      "wire_move_record": null
+    },
+    {
+      "action": 46,
+      "active_move": false,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "camera_ring": [
+        616,
+        408
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 1664,
+      "frame": 0,
+      "new_timer_clocks": [
+        2248
+      ],
+      "raw_events": "<478",
+      "sub": 0,
+      "wire_move_record": null
+    },
+    {
+      "action": 49,
+      "active_move": false,
+      "bank": 84,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "camera_ring": [
+        616,
+        408
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 2248,
+      "frame": 1,
+      "new_timer_clocks": [
+        2416
+      ],
+      "raw_events": "",
+      "sub": 0,
+      "wire_move_record": null
+    },
+    {
+      "action": 49,
+      "active_move": false,
+      "bank": 84,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "camera_ring": [
+        616,
+        408
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 2416,
+      "frame": 2,
+      "new_timer_clocks": [
+        2584
+      ],
+      "raw_events": "",
+      "sub": 1,
+      "wire_move_record": null
+    },
+    {
+      "action": 49,
+      "active_move": false,
+      "bank": 84,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "camera_ring": [
+        616,
+        408
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 2584,
+      "frame": 3,
+      "new_timer_clocks": [
+        2752
+      ],
+      "raw_events": "",
+      "sub": 2,
+      "wire_move_record": null
+    },
+    {
+      "action": 49,
+      "active_move": false,
+      "bank": 84,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "camera_ring": [
+        616,
+        408
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 2752,
+      "frame": 4,
+      "new_timer_clocks": [
+        2920
+      ],
+      "raw_events": "",
+      "sub": 3,
+      "wire_move_record": null
+    }
+  ],
+  "negative_cases": 40,
+  "new_private_owner_reentry_old_callbacks_refused": true,
+  "queued_idle49_clock": 2248,
+  "renderer_LOADED": false,
+  "roof_groups": [
+    136,
+    168
+  ],
+  "rows": [
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "clock": 1000,
+      "fire_frame": null,
+      "kind": "SOURCE_CONDITIONAL_4E2150_START",
+      "player_bank_sub": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "411eaf9a9796dcfb20200cdd1278ceabbd14e7f3eb19eb22826a6ac2451d0f4f",
+      "clock": 1084,
+      "fire_frame": 1,
+      "kind": "FireFirst",
+      "player_bank_sub": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "56da8c28ffcc20138760c2babe457ec8b81218a9c7bd12672027c59dc2d52d0b",
+      "clock": 1166,
+      "fire_frame": 1,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player_bank_sub": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "95713218499f8a00d2c0b255aefa37831e8dea1b5478d2c28d9c23ba6dc139db",
+      "clock": 1169,
+      "fire_frame": 2,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "f437a04888bbd2ed221a24cf1ff0835c06161b90be327eff907aa9d1f32493d5",
+      "clock": 1254,
+      "fire_frame": 3,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "bae46aa1ccdd13afd7688c2c9b9ea4e18422b5748f66974f20e5f958a7918371",
+      "clock": 1332,
+      "fire_frame": 3,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player_bank_sub": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "57374bd671435d5f9f7e68ca422358eaa802036931ec822ce5a111b4291e171a",
+      "clock": 1339,
+      "fire_frame": 4,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "bbc936820fffcc61a4de64c7720621408abd035567c350ea2347f9b49ab85d31",
+      "clock": 1424,
+      "fire_frame": 5,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "0b03141e5e882c118ab1bd5e453c254ee25f6985761382a3ff003ae52835670e",
+      "clock": 1498,
+      "fire_frame": 5,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "aea18792c702e7509d2ef64bc8a70064fef41c9438b82a2b4a9acd6d09e57692",
+      "clock": 1509,
+      "fire_frame": 6,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "5552772b09d15ca779b0662fb7461819ee7808e91c64051ae721c933d4980141",
+      "clock": 1548,
+      "fire_frame": 6,
+      "kind": "Roof(1)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "1e4d04baef0ad290213ebf0274e11a1ca855a0f8a2c45f37bf4dfbd4129c37d2",
+      "clock": 1548,
+      "fire_frame": 6,
+      "kind": "Roof(2)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "e0f653cfa98c2759e3d90b5fa49fdf49b78fd37c1d1387170a4db03824f2e107",
+      "clock": 1594,
+      "fire_frame": 7,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "ebfa360e30e882f3da697b678252cdf9b708397f85df2ed88f8a96cad16b2af7",
+      "clock": 1598,
+      "fire_frame": 7,
+      "kind": "Roof(3)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "f1af1d033f33cf4f8ac1bdf671cbd00deb8456d742d2837059ddc6a752df5d27",
+      "clock": 1598,
+      "fire_frame": 7,
+      "kind": "Roof(4)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6d60d8f72b4e0061a4f84c26490cec5dd11d5b0d87a5b35aff6ae7ad7d7b1e5a",
+      "clock": 1648,
+      "fire_frame": 7,
+      "kind": "Roof(5)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "clock": 1648,
+      "fire_frame": 7,
+      "kind": "Roof(6)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "clock": 1664,
+      "fire_frame": 7,
+      "kind": "SOURCE_CONDITIONAL_Arrival",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "61a5838b91c3a97eff1b38e77f00a7bc84b73beb9a78fd62bcabb9126b56a974",
+      "clock": 1679,
+      "fire_frame": 8,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "3a07bc4f2e89a14cd84225d591d4e41c8a2313a9b0f3773ba21e97c7cc576cdb",
+      "clock": 1698,
+      "fire_frame": 8,
+      "kind": "Roof(7)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "a011ea73c3fcbc8f612212a1040aa260cf8b1605e51bac92042ae92dcf3371bf",
+      "clock": 1698,
+      "fire_frame": 8,
+      "kind": "Roof(8)",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "3ba7576456652e00da29ae431853f75773682b1217203aa13b8d0507bb262066",
+      "clock": 1764,
+      "fire_frame": 9,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4475126340f16ee52ce98354352f1e172efb9623a63bdf05d364dbcfc15c9eb5",
+      "clock": 1849,
+      "fire_frame": 10,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "81ac619c79903802b4dbfae221e36d4639a4a068557d05f9c645f07e97b4bda3",
+      "clock": 1934,
+      "fire_frame": 0,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "9ab3c543749dc18b5c7a7f11d2a2b3d18343f98353a6f0e34dc2a42e76e12299",
+      "clock": 2017,
+      "fire_frame": 1,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "9710026ce39121d63e000a346114e8671e2438e3317e25c30063d8badeca20e4",
+      "clock": 2102,
+      "fire_frame": 2,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "995a619956cff8578bac6b5b7992bcba6eab7dac17cf39c396aae7f421b1594a",
+      "clock": 2187,
+      "fire_frame": 3,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "55dae90ab80eea76f51bc4b523a8a89cf3d9f8ec5c612de3c3c0cc590fb0b303",
+      "clock": 2248,
+      "fire_frame": 3,
+      "kind": "SOURCE_CONDITIONAL_IdlePop",
+      "player_bank_sub": [
+        84,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "e8b05e80833af969fc957e5ec0bc82cab8373f17cf217b07f2a69a731c47cef6",
+      "clock": 2272,
+      "fire_frame": 4,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        84,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6cf66b3b37015cb87d0951a4be67456ef61d20429e387f33cd706bb19b23880c",
+      "clock": 2357,
+      "fire_frame": 5,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        84,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "b01d40971d4093e96820a290a134ce8b2d792d7c46142fec94bc6209809fa0e7",
+      "clock": 2416,
+      "fire_frame": 5,
+      "kind": "SOURCE_CONDITIONAL_IdleAdvance",
+      "player_bank_sub": [
+        84,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "5bcbe07f9146a58fde875062e10f7f4dde29222976e0034dbe72f78594b6f22d",
+      "clock": 2442,
+      "fire_frame": 6,
+      "kind": "FireAdvance",
+      "player_bank_sub": [
+        84,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "79d18ccaa9b57d18d79cdabaf87435334d5ebc6fbe85629fe6661c81fc632a96",
+      "clock": 2500,
+      "fire_frame": null,
+      "kind": "SOURCE_CONDITIONAL_SECTOR_FIREPOT_REMOVAL",
+      "player_bank_sub": [
+        84,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "6e0ae84f79f9fd6673e869d5041490dfed99bd9496daaa9fb728ee0e5c5b8f6a",
+      "clock": 2584,
+      "fire_frame": null,
+      "kind": "SOURCE_CONDITIONAL_IdleAdvance",
+      "player_bank_sub": [
+        84,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "1899986e368f155bf5cc14deba9e2aa369b96c4f1250ad7d3664c0bd0abdcde8",
+      "clock": 2752,
+      "fire_frame": null,
+      "kind": "SOURCE_CONDITIONAL_IdleAdvance",
+      "player_bank_sub": [
+        84,
+        3
+      ]
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "source_camera_constants_derived": true,
+  "source_camera_globals_observed": false,
+  "source_collision_outputs_observed": false,
+  "source_mouse_conversion_argument": [
+    -265,
+    -228
+  ],
+  "source_true_player_global_branch": true,
+  "source_world_reload_timer_cleanup_unqualified": true,
+  "startup_callbacks_prequeued": [
+    1166,
+    1332,
+    1498
+  ],
+  "state": "SOURCE_CONDITIONAL_TRUE_PLAYER_4E2150_PREQUEUE_CELL_ROOF_ARRIVAL_IDLE_PRIVATE_SCENE",
+  "unexecuted_next_idle2920_revoked": true,
+  "walk_audio478_479_recorded_not_played": true,
+  "wire_move_opcode10_recorded_not_sent": true
+}

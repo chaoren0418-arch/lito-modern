@@ -1,0 +1,133 @@
+{
+  "GUI": 0,
+  "absolute_cell": [
+    32749,
+    32811
+  ],
+  "conditional_ids": [
+    30001,
+    10038
+  ],
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    },
+    {
+      "bytes": 1146,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r429-catalog-snapshot.json",
+      "sha256": "1544325f7ba7f899da7fb7e89d15969b3314700cc7520d7462fbacd3045ef4ea"
+    },
+    {
+      "bytes": 9888,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.idx",
+      "sha256": "b8c0bb8c43affe59a90ebd2d26182269b6d60af388c80963eaaeedc8d8ae23c8"
+    },
+    {
+      "bytes": 292553,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.pak",
+      "sha256": "517d853e3fe91b504953ff4b9b2eed682a3612d063f2d18e75e39fd5580f342d"
+    },
+    {
+      "bytes": 39135,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\decoded-LTlist.spr",
+      "sha256": "f55779aeb5c3982d8b366068cdbe4003d802619074e54388f26ee87368f42603"
+    },
+    {
+      "bytes": 117352,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-source-input\\38-0.spr",
+      "sha256": "b4507d8337497aef8b3fc3a28f8fef87e344d176b8a31a7e634c08a0976aef8d"
+    }
+  ],
+  "first_frame": 1,
+  "fragments": 24,
+  "images": [
+    {
+      "RGBA_sha256": "1d27886cf99570dc71277e485fda11f74037829e714f01c6127beda3dfe73bca",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-first-attr8-cpu\\native564-selected-effect-absent.png",
+      "sha256": "4d3b15ada6c69aad0ec4a249c2ccd4ff2db70dd1cf797473ec5c0d6f0f3e4ac8"
+    },
+    {
+      "RGBA_sha256": "101509791af3ccce5cad4d12f48b3ef465545c706d88a9a8882c79a342c70ad6",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-first-attr8-cpu\\native564-firepot38-frame1-attr8-screen.png",
+      "sha256": "d1a3405f529d2ea9d6b416cef6ba4f5aa67bacf0a12584e4787b1c3dc88d6f5b"
+    },
+    {
+      "RGBA_sha256": "7abad8c0873ff598acfdd1a443aac1f5c242dbc9cc73fe83dfe0cb1ab24ee477",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-first-attr8-cpu\\comparison-over-unqualified.png",
+      "sha256": "c537a35961da7b34f62833d6e01fbde18c827ef3a7348bcb576fb98987fc1905"
+    }
+  ],
+  "initial_delay_ms": 584,
+  "initial_due_ms": 1084,
+  "initial_queue_action": 3,
+  "initial_queue_opcode": 32,
+  "input_pins": {
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    }
+  },
+  "late_dispatch1100_fresh1110_next1195": true,
+  "missing_callback_cases": 17,
+  "missing_create_cases": 12,
+  "missing_inputs_preserve_pending": true,
+  "next_continuation_executed": false,
+  "next_due_ms": 1169,
+  "private_identity_substitution_refused": true,
+  "renderer_LOADED": false,
+  "retire_clears_future_callback": true,
+  "retire_revokes_held_frame": true,
+  "returned_duration_ms": 83,
+  "runtime_inputs_observed": false,
+  "screen_differs_from_over": true,
+  "screen_rounding_policy": "ExplicitRGB555floor reference;original external float-thunk rounding and RGB565 framebuffer unqualified",
+  "source_action0_absent": true,
+  "source_attr104": 8,
+  "source_catalog_global_offset_observed": false,
+  "source_record_index": 1,
+  "source_runtime_id_base_observed": false,
+  "source_shadow101_and_layer105_absent": true,
+  "source_sprite": 38,
+  "source_type102": 0,
+  "state": "FINITE_ACTUAL_LAYER8_FIREPOT_RECORD_CONDITIONAL_CREATE_FIRST_CALLBACK_ATTR8_STOP"
+}

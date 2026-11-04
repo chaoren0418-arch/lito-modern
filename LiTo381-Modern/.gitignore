@@ -1,4 +1,5 @@
 /target/
 /dist/
-/logs/
+/logs/*
+!/logs/continuation-20261003/
 /config/*.local.json

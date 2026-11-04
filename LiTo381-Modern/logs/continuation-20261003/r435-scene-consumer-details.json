@@ -1,0 +1,155 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "actual_equipment_inferred": false,
+  "body_actual_DATA_cell": [
+    32729,
+    32797
+  ],
+  "body_occlusion_observed_in_conditional_study": true,
+  "budget_and_retire_revoke_output": true,
+  "foreign_owner_refused": true,
+  "images": 8,
+  "natural_lifetime_qualified": false,
+  "opaque_partial_completed": true,
+  "original_BIN_executed": false,
+  "owner_retire_cancels": true,
+  "real_effect_records": 5,
+  "roof_runtime_qualified": false,
+  "rows": [
+    {
+      "RGBA_sha256": "60d9a8196bfefdf539236716cbd48a55ac144fb064e5e621008e961d8baaa369",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 707,
+      "camera": [
+        32729,
+        32797
+      ],
+      "conditional_body": false,
+      "effects": false,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\actual_DATA-effects-false.png",
+      "roof_runtime_qualified": false,
+      "scenario": "actual_DATA",
+      "sha256": "fbc3f90d9d32de642588a7bd130904532df049f9cbdba7d167c56f047f1fde06",
+      "visible_terrain": 4390
+    },
+    {
+      "RGBA_sha256": "0753d49b4c78a7569a7fbc84cf8ecd7d4ee5994633d15c0bbe496dcf6ca501c9",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 707,
+      "camera": [
+        32729,
+        32797
+      ],
+      "conditional_body": false,
+      "effects": true,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\actual_DATA-effects-true.png",
+      "roof_runtime_qualified": false,
+      "scenario": "actual_DATA",
+      "sha256": "f1462a0e2735ac763c9fad94b020f0408317867f6b7d4ddf4c003fe5531b026c",
+      "visible_terrain": 4390
+    },
+    {
+      "RGBA_sha256": "a926a1844fc89b4fc8a036ee02891b708401187fae1177130813d2c9172986ec",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 707,
+      "camera": [
+        32712,
+        32772
+      ],
+      "conditional_body": true,
+      "effects": false,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\conditional_rear-effects-false.png",
+      "roof_runtime_qualified": false,
+      "scenario": "conditional_rear",
+      "sha256": "13eee82c448eaccaba3c0ee1d813da17f6085dec8f7fad88dc4afd34f6c243fa",
+      "visible_terrain": 1497
+    },
+    {
+      "RGBA_sha256": "ee4508a28949fa0de92ba305095b92e24af239898ee633b8184f274f68b877f7",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 230,
+      "camera": [
+        32712,
+        32772
+      ],
+      "conditional_body": true,
+      "effects": true,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\conditional_rear-effects-true.png",
+      "roof_runtime_qualified": false,
+      "scenario": "conditional_rear",
+      "sha256": "26e68c0dbc22e867b417658b9d78729f7a0e0920bbd03e65fad6de7b41335437",
+      "visible_terrain": 1497
+    },
+    {
+      "RGBA_sha256": "188a6ab552c355165dcf8a0f5212bf4f439e206b96a1782527c1e57222816b7f",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 707,
+      "camera": [
+        32712,
+        32772
+      ],
+      "conditional_body": true,
+      "effects": false,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\conditional_same-effects-false.png",
+      "roof_runtime_qualified": false,
+      "scenario": "conditional_same",
+      "sha256": "362de6587d7806b21537117249272f4641d1c317f800c5549305088589fdef42",
+      "visible_terrain": 1497
+    },
+    {
+      "RGBA_sha256": "a47fea1d4c6f8b3262801991e6945e0598430f91996b19f4dc154db7dbd29034",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 0,
+      "camera": [
+        32712,
+        32772
+      ],
+      "conditional_body": true,
+      "effects": true,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\conditional_same-effects-true.png",
+      "roof_runtime_qualified": false,
+      "scenario": "conditional_same",
+      "sha256": "89071709c2db3a27ca68fb7716b474a379a575d2b016c0fa3fa52d7a0066536c",
+      "visible_terrain": 1497
+    },
+    {
+      "RGBA_sha256": "7199fb69a96d81ad7d87bc62f1e40ccf93047859441e84c7fbb69e533dbeaf1e",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 707,
+      "camera": [
+        32712,
+        32772
+      ],
+      "conditional_body": true,
+      "effects": false,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\conditional_front-effects-false.png",
+      "roof_runtime_qualified": false,
+      "scenario": "conditional_front",
+      "sha256": "fb3cc41ab56521c8c1e08c06e52c0e0f170f1d946ba5b6c774a4948f6573d138",
+      "visible_terrain": 1497
+    },
+    {
+      "RGBA_sha256": "ffbeaaa1ebb8ecac90bda74906570fd0001d9a47ce7645f8eaa2a707913e5cb7",
+      "actual_equipment_inferred": false,
+      "body_visible_pixels": 655,
+      "camera": [
+        32712,
+        32772
+      ],
+      "conditional_body": true,
+      "effects": true,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r435c-scene-cpu\\conditional_front-effects-true.png",
+      "roof_runtime_qualified": false,
+      "scenario": "conditional_front",
+      "sha256": "9a30a6062acefd2d3abc244f3906109bdf6c9d4c2fe44f1d18b6bfa2dd789f6f",
+      "visible_terrain": 1497
+    }
+  ],
+  "single_interval_frame_bounds_refused": true,
+  "source_effect_cell": [
+    32712,
+    32772
+  ],
+  "state": "REAL_NATIVE_CONDITIONAL_SCENE_INTERLEAVING_AND_OPAQUE_PARTIAL_VERIFIED"
+}

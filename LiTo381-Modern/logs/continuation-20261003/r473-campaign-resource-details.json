@@ -1,0 +1,624 @@
+{
+  "GUI": 0,
+  "R472_move5096_5263_5430_executed": false,
+  "actual_members": 10,
+  "all_rows_complete_nonempty_unique": true,
+  "conditional_600000_3000000_delays_not_dispatched": true,
+  "default_disabled": true,
+  "eligible_initializer_divisor1_remainder0_implies_index11_if_initialized": true,
+  "external_provider_executed": false,
+  "gate_eligible_languages": {
+    "1252": "e",
+    "949": "k"
+  },
+  "historical_focused_tests_rerun": 0,
+  "indexed_rows": 75140,
+  "language_gate_comparisons": 65536,
+  "language_variants": 5,
+  "member_facts": [
+    {
+      "count": 14,
+      "decoded_pin": {
+        "bytes": 322,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-c.tbl.decoded",
+        "sha256": "A9B09FCD9409359261BD95D32FE27D290C8E82D1BBB75AEFB8A89B9BE4A34A94"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 2,
+      "name": "campaignDesc-c.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 985718,
+      "pair": "lineage381-base",
+      "raw_pin": {
+        "bytes": 322,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-c.tbl.raw",
+        "sha256": "2B9EC78DD19834C0A40A0329B26D1BC33BE111D070BC2A74E3681D1E735EF9B8"
+      },
+      "record_index": 2574,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "a470aec9",
+        "30",
+        "35",
+        "a457baf4aec9b6a1a477b94ca44625642573a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143abd8c4b3b17ab579b74ca5f0aea7a440a455a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143abd8c4b3b17ab579b74ca5f0aea7a440a455a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143abd8c4b3b17ab579b74ca5f0aea7a440a455a143",
+        "33303030",
+        "a8a4a6e2b44eac4fa7daaabaa4c6a8ada143",
+        "a8a4a6e2b44eac4fa7daaabaa4c6a8ada143",
+        "5363686164726f6e203a20bdd0a548a1752b39a176aabab944a8e3a8d3b16aa4c6b17aaabaafe0b671a143"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 503,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-e.tbl.decoded",
+        "sha256": "4E33BC2FB1DD8F67D7FE19E28ACA15D52993F1A490225E5CF0444EE724BCD321"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-e.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 986040,
+      "pair": "lineage381-base",
+      "raw_pin": {
+        "bytes": 503,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-e.tbl.raw",
+        "sha256": "F9DF8E2135AA7E9E5A276D9F1B7E39EE00347920BE5CFA850B40D42A371A5449"
+      },
+      "record_index": 2575,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "686f757273",
+        "30",
+        "35",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e2049207265636f6d6d656e64207468617420796f752074616b6520612073686f727420627265616b2e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e2049207265636f6d6d656e64207468617420796f752074616b6520612073686f727420627265616b2e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e2049207265636f6d6d656e64207468617420796f752074616b6520612073686f727420627265616b2e",
+        "33303030",
+        "2a2a2a2a2a20596f757220636861726163746572206973206120726570726573656e746174696f6e206f6620796f757273656c662e202a2a2a2a2a",
+        "2a2a2a2a2a20596f757220636861726163746572206973206120726570726573656e746174696f6e206f6620796f757273656c662e202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 191,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-h.tbl.decoded",
+        "sha256": "987EF2861F333942702FEC0A3DF53576D48103E1AE8283A63C0181BAA1E87B6A"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-h.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 986543,
+      "pair": "lineage381-base",
+      "raw_pin": {
+        "bytes": 191,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-h.tbl.raw",
+        "sha256": "A0F2297CB8BAD8B851770E6BB16CCC64977097699582E6BB7614D72E27FFCC50"
+      },
+      "record_index": 2576,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "d0a1cab1",
+        "30",
+        "35",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "33303030",
+        "2a2a2a2a2a20d3cecfb7d6d0b5c4bdc7c9abb4fab1edced2202a2a2a2a2a",
+        "2a2a2a2a2a20d3cecfb7d6d0b5c4bdc7c9abb4fab1edced2202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 366,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-j.tbl.decoded",
+        "sha256": "4C2C91B5AE2AAE94ADE5FA66346B672FBD692E0C7509EE8FEF89BF85429C8308"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-j.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 986734,
+      "pair": "lineage381-base",
+      "raw_pin": {
+        "bytes": 366,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-j.tbl.raw",
+        "sha256": "E9707586757193F006EEE00D0410D71D3F089D69BF819DFAA1363CC0BD37D2D0"
+      },
+      "record_index": 2577,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "8e9e8ad4",
+        "30",
+        "35",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "33303030",
+        "2a2a2a2a2a20834c83838389834e835e815b82cd82e082a488ea906c82cc8b4d95fb8ea9906782c582b78142202a2a2a2a2a",
+        "2a2a2a2a2a20834c83838389834e835e815b82cd82e082a488ea906c82cc8b4d95fb8ea9906782c582b78142202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 343,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-k.tbl.decoded",
+        "sha256": "D24E6F3D7B5E4D83AE9783C50001B4B88C12B0EB6CD6420F0CA9490F0B7D3D4C"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-k.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 987100,
+      "pair": "lineage381-base",
+      "raw_pin": {
+        "bytes": 343,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\lineage381-base-complete\\campaignDesc-k.tbl.raw",
+        "sha256": "160D03C2A10311F27184158A11AE15A555A09A54C9BE0989AF0A048FE2B51F87"
+      },
+      "record_index": 2578,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "bdc3b0a3",
+        "30",
+        "35",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e20c0e1bdc320c8debdc4c0bb20b1c7c7d5b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e20c0e1bdc320c8debdc4c0bb20b1c7c7d5b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e20c0e1bdc320c8debdc4c0bb20b1c7c7d5b4cfb4d92e",
+        "33303030",
+        "2a2a2a2a2a20c4b3b8afc5cdb4c220b6c720b4d9b8a520b3aac0d4b4cfb4d92e202a2a2a2a2a",
+        "2a2a2a2a2a20c4b3b8afc5cdb4c220b6c720b4d9b8a520b3aac0d4b4cfb4d92e202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "count": 14,
+      "decoded_pin": {
+        "bytes": 322,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-c.tbl.decoded",
+        "sha256": "A9B09FCD9409359261BD95D32FE27D290C8E82D1BBB75AEFB8A89B9BE4A34A94"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 2,
+      "name": "campaignDesc-c.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 1030935,
+      "pair": "existing-client-base",
+      "raw_pin": {
+        "bytes": 322,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-c.tbl.raw",
+        "sha256": "2B9EC78DD19834C0A40A0329B26D1BC33BE111D070BC2A74E3681D1E735EF9B8"
+      },
+      "record_index": 2608,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "a470aec9",
+        "30",
+        "35",
+        "a457baf4aec9b6a1a477b94ca44625642573a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143abd8c4b3b17ab579b74ca5f0aea7a440a455a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143abd8c4b3b17ab579b74ca5f0aea7a440a455a143",
+        "a457baf4aec9b6a1a477b94ca44625642573a143abd8c4b3b17ab579b74ca5f0aea7a440a455a143",
+        "33303030",
+        "a8a4a6e2b44eac4fa7daaabaa4c6a8ada143",
+        "a8a4a6e2b44eac4fa7daaabaa4c6a8ada143",
+        "5363686164726f6e203a20bdd0a548a1752b39a176aabab944a8e3a8d3b16aa4c6b17aaabaafe0b671a143"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 503,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-e.tbl.decoded",
+        "sha256": "4E33BC2FB1DD8F67D7FE19E28ACA15D52993F1A490225E5CF0444EE724BCD321"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-e.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 1031257,
+      "pair": "existing-client-base",
+      "raw_pin": {
+        "bytes": 503,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-e.tbl.raw",
+        "sha256": "F9DF8E2135AA7E9E5A276D9F1B7E39EE00347920BE5CFA850B40D42A371A5449"
+      },
+      "record_index": 2609,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "686f757273",
+        "30",
+        "35",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e2049207265636f6d6d656e64207468617420796f752074616b6520612073686f727420627265616b2e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e2049207265636f6d6d656e64207468617420796f752074616b6520612073686f727420627265616b2e",
+        "256425732068617665207061737365642073696e636520796f7520636f6e6e65637465642e2049207265636f6d6d656e64207468617420796f752074616b6520612073686f727420627265616b2e",
+        "33303030",
+        "2a2a2a2a2a20596f757220636861726163746572206973206120726570726573656e746174696f6e206f6620796f757273656c662e202a2a2a2a2a",
+        "2a2a2a2a2a20596f757220636861726163746572206973206120726570726573656e746174696f6e206f6620796f757273656c662e202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 191,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-h.tbl.decoded",
+        "sha256": "987EF2861F333942702FEC0A3DF53576D48103E1AE8283A63C0181BAA1E87B6A"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-h.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 1031760,
+      "pair": "existing-client-base",
+      "raw_pin": {
+        "bytes": 191,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-h.tbl.raw",
+        "sha256": "A0F2297CB8BAD8B851770E6BB16CCC64977097699582E6BB7614D72E27FFCC50"
+      },
+      "record_index": 2610,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "d0a1cab1",
+        "30",
+        "35",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "c1accfdfd2d12025642573",
+        "33303030",
+        "2a2a2a2a2a20d3cecfb7d6d0b5c4bdc7c9abb4fab1edced2202a2a2a2a2a",
+        "2a2a2a2a2a20d3cecfb7d6d0b5c4bdc7c9abb4fab1edced2202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 366,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-j.tbl.decoded",
+        "sha256": "4C2C91B5AE2AAE94ADE5FA66346B672FBD692E0C7509EE8FEF89BF85429C8308"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-j.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 1031951,
+      "pair": "existing-client-base",
+      "raw_pin": {
+        "bytes": 366,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-j.tbl.raw",
+        "sha256": "E9707586757193F006EEE00D0410D71D3F089D69BF819DFAA1363CC0BD37D2D0"
+      },
+      "record_index": 2611,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "8e9e8ad4",
+        "30",
+        "35",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "838d834f8343839382b582c482a982e72564257382aa8c6f89df82b382ea82dc82b582bd8142",
+        "33303030",
+        "2a2a2a2a2a20834c83838389834e835e815b82cd82e082a488ea906c82cc8b4d95fb8ea9906782c582b78142202a2a2a2a2a",
+        "2a2a2a2a2a20834c83838389834e835e815b82cd82e082a488ea906c82cc8b4d95fb8ea9906782c582b78142202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "count": 13,
+      "decoded_pin": {
+        "bytes": 343,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-k.tbl.decoded",
+        "sha256": "D24E6F3D7B5E4D83AE9783C50001B4B88C12B0EB6CD6420F0CA9490F0B7D3D4C"
+      },
+      "delay_milliseconds": [
+        600000,
+        3000000,
+        3000000
+      ],
+      "initializer_divisor": 1,
+      "name": "campaignDesc-k.tbl",
+      "numeric_fields": [
+        3600,
+        600,
+        5,
+        3000
+      ],
+      "offset": 1032317,
+      "pair": "existing-client-base",
+      "raw_pin": {
+        "bytes": 343,
+        "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r473-campaign-resource-snapshot\\existing-client-base-complete\\campaignDesc-k.tbl.raw",
+        "sha256": "160D03C2A10311F27184158A11AE15A555A09A54C9BE0989AF0A048FE2B51F87"
+      },
+      "record_index": 2612,
+      "row_hex": [
+        "33363030",
+        "363030",
+        "bdc3b0a3",
+        "30",
+        "35",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e20c0e1bdc320c8debdc4c0bb20b1c7c7d5b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e20c0e1bdc320c8debdc4c0bb20b1c7c7d5b4cfb4d92e",
+        "c1a2bcd3c7d1c1f6202564257320c1f6b3b5bdc0b4cfb4d92e20c0e1bdc320c8debdc4c0bb20b1c7c7d5b4cfb4d92e",
+        "33303030",
+        "2a2a2a2a2a20c4b3b8afc5cdb4c220b6c720b4d9b8a520b3aac0d4b4cfb4d92e202a2a2a2a2a",
+        "2a2a2a2a2a20c4b3b8afc5cdb4c220b6c720b4d9b8a520b3aac0d4b4cfb4d92e202a2a2a2a2a"
+      ],
+      "row_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    }
+  ],
+  "native_callback_executed": false,
+  "negative_cases": 16,
+  "no_live_language_pointer_index_or_unload_grant": true,
+  "original_base647980_namespace_required": true,
+  "pairs": 3,
+  "raw_and_decoded_versions_identical": true,
+  "renderer_LOADED": false,
+  "runtime_inputs_observed": false,
+  "state": "COMPLETE_ORIGINAL_BASE_CAMPAIGN_TABLES_PARSED_AND_SOURCE_LANGUAGE_GATE_VERIFIED_BYTES_ONLY",
+  "unrelated_archive_duplicate_rows_preserved": true
+}

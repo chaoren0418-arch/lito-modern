@@ -1,0 +1,69 @@
+{
+  "GUI": 0,
+  "R472_timers_advanced": false,
+  "catalog_choices": 47,
+  "complete_mode_acceptance": "16/40 unchanged",
+  "coverage_pairs_cross_checked": 40,
+  "default_enabled": false,
+  "historical_focused_tests_rerun": 0,
+  "history": [
+    "menu",
+    "select1/564",
+    "loading_cancel",
+    "menu",
+    "old_load_rejected",
+    "foreign_load_rejected",
+    "entry",
+    "pan",
+    "edge_clamp",
+    "back",
+    "reentry",
+    "drop"
+  ],
+  "images": [
+    {
+      "RGBA_sha256": "2F3B9D9EEBF896A54F11118F6D90164DA66A286AE2F81E9D450CE0BF76E24B06",
+      "bytes": 1703732,
+      "camera": [
+        1136,
+        468,
+        800,
+        600
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r474-offline-map-flow\\01-entry-battle-ground.png",
+      "sha256": "0860A7A7EF306984D9F3AB979522EA3A6038166F6F6AB4997D38033E1F1B7240"
+    },
+    {
+      "RGBA_sha256": "756FCC14B43169A0FB6393F8AE57CB198C723966EAFE8CB41A35696A020119E2",
+      "bytes": 1696242,
+      "camera": [
+        1376,
+        588,
+        800,
+        600
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r474-offline-map-flow\\02-pan-battle-ground.png",
+      "sha256": "323EBA57086878D135657AF18BC9ECD56DE19AEC3C8FD2F945C2496182A6AE7D"
+    },
+    {
+      "RGBA_sha256": "2F3B9D9EEBF896A54F11118F6D90164DA66A286AE2F81E9D450CE0BF76E24B06",
+      "bytes": 1703732,
+      "camera": [
+        1136,
+        468,
+        800,
+        600
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r474-offline-map-flow\\03-reentry-battle-ground.png",
+      "sha256": "0860A7A7EF306984D9F3AB979522EA3A6038166F6F6AB4997D38033E1F1B7240"
+    }
+  ],
+  "negative_cases": 22,
+  "pending_pairs": 24,
+  "renderer_LOADED": false,
+  "scope": "Single real Native sector CPU map preview; camera is Modern inspection UI, no actor/spawn/match/animation/native callback.",
+  "selected_map": 564,
+  "selected_mode": 1,
+  "source_name": "Battle Ground ",
+  "state": "ACTUAL_NATIVE_DM564_OFFLINE_MENU_ENTRY_CAMERA_BACK_REENTRY_PASSED"
+}

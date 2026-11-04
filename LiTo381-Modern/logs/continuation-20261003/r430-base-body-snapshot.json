@@ -1,0 +1,80 @@
+{
+  "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r430-native-base-body-0ed3ba5aa7cf41b2a063a93a3631d07f",
+  "original_root": "D:\\lineage開發\\0-客戶端",
+  "text_pins": [
+    {
+      "name": "Text.idx",
+      "bytes": 1049892,
+      "sha256": "9FDF2E2A220DAFCEE69B512D7BC5D5672E92835D6D0AEDDBDCEE8BFA3ED15BF4"
+    },
+    {
+      "name": "Text.pak",
+      "bytes": 26266830,
+      "sha256": "81E4B61D7DF6D48DC7149E3D3DE53BE1DB90A5DC1121179AB2234A97FFC311B0"
+    }
+  ],
+  "explicit_original_base_route": true,
+  "LOADED": false,
+  "body_pins": [
+    {
+      "name": "Sprite.idx",
+      "bytes": 2585972,
+      "sha256": "327C06372D87F6CF6D5176DA51DA5EF1F94DBF388D1588B735C5965B96B6A52B"
+    },
+    {
+      "name": "Sprite.pak",
+      "bytes": 1904012586,
+      "sha256": "4DD4E5348FBAD2E69BAE9CC388BE23D7BECEBE8423AD9F79F393C1457A69EE62"
+    },
+    {
+      "name": "Sprite04.idx",
+      "bytes": 292352,
+      "sha256": "7B1C0BC13EE54D656DDCE362ED3640853AA14E9823DC1B53944087D8756E390A"
+    },
+    {
+      "name": "Sprite05.idx",
+      "bytes": 294844,
+      "sha256": "0F525167A412680A08DBB4969550264059720B9FAA8D698904FFD5DA6061E2F6"
+    },
+    {
+      "name": "Sprite12.idx",
+      "bytes": 288544,
+      "sha256": "D941FC01A371C2D164E04B6CE17EE37C55398127E66206E69DB1521903EE08E9"
+    },
+    {
+      "name": "Sprite13.idx",
+      "bytes": 284372,
+      "sha256": "A2BABF0409A62A0C9EC2BE60FF042894EFE5F834868EA02EEC36C2CD71D3C0D6"
+    }
+  ],
+  "decoded_catalog": {
+    "bytes": 4067417,
+    "sha256": "523C61AD5CC362A56A36F58B262C84EFA8B4435F017E7074D35B5834E8B9F127"
+  },
+  "miss_shards": [
+    {
+      "shard": 4,
+      "pak_bytes": 394293316,
+      "index_name": "Sprite04.idx",
+      "absence_proof_only": true
+    },
+    {
+      "shard": 5,
+      "pak_bytes": 368811807,
+      "index_name": "Sprite05.idx",
+      "absence_proof_only": true
+    },
+    {
+      "shard": 12,
+      "pak_bytes": 389992653,
+      "index_name": "Sprite12.idx",
+      "absence_proof_only": true
+    },
+    {
+      "shard": 13,
+      "pak_bytes": 401282601,
+      "index_name": "Sprite13.idx",
+      "absence_proof_only": true
+    }
+  ]
+}

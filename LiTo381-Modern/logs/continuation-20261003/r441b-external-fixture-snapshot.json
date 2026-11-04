@@ -1,0 +1,16 @@
+{
+  "state": "FIXED_EXTERNAL_FIXTURE_BYTES_COPIED_PENDING_READY_BINDING",
+  "candidate": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r441b-external-fixture-candidate-df257141cc6c492f951e6385ccdaf9cf",
+    "files_verified": 3594,
+    "manifest_sha256": "37096A23161C0358786C6039C6BA790278CD1594A111294B9FC6D6AC12FA8E01"
+  },
+  "handoff": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\r441b-producer-handoff.json",
+  "handoff_sha256": "3D250CD3E2004198687E3220FCA142B00C94621461FC29F2A41FF726267E0A69",
+  "producer_SQL": true,
+  "producer_TLS": true,
+  "Rust_live_SQL_TLS": false,
+  "game_wire": false,
+  "LOADED": false,
+  "GUI": 0
+}

@@ -114,6 +114,7 @@ fn expected_phase(row: &Value, body: &[u8], s: &OfflineWireSession) {
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r539_result_wire_direct_fixture_start_bidirectional_counters_and_segmented_frames() {
     let (bindings, doc) = bindings();
     let mut checks = Vec::new();
@@ -256,6 +257,7 @@ fn r539_result_wire_direct_fixture_start_bidirectional_counters_and_segmented_fr
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r539_result_wire_untagged_read_never_promotes_source_fixture_to_live_authority() {
     let (bindings, doc) = bindings();
     let mut checks = Vec::new();
@@ -306,6 +308,7 @@ fn r539_result_wire_untagged_read_never_promotes_source_fixture_to_live_authorit
     );
 }
 #[test]
+#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"]
 fn r539_result_wire_binding_pending_write_and_eof_retirement_fail_closed() {
     let (bindings, doc) = bindings();
     let row = &doc["lanes"][1];

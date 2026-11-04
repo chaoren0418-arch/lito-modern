@@ -1,0 +1,1232 @@
+{
+  "CPU_frames": 41,
+  "GUI": 0,
+  "audio_UI_wire_not_executed": true,
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    },
+    {
+      "bytes": 1146,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r429-catalog-snapshot.json",
+      "sha256": "1544325f7ba7f899da7fb7e89d15969b3314700cc7520d7462fbacd3045ef4ea"
+    },
+    {
+      "bytes": 9888,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.idx",
+      "sha256": "b8c0bb8c43affe59a90ebd2d26182269b6d60af388c80963eaaeedc8d8ae23c8"
+    },
+    {
+      "bytes": 292553,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.pak",
+      "sha256": "517d853e3fe91b504953ff4b9b2eed682a3612d063f2d18e75e39fd5580f342d"
+    },
+    {
+      "bytes": 39135,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\decoded-LTlist.spr",
+      "sha256": "f55779aeb5c3982d8b366068cdbe4003d802619074e54388f26ee87368f42603"
+    },
+    {
+      "bytes": 117352,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-source-input/38-0.spr",
+      "sha256": "b4507d8337497aef8b3fc3a28f8fef87e344d176b8a31a7e634c08a0976aef8d"
+    }
+  ],
+  "final_arrival2328_idle2912": true,
+  "first_step_prequeued": [
+    1166,
+    1332,
+    1498
+  ],
+  "full_native_locomotion_execution_qualified": false,
+  "images": [
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\00-1000-SOURCE_CONDITIONAL_4E2150_START.png",
+      "sha256": "79d241a2e7ef85219791b6377d206f36e4e30592b5cdd5907b5f95d1b70f9b21"
+    },
+    {
+      "RGBA_sha256": "411eaf9a9796dcfb20200cdd1278ceabbd14e7f3eb19eb22826a6ac2451d0f4f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\01-1084-FireFirst.png",
+      "sha256": "12c4616870f9c05aace3671b6a80ae6ff6ff0faf0d9c882a5013e59fdd2256cb"
+    },
+    {
+      "RGBA_sha256": "56da8c28ffcc20138760c2babe457ec8b81218a9c7bd12672027c59dc2d52d0b",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\02-1166-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "e10ff2e1447c38493a783e7e6c9ec4170fc147fcefe7e6d65d27bbc54ffdd1c4"
+    },
+    {
+      "RGBA_sha256": "95713218499f8a00d2c0b255aefa37831e8dea1b5478d2c28d9c23ba6dc139db",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\03-1169-FireAdvance.png",
+      "sha256": "89d2aad9c9b9449e5f7f8608dbe571d91bbfef2ff3204b22f11ac750f20b8918"
+    },
+    {
+      "RGBA_sha256": "f437a04888bbd2ed221a24cf1ff0835c06161b90be327eff907aa9d1f32493d5",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\04-1254-FireAdvance.png",
+      "sha256": "f1fcf29e54f1f3885bfc75312ff12e20d865fa89f911a74b781aba5e5d8dd6ec"
+    },
+    {
+      "RGBA_sha256": "bae46aa1ccdd13afd7688c2c9b9ea4e18422b5748f66974f20e5f958a7918371",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\05-1332-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "74203bf24d1d6c1fca9cf57c238e9661d5bb533ca9aa3572854535b1950e51ab"
+    },
+    {
+      "RGBA_sha256": "57374bd671435d5f9f7e68ca422358eaa802036931ec822ce5a111b4291e171a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\06-1339-FireAdvance.png",
+      "sha256": "bb2fb1026acf94eaf63133d11795347067bd893c5356ab4573720a583ab0ebdc"
+    },
+    {
+      "RGBA_sha256": "bbc936820fffcc61a4de64c7720621408abd035567c350ea2347f9b49ab85d31",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\07-1424-FireAdvance.png",
+      "sha256": "7782a3771739eaa4dbb5c2b7ba39c38afa9831f01fd1c9c3e00ca62e9c87a8ff"
+    },
+    {
+      "RGBA_sha256": "0b03141e5e882c118ab1bd5e453c254ee25f6985761382a3ff003ae52835670e",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\08-1498-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "a02cdc1a71cedce439c0d14160e5614bb66e2331f57f055389348ceeb3df7ff2"
+    },
+    {
+      "RGBA_sha256": "aea18792c702e7509d2ef64bc8a70064fef41c9438b82a2b4a9acd6d09e57692",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\09-1509-FireAdvance.png",
+      "sha256": "7307cfa8af2054f354f9c90c6ca3bdc2aca054e9fa589cd48a68279e4703823d"
+    },
+    {
+      "RGBA_sha256": "5552772b09d15ca779b0662fb7461819ee7808e91c64051ae721c933d4980141",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\10-1548-Roof_1_.png",
+      "sha256": "8e37b77eea349033e58595d0720317b7f5ffc2a9b60b84d7c5c801e18bd028bd"
+    },
+    {
+      "RGBA_sha256": "1e4d04baef0ad290213ebf0274e11a1ca855a0f8a2c45f37bf4dfbd4129c37d2",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\11-1548-Roof_2_.png",
+      "sha256": "b5225d3907dd461f878f4e3686a0674a0ab0664cb037596a8255e676845644dc"
+    },
+    {
+      "RGBA_sha256": "e0f653cfa98c2759e3d90b5fa49fdf49b78fd37c1d1387170a4db03824f2e107",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\12-1594-FireAdvance.png",
+      "sha256": "66eb6e9ee9289acd6c23c42b4d5368760989c5d84f0434ee58aba6e2ae4eecaf"
+    },
+    {
+      "RGBA_sha256": "ebfa360e30e882f3da697b678252cdf9b708397f85df2ed88f8a96cad16b2af7",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\13-1598-Roof_3_.png",
+      "sha256": "a925cd03bef3c1d3b53abdd90b4dc333d85ecd7be159d761f8f625542c77835f"
+    },
+    {
+      "RGBA_sha256": "f1af1d033f33cf4f8ac1bdf671cbd00deb8456d742d2837059ddc6a752df5d27",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\14-1598-Roof_4_.png",
+      "sha256": "ccd36c4701d5b48ff596f1902e49e7749dcf8700f02b9e843b21daced2c2512c"
+    },
+    {
+      "RGBA_sha256": "6d60d8f72b4e0061a4f84c26490cec5dd11d5b0d87a5b35aff6ae7ad7d7b1e5a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\15-1648-Roof_5_.png",
+      "sha256": "5f384bf8edc9975a205f2ad92e35f831ac893745c9362d60212dd3f358deeb32"
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\16-1648-Roof_6_.png",
+      "sha256": "ce9ae2aa86015fcd72391d6cb4a4e47bad7824fd6bff9fa8d4b6675a3698e9e6"
+    },
+    {
+      "RGBA_sha256": "14cf6603b0100036db121dc25488e81e74885a20f22eb105c2068a9242562d8a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\17-1664-SOURCE_CONDITIONAL_Arrival.png",
+      "sha256": "7ed7bbaad081b81d9bc64e5de1cf752efeca5cd2e8f051a32a9c2692e0e93c44"
+    },
+    {
+      "RGBA_sha256": "69914ba5c818a6aa6e652a9ca3d32e4c78261364d8250a57d9ba9af4077b8bc4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\18-1679-FireAdvance.png",
+      "sha256": "bfea16d6d60c8e34f8912d1645bab256fdac07e0092b918bfd5dc0c3b5ea1e76"
+    },
+    {
+      "RGBA_sha256": "21bb66393436dadc5996ab80938d0f6da549140c18f5b5269045f4e1ed7efc81",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\19-1698-Roof_7_.png",
+      "sha256": "d2a9ac84ea73ce1efb539b4d7b716ecbce5fb0a42fcc5b6c48e9fb63f06c2992"
+    },
+    {
+      "RGBA_sha256": "24fadda05f94de75684bbea77892b2aad8bf92c54ea7921f020f5007ad7f8470",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\20-1698-Roof_8_.png",
+      "sha256": "deb830d83c7439f7d6a78f144a0021357af8cec2f1c29ae2805af18f645ead11"
+    },
+    {
+      "RGBA_sha256": "afae145a0a35fb610526e610653ed8536c264592a0d5e8914bf6fe04725f67bd",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\21-1764-FireAdvance.png",
+      "sha256": "327c7c58b9d5c7f110874e4cee9d58a0a955a1bd919804dbd38fb1b8672a9843"
+    },
+    {
+      "RGBA_sha256": "9ac85881810ecccbc708c9d824161ee3d22e7377e50dcda28ae463b212597db5",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\22-1830-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "2716c787c3672667461d14f17091b5f0ab47835af7a03234d53e81146f305611"
+    },
+    {
+      "RGBA_sha256": "81691178ed1b5e98dd9886f8dd4b1fe64dbe524a16137d3be505f135c5488579",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\23-1849-FireAdvance.png",
+      "sha256": "2e33a78ec4738aae6ea659511328e2d833587f98c1736ea4a756689c3821cbc1"
+    },
+    {
+      "RGBA_sha256": "d1c052de4a0bec95a4ddec28f06e0642f5a6256717276f1b146793592c4ee0d2",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\24-1934-FireAdvance.png",
+      "sha256": "f81fad9ce0d73536903804ca3a2b97ca293c1fee8e2d01729949a9498f454f89"
+    },
+    {
+      "RGBA_sha256": "99b86dac2be8b5eed4944b93b4ae4292e3a082200536a51327495dab67fe6117",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\25-1996-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "2f92919c05b2e6ac0001c0e13a50fd70215eea7b669697bef4c21d636b89f8a4"
+    },
+    {
+      "RGBA_sha256": "fb616386392d6334f63018e7b1d841b445cf0f0a891c84b586ac3496530567c0",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\26-2017-FireAdvance.png",
+      "sha256": "251529d14127c981ea116b76a022045768c70b561db18b60b7541f0b7a21f58f"
+    },
+    {
+      "RGBA_sha256": "d82ff13a5581d41968064164dc15ebfa9bf1c6a8de8003bb718791fa72872bc8",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\27-2102-FireAdvance.png",
+      "sha256": "c4724e32941b20818387398d124e6f4758b5ae0f73d145fff7d2ae186b33960a"
+    },
+    {
+      "RGBA_sha256": "93c3484a375e66fdcdb7ee63d4ebb7366f90d48935448b9a5e15227d4092245d",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\28-2162-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "c682ce16498174303f2757c416b17e6e4c7cd65f78c0ccabd8def07f6af74bb0"
+    },
+    {
+      "RGBA_sha256": "1d241c4f4c28ccd581c9326b855430ea5e081c5f08bb07926a55957318d157b5",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\29-2187-FireAdvance.png",
+      "sha256": "9c9a343593017169a8b43c6f29ca6377ec629711da459b9aeb6304d104f02b77"
+    },
+    {
+      "RGBA_sha256": "4b5b3d51b2acda93fecc9c9a4ef553a87e1e9b68b93d24397a24dc0afb41174f",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\30-2212-Roof_9_.png",
+      "sha256": "07d1edb7c7737d7880169261d724574b045451621877ed346557abd4aab2fd9b"
+    },
+    {
+      "RGBA_sha256": "982e771786a99f6f361f066ba4e50edf974b2982d0ba3cd7231b435429912cab",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\31-2262-Roof_10_.png",
+      "sha256": "ccdfdd93933a7b862cbbe797a2efd602ff3c1944ff68d7101d83e8de34202f4f"
+    },
+    {
+      "RGBA_sha256": "408a299b90256779c01d1b3ee05e99681a51581f7292a0a0efc8bc3ea0dcd956",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\32-2272-FireAdvance.png",
+      "sha256": "ea7b0f2a02e1def0f4c173e6bbc71c0ac0051cc8aa54c28373eb7c88f89297bd"
+    },
+    {
+      "RGBA_sha256": "6836a82fa17c5f0dc85fa9949f2b8d00672a5b819c383eb7978c42b5841a682a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\33-2312-Roof_11_.png",
+      "sha256": "5df36b616c72dde94e842721d2df4d22207aa7e8ff595719e384fd37afaba88b"
+    },
+    {
+      "RGBA_sha256": "6836a82fa17c5f0dc85fa9949f2b8d00672a5b819c383eb7978c42b5841a682a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\34-2328-SOURCE_CONDITIONAL_Arrival.png",
+      "sha256": "5df36b616c72dde94e842721d2df4d22207aa7e8ff595719e384fd37afaba88b"
+    },
+    {
+      "RGBA_sha256": "cf5cc09ca394fe7404ce317329b19656e1bb84f619f9f0cf1c8da370ec7d5dd1",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\35-2357-FireAdvance.png",
+      "sha256": "93782dfa43a955e4c937f4998ccd6418eba02e09305aeef990fde0bc208dab83"
+    },
+    {
+      "RGBA_sha256": "791e42207445ce85d2c1e8892782a5d77b6887ae03af2f4ce8b17da13035360a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\36-2362-Roof_12_.png",
+      "sha256": "a425b74e616ca8383ccf14b0361e0d4997cba5be08ceb20d122f2649196e099d"
+    },
+    {
+      "RGBA_sha256": "5b8f6aba4368fda7a5806c8099e06f085e4d624f3caeccfa252e6c7d85de36cf",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\37-2442-FireAdvance.png",
+      "sha256": "4c84366d37494ef70a9e599632bcd1be800049ba809959a62c3f392ecf55b671"
+    },
+    {
+      "RGBA_sha256": "6413e27d39ea89091eb0c5191194071305ef1a2a24d7c386748cadb11a0dd20b",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\38-2500-SOURCE_CONDITIONAL_SECTOR_FIREPOT_REMOVAL.png",
+      "sha256": "e963cb4dfdf7bad552d8dda23aa5bbed012e05ab5cf5834f205236cc0a80a76a"
+    },
+    {
+      "RGBA_sha256": "56154ae56314593f4358e9feaf8d27e6776a7cd9ca42147e72fc0dbb58016453",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\39-2912-SOURCE_CONDITIONAL_IdlePop.png",
+      "sha256": "55451810eba5e53a8ed9ecce23c7ece7138eec90d1ec3790e20bee9bc2e209fa"
+    },
+    {
+      "RGBA_sha256": "c512e9b172898a9040e66f1233778380a4fb246a6758d4722865dc2bc4b60669",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r461-two-cell-locomotion-scene-cpu\\40-3080-SOURCE_CONDITIONAL_IdleAdvance.png",
+      "sha256": "e0db687725af4bbc1730bbae884ba8428b07b40acf1cba5fec180870c2f95d3f"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-76.spr": {
+      "bytes": 8504,
+      "path": "resources/3476-76.spr",
+      "sha256": "AD5E88E26073E26B9DF6C725FE033F65F51D578FC5FFEBF91581A768E2E89377"
+    },
+    "resources/3476-84.spr": {
+      "bytes": 14332,
+      "path": "resources/3476-84.spr",
+      "sha256": "6C9314F042DBF63715EA94DBF8A77910ADD2BA27C5D58C46E79AF112F9D5B34B"
+    },
+    "resources/3476-88.spr": {
+      "bytes": 12043,
+      "path": "resources/3476-88.spr",
+      "sha256": "641ABA44DCC8315DBCBBED698777A976A851B1B98F7A9EDBDBA0CE2EB98BDB17"
+    },
+    "resources/3477-76.spr": {
+      "bytes": 1077,
+      "path": "resources/3477-76.spr",
+      "sha256": "8A3FB7AEC8D95D7B4B17644D31ED78B8F061C9D1B7BBFED17D02EDE57F8BBD84"
+    },
+    "resources/3477-84.spr": {
+      "bytes": 2291,
+      "path": "resources/3477-84.spr",
+      "sha256": "02B2F8699DE38CFA34B68F2D700615C7BFF72E3FC0BECD6A5A11A05607A083A8"
+    },
+    "resources/3477-88.spr": {
+      "bytes": 2001,
+      "path": "resources/3477-88.spr",
+      "sha256": "7C1FD85B5FD7580CD9A91499B38D1B4AC38DEF1AEE1BF3858215930BF212CD6D"
+    },
+    "resources/6260-76.spr": {
+      "bytes": 65,
+      "path": "resources/6260-76.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-84.spr": {
+      "bytes": 135,
+      "path": "resources/6260-84.spr",
+      "sha256": "1B15E29C7271BB18CAC44C6E41D19811A383EBDB6D3005B5EF0EC3F581CB8813"
+    },
+    "resources/6260-88.spr": {
+      "bytes": 93,
+      "path": "resources/6260-88.spr",
+      "sha256": "EF06D41DF96C7BB073B6FA331448A1C407D9D0B7BC61B0EA3A8EC5BBCF1EC6E1"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "negative_cases": 17,
+  "only_source_end0_cell_writes": [
+    1498,
+    2162
+  ],
+  "per_step_source_collision_recheck_required": true,
+  "preview_distinct_fresh_clocks": [
+    1830,
+    1997,
+    2164
+  ],
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "clock": 1000,
+      "fire": null,
+      "kind": "SOURCE_CONDITIONAL_4E2150_START",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "411eaf9a9796dcfb20200cdd1278ceabbd14e7f3eb19eb22826a6ac2451d0f4f",
+      "clock": 1084,
+      "fire": 1,
+      "kind": "FireFirst",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "56da8c28ffcc20138760c2babe457ec8b81218a9c7bd12672027c59dc2d52d0b",
+      "clock": 1166,
+      "fire": 1,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "95713218499f8a00d2c0b255aefa37831e8dea1b5478d2c28d9c23ba6dc139db",
+      "clock": 1169,
+      "fire": 2,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "f437a04888bbd2ed221a24cf1ff0835c06161b90be327eff907aa9d1f32493d5",
+      "clock": 1254,
+      "fire": 3,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "bae46aa1ccdd13afd7688c2c9b9ea4e18422b5748f66974f20e5f958a7918371",
+      "clock": 1332,
+      "fire": 3,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "57374bd671435d5f9f7e68ca422358eaa802036931ec822ce5a111b4291e171a",
+      "clock": 1339,
+      "fire": 4,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "bbc936820fffcc61a4de64c7720621408abd035567c350ea2347f9b49ab85d31",
+      "clock": 1424,
+      "fire": 5,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "0b03141e5e882c118ab1bd5e453c254ee25f6985761382a3ff003ae52835670e",
+      "clock": 1498,
+      "fire": 5,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "aea18792c702e7509d2ef64bc8a70064fef41c9438b82a2b4a9acd6d09e57692",
+      "clock": 1509,
+      "fire": 6,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "5552772b09d15ca779b0662fb7461819ee7808e91c64051ae721c933d4980141",
+      "clock": 1548,
+      "fire": 6,
+      "kind": "Roof(1)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "1e4d04baef0ad290213ebf0274e11a1ca855a0f8a2c45f37bf4dfbd4129c37d2",
+      "clock": 1548,
+      "fire": 6,
+      "kind": "Roof(2)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "e0f653cfa98c2759e3d90b5fa49fdf49b78fd37c1d1387170a4db03824f2e107",
+      "clock": 1594,
+      "fire": 7,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "ebfa360e30e882f3da697b678252cdf9b708397f85df2ed88f8a96cad16b2af7",
+      "clock": 1598,
+      "fire": 7,
+      "kind": "Roof(3)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "f1af1d033f33cf4f8ac1bdf671cbd00deb8456d742d2837059ddc6a752df5d27",
+      "clock": 1598,
+      "fire": 7,
+      "kind": "Roof(4)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6d60d8f72b4e0061a4f84c26490cec5dd11d5b0d87a5b35aff6ae7ad7d7b1e5a",
+      "clock": 1648,
+      "fire": 7,
+      "kind": "Roof(5)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "8ec8c8501e2dce01602a54278a39f90efe0203168f12530996f6ed222d70e94f",
+      "clock": 1648,
+      "fire": 7,
+      "kind": "Roof(6)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "14cf6603b0100036db121dc25488e81e74885a20f22eb105c2068a9242562d8a",
+      "clock": 1664,
+      "fire": 7,
+      "kind": "SOURCE_CONDITIONAL_Arrival",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "69914ba5c818a6aa6e652a9ca3d32e4c78261364d8250a57d9ba9af4077b8bc4",
+      "clock": 1679,
+      "fire": 8,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "21bb66393436dadc5996ab80938d0f6da549140c18f5b5269045f4e1ed7efc81",
+      "clock": 1698,
+      "fire": 8,
+      "kind": "Roof(7)",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "24fadda05f94de75684bbea77892b2aad8bf92c54ea7921f020f5007ad7f8470",
+      "clock": 1698,
+      "fire": 8,
+      "kind": "Roof(8)",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "afae145a0a35fb610526e610653ed8536c264592a0d5e8914bf6fe04725f67bd",
+      "clock": 1764,
+      "fire": 9,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "9ac85881810ecccbc708c9d824161ee3d22e7377e50dcda28ae463b212597db5",
+      "clock": 1830,
+      "fire": 9,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "81691178ed1b5e98dd9886f8dd4b1fe64dbe524a16137d3be505f135c5488579",
+      "clock": 1849,
+      "fire": 10,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "d1c052de4a0bec95a4ddec28f06e0642f5a6256717276f1b146793592c4ee0d2",
+      "clock": 1934,
+      "fire": 0,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "99b86dac2be8b5eed4944b93b4ae4292e3a082200536a51327495dab67fe6117",
+      "clock": 1996,
+      "fire": 0,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "fb616386392d6334f63018e7b1d841b445cf0f0a891c84b586ac3496530567c0",
+      "clock": 2017,
+      "fire": 1,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "d82ff13a5581d41968064164dc15ebfa9bf1c6a8de8003bb718791fa72872bc8",
+      "clock": 2102,
+      "fire": 2,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "93c3484a375e66fdcdb7ee63d4ebb7366f90d48935448b9a5e15227d4092245d",
+      "clock": 2162,
+      "fire": 2,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "1d241c4f4c28ccd581c9326b855430ea5e081c5f08bb07926a55957318d157b5",
+      "clock": 2187,
+      "fire": 3,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b5b3d51b2acda93fecc9c9a4ef553a87e1e9b68b93d24397a24dc0afb41174f",
+      "clock": 2212,
+      "fire": 3,
+      "kind": "Roof(9)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "982e771786a99f6f361f066ba4e50edf974b2982d0ba3cd7231b435429912cab",
+      "clock": 2262,
+      "fire": 3,
+      "kind": "Roof(10)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "408a299b90256779c01d1b3ee05e99681a51581f7292a0a0efc8bc3ea0dcd956",
+      "clock": 2272,
+      "fire": 4,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6836a82fa17c5f0dc85fa9949f2b8d00672a5b819c383eb7978c42b5841a682a",
+      "clock": 2312,
+      "fire": 4,
+      "kind": "Roof(11)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6836a82fa17c5f0dc85fa9949f2b8d00672a5b819c383eb7978c42b5841a682a",
+      "clock": 2328,
+      "fire": 4,
+      "kind": "SOURCE_CONDITIONAL_Arrival",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "cf5cc09ca394fe7404ce317329b19656e1bb84f619f9f0cf1c8da370ec7d5dd1",
+      "clock": 2357,
+      "fire": 5,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "791e42207445ce85d2c1e8892782a5d77b6887ae03af2f4ce8b17da13035360a",
+      "clock": 2362,
+      "fire": 5,
+      "kind": "Roof(12)",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "5b8f6aba4368fda7a5806c8099e06f085e4d624f3caeccfa252e6c7d85de36cf",
+      "clock": 2442,
+      "fire": 6,
+      "kind": "FireAdvance",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6413e27d39ea89091eb0c5191194071305ef1a2a24d7c386748cadb11a0dd20b",
+      "clock": 2500,
+      "fire": null,
+      "kind": "SOURCE_CONDITIONAL_SECTOR_FIREPOT_REMOVAL",
+      "player": [
+        76,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "56154ae56314593f4358e9feaf8d27e6776a7cd9ca42147e72fc0dbb58016453",
+      "clock": 2912,
+      "fire": null,
+      "kind": "SOURCE_CONDITIONAL_IdlePop",
+      "player": [
+        84,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "c512e9b172898a9040e66f1233778380a4fb246a6758d4722865dc2bc4b60669",
+      "clock": 3080,
+      "fire": null,
+      "kind": "SOURCE_CONDITIONAL_IdleAdvance",
+      "player": [
+        84,
+        1
+      ]
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "second_step_source_start1664_prequeued": [
+    1830,
+    1996,
+    2162
+  ],
+  "source_cells": [
+    [
+      32755,
+      32788
+    ],
+    [
+      32755,
+      32789
+    ],
+    [
+      32755,
+      32790
+    ]
+  ],
+  "source_moves": [
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "camera_offset": [
+        518,
+        483
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 1000,
+      "frame": 1,
+      "prequeued": [
+        1166,
+        1332,
+        1498
+      ],
+      "sub": 1,
+      "wire": [
+        32755,
+        32788,
+        4
+      ]
+    },
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "camera_offset": [
+        524,
+        486
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 1166,
+      "frame": 2,
+      "prequeued": [],
+      "sub": 2,
+      "wire": null
+    },
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32800
+      ],
+      "camera_offset": [
+        530,
+        489
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 1332,
+      "frame": 3,
+      "prequeued": [],
+      "sub": 3,
+      "wire": null
+    },
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": true,
+      "clock": 1498,
+      "frame": 0,
+      "prequeued": [
+        1664
+      ],
+      "sub": 0,
+      "wire": null
+    },
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        518,
+        483
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 1664,
+      "frame": 1,
+      "prequeued": [
+        1830,
+        1996,
+        2162
+      ],
+      "sub": 1,
+      "wire": [
+        32755,
+        32789,
+        4
+      ]
+    },
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        524,
+        486
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 1830,
+      "frame": 2,
+      "prequeued": [],
+      "sub": 2,
+      "wire": null
+    },
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32801
+      ],
+      "camera_offset": [
+        530,
+        489
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": false,
+      "clock": 1996,
+      "frame": 3,
+      "prequeued": [],
+      "sub": 3,
+      "wire": null
+    },
+    {
+      "active_move": true,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32802
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "cell": [
+        32755,
+        32790
+      ],
+      "cell_committed": true,
+      "clock": 2162,
+      "frame": 0,
+      "prequeued": [
+        2328
+      ],
+      "sub": 0,
+      "wire": null
+    },
+    {
+      "active_move": false,
+      "bank": 76,
+      "camera_center": [
+        32752,
+        32802
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "cell": [
+        32755,
+        32790
+      ],
+      "cell_committed": false,
+      "clock": 2328,
+      "frame": 0,
+      "prequeued": [
+        2912
+      ],
+      "sub": 0,
+      "wire": null
+    },
+    {
+      "active_move": false,
+      "bank": 84,
+      "camera_center": [
+        32752,
+        32802
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "cell": [
+        32755,
+        32790
+      ],
+      "cell_committed": false,
+      "clock": 2912,
+      "frame": 1,
+      "prequeued": [
+        3080
+      ],
+      "sub": 0,
+      "wire": null
+    },
+    {
+      "active_move": false,
+      "bank": 84,
+      "camera_center": [
+        32752,
+        32802
+      ],
+      "camera_offset": [
+        512,
+        480
+      ],
+      "cell": [
+        32755,
+        32790
+      ],
+      "cell_committed": false,
+      "clock": 3080,
+      "frame": 2,
+      "prequeued": [
+        3248
+      ],
+      "sub": 1,
+      "wire": null
+    }
+  ],
+  "source_roof_group_sets": [
+    [],
+    [
+      136,
+      168
+    ],
+    [
+      136
+    ]
+  ],
+  "state": "SOURCE_TWO_CELL_PLAYER_CARRY_RESELECT_PREQUEUE_THEN_FINAL_ARRIVAL_PRIVATE_SCENE",
+  "unexecuted_future3248_retired": true,
+  "wire_start_records_not_sent": [
+    1000,
+    1664
+  ]
+}

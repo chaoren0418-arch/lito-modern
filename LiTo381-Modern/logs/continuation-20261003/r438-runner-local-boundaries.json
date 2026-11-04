@@ -1,0 +1,35 @@
+{
+  "GUI": 0,
+  "Rust_live_SQL_TLS": false,
+  "cancel_before_AUTH": true,
+  "cleanup_errors_not_hidden": true,
+  "configuration_before_connect": true,
+  "expiry_actual_control_required": true,
+  "full_CAS_flags_revision_source": true,
+  "owner_epoch_channel_phase": true,
+  "renderer_LOADED": false,
+  "report": {
+    "GUI": 0,
+    "TLS_connections_closed": 0,
+    "TLS_connections_opened": 0,
+    "TLS_sockets_retired": 0,
+    "actual_expiry_observation": null,
+    "attempted_scope": {
+      "authenticated": false,
+      "planned_source": 7
+    },
+    "attempted_step": "connect",
+    "cleanup_errors": [],
+    "completed": false,
+    "dto_acknowledgements": 0,
+    "failure": {
+      "code": "cancelled",
+      "step": "connect"
+    },
+    "renderer_LOADED": false,
+    "steps": []
+  },
+  "secret_redaction": true,
+  "state": "LOCAL_RUNNER_GUARDS_ONLY_NO_LIVE_ENDPOINT",
+  "world_generation_revision_resource_phase": true
+}

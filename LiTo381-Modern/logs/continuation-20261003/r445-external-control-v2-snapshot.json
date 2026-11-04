@@ -1,0 +1,22 @@
+{
+  "state": "FIXED_V2_CANDIDATE_3665_AND_SAFE_PRODUCER_EVIDENCE17_BYTES_AND_COMPLETE_SETS_VERIFIED",
+  "candidate": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r445-external-control-v2-candidate-0f2b997a3ccf47e8a2c408bc7a591049",
+    "files_verified": 3665,
+    "manifest_sha256": "C88CBCC80A512A2F17766B72872D388EFC71D66C1CDBC3A46E5CDA69C7B1C1BE"
+  },
+  "evidence": {
+    "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r445-external-control-v2-evidence-8e063ab8d89645a38a79b6903a59ce86",
+    "files_verified": 17,
+    "manifest_sha256": "9B0F07B146337437EC8F146BE152FAD9BDF695AC0B2132763EE762E6B08F9E50"
+  },
+  "handoff": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\r445-producer-handoff.json",
+  "handoff_sha256": "2B54051D9CD9297F4A825B3DCC8895350E4A4B81490183CC02225183B3EDCE2A",
+  "producer_SQL": true,
+  "producer_TLS": true,
+  "Rust_live_SQL_TLS": false,
+  "game_wire": false,
+  "LOADED": false,
+  "GUI": 0,
+  "exact_file_sets_verified": true
+}

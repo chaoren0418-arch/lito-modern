@@ -46,19 +46,19 @@ fn explicit_queue(actions:Vec<u8>)->ConditionalInputs{let mut q=inputs();q.queue
     for field in 0..14{let mut q=inputs();match field{0=>q.object_id=None,1=>q.player_global=None,2=>q.anchor_ms=None,3=>q.queue=None,4=>q.current_action=None,5=>q.base_action=None,6=>q.frame=None,7=>q.modifier_1c=None,8=>q.modifier_21=None,9=>q.action21_counter=None,10=>q.ordinary_action_path=None,11=>q.idle_guards_clear=None,12=>q.frozen_external_state_study=None,_=>q.initial=None};assert!(q.qualify().is_err(),"{field}");}
     let mut q=inputs();q.player_global=q.object_id;assert!(q.qualify().is_err());let mut q=inputs();q.queue=Some(vec![18]);assert!(q.qualify().is_err());
 }
-#[test]fn opcode32_idle_transition_and_first_end_are_bounded(){
+#[test]#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"] fn opcode32_idle_transition_and_first_end_are_bounded(){
     let (_owner,_t,j)=owner();let mut m=EventModel::local_experiment(j.native_job(),inputs(),vec![83;11],16).unwrap();assert_eq!(m.next_due().unwrap(),Some(584));assert!(m.dispatch_tick(583).unwrap().is_empty());
     let first=m.dispatch_tick(584).unwrap();let s=first[0].step();assert_eq!((s.action,s.frame,s.actor_queue_after_pop,s.timer_queue_after_removal,s.next_due_ms),(3,1,0,0,Some(669)));
     let mut frames=vec![1];while let Some(t)=m.next_due().unwrap(){let e=m.dispatch_tick(t).unwrap();frames.push(e[0].step().frame);}
     assert_eq!(frames,vec![1,2,3,4,5,6,7,8,9,10,0]);assert!(!m.loaded_admission_available());assert!(m.dispatch_tick(2000).unwrap().is_empty());
     let mut q=inputs();q.current_action=Some(3);let m=EventModel::local_experiment(j.native_job(),q,vec![83;11],16).unwrap();assert_eq!(m.next_due().unwrap(),Some(83));
 }
-#[test]fn post_pop_queue_and_late_callback_compensation(){
+#[test]#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"] fn post_pop_queue_and_late_callback_compensation(){
     let (_owner,_t,j)=owner();let mut m=EventModel::local_experiment(j.native_job(),explicit_queue(vec![3,3,3]),vec![83;11],16).unwrap();let e=m.dispatch_tick(0).unwrap();assert_eq!((e[0].step().actor_queue_after_pop,e[0].step().next_due_ms),(2,Some(43)));
     let mut m=EventModel::local_experiment(j.native_job(),explicit_queue(vec![3]),vec![166;8],16).unwrap();let e=m.dispatch_tick(0).unwrap();assert_eq!(e[0].step().next_due_ms,Some(168));let e=m.dispatch_tick(180).unwrap();assert_eq!(e[0].step().next_due_ms,Some(336)); //166-(180-168)+2=156
     let e=m.dispatch_tick(900).unwrap();assert_eq!(e[0].step().next_due_ms,Some(903)); //clamp remaining delay1, then+2
 }
-#[test]fn replacement_retirement_and_budget_drain_bound_events(){
+#[test]#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"] fn replacement_retirement_and_budget_drain_bound_events(){
     let (mut owner,_t,j)=owner();let mut m=EventModel::local_experiment(j.native_job(),inputs(),vec![83;11],1).unwrap();let _event=m.dispatch_tick(584).unwrap();assert!(m.dispatch_tick(669).is_err());assert!(m.next_due().is_err());
     let mut m=EventModel::local_experiment(j.native_job(),inputs(),vec![83;11],16).unwrap();owner.retire();assert!(m.dispatch_tick(584).is_err());assert!(m.session.as_ref().unwrap().timers.items.is_empty());
     let (_owner,_t,j)=self::owner();let mut m=EventModel::local_experiment(j.native_job(),inputs(),vec![83;11],16).unwrap();m.retire();assert!(m.next_due().is_err());assert!(m.session.as_ref().unwrap().timers.items.is_empty());

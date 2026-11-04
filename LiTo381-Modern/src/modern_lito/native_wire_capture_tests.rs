@@ -36,7 +36,7 @@ fn validate_capture(v:&Value)->std::result::Result<(),String>{
     Ok(())
 }
 
-#[test]fn append_only_reader_refuses_sequence_key_eof_and_budget_substitution(){
+#[test]#[ignore = "requires: local evidence roots (snapshot JSON holds absolute D:\\ paths + SHA pins; only runnable on the original machine)"] fn append_only_reader_refuses_sequence_key_eof_and_budget_substitution(){
     let cfg=input();let v=pinned(&cfg["candidate"],"sql92/actor-sql-wire-capture.json");validate_capture(&v).unwrap();
     for change in 0..5{let mut b=v.clone();match change{
         0=>b["entries"][1]["sequence"]=b["entries"][0]["sequence"].clone(),

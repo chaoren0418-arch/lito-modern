@@ -1,0 +1,56 @@
+{
+  "GUI": 0,
+  "R472_timers_advanced": false,
+  "R474_focused_reruns": 0,
+  "active_load_back_microseconds": 10,
+  "actual_missing_sector_entry_failure_retry_and_close_verified": true,
+  "actual_old_queued_frame_rejected": 1,
+  "arrow_key_pan": [
+    48,
+    0
+  ],
+  "close_during_init_and_active_load_workers_retired": true,
+  "failed_init_then_close_no_hang": true,
+  "focused_new_tests": 1,
+  "frame_BGRA": "opaque top-down retained buffer through existing Canvas::copy_bgra",
+  "images": [
+    {
+      "BGRA_sha256": "A9FF4C0207B5BF879276696C915B77049AA4F51E8D84A20FDACA79D02D9C81D5",
+      "bytes": 1703732,
+      "camera": [
+        1136,
+        468,
+        800,
+        600
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r475-player-entry-candidate\\worker-entry-dib-source.png",
+      "sha256": "0860A7A7EF306984D9F3AB979522EA3A6038166F6F6AB4997D38033E1F1B7240"
+    },
+    {
+      "BGRA_sha256": "26339E9B93BE756B76DE19D6482E001E336A2E1AD0403547E23986C053470918",
+      "bytes": 1702344,
+      "camera": [
+        1184,
+        468,
+        800,
+        600
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r475-player-entry-candidate\\worker-arrow-pan-dib-source.png",
+      "sha256": "C63322DD426A3A1169C97E998C3E82A1BEF0D4AB176F8256C7574974EBDE0571"
+    }
+  ],
+  "late_result_back_microseconds": 19,
+  "main_default_source_edited": false,
+  "native_window_executed": false,
+  "negative_cases": 16,
+  "old_UI_frames_revoked": true,
+  "owned_rejection_fixtures": [
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r475-player-entry-candidate\\missing-sector-provider.json",
+    "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r475-player-entry-candidate\\missing-sector-manifest.json"
+  ],
+  "poll_joins_only_after_is_finished": true,
+  "renderer_LOADED": false,
+  "source_static_entry_identical_to_fixed_R474_PNG": true,
+  "state": "CANDIDATE_UI_ASYNC_WORKER_EVENT_DIB_BACK_CANCEL_FAILURE_RETIREMENT_VERIFIED_NO_NATIVE_GUI",
+  "worker_resource_IO_and_render_off_UI_thread": true
+}

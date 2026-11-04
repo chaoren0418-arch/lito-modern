@@ -1,0 +1,211 @@
+{
+  "GUI": 0,
+  "actual_controlled_shared_aliases": 0,
+  "actual_shared_resident_aliases": 61,
+  "controlled_shared_alias_mutation_qualified": false,
+  "duplicate_same_owner_down_canceled_by_callback": true,
+  "equal_due_FIFO": true,
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    }
+  ],
+  "failed_prepare_atomic": true,
+  "held_timer_reuse_refused": true,
+  "images": [
+    {
+      "RGBA_sha256": "0b4e6ba676c61dcf8bf40b5f0600689b51ec1b3d8652f29965ab749b959dcd14",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r457-multi-roof-cpu\\initial.png",
+      "sha256": "f0b22565a0e621044d149c079c4cf830eacba660b19fc2de5104ac83ba700b12"
+    },
+    {
+      "RGBA_sha256": "10568f568a7489913a2446c36ea0acc87a9faa21dacc347ca2d5f513195293d6",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r457-multi-roof-cpu\\enter-two-source-groups.png",
+      "sha256": "fbaff4cdc3d26e975bf0f565e49d5b5b144cd6deb725d3cc68ccbe35f597c673"
+    },
+    {
+      "RGBA_sha256": "8edc70bb47690e8cffbfc9fdfc250d4d6948c359dbc72edb6ba0f843103c73aa",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r457-multi-roof-cpu\\one-dispatch-each-group-cancels-duplicates.png",
+      "sha256": "647fedbcdc6840524eb3cb1e9ff97c53bfbca93c755d7b4d0e88f6960501c8ec"
+    },
+    {
+      "RGBA_sha256": "3bb0affc3c382fb5043588f844050fb59a6c07661ea0e8cf32d5dd36b9f36d43",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r457-multi-roof-cpu\\midfade-new-groups-old-groups-restore-fifo.png",
+      "sha256": "16f05867466396ab23886d0b7f43a91db087406d26196467e42649fe685b50ec"
+    },
+    {
+      "RGBA_sha256": "42daf0dd266d2d8c183931b2a3880e2ea67e7b04ff799d89e77ae65cb4ac35fa",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r457-multi-roof-cpu\\both-group-sets-settled.png",
+      "sha256": "192d579074ac5395963e6b7311d37216f602f6f9b4ec010b0139b31f3b7a73c2"
+    },
+    {
+      "RGBA_sha256": "0b4e6ba676c61dcf8bf40b5f0600689b51ec1b3d8652f29965ab749b959dcd14",
+      "dimensions": [
+        512,
+        384
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r457-multi-roof-cpu\\all-source-roofs-restored.png",
+      "sha256": "f0b22565a0e621044d149c079c4cf830eacba660b19fc2de5104ac83ba700b12"
+    }
+  ],
+  "input_pins": {
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    }
+  },
+  "local_group_invalidation_clears_matching_timers": true,
+  "midfade_opposite_callback_canceled": true,
+  "original_4835D0_frees_groups_without_visible_timer_cancel": true,
+  "original_group_unload_timer_cancellation_unqualified": true,
+  "private_prepared_revision": true,
+  "renderer_LOADED": false,
+  "restored_RGBA_equals_initial": true,
+  "rows": [
+    {
+      "state": "initial",
+      "timers": []
+    },
+    {
+      "state": "enter-two-source-groups",
+      "timers": [
+        {
+          "at": 550,
+          "callback": "Down",
+          "group": 136,
+          "serial": 1
+        },
+        {
+          "at": 550,
+          "callback": "Down",
+          "group": 168,
+          "serial": 2
+        }
+      ]
+    },
+    {
+      "state": "one-dispatch-each-group-cancels-duplicates",
+      "timers": [
+        {
+          "at": 600,
+          "callback": "Down",
+          "group": 136,
+          "serial": 5
+        },
+        {
+          "at": 600,
+          "callback": "Down",
+          "group": 168,
+          "serial": 6
+        }
+      ]
+    },
+    {
+      "state": "midfade-new-groups-old-groups-restore-fifo",
+      "timers": [
+        {
+          "at": 601,
+          "callback": "Down",
+          "group": 146,
+          "serial": 7
+        },
+        {
+          "at": 601,
+          "callback": "Down",
+          "group": 167,
+          "serial": 8
+        },
+        {
+          "at": 601,
+          "callback": "Up",
+          "group": 136,
+          "serial": 9
+        },
+        {
+          "at": 601,
+          "callback": "Up",
+          "group": 168,
+          "serial": 10
+        }
+      ]
+    },
+    {
+      "state": "both-group-sets-settled",
+      "timers": []
+    },
+    {
+      "state": "all-source-roofs-restored",
+      "timers": []
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "source_cells": [
+    [
+      32755,
+      32789
+    ],
+    [
+      32756,
+      32784
+    ]
+  ],
+  "source_group_sets": [
+    [
+      136,
+      168
+    ],
+    [
+      146,
+      167
+    ]
+  ],
+  "state": "ACTUAL_MULTIGROUP_MIDFADE_FIFO_TIMER_IDENTITY_AND_LOCAL_RETIREMENT"
+}

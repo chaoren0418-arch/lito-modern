@@ -1,0 +1,2784 @@
+{
+  "generated_at": "2026-10-04T01:24:07.3196715+08:00",
+  "source": {
+    "canonical_tests_sha256": "3754A181ED53D8AD49B4D85A9F617551987E2003B98BE15E7378DEC2C9B5EA50",
+    "preset": "D:\\lineage開發\\3-lito開發\\lito伺服器\\LiTo381-Server\\src\\main\\java\\local\\lito381\\server\\ModernSharedDeathmatchPreset.java",
+    "rotation_tests": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs",
+    "canonical_tests": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+    "rotation_tests_sha256": "F20EE10AAD121549E9F86C13BE53EE65B9C771C6B91083A3344F5D92768C86C6",
+    "preset_sha256": "36755FB1276BEFDF0B6EF36875D964AF33E81FDDA54DF7E5EC740466F479C365",
+    "rules_sha256": "571638CCC6E6971F5EF9B23510E9963966DF88074B51960CE68BF7ED44FD3C6D",
+    "rules": "D:\\lineage開發\\3-lito開發\\lito伺服器\\LiTo381-Server\\src\\main\\java\\local\\lito381\\server\\BattleRules.java"
+  },
+  "mode_map_pairs": 40,
+  "program_completed_pairs": 16,
+  "v47_program_completed_pairs": 16,
+  "canonical_v42_program_completed_pairs": 11,
+  "additional_legacy_pairs": 0,
+  "pending_program_pairs": 24,
+  "gui_completed_pairs": 0,
+  "rows": [
+    {
+      "mode": 0,
+      "mode_name": "petrace",
+      "logical_map": 565,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": 5143,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "v47_program_completed": true,
+      "completed_evidence": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stderr.log"
+    },
+    {
+      "mode": 0,
+      "mode_name": "petrace",
+      "logical_map": 566,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 0,
+      "mode_name": "petrace",
+      "logical_map": 569,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 0,
+      "mode_name": "petrace",
+      "logical_map": 570,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 564,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 514,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 20,
+      "explicit_v47_fixture_physical_map": 514,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "v47_program_completed": true,
+      "completed_evidence": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stderr.log",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 514,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e10c49ab9e4f4ab7a1b5089f0e42461d\\java_shared_509_514_509_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v6"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 514,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e18f8969193d442cb0de8ef3970bbc1f\\java_v42_shared_map_rotation_509_514_509.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 514,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e3d8d8eb0ebc431ca5f4e6bfb2935b9c\\java_v42_shared_map_rotation_509_514_509.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 514,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-8bb08a459d5d484b873a70f431fcd1f3\\java_v47_shared_map_rotation_509_514_509.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 509,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 1,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 509,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e10c49ab9e4f4ab7a1b5089f0e42461d\\java_shared_509_514_509_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v6"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 509,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e18f8969193d442cb0de8ef3970bbc1f\\java_v42_shared_map_rotation_509_514_509.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 509,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e3d8d8eb0ebc431ca5f4e6bfb2935b9c\\java_v42_shared_map_rotation_509_514_509.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 509,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-8bb08a459d5d484b873a70f431fcd1f3\\java_v47_shared_map_rotation_509_514_509.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 508,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 4,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 508,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-432edda086a84727993eff3626cc49c9\\java_shared_531_508_531_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v19"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 508,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-fbaf93eb7afa4c8caf35d1d4fdfd2b88\\java_v42_shared_map_rotation_531_508_531.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 508,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-01185a4a84c24a829b7bf477d282d674\\java_v47_shared_map_rotation_531_508_531.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 551,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 4,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 551,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0a56daae1554d7b8c4f0ab3d7aee63b\\java_shared_552_551_552_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v19"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 551,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-92d8ea0e25f849efbe9709c542497502\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 551,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-1255804cfe304481b7e438c7703ab0c2\\java_v47_shared_map_rotation_552_551_552.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 504,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 31,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 504,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-68080e5c34e149189e232a08ee85399f\\java_shared_504_531_504_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 504,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4a47a3b68d1d4651a56c3914e22846cd\\java_v42_shared_map_rotation_504_531_504.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 504,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5fa9dcaae2ce4ed6942d3b0b87a9251f\\java_v42_shared_map_rotation_504_531_504.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 504,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-b7f7f7df3a6140a98a49b6aa7d99e80a\\java_v47_shared_map_rotation_504_531_504.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 505,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 31,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 505,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-801cfab21c5a4d90ad045713c3ba7e03\\java_shared_505_531_505_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 505,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-910bc4573f87438eb30d2cb80359b881\\java_v42_shared_map_rotation_505_531_505.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 505,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5c60dcb73df94099a0d3b482de03175c\\java_v47_shared_map_rotation_505_531_505.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 552,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 2,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 552,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0a56daae1554d7b8c4f0ab3d7aee63b\\java_shared_552_551_552_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v19"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 552,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-92d8ea0e25f849efbe9709c542497502\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 552,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-1255804cfe304481b7e438c7703ab0c2\\java_v47_shared_map_rotation_552_551_552.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 506,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 35,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 506,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-c4543170c4e14f618b10f6cf5d893a3e\\java_shared_506_531_506_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 506,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-461364520a7f45d882e95c0da7ba8a99\\java_v42_shared_map_rotation_506_531_506.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 506,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-924b217da0434ebb9fc80f268c65736e\\java_v47_shared_map_rotation_506_531_506.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 526,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 525,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 516,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 20,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 516,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-ef3fb8d2320b499fbcad9a7056417503\\java_shared_516_531_516_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 516,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-36d35c856a6141448a57c6eb8f3681a4\\java_v42_shared_map_rotation_516_531_516.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 516,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-02c1d0aa4f00456e85eced3689aa59ac\\java_v47_shared_map_rotation_516_531_516.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 531,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 10,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-432edda086a84727993eff3626cc49c9\\java_shared_531_508_531_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v19"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4c8edee2eac0462ea942a66617cefa92\\java_shared_534_531_534_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v19"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-68080e5c34e149189e232a08ee85399f\\java_shared_504_531_504_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-801cfab21c5a4d90ad045713c3ba7e03\\java_shared_505_531_505_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-c4543170c4e14f618b10f6cf5d893a3e\\java_shared_506_531_506_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-ef3fb8d2320b499fbcad9a7056417503\\java_shared_516_531_516_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v34"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-36d35c856a6141448a57c6eb8f3681a4\\java_v42_shared_map_rotation_516_531_516.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-461364520a7f45d882e95c0da7ba8a99\\java_v42_shared_map_rotation_506_531_506.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4a47a3b68d1d4651a56c3914e22846cd\\java_v42_shared_map_rotation_504_531_504.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5fa9dcaae2ce4ed6942d3b0b87a9251f\\java_v42_shared_map_rotation_504_531_504.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-910bc4573f87438eb30d2cb80359b881\\java_v42_shared_map_rotation_505_531_505.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0577db45e894327b1eabfce1bc7c1bf\\java_v42_shared_map_rotation_534_531_534.stdout.log",
+          "contract": "canonical_controller_v42"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-fbaf93eb7afa4c8caf35d1d4fdfd2b88\\java_v42_shared_map_rotation_531_508_531.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-01185a4a84c24a829b7bf477d282d674\\java_v47_shared_map_rotation_531_508_531.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-02c1d0aa4f00456e85eced3689aa59ac\\java_v47_shared_map_rotation_516_531_516.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-3d5174861dd84ad2820b4ac8c9a2484c\\java_v47_shared_map_rotation_534_531_534.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5c60dcb73df94099a0d3b482de03175c\\java_v47_shared_map_rotation_505_531_505.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-924b217da0434ebb9fc80f268c65736e\\java_v47_shared_map_rotation_506_531_506.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        },
+        {
+          "physical_map": 531,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-b7f7f7df3a6140a98a49b6aa7d99e80a\\java_v47_shared_map_rotation_504_531_504.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 534,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 8,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "legacy_program_evidence": [
+        {
+          "physical_map": 534,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4c8edee2eac0462ea942a66617cefa92\\java_shared_534_531_534_three_saved_rounds_same_owners_and_renderers.stdout.log",
+          "contract": "legacy_world_controller_v19"
+        }
+      ],
+      "canonical_v42_program_evidence": [
+        {
+          "physical_map": 534,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0577db45e894327b1eabfce1bc7c1bf\\java_v42_shared_map_rotation_534_531_534.stdout.log",
+          "contract": "canonical_controller_v42"
+        }
+      ],
+      "v47_program_completed": true,
+      "ordinary_v47_program_evidence": [
+        {
+          "physical_map": 534,
+          "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-3d5174861dd84ad2820b4ac8c9a2484c\\java_v47_shared_map_rotation_534_531_534.stdout.log",
+          "contract": "modern_v47_ordinary_controller"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "mode_name": "deathmatch",
+      "logical_map": 529,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 554,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 4,
+      "explicit_v47_fixture_physical_map": 554,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "v47_program_completed": true,
+      "completed_evidence": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stderr.log"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 553,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 4,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 513,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 20,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 527,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 518,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 5,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 519,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 520,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 521,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 8,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 2,
+      "mode_name": "questbattle",
+      "logical_map": 522,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 8,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 3,
+      "mode_name": "siegewar",
+      "logical_map": 573,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 3,
+      "mode_name": "siegewar",
+      "logical_map": 563,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 3,
+      "mode_name": "siegewar",
+      "logical_map": 547,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": 4,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "v47_program_completed": true,
+      "completed_evidence": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stderr.log"
+    },
+    {
+      "mode": 4,
+      "mode_name": "timeattack",
+      "logical_map": 540,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": 554,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "v47_program_completed": true,
+      "completed_evidence": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stderr.log"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 510,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 528,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 532,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 6,
+      "explicit_v47_fixture_physical_map": 532,
+      "this_run_saved_mode_completed": true,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514",
+      "v47_program_completed": true,
+      "completed_evidence": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stderr.log"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 512,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 20,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 517,
+      "logical_shared_directory_exists": false,
+      "logical_shared_s32_files": 0,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 524,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 8,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 530,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 8,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    },
+    {
+      "mode": 5,
+      "mode_name": "honormatch",
+      "logical_map": 535,
+      "logical_shared_directory_exists": true,
+      "logical_shared_s32_files": 25,
+      "explicit_v47_fixture_physical_map": null,
+      "this_run_saved_mode_completed": false,
+      "gui_accepted": false,
+      "note": "目錄／sector檔存在不證明合法地形、出生點、規則或可玩；不得任意別名到514"
+    }
+  ],
+  "accepted_runs": [
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stdout.log",
+      "stdout_sha256": "845C784B5227734DB1D536D4B68D552BC9FFD7BDA340609C125670841F0A5994",
+      "elapsed_seconds": 418.95,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\recovered-completion.json",
+      "os_exit_scope": "Monitor aborted; OS exit code unobserved, passed stdout and process retirement recovered",
+      "contract": "modern_v47",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-All-3cf6287e45a041ce8b5fd6802b508ef4\\r408-six-modes-sql.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-432edda086a84727993eff3626cc49c9\\java_shared_531_508_531_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "79B7B60DB986B6D15F3A2234585AA431D46E36D8540E56CA1033CE4968955BD5",
+      "elapsed_seconds": 46.05,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-432edda086a84727993eff3626cc49c9\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v19",
+      "test": "java_shared_531_508_531_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation-shared-508-531",
+      "round_maps": [
+        531,
+        508,
+        531
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4c8edee2eac0462ea942a66617cefa92\\java_shared_534_531_534_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "7187608ACB810F4B7A3EE51852FA2126911B1A136E408801D7B12E434260FFFF",
+      "elapsed_seconds": 46.66,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4c8edee2eac0462ea942a66617cefa92\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v19",
+      "test": "java_shared_534_531_534_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation-shared-531-534",
+      "round_maps": [
+        534,
+        531,
+        534
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-68080e5c34e149189e232a08ee85399f\\java_shared_504_531_504_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "A9A207BD9956B3A66F352A75ABA493B7A5D267184B01F8B680076AB32A196E23",
+      "elapsed_seconds": 60.86,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-68080e5c34e149189e232a08ee85399f\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v34",
+      "test": "java_shared_504_531_504_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation-shared-504-531",
+      "round_maps": [
+        504,
+        531,
+        504
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-801cfab21c5a4d90ad045713c3ba7e03\\java_shared_505_531_505_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "E557F96EC64541BB40E486C952844BD82EFCFAF128DCAE4E4F869664A50782F4",
+      "elapsed_seconds": 59.13,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-801cfab21c5a4d90ad045713c3ba7e03\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v34",
+      "test": "java_shared_505_531_505_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation-shared-505-531",
+      "round_maps": [
+        505,
+        531,
+        505
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-c4543170c4e14f618b10f6cf5d893a3e\\java_shared_506_531_506_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "9916D03145DDE0F8943BBD74899B1BE772CE5F1636048791A8A2F128AEAC4E87",
+      "elapsed_seconds": 58.21,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-c4543170c4e14f618b10f6cf5d893a3e\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v34",
+      "test": "java_shared_506_531_506_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation-shared-506-531",
+      "round_maps": [
+        506,
+        531,
+        506
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0a56daae1554d7b8c4f0ab3d7aee63b\\java_shared_552_551_552_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "13394E068F9431C17B0FD216E4BE105596BD264745C39BDBEA1C2C46D2DEBBC8",
+      "elapsed_seconds": 41.65,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0a56daae1554d7b8c4f0ab3d7aee63b\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v19",
+      "test": "java_shared_552_551_552_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation-shared",
+      "round_maps": [
+        552,
+        551,
+        552
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e10c49ab9e4f4ab7a1b5089f0e42461d\\java_shared_509_514_509_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "2028F6B931942D97674E8B1D344C7D8F44B5DFCF122B5A81A77C7BC22FFFADBC",
+      "elapsed_seconds": 39.89,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e10c49ab9e4f4ab7a1b5089f0e42461d\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v6",
+      "test": "java_shared_509_514_509_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation",
+      "round_maps": [
+        509,
+        514,
+        509
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-ef3fb8d2320b499fbcad9a7056417503\\java_shared_516_531_516_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "stdout_sha256": "F6E2C41587DDD6D509D4ACDC6CA0DA727227D3E26576E6F54AC9C2F922331478",
+      "elapsed_seconds": 55.88,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-ef3fb8d2320b499fbcad9a7056417503\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "legacy_world_controller_v34",
+      "test": "java_shared_516_531_516_three_saved_rounds_same_owners_and_renderers",
+      "peer_mode": "rotation-shared-516-531",
+      "round_maps": [
+        516,
+        531,
+        516
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\map_rotation_interop_tests.rs"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-36d35c856a6141448a57c6eb8f3681a4\\java_v42_shared_map_rotation_516_531_516.stdout.log",
+      "stdout_sha256": "954368BB57397B6207D3A9024C306CD20F0A2C890769A34312A6F39D62F667CE",
+      "elapsed_seconds": 60.6,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-36d35c856a6141448a57c6eb8f3681a4\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_516_531_516",
+      "peer_mode": "rotation-shared-516-531",
+      "round_maps": [
+        516,
+        531,
+        516
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-36d35c856a6141448a57c6eb8f3681a4\\java_v42_shared_map_rotation_516_531_516.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-461364520a7f45d882e95c0da7ba8a99\\java_v42_shared_map_rotation_506_531_506.stdout.log",
+      "stdout_sha256": "D43A1E8B61D272EBAAC6A92FF36E0AC2F3C66684F503F8B06896C9D5817AA94A",
+      "elapsed_seconds": 65.31,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-461364520a7f45d882e95c0da7ba8a99\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_506_531_506",
+      "peer_mode": "rotation-shared-506-531",
+      "round_maps": [
+        506,
+        531,
+        506
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-461364520a7f45d882e95c0da7ba8a99\\java_v42_shared_map_rotation_506_531_506.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4a47a3b68d1d4651a56c3914e22846cd\\java_v42_shared_map_rotation_504_531_504.stdout.log",
+      "stdout_sha256": "B7A460DBEBCDFE2147A9962EE29654A095E8055A63E4A8BDBCD1F78A5ABBDD35",
+      "elapsed_seconds": 68.22,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4a47a3b68d1d4651a56c3914e22846cd\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_504_531_504",
+      "peer_mode": "rotation-shared-504-531",
+      "round_maps": [
+        504,
+        531,
+        504
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-4a47a3b68d1d4651a56c3914e22846cd\\java_v42_shared_map_rotation_504_531_504.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5fa9dcaae2ce4ed6942d3b0b87a9251f\\java_v42_shared_map_rotation_504_531_504.stdout.log",
+      "stdout_sha256": "4A401B54BBCF3641CDCC7D5B91780DCDC4D87846F7FC90CBACDF96C0C8019111",
+      "elapsed_seconds": 65.35,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5fa9dcaae2ce4ed6942d3b0b87a9251f\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_504_531_504",
+      "peer_mode": "rotation-shared-504-531",
+      "round_maps": [
+        504,
+        531,
+        504
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5fa9dcaae2ce4ed6942d3b0b87a9251f\\java_v42_shared_map_rotation_504_531_504.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-910bc4573f87438eb30d2cb80359b881\\java_v42_shared_map_rotation_505_531_505.stdout.log",
+      "stdout_sha256": "C7E97F987CE4E3298CEC17A216320218FFA85055A080F9B1FCC02083D7A2B756",
+      "elapsed_seconds": 65.02,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-910bc4573f87438eb30d2cb80359b881\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_505_531_505",
+      "peer_mode": "rotation-shared-505-531",
+      "round_maps": [
+        505,
+        531,
+        505
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-910bc4573f87438eb30d2cb80359b881\\java_v42_shared_map_rotation_505_531_505.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-92d8ea0e25f849efbe9709c542497502\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "stdout_sha256": "4782C802946D57B5F99E93898A0239C39BD37E06CE22FA5F2AC495FD3D78D2C7",
+      "elapsed_seconds": 50.84,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-92d8ea0e25f849efbe9709c542497502\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_552_551_552",
+      "peer_mode": "rotation-shared",
+      "round_maps": [
+        552,
+        551,
+        552
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-92d8ea0e25f849efbe9709c542497502\\java_v42_shared_map_rotation_552_551_552.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0577db45e894327b1eabfce1bc7c1bf\\java_v42_shared_map_rotation_534_531_534.stdout.log",
+      "stdout_sha256": "49800F5F2A4919D61AE10335E0C6F250BEF8D4A6BDE93DF33A560B0E677E2C72",
+      "elapsed_seconds": 57.08,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0577db45e894327b1eabfce1bc7c1bf\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_534_531_534",
+      "peer_mode": "rotation-shared-531-534",
+      "round_maps": [
+        534,
+        531,
+        534
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e0577db45e894327b1eabfce1bc7c1bf\\java_v42_shared_map_rotation_534_531_534.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e18f8969193d442cb0de8ef3970bbc1f\\java_v42_shared_map_rotation_509_514_509.stdout.log",
+      "stdout_sha256": "CC8B81BA1A22881128578A854ABC6A05E907FD5A101DCAB16D3D0EC54BD535E0",
+      "elapsed_seconds": 46.23,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e18f8969193d442cb0de8ef3970bbc1f\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_509_514_509",
+      "peer_mode": "rotation",
+      "round_maps": [
+        509,
+        514,
+        509
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e18f8969193d442cb0de8ef3970bbc1f\\java_v42_shared_map_rotation_509_514_509.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e3d8d8eb0ebc431ca5f4e6bfb2935b9c\\java_v42_shared_map_rotation_509_514_509.stdout.log",
+      "stdout_sha256": "D0F1996F93FA6A4F9D04259E119B6BBE742127BBA1E1CB73F580E7B0AFA5D7DF",
+      "elapsed_seconds": 47.63,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e3d8d8eb0ebc431ca5f4e6bfb2935b9c\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_509_514_509",
+      "peer_mode": "rotation",
+      "round_maps": [
+        509,
+        514,
+        509
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-e3d8d8eb0ebc431ca5f4e6bfb2935b9c\\java_v42_shared_map_rotation_509_514_509.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-fbaf93eb7afa4c8caf35d1d4fdfd2b88\\java_v42_shared_map_rotation_531_508_531.stdout.log",
+      "stdout_sha256": "DE9976193B99F864F6C032AD38C504397CAC24D1F90098F9546C94C74219A60D",
+      "elapsed_seconds": 56.09,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-fbaf93eb7afa4c8caf35d1d4fdfd2b88\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "canonical_controller_v42",
+      "test": "java_v42_shared_map_rotation_531_508_531",
+      "peer_mode": "rotation-shared-508-531",
+      "round_maps": [
+        531,
+        508,
+        531
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-fbaf93eb7afa4c8caf35d1d4fdfd2b88\\java_v42_shared_map_rotation_531_508_531.stderr.log"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-01185a4a84c24a829b7bf477d282d674\\java_v47_shared_map_rotation_531_508_531.stdout.log",
+      "stdout_sha256": "A892731AC2482CD727AE3F97B7B8F2D095221DFF936E4087F346801C314FE55F",
+      "elapsed_seconds": 52.38,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-01185a4a84c24a829b7bf477d282d674\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_531_508_531",
+      "peer_mode": "rotation-shared-508-531",
+      "round_maps": [
+        531,
+        508,
+        531
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-01185a4a84c24a829b7bf477d282d674\\java_v47_shared_map_rotation_531_508_531.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-01185a4a84c24a829b7bf477d282d674\\inputs.json"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-02c1d0aa4f00456e85eced3689aa59ac\\java_v47_shared_map_rotation_516_531_516.stdout.log",
+      "stdout_sha256": "A2E1F7AABD7A7DC4655D0EB444DDCBE3C6462489358130B49D7D3438DA46F328",
+      "elapsed_seconds": 60.26,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-02c1d0aa4f00456e85eced3689aa59ac\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_516_531_516",
+      "peer_mode": "rotation-shared-516-531",
+      "round_maps": [
+        516,
+        531,
+        516
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-02c1d0aa4f00456e85eced3689aa59ac\\java_v47_shared_map_rotation_516_531_516.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-02c1d0aa4f00456e85eced3689aa59ac\\inputs.json"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-1255804cfe304481b7e438c7703ab0c2\\java_v47_shared_map_rotation_552_551_552.stdout.log",
+      "stdout_sha256": "52E078CA2F8963755EBDC4CFD488A37E5E4C0E201572D0848A566106BD6158EF",
+      "elapsed_seconds": 48.62,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-1255804cfe304481b7e438c7703ab0c2\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_552_551_552",
+      "peer_mode": "rotation-shared",
+      "round_maps": [
+        552,
+        551,
+        552
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-1255804cfe304481b7e438c7703ab0c2\\java_v47_shared_map_rotation_552_551_552.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-1255804cfe304481b7e438c7703ab0c2\\inputs.json"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-3d5174861dd84ad2820b4ac8c9a2484c\\java_v47_shared_map_rotation_534_531_534.stdout.log",
+      "stdout_sha256": "D38977E6623FB7AE91C2C49981FE81531EBC7C72FE740924BDDB6030464342AD",
+      "elapsed_seconds": 52.71,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-3d5174861dd84ad2820b4ac8c9a2484c\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_534_531_534",
+      "peer_mode": "rotation-shared-531-534",
+      "round_maps": [
+        534,
+        531,
+        534
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-3d5174861dd84ad2820b4ac8c9a2484c\\java_v47_shared_map_rotation_534_531_534.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-3d5174861dd84ad2820b4ac8c9a2484c\\inputs.json"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5c60dcb73df94099a0d3b482de03175c\\java_v47_shared_map_rotation_505_531_505.stdout.log",
+      "stdout_sha256": "C6A46D976564A2DF4AAF9F48C3088D32690C2C0A9042AE18DC461AC3DFBD2EF6",
+      "elapsed_seconds": 65.58,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5c60dcb73df94099a0d3b482de03175c\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_505_531_505",
+      "peer_mode": "rotation-shared-505-531",
+      "round_maps": [
+        505,
+        531,
+        505
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5c60dcb73df94099a0d3b482de03175c\\java_v47_shared_map_rotation_505_531_505.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-5c60dcb73df94099a0d3b482de03175c\\inputs.json"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-8bb08a459d5d484b873a70f431fcd1f3\\java_v47_shared_map_rotation_509_514_509.stdout.log",
+      "stdout_sha256": "3763B9E0C8F555A05B67052B4082E588ABB17F323FBE0A6F480D8915E48C38D4",
+      "elapsed_seconds": 46.16,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-8bb08a459d5d484b873a70f431fcd1f3\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_509_514_509",
+      "peer_mode": "rotation",
+      "round_maps": [
+        509,
+        514,
+        509
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-8bb08a459d5d484b873a70f431fcd1f3\\java_v47_shared_map_rotation_509_514_509.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-8bb08a459d5d484b873a70f431fcd1f3\\inputs.json"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-924b217da0434ebb9fc80f268c65736e\\java_v47_shared_map_rotation_506_531_506.stdout.log",
+      "stdout_sha256": "09C059C063531F3ABEDA22F8EDF15CCD1B54BA40ADD727FE3D484D960902DF3C",
+      "elapsed_seconds": 64.19,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-924b217da0434ebb9fc80f268c65736e\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_506_531_506",
+      "peer_mode": "rotation-shared-506-531",
+      "round_maps": [
+        506,
+        531,
+        506
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-924b217da0434ebb9fc80f268c65736e\\java_v47_shared_map_rotation_506_531_506.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-924b217da0434ebb9fc80f268c65736e\\inputs.json"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-b7f7f7df3a6140a98a49b6aa7d99e80a\\java_v47_shared_map_rotation_504_531_504.stdout.log",
+      "stdout_sha256": "2B2A5E4E938E77DC53B012EC67CF76082D81C816DE7DC487E9112569A172B950",
+      "elapsed_seconds": 64.42,
+      "cleanup": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-b7f7f7df3a6140a98a49b6aa7d99e80a\\cleanup.json",
+      "os_exit_scope": "Run test-results records OS exit code",
+      "contract": "modern_v47_ordinary_controller",
+      "test": "java_v47_shared_map_rotation_504_531_504",
+      "peer_mode": "rotation-shared-504-531",
+      "round_maps": [
+        504,
+        531,
+        504
+      ],
+      "test_definition_source": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\src\\modern_lito\\canonical_map_rotation_tests.rs",
+      "stderr": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-b7f7f7df3a6140a98a49b6aa7d99e80a\\java_v47_shared_map_rotation_504_531_504.stderr.log",
+      "inputs": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-b7f7f7df3a6140a98a49b6aa7d99e80a\\inputs.json"
+    }
+  ],
+  "excluded_runs": [
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\r408-six-modes-sql.stdout.log",
+      "reason": "No whole-test passed summary or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-R408-7d482aa722144661895116eca8d24e10\\r408-six-modes-sql.stdout.log",
+      "reason": "No whole-test passed summary or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-bef84ee2d5904333bd6d92ae6e3a3d2f\\java_shared_504_531_504_three_saved_rounds_same_owners_and_renderers.stdout.log",
+      "reason": "No whole-test passed summary or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-0a064441db8e47838a960c6fd58b2ca2\\java_v42_shared_map_rotation_506_531_506.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-0b5f86c93ee64e98b7580457d2f81bdf\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-10cbe6ef2c9148bbafe71787c4232401\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-232cd84bf1b14e149a8dda0e0c3d3ab1\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-2bd211c3fcd74e75855b00e88e70e2a4\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-2c5af94630d64530a3c013887988d272\\java_v42_shared_map_rotation_531_508_531.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-2e3ae1d246f044c7a5537b42253bcdc4\\java_v42_shared_map_rotation_505_531_505.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-6a79c77a2f7f4f37b8f99e0c8d9c5f1d\\java_v42_shared_map_rotation_516_531_516.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-71c2e2e5690c4041b300a9f33b3d88bd\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-97616ba2228c40eab29648111fbb34d9\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-aa2e36af332d4fae9988073f719567d8\\java_v42_shared_map_rotation_534_531_534.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-c3142cb09bd04da6aafabf90607ff7ef\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    },
+    {
+      "stdout": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs\\continuation-20261003\\run-Extra-d272d3a08e264aab86ce68219af2aec5\\java_v42_shared_map_rotation_552_551_552.stdout.log",
+      "reason": "No whole-test passed summary, exit0 or retirement evidence"
+    }
+  ],
+  "sector_pin_checks": 145,
+  "pin_failures": 0,
+  "sector_pins": [
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7ffd7fff.s32",
+      "expected_bytes": 154462,
+      "expected_sha256": "ac3e658f59e20bc6e5fcd4eac7cd8f08a405882ad990dd1aa82e4c5c5002c83c",
+      "exists": true,
+      "actual_bytes": 154462,
+      "actual_sha256": "AC3E658F59E20BC6E5FCD4EAC7CD8F08A405882AD990DD1AA82E4C5C5002C83C",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7ffd8000.s32",
+      "expected_bytes": 151726,
+      "expected_sha256": "bc8e33cee6ec197072cc7e01c09fc5ccd6865f3cf31aefde7dff2c17f647326e",
+      "exists": true,
+      "actual_bytes": 151726,
+      "actual_sha256": "BC8E33CEE6EC197072CC7E01C09FC5CCD6865F3CF31AEFDE7DFF2C17F647326E",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7ffe7fff.s32",
+      "expected_bytes": 163479,
+      "expected_sha256": "676e9e1037d3c1047cfec0a23588c441db57304955e81a2ed5b29156709da5ea",
+      "exists": true,
+      "actual_bytes": 163479,
+      "actual_sha256": "676E9E1037D3C1047CFEC0A23588C441DB57304955E81A2ED5B29156709DA5EA",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7ffe8000.s32",
+      "expected_bytes": 104761,
+      "expected_sha256": "eded17f1fad216547421ec268a660c29b64c3742078a221361aab61575e4b90a",
+      "exists": true,
+      "actual_bytes": 104761,
+      "actual_sha256": "EDED17F1FAD216547421EC268A660C29B64C3742078A221361AAB61575E4B90A",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7ffe8001.s32",
+      "expected_bytes": 109921,
+      "expected_sha256": "96a9ab685bf5e56187d8ac9b3408aafab94c24f39b820650d3f72b47ef08172c",
+      "exists": true,
+      "actual_bytes": 109921,
+      "actual_sha256": "96A9AB685BF5E56187D8AC9B3408AAFAB94C24F39B820650D3F72B47EF08172C",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7fff7fff.s32",
+      "expected_bytes": 177427,
+      "expected_sha256": "f698fa6324793df7853b8761ad29cf3d10fea1e45b1b527c1d5a4cdf74f07eac",
+      "exists": true,
+      "actual_bytes": 177427,
+      "actual_sha256": "F698FA6324793DF7853B8761AD29CF3D10FEA1E45B1B527C1D5A4CDF74F07EAC",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7fff8000.s32",
+      "expected_bytes": 137784,
+      "expected_sha256": "ccfe52b614dfbdf97fd713f80d61e4cdd35e7c8c3000a06b4bba8868c96d1271",
+      "exists": true,
+      "actual_bytes": 137784,
+      "actual_sha256": "CCFE52B614DFBDF97FD713F80D61E4CDD35E7C8C3000A06B4BBA8868C96D1271",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\7fff8001.s32",
+      "expected_bytes": 156632,
+      "expected_sha256": "2a24afed0f4a2a660cda41b026f7aaf5e39f2f1dd302a03521209668237c0f91",
+      "exists": true,
+      "actual_bytes": 156632,
+      "actual_sha256": "2A24AFED0F4A2A660CDA41B026F7AAF5E39F2F1DD302A03521209668237C0F91",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80007fff.s32",
+      "expected_bytes": 132131,
+      "expected_sha256": "cc221e8f0e82b08b396bdaa4ff4541102851e114f16f697505bb798b92b21861",
+      "exists": true,
+      "actual_bytes": 132131,
+      "actual_sha256": "CC221E8F0E82B08B396BDAA4FF4541102851E114F16F697505BB798B92B21861",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80008000.s32",
+      "expected_bytes": 114038,
+      "expected_sha256": "40d9199e78ca0bd6ce4ec2818dbcace556df35006515c4bfcdc01d43008ae132",
+      "exists": true,
+      "actual_bytes": 114038,
+      "actual_sha256": "40D9199E78CA0BD6CE4EC2818DBCACE556DF35006515C4BFCDC01D43008AE132",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80008001.s32",
+      "expected_bytes": 118017,
+      "expected_sha256": "14da82489eb7478b87715c3aa6212b17d121ebd2eecfc052b2ae0579a30a64dc",
+      "exists": true,
+      "actual_bytes": 118017,
+      "actual_sha256": "14DA82489EB7478B87715C3AA6212B17D121EBD2EECFC052B2AE0579A30A64DC",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80017ffd.s32",
+      "expected_bytes": 120635,
+      "expected_sha256": "b9196e98e2b53d10f31cc599b051317f5ee77b17409f56b88a8b954c1bff201d",
+      "exists": true,
+      "actual_bytes": 120635,
+      "actual_sha256": "B9196E98E2B53D10F31CC599B051317F5EE77B17409F56B88A8B954C1BFF201D",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80017ffe.s32",
+      "expected_bytes": 111656,
+      "expected_sha256": "a6de748a4665dfde14899af6f73b899692870f54258e91f6e1a686b1d11e5969",
+      "exists": true,
+      "actual_bytes": 111656,
+      "actual_sha256": "A6DE748A4665DFDE14899AF6F73B899692870F54258E91F6E1A686B1D11E5969",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80047ffe.s32",
+      "expected_bytes": 104761,
+      "expected_sha256": "eded17f1fad216547421ec268a660c29b64c3742078a221361aab61575e4b90a",
+      "exists": true,
+      "actual_bytes": 104761,
+      "actual_sha256": "EDED17F1FAD216547421EC268A660C29B64C3742078A221361AAB61575E4B90A",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80047fff.s32",
+      "expected_bytes": 149226,
+      "expected_sha256": "ae28c641f8b1a0aae994049753eb5a7af8097d0bf50e10b45a803c4d9f2e9ee8",
+      "exists": true,
+      "actual_bytes": 149226,
+      "actual_sha256": "AE28C641F8B1A0AAE994049753EB5A7AF8097D0BF50E10B45A803C4D9F2E9EE8",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80048000.s32",
+      "expected_bytes": 155013,
+      "expected_sha256": "e6e620e955189c9091bc06a4eaa9475c337ef06430555c2f27ed2ffcdad2e380",
+      "exists": true,
+      "actual_bytes": 155013,
+      "actual_sha256": "E6E620E955189C9091BC06A4EAA9475C337EF06430555C2F27ED2FFCDAD2E380",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80057fff.s32",
+      "expected_bytes": 121365,
+      "expected_sha256": "659f286c4c540fad017ccbe4ca13bbccc9dd42e44c7f072f3cbc80a02a90c86f",
+      "exists": true,
+      "actual_bytes": 121365,
+      "actual_sha256": "659F286C4C540FAD017CCBE4CA13BBCCC9DD42E44C7F072F3CBC80A02A90C86F",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80058000.s32",
+      "expected_bytes": 117094,
+      "expected_sha256": "a79001f11da8a111bc6be362f976bbbfefec52fb054e7eece92b4e6bd85acdbf",
+      "exists": true,
+      "actual_bytes": 117094,
+      "actual_sha256": "A79001F11DA8A111BC6BE362F976BBBFEFEC52FB054E7EECE92B4E6BD85ACDBF",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80067fff.s32",
+      "expected_bytes": 145416,
+      "expected_sha256": "e7eb9f50ed0c0de9ddb39e3ee4e944dba99aad029ebc865ed9d1fc6afd4645b3",
+      "exists": true,
+      "actual_bytes": 145416,
+      "actual_sha256": "E7EB9F50ED0C0DE9DDB39E3EE4E944DBA99AAD029EBC865ED9D1FC6AFD4645B3",
+      "matches": true
+    },
+    {
+      "physical_map": 516,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\516\\80068000.s32",
+      "expected_bytes": 127793,
+      "expected_sha256": "4b51e7cebf6a81a318c459b6c8e883e335701ff007de09034401024b668f9fa9",
+      "exists": true,
+      "actual_bytes": 127793,
+      "actual_sha256": "4B51E7CEBF6A81A318C459B6C8E883E335701FF007DE09034401024B668F9FA9",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7ffd7fff.s32",
+      "expected_bytes": 154462,
+      "expected_sha256": "ac3e658f59e20bc6e5fcd4eac7cd8f08a405882ad990dd1aa82e4c5c5002c83c",
+      "exists": true,
+      "actual_bytes": 154462,
+      "actual_sha256": "AC3E658F59E20BC6E5FCD4EAC7CD8F08A405882AD990DD1AA82E4C5C5002C83C",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7ffd8000.s32",
+      "expected_bytes": 151726,
+      "expected_sha256": "bc8e33cee6ec197072cc7e01c09fc5ccd6865f3cf31aefde7dff2c17f647326e",
+      "exists": true,
+      "actual_bytes": 151726,
+      "actual_sha256": "BC8E33CEE6EC197072CC7E01C09FC5CCD6865F3CF31AEFDE7DFF2C17F647326E",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7ffe7fff.s32",
+      "expected_bytes": 163479,
+      "expected_sha256": "676e9e1037d3c1047cfec0a23588c441db57304955e81a2ed5b29156709da5ea",
+      "exists": true,
+      "actual_bytes": 163479,
+      "actual_sha256": "676E9E1037D3C1047CFEC0A23588C441DB57304955E81A2ED5B29156709DA5EA",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7ffe8000.s32",
+      "expected_bytes": 104761,
+      "expected_sha256": "eded17f1fad216547421ec268a660c29b64c3742078a221361aab61575e4b90a",
+      "exists": true,
+      "actual_bytes": 104761,
+      "actual_sha256": "EDED17F1FAD216547421EC268A660C29B64C3742078A221361AAB61575E4B90A",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7ffe8001.s32",
+      "expected_bytes": 109921,
+      "expected_sha256": "96a9ab685bf5e56187d8ac9b3408aafab94c24f39b820650d3f72b47ef08172c",
+      "exists": true,
+      "actual_bytes": 109921,
+      "actual_sha256": "96A9AB685BF5E56187D8AC9B3408AAFAB94C24F39B820650D3F72B47EF08172C",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7fff7fff.s32",
+      "expected_bytes": 177427,
+      "expected_sha256": "f698fa6324793df7853b8761ad29cf3d10fea1e45b1b527c1d5a4cdf74f07eac",
+      "exists": true,
+      "actual_bytes": 177427,
+      "actual_sha256": "F698FA6324793DF7853B8761AD29CF3D10FEA1E45B1B527C1D5A4CDF74F07EAC",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7fff8000.s32",
+      "expected_bytes": 76260,
+      "expected_sha256": "5956ab63f8243306c49885e339878cdebea6d4cfd9dfc28053592ca978efb5ce",
+      "exists": true,
+      "actual_bytes": 76260,
+      "actual_sha256": "5956AB63F8243306C49885E339878CDEBEA6D4CFD9DFC28053592CA978EFB5CE",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7fff8001.s32",
+      "expected_bytes": 77418,
+      "expected_sha256": "7e9c84dd024a5aaaa1b163bd7c78b2c0d3133f8737fff67c39854b4e2a6f7cde",
+      "exists": true,
+      "actual_bytes": 77418,
+      "actual_sha256": "7E9C84DD024A5AAAA1B163BD7C78B2C0D3133F8737FFF67C39854B4E2A6F7CDE",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\7fff8002.s32",
+      "expected_bytes": 82861,
+      "expected_sha256": "714a5ae04249cedb8f64603903f010d7197f22b65597790a88057bc07e45cb17",
+      "exists": true,
+      "actual_bytes": 82861,
+      "actual_sha256": "714A5AE04249CEDB8F64603903F010D7197F22B65597790A88057BC07E45CB17",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80007fff.s32",
+      "expected_bytes": 132131,
+      "expected_sha256": "cc221e8f0e82b08b396bdaa4ff4541102851e114f16f697505bb798b92b21861",
+      "exists": true,
+      "actual_bytes": 132131,
+      "actual_sha256": "CC221E8F0E82B08B396BDAA4FF4541102851E114F16F697505BB798B92B21861",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80008000.s32",
+      "expected_bytes": 83182,
+      "expected_sha256": "2483744eba5682bb05ba169fe6ff46f9214dfedfa048ad021aa26cd31b0fb81a",
+      "exists": true,
+      "actual_bytes": 83182,
+      "actual_sha256": "2483744EBA5682BB05BA169FE6FF46F9214DFEDFA048AD021AA26CD31B0FB81A",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80008001.s32",
+      "expected_bytes": 90964,
+      "expected_sha256": "99636ac3d3cc098bce5209a44bbf29a743c426ce42576b0965c4b3b6ecb9b993",
+      "exists": true,
+      "actual_bytes": 90964,
+      "actual_sha256": "99636AC3D3CC098BCE5209A44BBF29A743C426CE42576B0965C4B3B6ECB9B993",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80008002.s32",
+      "expected_bytes": 143803,
+      "expected_sha256": "86f460f13f36efee80c290f9dcc964250e822f4668edd04a051d046f576b0516",
+      "exists": true,
+      "actual_bytes": 143803,
+      "actual_sha256": "86F460F13F36EFEE80C290F9DCC964250E822F4668EDD04A051D046F576B0516",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80017ffd.s32",
+      "expected_bytes": 120635,
+      "expected_sha256": "b9196e98e2b53d10f31cc599b051317f5ee77b17409f56b88a8b954c1bff201d",
+      "exists": true,
+      "actual_bytes": 120635,
+      "actual_sha256": "B9196E98E2B53D10F31CC599B051317F5EE77B17409F56B88A8B954C1BFF201D",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80017ffe.s32",
+      "expected_bytes": 111656,
+      "expected_sha256": "a6de748a4665dfde14899af6f73b899692870f54258e91f6e1a686b1d11e5969",
+      "exists": true,
+      "actual_bytes": 111656,
+      "actual_sha256": "A6DE748A4665DFDE14899AF6F73B899692870F54258E91F6E1A686B1D11E5969",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80018000.s32",
+      "expected_bytes": 206283,
+      "expected_sha256": "6aea68aa944653f3a4a1331f0b20004590d8a73c00f05c3ac60ac79e301b5059",
+      "exists": true,
+      "actual_bytes": 206283,
+      "actual_sha256": "6AEA68AA944653F3A4A1331F0B20004590D8A73C00F05C3AC60AC79E301B5059",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80018001.s32",
+      "expected_bytes": 242617,
+      "expected_sha256": "547fb46c68eb08cb5d3bc7d9a55183f5ae218f98a8974f9b873823cfbc4058a1",
+      "exists": true,
+      "actual_bytes": 242617,
+      "actual_sha256": "547FB46C68EB08CB5D3BC7D9A55183F5AE218F98A8974F9B873823CFBC4058A1",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80018002.s32",
+      "expected_bytes": 191172,
+      "expected_sha256": "e09a649aeecd4eea1466a7093c933e373d8b5fad861e648c7cb8bc8a4139d3af",
+      "exists": true,
+      "actual_bytes": 191172,
+      "actual_sha256": "E09A649AEECD4EEA1466A7093C933E373D8B5FAD861E648C7CB8BC8A4139D3AF",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80028000.s32",
+      "expected_bytes": 207208,
+      "expected_sha256": "b8abdc0d77dc8a53315345b96205b3217a39e76492401d5610ad911b9390bc73",
+      "exists": true,
+      "actual_bytes": 207208,
+      "actual_sha256": "B8ABDC0D77DC8A53315345B96205B3217A39E76492401D5610AD911B9390BC73",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80028001.s32",
+      "expected_bytes": 283419,
+      "expected_sha256": "03f3c04f9fde8613319d7ffd2b8966175afd27dc3320a50ebd327b460386af65",
+      "exists": true,
+      "actual_bytes": 283419,
+      "actual_sha256": "03F3C04F9FDE8613319D7FFD2B8966175AFD27DC3320A50EBD327B460386AF65",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80028002.s32",
+      "expected_bytes": 151541,
+      "expected_sha256": "50c4e0a088bf9dcd2ed715c1f0ee0f33cd7683ddbd80298bc6bf7a6b7284826a",
+      "exists": true,
+      "actual_bytes": 151541,
+      "actual_sha256": "50C4E0A088BF9DCD2ED715C1F0EE0F33CD7683DDBD80298BC6BF7A6B7284826A",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80038000.s32",
+      "expected_bytes": 132186,
+      "expected_sha256": "f778101c0a46288f38bcdab5075ef2258b07a600630bbcfc046b1c1453b7891d",
+      "exists": true,
+      "actual_bytes": 132186,
+      "actual_sha256": "F778101C0A46288F38BCDAB5075EF2258B07A600630BBCFC046B1C1453B7891D",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80038001.s32",
+      "expected_bytes": 138325,
+      "expected_sha256": "de04e8622c5f13d3242ae4ece158a291b876c73d01731e87b5030eb708be6858",
+      "exists": true,
+      "actual_bytes": 138325,
+      "actual_sha256": "DE04E8622C5F13D3242AE4ECE158A291B876C73D01731E87B5030EB708BE6858",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80038002.s32",
+      "expected_bytes": 135498,
+      "expected_sha256": "db513fbc8fd757d4e24cc6249d1a6bfd129339301175d7d2363180e1ca1e5e53",
+      "exists": true,
+      "actual_bytes": 135498,
+      "actual_sha256": "DB513FBC8FD757D4E24CC6249D1A6BFD129339301175D7D2363180E1CA1E5E53",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80047ffe.s32",
+      "expected_bytes": 104761,
+      "expected_sha256": "eded17f1fad216547421ec268a660c29b64c3742078a221361aab61575e4b90a",
+      "exists": true,
+      "actual_bytes": 104761,
+      "actual_sha256": "EDED17F1FAD216547421EC268A660C29B64C3742078A221361AAB61575E4B90A",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80047fff.s32",
+      "expected_bytes": 149226,
+      "expected_sha256": "ae28c641f8b1a0aae994049753eb5a7af8097d0bf50e10b45a803c4d9f2e9ee8",
+      "exists": true,
+      "actual_bytes": 149226,
+      "actual_sha256": "AE28C641F8B1A0AAE994049753EB5A7AF8097D0BF50E10B45A803C4D9F2E9EE8",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80048000.s32",
+      "expected_bytes": 155013,
+      "expected_sha256": "e6e620e955189c9091bc06a4eaa9475c337ef06430555c2f27ed2ffcdad2e380",
+      "exists": true,
+      "actual_bytes": 155013,
+      "actual_sha256": "E6E620E955189C9091BC06A4EAA9475C337EF06430555C2F27ED2FFCDAD2E380",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80057fff.s32",
+      "expected_bytes": 121365,
+      "expected_sha256": "659f286c4c540fad017ccbe4ca13bbccc9dd42e44c7f072f3cbc80a02a90c86f",
+      "exists": true,
+      "actual_bytes": 121365,
+      "actual_sha256": "659F286C4C540FAD017CCBE4CA13BBCCC9DD42E44C7F072F3CBC80A02A90C86F",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80058000.s32",
+      "expected_bytes": 117094,
+      "expected_sha256": "a79001f11da8a111bc6be362f976bbbfefec52fb054e7eece92b4e6bd85acdbf",
+      "exists": true,
+      "actual_bytes": 117094,
+      "actual_sha256": "A79001F11DA8A111BC6BE362F976BBBFEFEC52FB054E7EECE92B4E6BD85ACDBF",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80067fff.s32",
+      "expected_bytes": 145414,
+      "expected_sha256": "75d75b82c7c428f92d80084d1c3bc0315ca92a6c4f8343e8239d9a20a70d3c75",
+      "exists": true,
+      "actual_bytes": 145414,
+      "actual_sha256": "75D75B82C7C428F92D80084D1C3BC0315CA92A6C4F8343E8239D9A20A70D3C75",
+      "matches": true
+    },
+    {
+      "physical_map": 504,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\504\\80068000.s32",
+      "expected_bytes": 127793,
+      "expected_sha256": "4b51e7cebf6a81a318c459b6c8e883e335701ff007de09034401024b668f9fa9",
+      "exists": true,
+      "actual_bytes": 127793,
+      "actual_sha256": "4B51E7CEBF6A81A318C459B6C8E883E335701FF007DE09034401024B668F9FA9",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7ffd7fff.s32",
+      "expected_bytes": 154462,
+      "expected_sha256": "ac3e658f59e20bc6e5fcd4eac7cd8f08a405882ad990dd1aa82e4c5c5002c83c",
+      "exists": true,
+      "actual_bytes": 154462,
+      "actual_sha256": "AC3E658F59E20BC6E5FCD4EAC7CD8F08A405882AD990DD1AA82E4C5C5002C83C",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7ffd8000.s32",
+      "expected_bytes": 151726,
+      "expected_sha256": "bc8e33cee6ec197072cc7e01c09fc5ccd6865f3cf31aefde7dff2c17f647326e",
+      "exists": true,
+      "actual_bytes": 151726,
+      "actual_sha256": "BC8E33CEE6EC197072CC7E01C09FC5CCD6865F3CF31AEFDE7DFF2C17F647326E",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7ffe7fff.s32",
+      "expected_bytes": 163479,
+      "expected_sha256": "676e9e1037d3c1047cfec0a23588c441db57304955e81a2ed5b29156709da5ea",
+      "exists": true,
+      "actual_bytes": 163479,
+      "actual_sha256": "676E9E1037D3C1047CFEC0A23588C441DB57304955E81A2ED5B29156709DA5EA",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7ffe8000.s32",
+      "expected_bytes": 149835,
+      "expected_sha256": "5455c16d54f4567318eb7bbbf0c350b0b7e000632ed2f0ccee8cb8c3c899dad6",
+      "exists": true,
+      "actual_bytes": 149835,
+      "actual_sha256": "5455C16D54F4567318EB7BBBF0C350B0B7E000632ED2F0CCEE8CB8C3C899DAD6",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7ffe8001.s32",
+      "expected_bytes": 109921,
+      "expected_sha256": "96a9ab685bf5e56187d8ac9b3408aafab94c24f39b820650d3f72b47ef08172c",
+      "exists": true,
+      "actual_bytes": 109921,
+      "actual_sha256": "96A9AB685BF5E56187D8AC9B3408AAFAB94C24F39B820650D3F72B47EF08172C",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7fff7fff.s32",
+      "expected_bytes": 177427,
+      "expected_sha256": "f698fa6324793df7853b8761ad29cf3d10fea1e45b1b527c1d5a4cdf74f07eac",
+      "exists": true,
+      "actual_bytes": 177427,
+      "actual_sha256": "F698FA6324793DF7853B8761AD29CF3D10FEA1E45B1B527C1D5A4CDF74F07EAC",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7fff8000.s32",
+      "expected_bytes": 130794,
+      "expected_sha256": "58bee5cb04a2aa906dc10cd84b55b0d98d58e93e97852c0e58d1d0146789d76f",
+      "exists": true,
+      "actual_bytes": 130794,
+      "actual_sha256": "58BEE5CB04A2AA906DC10CD84B55B0D98D58E93E97852C0E58D1D0146789D76F",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7fff8001.s32",
+      "expected_bytes": 156632,
+      "expected_sha256": "2a24afed0f4a2a660cda41b026f7aaf5e39f2f1dd302a03521209668237c0f91",
+      "exists": true,
+      "actual_bytes": 156632,
+      "actual_sha256": "2A24AFED0F4A2A660CDA41B026F7AAF5E39F2F1DD302A03521209668237C0F91",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\7fff8002.s32",
+      "expected_bytes": 82861,
+      "expected_sha256": "714a5ae04249cedb8f64603903f010d7197f22b65597790a88057bc07e45cb17",
+      "exists": true,
+      "actual_bytes": 82861,
+      "actual_sha256": "714A5AE04249CEDB8F64603903F010D7197F22B65597790A88057BC07E45CB17",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80007fff.s32",
+      "expected_bytes": 132131,
+      "expected_sha256": "cc221e8f0e82b08b396bdaa4ff4541102851e114f16f697505bb798b92b21861",
+      "exists": true,
+      "actual_bytes": 132131,
+      "actual_sha256": "CC221E8F0E82B08B396BDAA4FF4541102851E114F16F697505BB798B92B21861",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80008000.s32",
+      "expected_bytes": 190110,
+      "expected_sha256": "ee5f922b56cdbc57bb006bfbd3ad1928c7d41c31f8a5961b3449503c36a42869",
+      "exists": true,
+      "actual_bytes": 190110,
+      "actual_sha256": "EE5F922B56CDBC57BB006BFBD3AD1928C7D41C31F8A5961B3449503C36A42869",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80008001.s32",
+      "expected_bytes": 118017,
+      "expected_sha256": "14da82489eb7478b87715c3aa6212b17d121ebd2eecfc052b2ae0579a30a64dc",
+      "exists": true,
+      "actual_bytes": 118017,
+      "actual_sha256": "14DA82489EB7478B87715C3AA6212B17D121EBD2EECFC052B2AE0579A30A64DC",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80008002.s32",
+      "expected_bytes": 143803,
+      "expected_sha256": "86f460f13f36efee80c290f9dcc964250e822f4668edd04a051d046f576b0516",
+      "exists": true,
+      "actual_bytes": 143803,
+      "actual_sha256": "86F460F13F36EFEE80C290F9DCC964250E822F4668EDD04A051D046F576B0516",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80017ffd.s32",
+      "expected_bytes": 120635,
+      "expected_sha256": "b9196e98e2b53d10f31cc599b051317f5ee77b17409f56b88a8b954c1bff201d",
+      "exists": true,
+      "actual_bytes": 120635,
+      "actual_sha256": "B9196E98E2B53D10F31CC599B051317F5EE77B17409F56B88A8B954C1BFF201D",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80017ffe.s32",
+      "expected_bytes": 111656,
+      "expected_sha256": "a6de748a4665dfde14899af6f73b899692870f54258e91f6e1a686b1d11e5969",
+      "exists": true,
+      "actual_bytes": 111656,
+      "actual_sha256": "A6DE748A4665DFDE14899AF6F73B899692870F54258E91F6E1A686B1D11E5969",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80018000.s32",
+      "expected_bytes": 206283,
+      "expected_sha256": "6aea68aa944653f3a4a1331f0b20004590d8a73c00f05c3ac60ac79e301b5059",
+      "exists": true,
+      "actual_bytes": 206283,
+      "actual_sha256": "6AEA68AA944653F3A4A1331F0B20004590D8A73C00F05C3AC60AC79E301B5059",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80018001.s32",
+      "expected_bytes": 242617,
+      "expected_sha256": "547fb46c68eb08cb5d3bc7d9a55183f5ae218f98a8974f9b873823cfbc4058a1",
+      "exists": true,
+      "actual_bytes": 242617,
+      "actual_sha256": "547FB46C68EB08CB5D3BC7D9A55183F5AE218F98A8974F9B873823CFBC4058A1",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80018002.s32",
+      "expected_bytes": 191172,
+      "expected_sha256": "e09a649aeecd4eea1466a7093c933e373d8b5fad861e648c7cb8bc8a4139d3af",
+      "exists": true,
+      "actual_bytes": 191172,
+      "actual_sha256": "E09A649AEECD4EEA1466A7093C933E373D8B5FAD861E648C7CB8BC8A4139D3AF",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80028000.s32",
+      "expected_bytes": 207208,
+      "expected_sha256": "b8abdc0d77dc8a53315345b96205b3217a39e76492401d5610ad911b9390bc73",
+      "exists": true,
+      "actual_bytes": 207208,
+      "actual_sha256": "B8ABDC0D77DC8A53315345B96205B3217A39E76492401D5610AD911B9390BC73",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80028001.s32",
+      "expected_bytes": 283419,
+      "expected_sha256": "03f3c04f9fde8613319d7ffd2b8966175afd27dc3320a50ebd327b460386af65",
+      "exists": true,
+      "actual_bytes": 283419,
+      "actual_sha256": "03F3C04F9FDE8613319D7FFD2B8966175AFD27DC3320A50EBD327B460386AF65",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80028002.s32",
+      "expected_bytes": 151541,
+      "expected_sha256": "50c4e0a088bf9dcd2ed715c1f0ee0f33cd7683ddbd80298bc6bf7a6b7284826a",
+      "exists": true,
+      "actual_bytes": 151541,
+      "actual_sha256": "50C4E0A088BF9DCD2ED715C1F0EE0F33CD7683DDBD80298BC6BF7A6B7284826A",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80038000.s32",
+      "expected_bytes": 132186,
+      "expected_sha256": "f778101c0a46288f38bcdab5075ef2258b07a600630bbcfc046b1c1453b7891d",
+      "exists": true,
+      "actual_bytes": 132186,
+      "actual_sha256": "F778101C0A46288F38BCDAB5075EF2258B07A600630BBCFC046B1C1453B7891D",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80038001.s32",
+      "expected_bytes": 138325,
+      "expected_sha256": "de04e8622c5f13d3242ae4ece158a291b876c73d01731e87b5030eb708be6858",
+      "exists": true,
+      "actual_bytes": 138325,
+      "actual_sha256": "DE04E8622C5F13D3242AE4ECE158A291B876C73D01731E87B5030EB708BE6858",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80038002.s32",
+      "expected_bytes": 135498,
+      "expected_sha256": "db513fbc8fd757d4e24cc6249d1a6bfd129339301175d7d2363180e1ca1e5e53",
+      "exists": true,
+      "actual_bytes": 135498,
+      "actual_sha256": "DB513FBC8FD757D4E24CC6249D1A6BFD129339301175D7D2363180E1CA1E5E53",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80047ffe.s32",
+      "expected_bytes": 104761,
+      "expected_sha256": "eded17f1fad216547421ec268a660c29b64c3742078a221361aab61575e4b90a",
+      "exists": true,
+      "actual_bytes": 104761,
+      "actual_sha256": "EDED17F1FAD216547421EC268A660C29B64C3742078A221361AAB61575E4B90A",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80047fff.s32",
+      "expected_bytes": 149226,
+      "expected_sha256": "ae28c641f8b1a0aae994049753eb5a7af8097d0bf50e10b45a803c4d9f2e9ee8",
+      "exists": true,
+      "actual_bytes": 149226,
+      "actual_sha256": "AE28C641F8B1A0AAE994049753EB5A7AF8097D0BF50E10B45A803C4D9F2E9EE8",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80048000.s32",
+      "expected_bytes": 155013,
+      "expected_sha256": "e6e620e955189c9091bc06a4eaa9475c337ef06430555c2f27ed2ffcdad2e380",
+      "exists": true,
+      "actual_bytes": 155013,
+      "actual_sha256": "E6E620E955189C9091BC06A4EAA9475C337EF06430555C2F27ED2FFCDAD2E380",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80057fff.s32",
+      "expected_bytes": 121365,
+      "expected_sha256": "659f286c4c540fad017ccbe4ca13bbccc9dd42e44c7f072f3cbc80a02a90c86f",
+      "exists": true,
+      "actual_bytes": 121365,
+      "actual_sha256": "659F286C4C540FAD017CCBE4CA13BBCCC9DD42E44C7F072F3CBC80A02A90C86F",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80058000.s32",
+      "expected_bytes": 117094,
+      "expected_sha256": "a79001f11da8a111bc6be362f976bbbfefec52fb054e7eece92b4e6bd85acdbf",
+      "exists": true,
+      "actual_bytes": 117094,
+      "actual_sha256": "A79001F11DA8A111BC6BE362F976BBBFEFEC52FB054E7EECE92B4E6BD85ACDBF",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80067fff.s32",
+      "expected_bytes": 145414,
+      "expected_sha256": "6d13b329eb5f83980523b5b66e008ebb4894f28280cf300a57320f05c04bc3b6",
+      "exists": true,
+      "actual_bytes": 145414,
+      "actual_sha256": "6D13B329EB5F83980523B5B66E008EBB4894F28280CF300A57320F05C04BC3B6",
+      "matches": true
+    },
+    {
+      "physical_map": 505,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\505\\80068000.s32",
+      "expected_bytes": 127793,
+      "expected_sha256": "4b51e7cebf6a81a318c459b6c8e883e335701ff007de09034401024b668f9fa9",
+      "exists": true,
+      "actual_bytes": 127793,
+      "actual_sha256": "4B51E7CEBF6A81A318C459B6C8E883E335701FF007DE09034401024B668F9FA9",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffc7fff.s32",
+      "expected_bytes": 49218,
+      "expected_sha256": "f2bccb01536e26fd22be1f97699d262e5a642ca643d7709fa00e8dbcc3bce86c",
+      "exists": true,
+      "actual_bytes": 49218,
+      "actual_sha256": "F2BCCB01536E26FD22BE1F97699D262E5A642CA643D7709FA00E8DBCC3BCE86C",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffc8000.s32",
+      "expected_bytes": 49206,
+      "expected_sha256": "49da05f4ee52d10b1f670c93c89d2f0134ff5e209e0660cd5e6555be056ca358",
+      "exists": true,
+      "actual_bytes": 49206,
+      "actual_sha256": "49DA05F4EE52D10B1F670C93C89D2F0134FF5E209E0660CD5E6555BE056CA358",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffd7ffe.s32",
+      "expected_bytes": 49334,
+      "expected_sha256": "f6f76774b07dd6d17a2e9f6cc64e6cf48be70297b642c97cc4c5ed82303c3baf",
+      "exists": true,
+      "actual_bytes": 49334,
+      "actual_sha256": "F6F76774B07DD6D17A2E9F6CC64E6CF48BE70297B642C97CC4C5ED82303C3BAF",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffd7fff.s32",
+      "expected_bytes": 156293,
+      "expected_sha256": "ed8ad50e1cf7fe96c6c6a7df8c7a8ac5100583af1b96ab3cdad3981a02e40748",
+      "exists": true,
+      "actual_bytes": 156293,
+      "actual_sha256": "ED8AD50E1CF7FE96C6C6A7DF8C7A8AC5100583AF1B96AB3CDAD3981A02E40748",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffd8000.s32",
+      "expected_bytes": 151402,
+      "expected_sha256": "0cdcc94e99b5c12654b2130d8be533c039251e7edaf99edd599fa6f2f04a3010",
+      "exists": true,
+      "actual_bytes": 151402,
+      "actual_sha256": "0CDCC94E99B5C12654B2130D8BE533C039251E7EDAF99EDD599FA6F2F04A3010",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffd8001.s32",
+      "expected_bytes": 49210,
+      "expected_sha256": "5ad07cf858fc0a5fd89c9874949562aa50ce2853b212cc39c494aa984b049856",
+      "exists": true,
+      "actual_bytes": 49210,
+      "actual_sha256": "5AD07CF858FC0A5FD89C9874949562AA50CE2853B212CC39C494AA984B049856",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffe7fff.s32",
+      "expected_bytes": 49580,
+      "expected_sha256": "5972a3ff670a01484027caf8829afc87121ce0efde26e9f89b3cd0cb935b8085",
+      "exists": true,
+      "actual_bytes": 49580,
+      "actual_sha256": "5972A3FF670A01484027CAF8829AFC87121CE0EFDE26E9F89B3CD0CB935B8085",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffe8000.s32",
+      "expected_bytes": 49592,
+      "expected_sha256": "e3f5bb4bb532b3f8c9bed3724b8c5f1c41635d29cf132fc94a19556a9ff9fe90",
+      "exists": true,
+      "actual_bytes": 49592,
+      "actual_sha256": "E3F5BB4BB532B3F8C9BED3724B8C5F1C41635D29CF132FC94A19556A9FF9FE90",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7ffe8001.s32",
+      "expected_bytes": 109921,
+      "expected_sha256": "96a9ab685bf5e56187d8ac9b3408aafab94c24f39b820650d3f72b47ef08172c",
+      "exists": true,
+      "actual_bytes": 109921,
+      "actual_sha256": "96A9AB685BF5E56187D8AC9B3408AAFAB94C24F39B820650D3F72B47EF08172C",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7fff7fff.s32",
+      "expected_bytes": 177427,
+      "expected_sha256": "f698fa6324793df7853b8761ad29cf3d10fea1e45b1b527c1d5a4cdf74f07eac",
+      "exists": true,
+      "actual_bytes": 177427,
+      "actual_sha256": "F698FA6324793DF7853B8761AD29CF3D10FEA1E45B1B527C1D5A4CDF74F07EAC",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7fff8000.s32",
+      "expected_bytes": 137784,
+      "expected_sha256": "ccfe52b614dfbdf97fd713f80d61e4cdd35e7c8c3000a06b4bba8868c96d1271",
+      "exists": true,
+      "actual_bytes": 137784,
+      "actual_sha256": "CCFE52B614DFBDF97FD713F80D61E4CDD35E7C8C3000A06B4BBA8868C96D1271",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7fff8001.s32",
+      "expected_bytes": 156632,
+      "expected_sha256": "2a24afed0f4a2a660cda41b026f7aaf5e39f2f1dd302a03521209668237c0f91",
+      "exists": true,
+      "actual_bytes": 156632,
+      "actual_sha256": "2A24AFED0F4A2A660CDA41B026F7AAF5E39F2F1DD302A03521209668237C0F91",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\7fff8002.s32",
+      "expected_bytes": 82861,
+      "expected_sha256": "714a5ae04249cedb8f64603903f010d7197f22b65597790a88057bc07e45cb17",
+      "exists": true,
+      "actual_bytes": 82861,
+      "actual_sha256": "714A5AE04249CEDB8F64603903F010D7197F22B65597790A88057BC07E45CB17",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80007fff.s32",
+      "expected_bytes": 132131,
+      "expected_sha256": "cc221e8f0e82b08b396bdaa4ff4541102851e114f16f697505bb798b92b21861",
+      "exists": true,
+      "actual_bytes": 132131,
+      "actual_sha256": "CC221E8F0E82B08B396BDAA4FF4541102851E114F16F697505BB798B92B21861",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80008000.s32",
+      "expected_bytes": 114038,
+      "expected_sha256": "40d9199e78ca0bd6ce4ec2818dbcace556df35006515c4bfcdc01d43008ae132",
+      "exists": true,
+      "actual_bytes": 114038,
+      "actual_sha256": "40D9199E78CA0BD6CE4EC2818DBCACE556DF35006515C4BFCDC01D43008AE132",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80008001.s32",
+      "expected_bytes": 118017,
+      "expected_sha256": "14da82489eb7478b87715c3aa6212b17d121ebd2eecfc052b2ae0579a30a64dc",
+      "exists": true,
+      "actual_bytes": 118017,
+      "actual_sha256": "14DA82489EB7478B87715C3AA6212B17D121EBD2EECFC052B2AE0579A30A64DC",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80008002.s32",
+      "expected_bytes": 143803,
+      "expected_sha256": "86f460f13f36efee80c290f9dcc964250e822f4668edd04a051d046f576b0516",
+      "exists": true,
+      "actual_bytes": 143803,
+      "actual_sha256": "86F460F13F36EFEE80C290F9DCC964250E822F4668EDD04A051D046F576B0516",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80017ffd.s32",
+      "expected_bytes": 120635,
+      "expected_sha256": "b9196e98e2b53d10f31cc599b051317f5ee77b17409f56b88a8b954c1bff201d",
+      "exists": true,
+      "actual_bytes": 120635,
+      "actual_sha256": "B9196E98E2B53D10F31CC599B051317F5EE77B17409F56B88A8B954C1BFF201D",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80017ffe.s32",
+      "expected_bytes": 111656,
+      "expected_sha256": "a6de748a4665dfde14899af6f73b899692870f54258e91f6e1a686b1d11e5969",
+      "exists": true,
+      "actual_bytes": 111656,
+      "actual_sha256": "A6DE748A4665DFDE14899AF6F73B899692870F54258E91F6E1A686B1D11E5969",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80018000.s32",
+      "expected_bytes": 206283,
+      "expected_sha256": "6aea68aa944653f3a4a1331f0b20004590d8a73c00f05c3ac60ac79e301b5059",
+      "exists": true,
+      "actual_bytes": 206283,
+      "actual_sha256": "6AEA68AA944653F3A4A1331F0B20004590D8A73C00F05C3AC60AC79E301B5059",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80018001.s32",
+      "expected_bytes": 242617,
+      "expected_sha256": "547fb46c68eb08cb5d3bc7d9a55183f5ae218f98a8974f9b873823cfbc4058a1",
+      "exists": true,
+      "actual_bytes": 242617,
+      "actual_sha256": "547FB46C68EB08CB5D3BC7D9A55183F5AE218F98A8974F9B873823CFBC4058A1",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80018002.s32",
+      "expected_bytes": 191172,
+      "expected_sha256": "e09a649aeecd4eea1466a7093c933e373d8b5fad861e648c7cb8bc8a4139d3af",
+      "exists": true,
+      "actual_bytes": 191172,
+      "actual_sha256": "E09A649AEECD4EEA1466A7093C933E373D8B5FAD861E648C7CB8BC8A4139D3AF",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80028000.s32",
+      "expected_bytes": 207208,
+      "expected_sha256": "b8abdc0d77dc8a53315345b96205b3217a39e76492401d5610ad911b9390bc73",
+      "exists": true,
+      "actual_bytes": 207208,
+      "actual_sha256": "B8ABDC0D77DC8A53315345B96205B3217A39E76492401D5610AD911B9390BC73",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80028001.s32",
+      "expected_bytes": 283419,
+      "expected_sha256": "03f3c04f9fde8613319d7ffd2b8966175afd27dc3320a50ebd327b460386af65",
+      "exists": true,
+      "actual_bytes": 283419,
+      "actual_sha256": "03F3C04F9FDE8613319D7FFD2B8966175AFD27DC3320A50EBD327B460386AF65",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80028002.s32",
+      "expected_bytes": 151541,
+      "expected_sha256": "50c4e0a088bf9dcd2ed715c1f0ee0f33cd7683ddbd80298bc6bf7a6b7284826a",
+      "exists": true,
+      "actual_bytes": 151541,
+      "actual_sha256": "50C4E0A088BF9DCD2ED715C1F0EE0F33CD7683DDBD80298BC6BF7A6B7284826A",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80038000.s32",
+      "expected_bytes": 132186,
+      "expected_sha256": "f778101c0a46288f38bcdab5075ef2258b07a600630bbcfc046b1c1453b7891d",
+      "exists": true,
+      "actual_bytes": 132186,
+      "actual_sha256": "F778101C0A46288F38BCDAB5075EF2258B07A600630BBCFC046B1C1453B7891D",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80038001.s32",
+      "expected_bytes": 138325,
+      "expected_sha256": "de04e8622c5f13d3242ae4ece158a291b876c73d01731e87b5030eb708be6858",
+      "exists": true,
+      "actual_bytes": 138325,
+      "actual_sha256": "DE04E8622C5F13D3242AE4ECE158A291B876C73D01731E87B5030EB708BE6858",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80038002.s32",
+      "expected_bytes": 135498,
+      "expected_sha256": "db513fbc8fd757d4e24cc6249d1a6bfd129339301175d7d2363180e1ca1e5e53",
+      "exists": true,
+      "actual_bytes": 135498,
+      "actual_sha256": "DB513FBC8FD757D4E24CC6249D1A6BFD129339301175D7D2363180E1CA1E5E53",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80047ffe.s32",
+      "expected_bytes": 104761,
+      "expected_sha256": "eded17f1fad216547421ec268a660c29b64c3742078a221361aab61575e4b90a",
+      "exists": true,
+      "actual_bytes": 104761,
+      "actual_sha256": "EDED17F1FAD216547421EC268A660C29B64C3742078A221361AAB61575E4B90A",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80047fff.s32",
+      "expected_bytes": 149226,
+      "expected_sha256": "ae28c641f8b1a0aae994049753eb5a7af8097d0bf50e10b45a803c4d9f2e9ee8",
+      "exists": true,
+      "actual_bytes": 149226,
+      "actual_sha256": "AE28C641F8B1A0AAE994049753EB5A7AF8097D0BF50E10B45A803C4D9F2E9EE8",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80048000.s32",
+      "expected_bytes": 155013,
+      "expected_sha256": "e6e620e955189c9091bc06a4eaa9475c337ef06430555c2f27ed2ffcdad2e380",
+      "exists": true,
+      "actual_bytes": 155013,
+      "actual_sha256": "E6E620E955189C9091BC06A4EAA9475C337EF06430555C2F27ED2FFCDAD2E380",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80057fff.s32",
+      "expected_bytes": 121365,
+      "expected_sha256": "659f286c4c540fad017ccbe4ca13bbccc9dd42e44c7f072f3cbc80a02a90c86f",
+      "exists": true,
+      "actual_bytes": 121365,
+      "actual_sha256": "659F286C4C540FAD017CCBE4CA13BBCCC9DD42E44C7F072F3CBC80A02A90C86F",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80058000.s32",
+      "expected_bytes": 117094,
+      "expected_sha256": "a79001f11da8a111bc6be362f976bbbfefec52fb054e7eece92b4e6bd85acdbf",
+      "exists": true,
+      "actual_bytes": 117094,
+      "actual_sha256": "A79001F11DA8A111BC6BE362F976BBBFEFEC52FB054E7EECE92B4E6BD85ACDBF",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80067fff.s32",
+      "expected_bytes": 145414,
+      "expected_sha256": "422146d6ad9466d9cbe7fba6cf4145da5792aa5fa4e8f8f2dc68cefd9b86e304",
+      "exists": true,
+      "actual_bytes": 145414,
+      "actual_sha256": "422146D6AD9466D9CBE7FBA6CF4145DA5792AA5FA4E8F8F2DC68CEFD9B86E304",
+      "matches": true
+    },
+    {
+      "physical_map": 506,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\506\\80068000.s32",
+      "expected_bytes": 127793,
+      "expected_sha256": "4b51e7cebf6a81a318c459b6c8e883e335701ff007de09034401024b668f9fa9",
+      "exists": true,
+      "actual_bytes": 127793,
+      "actual_sha256": "4B51E7CEBF6A81A318C459B6C8E883E335701FF007DE09034401024B668F9FA9",
+      "matches": true
+    },
+    {
+      "physical_map": 508,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\508\\80008005.s32",
+      "expected_bytes": 111267,
+      "expected_sha256": "474ec483774f404752c3afb6fd1b4559b98d76ec5f78995eabc15d0f79732e54",
+      "exists": true,
+      "actual_bytes": 111267,
+      "actual_sha256": "474EC483774F404752C3AFB6FD1B4559B98D76EC5F78995EABC15D0F79732E54",
+      "matches": true
+    },
+    {
+      "physical_map": 508,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\508\\80008006.s32",
+      "expected_bytes": 111114,
+      "expected_sha256": "579b5ff6f39886c3ea5d800230437bf38caca436ecf869632271f88baa3f3d63",
+      "exists": true,
+      "actual_bytes": 111114,
+      "actual_sha256": "579B5FF6F39886C3EA5D800230437BF38CACA436ECF869632271F88BAA3F3D63",
+      "matches": true
+    },
+    {
+      "physical_map": 508,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\508\\80018005.s32",
+      "expected_bytes": 108417,
+      "expected_sha256": "566c5f536609a72b1372afb55bb4376e5ee1727c402600630469350d2860e18f",
+      "exists": true,
+      "actual_bytes": 108417,
+      "actual_sha256": "566C5F536609A72B1372AFB55BB4376E5EE1727C402600630469350D2860E18F",
+      "matches": true
+    },
+    {
+      "physical_map": 508,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\508\\80018006.s32",
+      "expected_bytes": 100980,
+      "expected_sha256": "7585a9b7324c2de2e24d21c6cb28fbd43ff1cd57708ff488d7741d0025764cdf",
+      "exists": true,
+      "actual_bytes": 100980,
+      "actual_sha256": "7585A9B7324C2DE2E24D21C6CB28FBD43FF1CD57708FF488D7741D0025764CDF",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\7fff7fff.s32",
+      "expected_bytes": 142680,
+      "expected_sha256": "2013d3f27e43eaea54bff1ad902e6cdbca8d845231dbab65525e6cf5bcb4e595",
+      "exists": true,
+      "actual_bytes": 142680,
+      "actual_sha256": "2013D3F27E43EAEA54BFF1AD902E6CDBCA8D845231DBAB65525E6CF5BCB4E595",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\7fff8000.s32",
+      "expected_bytes": 95593,
+      "expected_sha256": "4e06868c74ac3f6fc394eeafc77067200e32ea3454c38a5b812d07b16431a881",
+      "exists": true,
+      "actual_bytes": 95593,
+      "actual_sha256": "4E06868C74AC3F6FC394EEAFC77067200E32EA3454C38A5B812D07B16431A881",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\7fff8001.s32",
+      "expected_bytes": 55290,
+      "expected_sha256": "a958c84e1693e685ebe4e01bd58d066c95a80f05093b20fbe5a568bdea4cb574",
+      "exists": true,
+      "actual_bytes": 55290,
+      "actual_sha256": "A958C84E1693E685EBE4E01BD58D066C95A80F05093B20FBE5A568BDEA4CB574",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\80007fff.s32",
+      "expected_bytes": 170478,
+      "expected_sha256": "f51f3bf8cbb8db4ec526e15c3b63017876a67443d3d98f82b1c73b7b62f3a6bf",
+      "exists": true,
+      "actual_bytes": 170478,
+      "actual_sha256": "F51F3BF8CBB8DB4EC526E15C3B63017876A67443D3D98F82B1C73B7B62F3A6BF",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\80008000.s32",
+      "expected_bytes": 192425,
+      "expected_sha256": "b0420f5bb599e616a057f70de92b1ee5e1304890cad3c23c5501368a13f127d9",
+      "exists": true,
+      "actual_bytes": 192425,
+      "actual_sha256": "B0420F5BB599E616A057F70DE92B1EE5E1304890CAD3C23C5501368A13F127D9",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\80008001.s32",
+      "expected_bytes": 135829,
+      "expected_sha256": "6cecfcbd0eee4f52a2687273db7767d415f7a848b9a8cce8695d4c419c4cb09f",
+      "exists": true,
+      "actual_bytes": 135829,
+      "actual_sha256": "6CECFCBD0EEE4F52A2687273DB7767D415F7A848B9A8CCE8695D4C419C4CB09F",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\80017fff.s32",
+      "expected_bytes": 60861,
+      "expected_sha256": "81a29f8f26188f743f3b28b49741828c0a364d22b606022d88be3acac9c444a3",
+      "exists": true,
+      "actual_bytes": 60861,
+      "actual_sha256": "81A29F8F26188F743F3B28B49741828C0A364D22B606022D88BE3ACAC9C444A3",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\80018000.s32",
+      "expected_bytes": 88398,
+      "expected_sha256": "4cf0935a85bfb4439539e90fd9dc4ff87db9c464585b18cf936fbfe698c087b7",
+      "exists": true,
+      "actual_bytes": 88398,
+      "actual_sha256": "4CF0935A85BFB4439539E90FD9DC4FF87DB9C464585B18CF936FBFE698C087B7",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\80018001.s32",
+      "expected_bytes": 99059,
+      "expected_sha256": "8756d944ba21fc4be92b4886baf4f427359897a8a30a6bf75a63a247c6c4e98f",
+      "exists": true,
+      "actual_bytes": 99059,
+      "actual_sha256": "8756D944BA21FC4BE92B4886BAF4F427359897A8A30A6BF75A63A247C6C4E98F",
+      "matches": true
+    },
+    {
+      "physical_map": 531,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\531\\80018002.s32",
+      "expected_bytes": 49182,
+      "expected_sha256": "e0d2fb2e1c4d3a8eacbea8138be84769c6ac9ac829b1e2aec4a857aa8119cc05",
+      "exists": true,
+      "actual_bytes": 49182,
+      "actual_sha256": "E0D2FB2E1C4D3A8EACBEA8138BE84769C6AC9AC829B1E2AEC4A857AA8119CC05",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\7fff8000.s32",
+      "expected_bytes": 95700,
+      "expected_sha256": "d8895da3a91286bb7fdbc31dcbcbe67eb0bb19609aefa63306f6c0c12a09d1ff",
+      "exists": true,
+      "actual_bytes": 95700,
+      "actual_sha256": "D8895DA3A91286BB7FDBC31DCBCBE67EB0BB19609AEFA63306F6C0C12A09D1FF",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\7fff8001.s32",
+      "expected_bytes": 150330,
+      "expected_sha256": "7c734bc35d5a48ef26451bf606a25bb839ebaee9a56af690d5929c8d051cddb4",
+      "exists": true,
+      "actual_bytes": 150330,
+      "actual_sha256": "7C734BC35D5A48EF26451BF606A25BB839EBAEE9A56AF690D5929C8D051CDDB4",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\80008000.s32",
+      "expected_bytes": 122479,
+      "expected_sha256": "b7fed988b2110b0c7e10d0aaf119663a9a64d9e5f58605cd478e8aeec7896daf",
+      "exists": true,
+      "actual_bytes": 122479,
+      "actual_sha256": "B7FED988B2110B0C7E10D0AAF119663A9A64D9E5F58605CD478E8AEEC7896DAF",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\80008001.s32",
+      "expected_bytes": 123355,
+      "expected_sha256": "c804a186fc495d357cb4d27491e389bfb6b464d50e450788511ea512b74ee0aa",
+      "exists": true,
+      "actual_bytes": 123355,
+      "actual_sha256": "C804A186FC495D357CB4D27491E389BFB6B464D50E450788511EA512B74EE0AA",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\80018000.s32",
+      "expected_bytes": 140899,
+      "expected_sha256": "ba04fde96af7342dd99029d6eac918c6e83d353651e1646aa054b3a26caf2231",
+      "exists": true,
+      "actual_bytes": 140899,
+      "actual_sha256": "BA04FDE96AF7342DD99029D6EAC918C6E83D353651E1646AA054B3A26CAF2231",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\80018001.s32",
+      "expected_bytes": 114188,
+      "expected_sha256": "8c718188acae0248c4fdde32b06b8a2efd0f2ba6be366df73e6ce4d55dbf0172",
+      "exists": true,
+      "actual_bytes": 114188,
+      "actual_sha256": "8C718188ACAE0248C4FDDE32B06B8A2EFD0F2BA6BE366DF73E6CE4D55DBF0172",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\80028000.s32",
+      "expected_bytes": 94725,
+      "expected_sha256": "cc1c4f9c2e56cf6206bc80ad1fb7222bc359679f696d6053fffce3f08bb54326",
+      "exists": true,
+      "actual_bytes": 94725,
+      "actual_sha256": "CC1C4F9C2E56CF6206BC80AD1FB7222BC359679F696D6053FFFCE3F08BB54326",
+      "matches": true
+    },
+    {
+      "physical_map": 534,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\534\\80028001.s32",
+      "expected_bytes": 91672,
+      "expected_sha256": "790c1d3f700fa7d5e33dc168d6c7505ac0d25b883b94d9eb7e6db8b2fbd4ad2b",
+      "exists": true,
+      "actual_bytes": 91672,
+      "actual_sha256": "790C1D3F700FA7D5E33DC168D6C7505AC0D25B883B94D9EB7E6DB8B2FBD4AD2B",
+      "matches": true
+    },
+    {
+      "physical_map": 551,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\551\\7ffe8000.s32",
+      "expected_bytes": 64405,
+      "expected_sha256": "cbe68f15ddb96126a85af8b9f12cd7f9f4930f055359802ff33694a2f690ac46",
+      "exists": true,
+      "actual_bytes": 64405,
+      "actual_sha256": "CBE68F15DDB96126A85AF8B9F12CD7F9F4930F055359802FF33694A2F690AC46",
+      "matches": true
+    },
+    {
+      "physical_map": 551,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\551\\7ffe8001.s32",
+      "expected_bytes": 72640,
+      "expected_sha256": "7a087e3409abcf19158fa1c520d4b4c146f5ebee9e9571e5b4a67bc8da9ed0ff",
+      "exists": true,
+      "actual_bytes": 72640,
+      "actual_sha256": "7A087E3409ABCF19158FA1C520D4B4C146F5EBEE9E9571E5B4A67BC8DA9ED0FF",
+      "matches": true
+    },
+    {
+      "physical_map": 551,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\551\\7fff8000.s32",
+      "expected_bytes": 73346,
+      "expected_sha256": "ebd29d761c6b59cfa486ca105c7abf5c3d7a5cd667f1ed598e77fa9f1e66767b",
+      "exists": true,
+      "actual_bytes": 73346,
+      "actual_sha256": "EBD29D761C6B59CFA486CA105C7ABF5C3D7A5CD667F1ED598E77FA9F1E66767B",
+      "matches": true
+    },
+    {
+      "physical_map": 551,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\551\\7fff8001.s32",
+      "expected_bytes": 61210,
+      "expected_sha256": "ec18d868ccf1ea6f5ce06b664fc787640112c28fde2c8e932fb6229906d4ff15",
+      "exists": true,
+      "actual_bytes": 61210,
+      "actual_sha256": "EC18D868CCF1EA6F5CE06B664FC787640112C28FDE2C8E932FB6229906D4FF15",
+      "matches": true
+    },
+    {
+      "physical_map": 552,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\552\\7fff8000.s32",
+      "expected_bytes": 61833,
+      "expected_sha256": "700be1ee3a388163bba1a6c29fa91f965f78d005bae2ce0797ee37a7576d25a6",
+      "exists": true,
+      "actual_bytes": 61833,
+      "actual_sha256": "700BE1EE3A388163BBA1A6C29FA91F965F78D005BAE2CE0797EE37A7576D25A6",
+      "matches": true
+    },
+    {
+      "physical_map": 552,
+      "path": "D:\\lineage開發\\0-客戶端\\Map\\552\\7fff8001.s32",
+      "expected_bytes": 61520,
+      "expected_sha256": "9a169f909ee97218b7cdf345e1682cf6303edf0ee682f0a9746d0d78e75c3cb3",
+      "exists": true,
+      "actual_bytes": 61520,
+      "actual_sha256": "9A169F909EE97218B7CDF345E1682CF6303EDF0EE682F0A9746D0D78E75C3CB3",
+      "matches": true
+    }
+  ],
+  "scope": "40組競技邏輯map/mode；v47、正式canonical controller v42及舊world-controller v6/v19/v34各列證據，跨契約聯集不相加重複。只有整案1passed且程序退休才計入；v42另核三場保存/同房/返回標記。共享S32 pins是位元組／長度核對，目錄存在不建立alias；GUI驗收0"
+}

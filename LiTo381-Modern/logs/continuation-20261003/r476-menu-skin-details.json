@@ -1,0 +1,40 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "Modern_row_label_enter_back_close_explicit": true,
+  "R475_PASS_reruns": 0,
+  "actual_arrow_transparent_pixels": 60,
+  "decoded_actual_members": 5,
+  "images": [
+    {
+      "bytes": 4011,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r476-native-menu-skin\\cpu-menu-normal.png",
+      "rgba_sha256": "D3FEA0ADB5993A0EF5189F3F27FD088A50F4E768328BE17D6C24C92CFD052E59",
+      "sha256": "2CE46CB97CDB85831732A47DA85F8D07FEE893760D8B211A32120232D45CFD35"
+    },
+    {
+      "bytes": 4018,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r476-native-menu-skin\\cpu-menu-up-pressed.png",
+      "rgba_sha256": "A8D7D1A9C700B8AD97EDEB628F5C5338A7C65F280F257C077F70D3D3350EC542",
+      "sha256": "5175342F46069606E9D71B8EA7D38E983A71457F86D77C8C018E2E4C02C34FED"
+    },
+    {
+      "bytes": 4034,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r476-native-menu-skin\\cpu-menu-down-pressed.png",
+      "rgba_sha256": "1DC86284BC6187112EE7698EB755D04659B4194A314A30E4257F26BFA61C7D93",
+      "sha256": "091CA3FF9EE8E310376B8B26E9DCEB0BE28429CEA4287BF738ACF529F5390E9B"
+    }
+  ],
+  "independent_python_PNG_all_pixels_equal": true,
+  "native_GUI_executed": false,
+  "negative_cases": 16,
+  "new_focused_tests": 1,
+  "normal_arrow_only_in_candidate": true,
+  "pressed_images_CPU_only": true,
+  "resize_hit_pixel_checks": 1385656,
+  "scrolling_disabled_one_qualified_row": true,
+  "skin_and_map564_entry_back_close_executed": true,
+  "skin_bad_pin_refused_before_choice": true,
+  "state": "ACTUAL_PINNED_LTSURF_MENU_IMG_PIXELS_STATES_AND_ASYNC_CANDIDATE_SUBSET_VERIFIED",
+  "worker_skin_IO_off_UI_thread": true
+}

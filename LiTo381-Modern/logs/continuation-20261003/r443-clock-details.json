@@ -1,0 +1,1005 @@
+{
+  "GUI": 0,
+  "R441_R442_live_appearance_authority": false,
+  "boundary_checks": 368,
+  "plans": 40,
+  "raw_events_preserved_not_dispatched": true,
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 0,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 1,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 2,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 3,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 4,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 5,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 6,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 7,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 0,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 1,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 2,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 3,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 4,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 5,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 6,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 0,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 7,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 1,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 0,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 1,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 2,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 3,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 4,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 5,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 6,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 50,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000000",
+      "fps": 24,
+      "heading": 7,
+      "natural_loop_qualified": false,
+      "object": 10275,
+      "revision": 0,
+      "source": 42,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 0,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 1,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 2,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 3,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 4,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 5,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 6,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 46,
+      "durations_ms": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 7,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 664
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 0,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 1,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 2,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 3,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 4,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 5,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 6,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    },
+    {
+      "action": 47,
+      "durations_ms": [
+        83,
+        166,
+        166,
+        166,
+        125,
+        125,
+        125
+      ],
+      "epoch_hex": "8000000000000001",
+      "fps": 24,
+      "heading": 7,
+      "natural_loop_qualified": false,
+      "object": 10163,
+      "revision": 0,
+      "source": 7,
+      "total_ms": 956
+    }
+  ],
+  "state": "OFFLINE_SINGLE_INTERVAL_CLOCK_BOUNDARIES_AND_FULL_BINDING_GUARDS",
+  "unsupported_zero_tick_plans": [
+    {
+      "action": 51,
+      "heading": 0,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 1,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 2,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 3,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 4,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 5,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 6,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 7,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 0,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 1,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 2,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 3,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 4,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 5,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 6,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 1,
+      "heading": 7,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 1,
+      "source": 7,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 0,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 1,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 2,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 3,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 4,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 5,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 6,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    },
+    {
+      "action": 51,
+      "heading": 7,
+      "object": 10275,
+      "qualified": false,
+      "reason": "original zero-tick entry/advance timer semantics not admitted",
+      "revision": 0,
+      "source": 42,
+      "zero_tick_frames": [
+        0
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1097 @@
+{
+  "CPU_frames": 21,
+  "GUI": 0,
+  "SD2_clock": 1710,
+  "actor_HP_does_not_restore_input": true,
+  "actual_unsigned_mouse": [
+    238,
+    24
+  ],
+  "arrival_target_refresh_unimplemented_refused": true,
+  "cell_after": [
+    32755,
+    32789
+  ],
+  "cell_before": [
+    32755,
+    32788
+  ],
+  "cell_commit_clock": 3508,
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 128028,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-map\\564\\7fff8000.s32",
+      "sha256": "b68ee758f17448316c70ed5d49ad65eb6432af483f0591a5f8aa7987f9af6865"
+    },
+    {
+      "bytes": 33884,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.idx",
+      "sha256": "efd13705c355baae6e1c95c88e24fdcdb2948d17f8936167486f97c8c0de330e"
+    },
+    {
+      "bytes": 148485306,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTtile.pak",
+      "sha256": "6e80f46ca19d32bfa53fb360d2398755f4bbba7383a6b4cad811bcb79f910d22"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    },
+    {
+      "bytes": 1146,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\logs/continuation-20261003/r429-catalog-snapshot.json",
+      "sha256": "1544325f7ba7f899da7fb7e89d15969b3314700cc7520d7462fbacd3045ef4ea"
+    },
+    {
+      "bytes": 9888,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.idx",
+      "sha256": "b8c0bb8c43affe59a90ebd2d26182269b6d60af388c80963eaaeedc8d8ae23c8"
+    },
+    {
+      "bytes": 292553,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\LTtext.pak",
+      "sha256": "517d853e3fe91b504953ff4b9b2eed682a3612d063f2d18e75e39fd5580f342d"
+    },
+    {
+      "bytes": 39135,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562\\decoded-LTlist.spr",
+      "sha256": "f55779aeb5c3982d8b366068cdbe4003d802619074e54388f26ee87368f42603"
+    },
+    {
+      "bytes": 117352,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r454-layer8-source-input/38-0.spr",
+      "sha256": "b4507d8337497aef8b3fc3a28f8fef87e344d176b8a31a7e634c08a0976aef8d"
+    }
+  ],
+  "first_click_clock": 3010,
+  "first_step_frames": [
+    1,
+    2,
+    3,
+    0
+  ],
+  "held_button_flag760098_true_first_step_only": true,
+  "images": [
+    {
+      "RGBA_sha256": "9f01a47b84b1de43ac65551256216c312d2d5de6dff2a13f3c0bbdbe70eb89b4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\00-old-private-owner-start.png",
+      "sha256": "79d241a2e7ef85219791b6377d206f36e4e30592b5cdd5907b5f95d1b70f9b21"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\01-1708-SOURCE_CONDITIONAL_RELOAD_NEW_REGISTRY_BASE46_FRAME0.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\02-2292-FireFirst.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\03-2377-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\04-2462-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\05-2547-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\06-2632-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\07-2717-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\08-2802-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\09-2887-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\10-2972-FireAdvance.png",
+      "sha256": "bd7305ae0ecfa04d3ad40f4290a4e7a863241dea2846445864cf759ad83744fa"
+    },
+    {
+      "RGBA_sha256": "6c2d82ebcb1a99e5290ecbd3ca1427e17d840d2562585b824e289c96ae35d5f0",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\11-3010-SOURCE_CONDITIONAL_4E2150_START.png",
+      "sha256": "286285c550cbad6c13c6c0e55ab3e0b56473fe7185379b59808aacecdecc2854"
+    },
+    {
+      "RGBA_sha256": "6c2d82ebcb1a99e5290ecbd3ca1427e17d840d2562585b824e289c96ae35d5f0",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\12-3057-FireAdvance.png",
+      "sha256": "286285c550cbad6c13c6c0e55ab3e0b56473fe7185379b59808aacecdecc2854"
+    },
+    {
+      "RGBA_sha256": "6c2d82ebcb1a99e5290ecbd3ca1427e17d840d2562585b824e289c96ae35d5f0",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\13-3142-FireAdvance.png",
+      "sha256": "286285c550cbad6c13c6c0e55ab3e0b56473fe7185379b59808aacecdecc2854"
+    },
+    {
+      "RGBA_sha256": "27d265514fe704790c005434107f8a24b75498d879a2b687bad67473c1943706",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\14-3176-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "c36e70e5de9b518c038b887cbe96cbff1631171b20df05c940ad38962d02248f"
+    },
+    {
+      "RGBA_sha256": "27d265514fe704790c005434107f8a24b75498d879a2b687bad67473c1943706",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\15-3225-FireAdvance.png",
+      "sha256": "c36e70e5de9b518c038b887cbe96cbff1631171b20df05c940ad38962d02248f"
+    },
+    {
+      "RGBA_sha256": "27d265514fe704790c005434107f8a24b75498d879a2b687bad67473c1943706",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\16-3310-FireAdvance.png",
+      "sha256": "c36e70e5de9b518c038b887cbe96cbff1631171b20df05c940ad38962d02248f"
+    },
+    {
+      "RGBA_sha256": "ea0f4d0c50ea6ad2c3a0a365b7648c78ea73c0cd8964cdad44df2c786796ff5a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\17-3342-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "737191ef5756d359080b560846136a44facaf73e374cb143c9f4c82a21bf4dbd"
+    },
+    {
+      "RGBA_sha256": "ea0f4d0c50ea6ad2c3a0a365b7648c78ea73c0cd8964cdad44df2c786796ff5a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\18-3395-FireAdvance.png",
+      "sha256": "737191ef5756d359080b560846136a44facaf73e374cb143c9f4c82a21bf4dbd"
+    },
+    {
+      "RGBA_sha256": "ea0f4d0c50ea6ad2c3a0a365b7648c78ea73c0cd8964cdad44df2c786796ff5a",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\19-3480-FireAdvance.png",
+      "sha256": "737191ef5756d359080b560846136a44facaf73e374cb143c9f4c82a21bf4dbd"
+    },
+    {
+      "RGBA_sha256": "614ce54bb98e55c8d08112e19046bc3b79a802373ed3093e73c22c70313be1a4",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r466c-input-restoration-first-cell-cpu\\20-3508-SOURCE_CONDITIONAL_Step.png",
+      "sha256": "5c9fd5c7528e06b4de065dae373b26dfdae7d9cff4b8c5cf60702788e1f1aa1e"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-74.spr": {
+      "bytes": 5904,
+      "path": "resources/3476-74.spr",
+      "sha256": "492DBF6342F7E33B06C5413414673B016C62BB431707BD677BFA093BA7DE2BCF"
+    },
+    "resources/3476-76.spr": {
+      "bytes": 8504,
+      "path": "resources/3476-76.spr",
+      "sha256": "AD5E88E26073E26B9DF6C725FE033F65F51D578FC5FFEBF91581A768E2E89377"
+    },
+    "resources/3476-84.spr": {
+      "bytes": 14332,
+      "path": "resources/3476-84.spr",
+      "sha256": "6C9314F042DBF63715EA94DBF8A77910ADD2BA27C5D58C46E79AF112F9D5B34B"
+    },
+    "resources/3477-74.spr": {
+      "bytes": 1106,
+      "path": "resources/3477-74.spr",
+      "sha256": "61E44DEE6BA5A1162FD1F3C47EBDD542431E3C0695423A54034A280DC29A3EB0"
+    },
+    "resources/3477-76.spr": {
+      "bytes": 1077,
+      "path": "resources/3477-76.spr",
+      "sha256": "8A3FB7AEC8D95D7B4B17644D31ED78B8F061C9D1B7BBFED17D02EDE57F8BBD84"
+    },
+    "resources/3477-84.spr": {
+      "bytes": 2291,
+      "path": "resources/3477-84.spr",
+      "sha256": "02B2F8699DE38CFA34B68F2D700615C7BFF72E3FC0BECD6A5A11A05607A083A8"
+    },
+    "resources/6260-74.spr": {
+      "bytes": 65,
+      "path": "resources/6260-74.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-76.spr": {
+      "bytes": 65,
+      "path": "resources/6260-76.spr",
+      "sha256": "FE1E4E5B6F87CA824333A9BDDD81A64E5B8601D2D444DB3A3B6CEB41AF27A24B"
+    },
+    "resources/6260-84.spr": {
+      "bytes": 135,
+      "path": "resources/6260-84.spr",
+      "sha256": "1B15E29C7271BB18CAC44C6E41D19811A383EBDB6D3005B5EF0EC3F581CB8813"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "keeper_4878C0_effects_projected": true,
+  "keeper_callbacks": [
+    {
+      "at": 1774,
+      "counters": [
+        32,
+        42
+      ],
+      "next": 1838,
+      "scene_generation": 1
+    },
+    {
+      "at": 1838,
+      "counters": [
+        33,
+        43
+      ],
+      "next": 1902,
+      "scene_generation": 1
+    },
+    {
+      "at": 1902,
+      "counters": [
+        34,
+        44
+      ],
+      "next": 1966,
+      "scene_generation": 1
+    },
+    {
+      "at": 1966,
+      "counters": [
+        35,
+        45
+      ],
+      "next": 2030,
+      "scene_generation": 1
+    },
+    {
+      "at": 2030,
+      "counters": [
+        36,
+        46
+      ],
+      "next": 2094,
+      "scene_generation": 1
+    },
+    {
+      "at": 2094,
+      "counters": [
+        37,
+        47
+      ],
+      "next": 2158,
+      "scene_generation": 1
+    },
+    {
+      "at": 2158,
+      "counters": [
+        38,
+        48
+      ],
+      "next": 2222,
+      "scene_generation": 1
+    },
+    {
+      "at": 2222,
+      "counters": [
+        39,
+        49
+      ],
+      "next": 2286,
+      "scene_generation": 1
+    },
+    {
+      "at": 2286,
+      "counters": [
+        40,
+        50
+      ],
+      "next": 2350,
+      "scene_generation": 1
+    },
+    {
+      "at": 2350,
+      "counters": [
+        41,
+        51
+      ],
+      "next": 2414,
+      "scene_generation": 2
+    },
+    {
+      "at": 2414,
+      "counters": [
+        42,
+        52
+      ],
+      "next": 2478,
+      "scene_generation": 3
+    },
+    {
+      "at": 2478,
+      "counters": [
+        43,
+        53
+      ],
+      "next": 2542,
+      "scene_generation": 4
+    },
+    {
+      "at": 2542,
+      "counters": [
+        44,
+        54
+      ],
+      "next": 2606,
+      "scene_generation": 4
+    },
+    {
+      "at": 2606,
+      "counters": [
+        45,
+        55
+      ],
+      "next": 2670,
+      "scene_generation": 5
+    },
+    {
+      "at": 2670,
+      "counters": [
+        46,
+        56
+      ],
+      "next": 2734,
+      "scene_generation": 6
+    },
+    {
+      "at": 2734,
+      "counters": [
+        47,
+        57
+      ],
+      "next": 2798,
+      "scene_generation": 7
+    },
+    {
+      "at": 2798,
+      "counters": [
+        48,
+        58
+      ],
+      "next": 2862,
+      "scene_generation": 7
+    },
+    {
+      "at": 2862,
+      "counters": [
+        49,
+        59
+      ],
+      "next": 2926,
+      "scene_generation": 8
+    },
+    {
+      "at": 2926,
+      "counters": [
+        50,
+        60
+      ],
+      "next": 2990,
+      "scene_generation": 9
+    },
+    {
+      "at": 2990,
+      "counters": [
+        51,
+        61
+      ],
+      "next": 3054,
+      "scene_generation": 10
+    },
+    {
+      "at": 3054,
+      "counters": [
+        52,
+        62
+      ],
+      "next": 3118,
+      "scene_generation": 11
+    },
+    {
+      "at": 3118,
+      "counters": [
+        53,
+        63
+      ],
+      "next": 3182,
+      "scene_generation": 12
+    },
+    {
+      "at": 3182,
+      "counters": [
+        54,
+        64
+      ],
+      "next": 3246,
+      "scene_generation": 14
+    },
+    {
+      "at": 3246,
+      "counters": [
+        55,
+        65
+      ],
+      "next": 3310,
+      "scene_generation": 15
+    },
+    {
+      "at": 3310,
+      "counters": [
+        56,
+        66
+      ],
+      "next": 3374,
+      "scene_generation": 16
+    },
+    {
+      "at": 3374,
+      "counters": [
+        57,
+        67
+      ],
+      "next": 3438,
+      "scene_generation": 17
+    },
+    {
+      "at": 3438,
+      "counters": [
+        58,
+        68
+      ],
+      "next": 3502,
+      "scene_generation": 18
+    },
+    {
+      "at": 3502,
+      "counters": [
+        59,
+        69
+      ],
+      "next": 3566,
+      "scene_generation": 19
+    }
+  ],
+  "keeper_counters_final": [
+    59,
+    69
+  ],
+  "negative_cases": 93,
+  "new_camera_center": [
+    32752,
+    32780
+  ],
+  "new_incarnation": 4662,
+  "old_incarnation": 4661,
+  "old_input_token_frame_root_and_timer_owner_refused": true,
+  "other_whitelist_callback_bodies_executed": false,
+  "prequeued_step_clocks": [
+    3176,
+    3342,
+    3508
+  ],
+  "private_source_reset_uninstalls_handlers": true,
+  "registration_clock": 1708,
+  "renderer_LOADED": false,
+  "restore_clock": 3001,
+  "restore_then_first_click_message_before_next_active_tick_is_conditional": true,
+  "restored_active_tick_only_noop_gate_qualified": true,
+  "rows": [
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 1708,
+      "fire": null,
+      "kind": "SOURCE_CONDITIONAL_RELOAD_NEW_REGISTRY_BASE46_FRAME0",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2292,
+      "fire": 1,
+      "kind": "FireFirst",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2377,
+      "fire": 2,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2462,
+      "fire": 3,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2547,
+      "fire": 4,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2632,
+      "fire": 5,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2717,
+      "fire": 6,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2802,
+      "fire": 7,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2887,
+      "fire": 8,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "4b0080a8c9c7236fab174e69c54862cf7304b9270c5b79c29c40f69971304596",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 2972,
+      "fire": 9,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        74,
+        0
+      ]
+    },
+    {
+      "RGBA_sha256": "6c2d82ebcb1a99e5290ecbd3ca1427e17d840d2562585b824e289c96ae35d5f0",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 3010,
+      "fire": 9,
+      "kind": "SOURCE_CONDITIONAL_4E2150_START",
+      "move_frame": 1,
+      "new_timer_clocks": [
+        3176,
+        3342,
+        3508
+      ],
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "6c2d82ebcb1a99e5290ecbd3ca1427e17d840d2562585b824e289c96ae35d5f0",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 3057,
+      "fire": 10,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "6c2d82ebcb1a99e5290ecbd3ca1427e17d840d2562585b824e289c96ae35d5f0",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 3142,
+      "fire": 0,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        76,
+        1
+      ]
+    },
+    {
+      "RGBA_sha256": "27d265514fe704790c005434107f8a24b75498d879a2b687bad67473c1943706",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 3176,
+      "fire": 0,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "move_frame": 2,
+      "new_timer_clocks": [],
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "27d265514fe704790c005434107f8a24b75498d879a2b687bad67473c1943706",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 3225,
+      "fire": 1,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "27d265514fe704790c005434107f8a24b75498d879a2b687bad67473c1943706",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 3310,
+      "fire": 2,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        76,
+        2
+      ]
+    },
+    {
+      "RGBA_sha256": "ea0f4d0c50ea6ad2c3a0a365b7648c78ea73c0cd8964cdad44df2c786796ff5a",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": [
+        32755,
+        32788
+      ],
+      "cell_committed": false,
+      "clock": 3342,
+      "fire": 2,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "move_frame": 3,
+      "new_timer_clocks": [],
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "ea0f4d0c50ea6ad2c3a0a365b7648c78ea73c0cd8964cdad44df2c786796ff5a",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 3395,
+      "fire": 3,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "ea0f4d0c50ea6ad2c3a0a365b7648c78ea73c0cd8964cdad44df2c786796ff5a",
+      "camera_center": [
+        32752,
+        32780
+      ],
+      "cell": null,
+      "cell_committed": null,
+      "clock": 3480,
+      "fire": 4,
+      "kind": "FireAdvance",
+      "move_frame": null,
+      "new_timer_clocks": null,
+      "player": [
+        76,
+        3
+      ]
+    },
+    {
+      "RGBA_sha256": "614ce54bb98e55c8d08112e19046bc3b79a802373ed3093e73c22c70313be1a4",
+      "camera_center": [
+        32752,
+        32781
+      ],
+      "cell": [
+        32755,
+        32789
+      ],
+      "cell_committed": true,
+      "clock": 3508,
+      "fire": 4,
+      "kind": "SOURCE_CONDITIONAL_Step",
+      "move_frame": 0,
+      "new_timer_clocks": [
+        3674
+      ],
+      "player": [
+        76,
+        0
+      ]
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "same_opaque_binding_preserved": true,
+  "source_roots": [
+    {
+      "at": 2292,
+      "process_serial": 17,
+      "root": "FireFirst"
+    },
+    {
+      "at": 2377,
+      "process_serial": 28,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 2462,
+      "process_serial": 30,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 2547,
+      "process_serial": 32,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 2632,
+      "process_serial": 35,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 2717,
+      "process_serial": 37,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 2802,
+      "process_serial": 39,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 2887,
+      "process_serial": 42,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 2972,
+      "process_serial": 44,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 3057,
+      "process_serial": 46,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 3142,
+      "process_serial": 52,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 3176,
+      "process_serial": 48,
+      "root": "Locomotion(1)"
+    },
+    {
+      "at": 3225,
+      "process_serial": 54,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 3310,
+      "process_serial": 56,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 3342,
+      "process_serial": 49,
+      "root": "Locomotion(2)"
+    },
+    {
+      "at": 3395,
+      "process_serial": 58,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 3480,
+      "process_serial": 61,
+      "root": "FireAdvance"
+    },
+    {
+      "at": 3508,
+      "process_serial": 50,
+      "root": "Locomotion(3)"
+    }
+  ],
+  "state": "SOURCE_SD2_WAIT_RESTORE_FIRST_VIEWPORT_CLICK_PROCESS_FIFO_FIRST_CELL_PRIVATE_OWNER",
+  "strict_equal3000_refused": true,
+  "unexecuted_arrival_clock": 3674,
+  "viewport_registration_runtime_producer_unobserved": true,
+  "wait_start_clock": 0,
+  "wire_audio_provider_side_effects_not_executed": true
+}

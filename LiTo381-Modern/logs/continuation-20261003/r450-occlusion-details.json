@@ -1,0 +1,190 @@
+{
+  "GUI": 0,
+  "actual_prop_reduces_body_visibility": true,
+  "actual_tie_reversing_changes_pixels": true,
+  "baseline_body_visible": 1128,
+  "extra_input_pins": [
+    {
+      "bytes": 16466,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r425-native-dm564-fixture/consumer-input.json",
+      "sha256": "c9fc9b445a61fea6ad1acf48d09771f89614e451889a783189daf78174b53ec0"
+    },
+    {
+      "bytes": 13136,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.idx",
+      "sha256": "73536646591e04bfb62b55320e075f0c6d5f8dc17fe29bc012c7925eed670bd8"
+    },
+    {
+      "bytes": 63004112,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r425-native-dm564-fixture\\native-archives\\LTsprite.pak",
+      "sha256": "7029d561d8ef1420128d318e827bae07d552e5316839cddb362d9223f2fb3962"
+    },
+    {
+      "bytes": 117352,
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r450-scene-inputs\\38-0.spr",
+      "sha256": "b4507d8337497aef8b3fc3a28f8fef87e344d176b8a31a7e634c08a0976aef8d"
+    }
+  ],
+  "front_body_visible": 31,
+  "images": [
+    {
+      "RGBA_sha256": "2f361dbc5dc5c9246d5c06e60f2c5ade8ae2ab0e68f14c7437e55ca928f9725f",
+      "dimensions": [
+        320,
+        300
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r450-scene-occlusion-cpu\\player-alone.png",
+      "sha256": "5d2b6ffa3631e4c4286c8e6a5b5e8fa3190ad47c20b40d4110a210339ae4954d"
+    },
+    {
+      "RGBA_sha256": "f16b7aaeff7d6a6f52a3ad173e7822025759180d0ced5e3baf761d81f8ba9d3b",
+      "dimensions": [
+        320,
+        300
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r450-scene-occlusion-cpu\\prop-rear.png",
+      "sha256": "1985680e8c219b918dc0212d707def9e9decea8e681c28ab51fbd0968647b202"
+    },
+    {
+      "RGBA_sha256": "eabf698dfe863451217017e05271dad3b12da5f618cb7fb55166afe50e5aa2e9",
+      "dimensions": [
+        320,
+        300
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r450-scene-occlusion-cpu\\prop-same.png",
+      "sha256": "62ee839a5b067d87fb1d8e2a7aa1ab29cd9ec2609ede21cdcb53ff2c3642f6b1"
+    },
+    {
+      "RGBA_sha256": "5650ab7d553182e5aea0596222ed27252dec364f736edde364381550d4ca35a4",
+      "dimensions": [
+        320,
+        300
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r450-scene-occlusion-cpu\\prop-front.png",
+      "sha256": "2b68e630f356b4bad2515bb9ab45c4c4ad111e50ad4dfcc8c8f093f00d22697b"
+    },
+    {
+      "RGBA_sha256": "c9988e447f0b81137629a529365073d949e91878524e3f58159af45899aca99f",
+      "dimensions": [
+        320,
+        300
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r450-scene-occlusion-cpu\\actual-body-tie-player-first-true.png",
+      "sha256": "8f85a587d309e62905d496b3620eb6401dbf394e426bf32f621dc71a9b3f9300"
+    },
+    {
+      "RGBA_sha256": "a25a7f94b74af197f7e3e00738aa614c119566aac15fcac07690a10e019df81d",
+      "dimensions": [
+        320,
+        300
+      ],
+      "path": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target/r450-scene-occlusion-cpu\\actual-body-tie-player-first-false.png",
+      "sha256": "45b8ee11a8a4bf7069c99c38da57f9d6f2f6250379f6201d48567b292d40f6e9"
+    }
+  ],
+  "input_pins": {
+    "appearance-layer-trace.json": {
+      "bytes": 130089,
+      "path": "appearance-layer-trace.json",
+      "sha256": "3DDF718672CD0FC40ECE36DE77580DE53A9058A5628879C66F827D6D480ECE78"
+    },
+    "evidence/appearance-bindings.nab": {
+      "bytes": 560,
+      "path": "evidence/appearance-bindings.nab",
+      "sha256": "1EA4B4D5B49928A1CF21662E05BA8B25515A6C94455E232BF2875D5E8CCEF0BF"
+    },
+    "resources/3476-88.spr": {
+      "bytes": 12043,
+      "path": "resources/3476-88.spr",
+      "sha256": "641ABA44DCC8315DBCBBED698777A976A851B1B98F7A9EDBDBA0CE2EB98BDB17"
+    },
+    "resources/3477-88.spr": {
+      "bytes": 2001,
+      "path": "resources/3477-88.spr",
+      "sha256": "7C1FD85B5FD7580CD9A91499B38D1B4AC38DEF1AEE1BF3858215930BF212CD6D"
+    },
+    "resources/6260-88.spr": {
+      "bytes": 93,
+      "path": "resources/6260-88.spr",
+      "sha256": "EF06D41DF96C7BB073B6FA331448A1C407D9D0B7BC61B0EA3A8EC5BBCF1EC6E1"
+    },
+    "resources/appearance-dependencies.nad": {
+      "bytes": 10986,
+      "path": "resources/appearance-dependencies.nad",
+      "sha256": "8DD376E01516E3424EED084FD81E62E2C6D5F541045797E8EC062DF1B963BD2D"
+    }
+  },
+  "native_framebuffer_parity_qualified": false,
+  "prop_default_action_qualified": false,
+  "prop_frame_count": 11,
+  "prop_member": "38-0.spr",
+  "prop_selected_subframe": 0,
+  "rear_body_visible": 1128,
+  "renderer_LOADED": false,
+  "rows": [
+    {
+      "RGBA_sha256": "2f361dbc5dc5c9246d5c06e60f2c5ade8ae2ab0e68f14c7437e55ca928f9725f",
+      "body_visible_pixels": 1128,
+      "case": "player-alone",
+      "player_first": true,
+      "prop_delta_world": [
+        0,
+        0
+      ],
+      "prop_reference_count": 0
+    },
+    {
+      "RGBA_sha256": "f16b7aaeff7d6a6f52a3ad173e7822025759180d0ced5e3baf761d81f8ba9d3b",
+      "body_visible_pixels": 1128,
+      "case": "prop-rear",
+      "player_first": true,
+      "prop_delta_world": [
+        1,
+        -1
+      ],
+      "prop_reference_count": 24
+    },
+    {
+      "RGBA_sha256": "eabf698dfe863451217017e05271dad3b12da5f618cb7fb55166afe50e5aa2e9",
+      "body_visible_pixels": 247,
+      "case": "prop-same",
+      "player_first": true,
+      "prop_delta_world": [
+        0,
+        0
+      ],
+      "prop_reference_count": 24
+    },
+    {
+      "RGBA_sha256": "5650ab7d553182e5aea0596222ed27252dec364f736edde364381550d4ca35a4",
+      "body_visible_pixels": 31,
+      "case": "prop-front",
+      "player_first": true,
+      "prop_delta_world": [
+        -1,
+        1
+      ],
+      "prop_reference_count": 24
+    },
+    {
+      "RGBA_sha256": "c9988e447f0b81137629a529365073d949e91878524e3f58159af45899aca99f",
+      "body_visible_pixels": 1128,
+      "case": "actual-body-subframes0-and3-tie",
+      "player_first": true,
+      "source_equal_cell_depth_intersections": 11
+    },
+    {
+      "RGBA_sha256": "a25a7f94b74af197f7e3e00738aa614c119566aac15fcac07690a10e019df81d",
+      "body_visible_pixels": 166,
+      "case": "actual-body-subframes0-and3-tie",
+      "player_first": false,
+      "source_equal_cell_depth_intersections": 11
+    }
+  ],
+  "runtime_inputs_observed": false,
+  "scene_cases": 4,
+  "source_equal_cell_depth_intersections": 11,
+  "state": "ACTUAL_NATIVE_PROP_OCCLUSION_AND_ACTUAL_SUBFRAME_DEPTH_TIES_CONDITIONAL_CPU",
+  "terrain_roof_qualified": false,
+  "tie_order_cases": 2
+}

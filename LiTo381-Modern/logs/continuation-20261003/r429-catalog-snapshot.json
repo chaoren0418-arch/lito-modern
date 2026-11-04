@@ -1,0 +1,33 @@
+{
+  "root": "D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern\\target\\r429-native-catalog-d0fe865d63ea425baf43d4d43a749562",
+  "original_root": "D:\\380\\天堂(Lineage 3.81C) (1)\\LiTo",
+  "catalog_namespace": "NATIVE_LITO_LTTEXT_V1",
+  "pins": [
+    {
+      "name": "LTtext.idx",
+      "sha256": "B8C0BB8C43AFFE59A90EBD2D26182269B6D60AF388C80963EAAEEDC8D8AE23C8",
+      "bytes": 9888
+    },
+    {
+      "name": "LTtext.pak",
+      "sha256": "517D853E3FE91B504953FF4B9B2EED682A3612D063F2D18E75E39FD5580F342D",
+      "bytes": 292553
+    }
+  ],
+  "reference_sha256": "F55779AEB5C3982D8B366068CDBE4003D802619074E54388F26EE87368F42603",
+  "reference_bytes": 39135,
+  "disassembly_sha256": "2A3A6E1026EE65288C07EFF00990BDDDBEFA5ACEC9EED551F528A0CC0A7DEA9A",
+  "pe_sha256": "4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9",
+  "static_route_functions": [
+    "sub_42EA50",
+    "sub_43DDD0",
+    "sub_43DE10",
+    "sub_4406C0",
+    "sub_440010",
+    "sub_4CD9D0",
+    "sub_483770"
+  ],
+  "SourceAttachment_includes_LTtext": false,
+  "Native_timer_ms_qualified": false,
+  "LOADED": false
+}

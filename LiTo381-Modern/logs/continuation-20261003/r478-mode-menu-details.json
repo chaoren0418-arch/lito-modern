@@ -1,0 +1,40 @@
+{
+  "GUI": 0,
+  "LOADED": false,
+  "Modern_Back_and_same_mode_retain_selection_top": true,
+  "actual_filter_during_load_cancelled": true,
+  "actual_initial514_rgba_sha256": "BE8C22947FC61507324468FB650CE7EAD7126592F6175F0F1BBC18CD1B68FF51",
+  "actual_initial564_rgba_sha256": "2F3B9D9EEBF896A54F11118F6D90164DA66A286AE2F81E9D450CE0BF76E24B06",
+  "actual_mode_filter_queued_pan_rejections": 1,
+  "actual_worker_retired": true,
+  "coordinate_checks": 4096184,
+  "diagnostic_catalog_rows": 40,
+  "historical_PASS_reruns": 0,
+  "mode_map_counts": [
+    4,
+    15,
+    9,
+    3,
+    1,
+    8
+  ],
+  "native_mode_header_count": 2,
+  "native_rebuild_clears_selection_top": true,
+  "negative_cases": 66,
+  "new_focused": 1,
+  "qualified_maps": [
+    [
+      1,
+      564
+    ],
+    [
+      1,
+      514
+    ]
+  ],
+  "state": "R478_MODE_HEADER_THUMB_GEOMETRY_AND_ACTUAL_FILTER_CANCELLATION_PASS_GUI_PENDING",
+  "thumb_copy_mode_independent_of_flag": true,
+  "thumb_display_only": true,
+  "thumb_reference_composites": 8,
+  "thumb_then_arrows_order": true
+}
