@@ -24,3 +24,4 @@
 - 2026-11-05 — #13 T004-1: T004-1: 以正式 JAR e1498871 靜態核對 PROTOCOL-CONTRACT 常數（resource，codex-local，PR #19 已合併）→ [報告](reports/issue-13.md)
 - 2026-11-05 — #15 T004-3: T004-3: NATIVE-PROTOCOL/LOGIN/GAME/LOBBY/ROOM 文件改指向 PROTOCOL-CONTRACT（plan，claude-chat，PR #24 已合併）→ [報告](reports/issue-15.md)
 - 2026-11-05 — #16 T004-4: T004-4: C_USE_SPELL 技能 (row,column) → 尾段形狀對照表（design，claude-chat，PR #25 已合併）→ [報告](reports/issue-16.md)
+- 2026-11-05 — #21 T004-5: PROTOCOL-CONTRACT 補 S_LITO_GAME_INFO 0xD5（房間摘要子型別）（design，claude-chat，PR #28 已合併）→ [報告](reports/issue-21.md)
