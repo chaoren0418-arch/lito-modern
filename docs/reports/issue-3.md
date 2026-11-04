@@ -26,7 +26,8 @@
   - 把啟動腳本拷到空目錄跑 → 1，`Cargo.toml not found`。
   - `pwsh -NoProfile -File ./LiTo381-Modern/tools/build.ps1 -WhatIf` → 0；缺客戶端樹只警告；cargo 仍為 `test --offline --locked --manifest-path …/Cargo.toml --target-dir …/target --target i686-pc-windows-msvc`。
   - `-WhatIf -Mode Release` → `cargo build … --release`，target 仍是 `target` 不是 `target/current`。
-- 未改 Rust 原始碼；CI `cargo check --locked --all-targets` 預期與 `main` 相同（待 GitHub Actions 綠燈確認）。
+- 未改 Rust 原始碼。PR #5 CI `cargo check (x86_64-pc-windows-msvc)` **已綠**（run `41780882831`）。
+- 第 2 次嘗試：`git merge origin/main` 解 `docs/REPORT.md` add/add 衝突，Issue #2 與 Issue #3 條目都保留；腳本未再改。
 
 ## 未驗證什麼
 - 未在 Windows 原開發機執行真實 `cargo build` / 啟動客戶端 / `-Verify` 對到實體 `D:\lineage開發\0-客戶端`。
@@ -42,6 +43,7 @@
 - `TASKS.md`（T005 → review）
 
 ## 給下一棒的提示
-- 審查重點：啟動腳本 cargo 參數與 `target/current` 是否原樣；`build.ps1` 是否仍走 `target` + i686、沒被改成 x64/`target/current`。
+- Claude 已審查通過（LITO_CLIENT_ROOT、`-WhatIf`、缺路徑錯誤、Cargo 參數未變）；`build.ps1` 的 i686 vs CLAUDE.md x86_64 不一致另開任務，非本 PR。
+- 第 2 次嘗試只合併 `origin/main` 並保留 REPORT 兩邊條目。可合併 PR #5。
 - 合併後若要在新 clone 跑需要資源的模式，先設 `LITO_CLIENT_ROOT` 指向既有客戶端樹（唯讀引用，不要複製進本 repo）。
 - 後續若要把測試裡的 `D:\lineage開發\0-客戶端` 也改成同一環境變數，另開任務，不要塞進本 PR。
