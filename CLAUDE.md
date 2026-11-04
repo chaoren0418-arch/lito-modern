@@ -3,6 +3,15 @@
 本檔是所有 AI 工具（Claude、Cursor、Codex、ChatGPT）與人的共同規則。`AGENTS.md` 與 `.cursor/rules/project.mdc` 是本檔的複本，改動請只改本檔並重新同步。
 本 repo 根目錄是 `D:\lineage開發\3-lito開發\lito重建版`。相鄰的登入器／伺服器是獨立 repo（lito-launcher-server），**唯讀**引用。
 
+## 對話分工與語言（使用者規定，所有 AI 必讀）
+- **全程使用繁體中文**：對使用者的回報、Issue／PR 留言、報告文件一律繁體中文（程式碼、指令、檔名維持原文）。
+- 每個專案（含調度器本身）都有兩個 Claude 對話：
+  - **雲端對話**：監控與回報——看 GitHub 佇列、規劃（plan／design）、審查裁定、處理 `needs:claude`；碰不到使用者電腦。
+  - **本機對話**（Claude 桌面版「本機」環境）：處理需要本機的事——本機資源、Windows 建置與檢查、測試前置、本機檔案整理；**使用者平常只跟本機對話溝通**。
+- 雲端對話需要本機動作時：開 Issue（`stage: test` 或 `stage: resource`、`runner: codex-local`）交給本機執行，或標 `needs:local` 交給本機對話；**不要叫使用者做**。
+- 調度器本身的問題標 `needs:orchestrator`；只有真機驗收（啟動遊戲／登入／看畫面）與不可逆決策才標 `needs:user`。
+- 使用者只負責驗收與觀測。
+
 ## 目標
 以 Rust 重建 LiTo 客戶端為 Windows x64 原生程式（目標 G01–G12），沿用既有資源與 UI 重現已驗證行為：登入→大廳→進房→戰鬥→退出，含 HUD、聊天、背包、快捷列、技能特效。
 
