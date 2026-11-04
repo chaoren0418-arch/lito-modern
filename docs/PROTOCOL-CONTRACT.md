@@ -204,6 +204,16 @@ C: C_LITO_SELECT_CHAR 0xC9(name) → S: S_LITO_SELECT_CHAR_RESULT 0xC8(code)
 | `C_LITO_EXIT_ROOM 0xD0` | opcode-only | `exitRoom` CS:14568 | ROOM／BATTLE／RESULT → CHANNEL（CS:14627／14675）；在 BATTLE 中送出時會先結算（CS:14605） |
 | `S_LITO_EXIT_ROOM 0xD0` | `c d(roomId) s(displayName)` | CS:14641 | — |
 | `S_LITO_DELETE_ROOM 0xCF` | `c d(roomId)` | `broadcastRoomDeleted` CS:14784 | — |
+| `S_LITO_GAME_INFO 0xD5`（房間資訊） | 共通開頭是 `c(0xD5) c(subtype) d(roomId≠0)`，後面依 subtype 而定；各 subtype 見下方 6 列。同一房間的狀態分散在 subtype 0（摘要）和 subtype 1（可編輯設定）兩筆記錄 | opcode P:701 | — |
+| ↳ subtype 0 摘要 | `s(name 1..0x59 bytes) c(option0＝模式) h(mapId) c(0) s(owner 1..0x1B bytes) c(0)×4` | `litoRoomSummary` P:16953 | — |
+| ↳ subtype 1 設定 | `s(name 1..0x59) s(password 0..4 bytes) c(attributes) c(capacity 2..200) c(option1) c(option2) c(option3) c(option4) c(count ≤8) c(selection≠0)×count`。builder 會驗證 eventFlags 0..7、eventType 0..2、winnerCount 1..0x7F、allowedClassMask 0..0x1F（這四個欄位加上 selections 全為 0／空時視為舊版，不檢查），實際寫出的則是 option1..4。**推測**：option1..4 依序對應這四個欄位；這層對應在 `GameHub.RoomSettings` 內，本文沒有逐一核對 | `litoRoomConfiguration` P:16981 | — |
+| ↳ subtype 2 模式 | `c(mode)`，值域是 `BattleRules.Mode` 的 wire 值 0..6 | `litoRoomMode` P:17073 | — |
+| ↳ subtype 3 地圖 | `h(mapId)`；`0xFFFF`、`0xFF9C` 是 client 端的哨兵值，必須原樣保留 | `litoRoomMap` P:17097 | — |
+| ↳ subtype 4、6、7、8、9 | `c(value)`（摘要純量）。**伺服器目前沒有任何發送點**，原始碼註解說明 client 映像中這五個目的地沒有讀取者；client 收到時只需解析並忽略 | `litoRoomSummaryScalar` P:17127 | — |
+| ↳ subtype 5 房主 | `s(owner 1..0x1B bytes)` | `litoRoomOwner` P:17159 | — |
+| 發送時機（一般房間） | 依請求類型分開列，「單播」＝只回給送出者，「廣播」＝房間全體成員：<br>**A. 改房間設定 `C_LITO_EDIT_ROOM 0xDD`**（`editRoom` CS:16721）：容量不合法 → 單播 0＋1（CS:16732–16736）；`hub.updateSettings` 成功 → 廣播 0＋1（CS:16755–16757，`broadcastGameInfoSnapshot` CS:16468）；`updateSettings` 被拒 → 單播 0＋1（CS:16759–16760，`sendGameInfoSnapshot` CS:16455）。<br>**B. 換模式 `C_LITO_GAME_INFO` subtype 2**（`changeRoomMode` CS:16482）：目前模式不是戰鬥場景 → 單播 0＋1（CS:16486–16492）；`updateSettings` 被拒 → 單播 0＋1（CS:16503–16505）；成功 → 廣播 2＋3（CS:16509–16515），之後可能附帶 ArenaBot 的 `S_LITO_EXIT_ROOM`／`S_LITO_ROOM_USER`。<br>**C. 換地圖 `C_LITO_GAME_INFO` subtype 3**（`changeRoomMap` CS:16537）：地圖不屬於目前模式或等於 0xFFFF → 單播原本的 3（CS:16540–16546）；`hub.updateMap` 被拒（非房主、已開戰、地圖不合法，GameHub.java:9874–9878）→ **單播 0＋1**（CS:16549–16551）；成功 → 廣播 3（CS:16555–16558）。<br>**D. 房主轉移**（`broadcastRoomOwner` CS:14802，在斷線 CS:1251、離房 CS:14670、restart CS:15234 時觸發）→ 廣播 5。<br>client 送出 B 或 C 之後，要同時接受 0＋1 或 2／3 兩種回覆，不能只等 subtype 3 | 同左 | ROOM |
+| 發送時機（租裝城鎮房間） | 一律**單播**回送出者，不經過 GameHub：<br>**換地圖 subtype 3**（`handleRentalTownGameInfo` CS:16423）：合法 → 更新後回 3；不合法 → 保留原值並回 3；兩者都在 CS:16435 送出並 return。<br>**換模式 subtype 2**（CS:16442–16443）→ 回 2＋3（`sendRentalTownGameInfoSnapshot` CS:16446，模式固定為 TOWN＝6）。<br>**改房間設定 `C_LITO_EDIT_ROOM`**（CS:16725–16730）→ 一律拒絕並回 2＋3 | 同左 | ROOM |
+| `C_LITO_GAME_INFO 0xD1`（房主改模式／地圖） | `c(0xD1) c(2) c(direction)`：direction 1＝下一個、2＝上一個；或 `c(0xD1) c(3) h(mapId)`。其他 subtype 和長度都是格式錯誤 | `litoGameInfoRequest` P:14351；`LitoModeStepDirection` P:3847；`gameInfo` CS:16402（dispatch CS:1665） | ROOM，且必須在房間內；其他 phase 靜默忽略 |
 
 ## 6. 戰鬥
 
