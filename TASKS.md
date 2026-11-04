@@ -21,7 +21,7 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 寫與 lito-launcher-server 0.6.71 的協定契約：登入握手、版本、加密、必用 opcode 清單，取代純 SHA pin。
 驗收：Cursor 能依此文件不看 JAR 寫 client 端。
 
-### T005 | review | Cursor | `啟動現代客戶端.ps1`, `LiTo381-Modern/tools/build.ps1`
+### T005 | todo | Cursor | `啟動現代客戶端.ps1`, `LiTo381-Modern/tools/build.ps1`
 去硬編路徑（`D:\lineage開發\...`）改相對 repo 根或環境變數 `LITO_CLIENT_ROOT`。
 驗收：clone 到任意路徑可建置。
 
