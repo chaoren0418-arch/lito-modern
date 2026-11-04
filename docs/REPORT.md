@@ -19,3 +19,4 @@
 - Issue #2 / T003：Claude 審閱 `docs/CANDIDATES.md`，決定整包或不套用（不要單檔 cherry-pick）。有候選本體時再補 SHA 與 diff 行數。T020（#97）仍等此審閱；恢復測試仍要使用者同意（T010）。
 - Issue #3：請 Claude 審查 `task/3` PR，確認 CI `cargo check` 綠、`-WhatIf` 與缺路徑錯誤可接受後合併。測試檔與 `維護工具/` 裡其餘 `D:\lineage開發\...` 硬編不在本任務範圍。
 - 2026-11-04 — #3 T005: 啟動與建置腳本去硬編路徑（LITO_CLIENT_ROOT）（code，codex-local，PR #5 已合併）→ [報告](reports/issue-3.md)
+- 2026-11-04 — #4 T004: docs/PROTOCOL-CONTRACT.md 協定契約（Claude 撰寫）（design，claude-chat，分支 task/4）→ [報告](reports/issue-4.md)
