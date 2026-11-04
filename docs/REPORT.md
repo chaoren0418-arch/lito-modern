@@ -22,3 +22,4 @@
 - 2026-11-04 — #4 T004: docs/PROTOCOL-CONTRACT.md 協定契約（Claude 撰寫）（design，claude-chat，分支 task/4）→ [報告](reports/issue-4.md)
 - 2026-11-05 — #4 T004: docs/PROTOCOL-CONTRACT.md 協定契約（Claude 撰寫）（design，claude-chat，PR #12 已合併）→ [報告](reports/issue-4.md)
 - 2026-11-05 — #13 T004-1: T004-1: 以正式 JAR e1498871 靜態核對 PROTOCOL-CONTRACT 常數（resource，codex-local，PR #19 已合併）→ [報告](reports/issue-13.md)
+- 2026-11-05 — #15 T004-3: T004-3: NATIVE-PROTOCOL/LOGIN/GAME/LOBBY/ROOM 文件改指向 PROTOCOL-CONTRACT（plan，claude-chat，PR #24 已合併）→ [報告](reports/issue-15.md)
