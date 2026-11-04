@@ -17,11 +17,18 @@ import collections, pathlib, re, subprocess, sys
 EXPECTED_HEAD = "2066774824b314b2c65834f9afe72b68f7391f06"
 root = pathlib.Path(sys.argv[1])
 markdown = "--markdown" in sys.argv
-srv = root / "lito伺服器/LiTo381-Server/src/main/java/local/lito381/server"
-cs_lines = (srv / "ClientSession.java").read_text(encoding="utf-8").split("\n")
-cat = (srv / "BattleSpellCatalog.java").read_text(encoding="utf-8")
-illusion = (srv / "IllusionSkillRequests.java").read_text(encoding="utf-8")
-dragon = (srv / "DragonSkillRequests.java").read_text(encoding="utf-8")
+SRV = "lito伺服器/LiTo381-Server/src/main/java/local/lito381/server"
+def source(name):
+    """優先從固定 commit 讀（工作目錄已移到別的版本也能重現），否則讀工作目錄。"""
+    r = subprocess.run(["git", "-C", str(root), "show", f"{EXPECTED_HEAD}:{SRV}/{name}"], capture_output=True)
+    if r.returncode == 0:
+        return r.stdout.decode("utf-8"), f"git:{EXPECTED_HEAD[:7]}"
+    return (root / SRV / name).read_text(encoding="utf-8"), "worktree"
+cs_text, SOURCE_MODE = source("ClientSession.java")
+cs_lines = cs_text.split("\n")
+cat = source("BattleSpellCatalog.java")[0]
+illusion = source("IllusionSkillRequests.java")[0]
+dragon = source("DragonSkillRequests.java")[0]
 
 SHAPE = {
     "selectorOnlySpellRequest": "① 無尾段", "selfSpellRequest": "② d(clientTick)",
@@ -85,61 +92,105 @@ for m in re.finditer(r"new (\w+Spell)\(", cat):
 
 ALIAS = {"PolluteWaterSpell": "TargetNegativeStatusSpell", "StrikerGaleSpell": "TargetNegativeStatusSpell"}
 
-def handlers(rec):
-    d = by_type.get(ALIAS.get(rec, rec), {})
-    return {k: v for k, v in d.items() if not k[0].startswith("useClassicWorld")}  # BATTLE 路徑
+hmap = collections.defaultdict(list)  # handler name -> [(line, parsers)]
+for d in by_type.values():
+    for (name, line), ps in d.items():
+        if (line, ps) not in hmap[name]:
+            hmap[name].append((line, ps))
 
-def decide(rec, const, sid, f):
-    if sid in wrapper:
-        return "attackSpellRequest", wrapper[sid] + "（線上必須 11 bytes）"
-    hs = handlers(rec)
-    shapes = set().union(*hs.values()) if hs else set()
-    where = ", ".join(f"{k[0]} CS:{k[1]}" for k in sorted(hs, key=lambda k: k[1]))
-    if len(shapes) == 1:
-        return next(iter(shapes)), where
+def H(name):
+    """handler 名稱 → (名稱, 行號, parser)。同名多載只取直接呼叫 parser 的那個；
+    一個方法內有多種 parser 時 parser 為 None，由呼叫端依實例欄位決定。"""
+    cands = hmap.get(name, [])
+    if len(cands) != 1:
+        raise SystemExit(f"handler {name} 定位失敗：{cands}")
+    line, ps = cands[0]
+    return name, line, next(iter(ps)) if len(ps) == 1 else None
+
+def typed(rec, world):
+    d = by_type.get(ALIAS.get(rec, rec), {})
+    return {k: v for k, v in d.items() if k[0].startswith("useClassicWorld") == world}
+
+def line_of(src, needle):
+    for i, l in enumerate(src.split("\n"), 1):
+        if needle in l:
+            return i
+    return None
+
+def inner(rec, const, sid, f, world):
+    """回傳 (parser, handler, line, 條件說明)。world=True 表示 WORLD 路徑。"""
     rs = (f.get("requestShape") or "").split(".")[-1]
     if rec == "ShieldSpell":
-        return ("objectSpellRequest" if f.get("targeting", "").endswith("PLAYER_OBJECT") else "selectorOnlySpellRequest"), f"useShieldSpell，targeting={f.get('targeting')}"
+        h = H("useShieldSpell"); p = "objectSpellRequest" if f.get("targeting", "").endswith("PLAYER_OBJECT") else "selectorOnlySpellRequest"
+        return p, h[0], h[1], f"targeting={f.get('targeting', '').split('.')[-1]}"
     if rec in ("AbilityBuffSpell", "InvisibilitySpell"):
+        name = "useAbilityBuffSpell" if rec == "AbilityBuffSpell" else "useInvisibilitySpell"
+        line = hmap[name][0][0]
         p = {"OBJECT_TARGET": "objectSpellRequest", "SELF_TICK": "selfSpellRequest", "SELECTOR_ONLY": "selectorOnlySpellRequest"}.get(rs)
-        return p, f"{where}，requestShape={rs}"
+        return p, name, line, f"requestShape={rs}"
     if rec == "FreezeAttackSpell":
-        centered, line = int(f.get("areaRadius", "0")) > 0, f.get("lineTargeted") == "true"
-        return ("selectorOnlySpellRequest" if centered or line else "attackSpellRequest"), f"freeze areaRadius={f.get('areaRadius')} lineTargeted={f.get('lineTargeted')}（CS:33607–33617）"
+        centered, line_t = int(f.get("areaRadius", "0")) > 0, f.get("lineTargeted") == "true"
+        name = (("useClassicWorldCenteredFreezeAttackSpell" if world else "useCenteredFreezeAttackSpell") if centered
+                else "useSelectorOnlyTargetedFreezeAttackSpell" if line_t
+                else ("useClassicWorldFreezeAttackSpell" if world else "useFreezeAttackSpell"))
+        h = H(name)
+        return h[2], name, h[1], f"areaRadius={f.get('areaRadius')} lineTargeted={f.get('lineTargeted')}（分支 CS:{'33056–33069' if world else '33607–33617'}）"
     if rec == "AreaAttackSpell":
-        rng = int(f.get("maximumRange", "-1"))
-        selector_only = rng == 0 or const == "MAGMA_BREATH"
-        return ("selectorOnlySpellRequest" if selector_only else "attackSpellRequest"), f"area maximumRange={rng}{'，MAGMA_BREATH 固定 SELECTOR_ONLY' if const == 'MAGMA_BREATH' else ''}（CS:33683–33697）"
+        rng = int(f.get("maximumRange", "-1")); sel = rng == 0 or const == "MAGMA_BREATH"
+        if world:
+            name = "useClassicWorldCenteredAreaAttackSpell" if rng == 0 else "useSelectorOnlyTargetedAreaAttackSpell" if sel else "useClassicWorldAreaAttackSpell"
+        else:
+            name = "useSelectorOnlyTargetedAreaAttackSpell" if sel and rng > 0 else "useCenteredAreaAttackSpell" if rng == 0 else "useAreaAttackSpell"
+        h = H(name)
+        return h[2], name, h[1], f"maximumRange={rng}{'，MAGMA_BREATH 固定 SELECTOR_ONLY' if const == 'MAGMA_BREATH' else ''}（分支 CS:{'33205–33219' if world else '33683–33697'}）"
     if rec == "AttackSpell":
-        return "attackSpellRequest", "useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內）"
-    return None, where or "no handler"
+        special = sid in (192, 202, 203, 207, 208, 213)  # thunderGrab/confusion/smash/mindBreak/boneBreak/armBreaker
+        name = "useSelectorOnlyTargetedAttackSpell" if special else ("useClassicWorldAttackSpell" if world else "useAttackSpell")
+        cands = hmap.get(name, [])
+        line, ps = cands[0]
+        return next(iter(ps)), name, line, f"{'特殊 6 技能' if special else '一般'}（分支 CS:{'33184–33203' if world else '33698–33717'}）"
+    hs = typed(rec, world) or typed(rec, False)  # WORLD 沒有專用 handler 時沿用 BATTLE handler
+    shapes = set().union(*hs.values()) if hs else set()
+    if len(shapes) != 1:
+        return None, ",".join(k[0] for k in hs), None, "多形狀未處理"
+    k = sorted(hs, key=lambda k: k[1])[0]
+    return next(iter(shapes)), k[0], k[1], "、".join(f"{x[0]} CS:{x[1]}" for x in sorted(hs, key=lambda k: k[1])[1:])
 
-rows, unresolved = [], []
+WRAP = {}
+for cls, src, setname in (("IllusionSkillRequests", illusion, None), ("DragonSkillRequests", dragon, None)):
+    WRAP[cls] = (line_of(src, "static boolean dispatch" if cls.startswith("Illusion") else "static void dispatch"),
+                 line_of(src, "payload.length!=11" if cls.startswith("Illusion") else "payload.length != 11"),
+                 line_of(src, "Protocol.attackSpellRequest(payload)"),
+                 line_of(src, "Arrays.copyOf(payload,3)" if cls.startswith("Illusion") else "Arrays.copyOf(payload,3)"))
+
+rows, unresolved, mode = [], [], collections.Counter()
 for rec, const, sid, r, c, f in sorted(instances, key=lambda x: (x[2] is None, x[2] or 0)):
-    p, why = decide(rec, const, sid, f)
-    if sid != (r << 3) + c + 1 or p is None:
+    b = inner(rec, const, sid, f, False); w = inner(rec, const, sid, f, True)
+    if sid in wrapper:
+        cls = wrapper[sid].split(".")[0]; d0, lchk, lp, lfw = WRAP[cls]
+        parser = "attackSpellRequest"
+        why = (f"{wrapper[sid]}：{cls}.dispatch {cls}.java:{d0}（長度 11 檢查 :{lchk}、parser :{lp}、截 3 bytes 轉交 :{lfw}）"
+               f" → 內層 {b[1]} CS:{b[2]}")
+        mode["wrapper（兩種模式都先經過外層）"] += 1
+    else:
+        parser = b[0]
+        why = f"{b[1]} CS:{b[2]}" + (f"；{b[3]}" if b[3] else "")
+        if b[0] != w[0]:
+            unresolved.append((sid, const, rec, f"WORLD 形狀不同：BATTLE {b} / WORLD {w}"))
+        if w[1] != b[1]:
+            why += f"；WORLD：{w[1]} CS:{w[2]}（同形狀）"
+            mode["BATTLE／WORLD 不同 handler、逐筆比對形狀相同"] += 1
+        else:
+            mode["兩種模式共用同一 handler"] += 1
+    if sid != (r << 3) + c + 1 or parser is None or b[2] is None:
         unresolved.append((sid, const, rec, why))
-    rows.append((sid, const, r, c, rec, SHAPE.get(p, "?"), why))
-rows.append((5, "TELEPORT", 0, 4, "（dispatcher 特例）", SHAPE["teleportSpellRequest"], "useSpellBeforeDragonTargets → useTeleportSpell CS:27905"))
+    rows.append((sid, const, r, c, rec, SHAPE.get(parser, "?"), why))
+tl = hmap["useTeleportSpell"][0][0]
+rows.append((5, "TELEPORT", 0, 4, "（dispatcher 特例）", SHAPE["teleportSpellRequest"],
+             f"useTeleportSpell CS:{tl}；dispatcher 在 phase 檢查前轉交（useSpellBeforeDragonTargets CS:32165 起）"))
+mode["兩種模式共用同一 handler"] += 1
 rows.sort(key=lambda x: (x[0] is None, x[0] or 0))
 wrapper_missing = sorted(s for s in wrapper if s not in {x[0] for x in rows})
-
-# WORLD（經典世界）路徑：useClassicWorld* handler 的形狀若與 BATTLE 不同就列出
-CONDITIONAL = {"ShieldSpell", "AbilityBuffSpell", "InvisibilitySpell", "FreezeAttackSpell", "AreaAttackSpell", "AttackSpell"}
-world_diff = []
-world_compared = 0
-for rec in sorted({x[0] for x in instances}):
-    d = by_type.get(ALIAS.get(rec, rec), {})
-    world = {k: v for k, v in d.items() if k[0].startswith("useClassicWorld")}
-    if not world:
-        continue
-    world_compared += 1
-    wshapes = set().union(*world.values())
-    bshapes = set().union(*handlers(rec).values()) if handlers(rec) else set()
-    if rec in CONDITIONAL:
-        continue  # WORLD 分支條件與 BATTLE 相同（CS:33056–33069、33205–33219），逐筆形狀一致
-    if wshapes != bshapes:
-        world_diff.append((rec, sorted(bshapes), sorted(wshapes), ", ".join(f"{k[0]} CS:{k[1]}" for k in world)))
 
 head = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
 if markdown:
@@ -152,9 +203,7 @@ else:
     print("shapes: " + "; ".join(f"{k}={v}" for k, v in sorted(cnt.items())))
     for u in unresolved:
         print("UNRESOLVED", u)
-    print(f"world record types with classic-world handlers={world_compared}; world-shape-differs={len(world_diff)}")
-    for w in world_diff:
-        print("WORLD-DIFF", w)
+    print(f"source={SOURCE_MODE}; mode check per skill: " + "; ".join(f"{k}={v}" for k, v in sorted(mode.items())))
 if head != EXPECTED_HEAD:
     print(f"FAIL source HEAD {head} != expected {EXPECTED_HEAD}", file=sys.stderr); sys.exit(2)
 sys.exit(1 if unresolved else 0)

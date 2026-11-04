@@ -30,9 +30,10 @@
 
    ```
    $ python3 -I 維護工具/generate-spell-request-shapes.py /home/user/lito-launcher-server; echo "exit=$?"
+   （第 2 次嘗試輸出）
    source HEAD 2066774824b314b2c65834f9afe72b68f7391f06; skills=181 unresolved=0 wrapper-not-in-catalog=[]
    shapes: ① 無尾段=70; ② d(clientTick)=1; ③ h(x) h(y)=2; ④ d(target)=35; ⑤ h(map) h(x) h(y)=1; ⑥ h(map) h(x) h(y)=1; ⑦ s(name)=1; ⑧ s(name)=1; ⑨ d(selection)=1; ⑩ d(target) h(x) h(y)=67; ⑪ d(target) h(x) h(y) s(text)=1
-   world record types with classic-world handlers=22; world-shape-differs=0
+   source=git:2066774; mode check per skill: BATTLE／WORLD 不同 handler、逐筆比對形狀相同=54; wrapper（兩種模式都先經過外層）=21; 兩種模式共用同一 handler=106
    exit=0
    ```
 
@@ -40,24 +41,36 @@
 
 2. 表格內容由 `--markdown` 參數直接輸出後貼入 §6.3。重產指令：`python3 -I 維護工具/generate-spell-request-shapes.py <clone> --markdown`。
 
-3. 與重建版既有驗證交叉核對（歷史文件證據，對 JAR 205DC1BA，不是本輪重跑）：
+3. 與重建版既有驗證交叉核對（歷史文件證據，不是本輪重跑）。每項標的是該文件自己記載的 JAR 版本，完整表格見 §6.3：
 
-   | 技能 | 既有文件記載 | 文件 | §6.3 |
+   | 技能 | 文件 | JAR 版本 | §6.3 |
    |---|---|---|---|
-   | 光箭 4 | C14 帶目標物件 ID 及目前座標 | NATIVE-ATTACK-SKILLS | ⑩ |
-   | 治癒 1 | 帶物件 ID | NATIVE-SKILLS | ④ |
-   | 護盾 3 | 只帶 selector | NATIVE-SKILLS | ① |
-   | 火牆 58 | `14 07 01 x:u16 y:u16` | NATIVE-GROUND-SKILLS | ③ |
-   | 生命之泉 63 | row7／column6 加 u16 座標 | NATIVE-REAGENT-SKILLS | ③ |
+   | 治癒 1 | NATIVE-SKILLS | `589733435518D92C…67A74AA7` | ④ |
+   | 護盾 3 | NATIVE-SKILLS | `589733435518D92C…67A74AA7` | ① |
+   | 火牆 58 | NATIVE-GROUND-SKILLS | `589733435518D92C…67A74AA7` | ③ |
+   | 風刃 7 | NATIVE-WIND-CUTTER | `BBC59308C43DF89E…2DD5DCE43` | ⑩ |
+   | 光箭 4 | NATIVE-ATTACK-SKILLS | 只寫「固定正式 JAR」，**版本待核對** | ⑩ |
+   | 冰箭 6 | NATIVE-ATTACK-SKILLS | 同上，**版本待核對** | ⑩ |
+   | 生命之泉 63 | NATIVE-REAGENT-SKILLS | 只寫「現行 JAR」，**版本待核對** | ③ |
 
-   五項都一致。
+   有文件寫明封包格式的 1、3、4、58、63 五項都一致；6、7 的文件只記載「已接入」，沒有封包格式。第 1 次嘗試時把這些證據一律歸給 205DC1BA，這是錯的，已改正。
 
 4. 既有引用核對沒有退步：`python3 -I 維護工具/check-protocol-contract-citations.py /home/user/lito-launcher-server` 的輸出是 `140/140 citations OK; spellSelector(payload) parsers=11`，exit=0。
 
 ### 驗收對照
 
-- **重建版已接線的技能都有對照列**：NATIVE-* 文件以 ID 提到的技能是 1、3、4、7、58、63、131，全部都在表內。文件中另外出現的 221 不是 catalog 的技能 ID，搜尋整個 `BattleSpellCatalog` 也沒有值為 221 的常數。
-- **同一個 (row,column) 若因模式不同而改變形狀，要分開列出**：腳本比對了 22 個有 classic-world handler 的記錄類型，結果是 0 個差異，所以不需要分列。比對方法見 §6.3「模式差異」。
+- **重建版已接線的技能都有對照列**：NATIVE-* 文件提到的技能是 1、3、4、6（冰箭，NATIVE-ATTACK-SKILLS:38）、7、58、63、131，全部都在表內。文件中另外出現的 221 不是 catalog 的技能 ID，搜尋整個 `BattleSpellCatalog` 也沒有值為 221 的常數。
+- **同一個 (row,column) 若因模式不同而改變形狀，要分開列出**：第 2 次嘗試改成**逐技能**比對 BATTLE 與 WORLD 兩條路徑的 handler 和 parser。結果：21 個 wrapper 技能、54 個不同 handler 但形狀相同、106 個共用同一 handler，共 181 個，0 筆形狀不同，所以不需要分列。第 1 次嘗試的「22 類比對」其實跳過了 3 類條件分支（審查第 3 點指出），已整段改寫。
+
+### 第 2 次嘗試的修正（對應 codex-local 審查的 3 點）
+
+1. **每列都有 handler 與 `檔案:行號`**：
+   - Shield、AbilityBuff、Invisibility、Freeze、Area、Attack：補上實際使用的 handler 方法名和行號，並附條件分支的行號。
+   - wrapper 的 21 列：列出外層的 `dispatch` 方法、長度 11 檢查、parser 呼叫、截 3 bytes 轉交這四處行號，以及內層 handler。
+   - TELEPORT：列出 `useTeleportSpell` 的行號。
+   - 腳本只要有任何一列缺 handler 行號，就會列為 UNRESOLVED。
+2. **歷史證據逐文件標出版本**，並補上冰箭 6。
+3. **WORLD 改為逐技能比對**，見上方的驗收對照。另外，腳本改成優先用 `git show 2066774:<path>` 讀伺服器來源，所以伺服器 checkout 已經移到其他版本時，仍可以直接重現同一結果（審查者第一次重現時就遇到這個情況）。
 
 ## 未驗證什麼
 

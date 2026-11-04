@@ -282,112 +282,123 @@ python3 -I 維護工具/generate-spell-request-shapes.py <lito-launcher-server c
    - `AttackSpell`：⑩（它的 selector-only 變體 192/202/203/207/208/213 都已被第 1 步攔下）。
 
 **範圍與限制**：
-- **模式差異**：表中形狀是 BATTLE 路徑的結果。WORLD（經典世界）另有 `useClassicWorld*` handler，共 22 個記錄類型。腳本逐一比對它們的形狀：Shield／AbilityBuff／Invisibility／Freeze／Area／Attack 這 6 類在 WORLD 分支的判定條件和 BATTLE 相同（CS:33056–33069、33205–33219）；其餘 16 類形狀一致。**沒有任何 (row,column) 因模式不同而改變形狀**（輸出 `world-shape-differs=0`）。WORLD 另有支援技能白名單，以及只在 WORLD 檢查的保留空槽（`ReservedSkillSlot`，① 或 ④）；這兩者只影響「是否接受」，不改變格式。
+- **模式差異**：腳本對每個技能都分別算出 BATTLE 與 WORLD（經典世界）兩條路徑實際使用的 handler 和 parser，再逐筆比對形狀，不是只比對類型集合。
+  - 21 個 wrapper 技能：兩種模式都先經過外層，形狀相同。
+  - 54 個技能：BATTLE 與 WORLD 用不同 handler，判定依據欄的「WORLD：」寫出 WORLD 的 handler 與行號，逐筆比對後形狀相同。Freeze／Area／Attack 的 WORLD 條件分支另附 `分支 CS:` 行號。
+  - 106 個技能：兩種模式共用同一個 handler。
+  - 只要任何一筆形狀不同，腳本就把它列為 UNRESOLVED 並以非零結束碼結束；本次結果為 0 筆，所以**沒有 (row,column) 因模式不同而改變形狀**。
+  - WORLD 另有支援技能白名單，以及只在 WORLD 檢查的保留空槽（`ReservedSkillSlot`，① 或 ④）；這兩者只影響「是否接受」，不改變格式。
 - 表中的形狀只是**格式**契約；技能是否可用（學會與否、MP、冷卻、射程、狀態）仍由伺服器判定，失敗時多半靜默或回 `S_MESSAGE_CODE`。
-- 判定依據欄的 `CS:` 行號是 handler 方法的開始行。
+- 判定依據欄的 `CS:` 行號是 handler 方法的開始行；wrapper 列另附外層檔案的 dispatch、長度檢查、parser 呼叫與截短轉交的行號，以及內層 handler。
 
-產生結果摘要：`source HEAD 2066774824b314b2c65834f9afe72b68f7391f06; skills=181 unresolved=0 wrapper-not-in-catalog=[]`；① 無尾段=70；② d(clientTick)=1；③ h(x) h(y)=2；④ d(target)=35；⑤=1；⑥=1；⑦=1；⑧=1；⑨=1；⑩ d(target) h(x) h(y)=67；⑪=1；`world record types with classic-world handlers=22; world-shape-differs=0`。
+產生結果摘要（原樣輸出）：
+
+```
+source HEAD 2066774824b314b2c65834f9afe72b68f7391f06; skills=181 unresolved=0 wrapper-not-in-catalog=[]
+shapes: ① 無尾段=70; ② d(clientTick)=1; ③ h(x) h(y)=2; ④ d(target)=35; ⑤ h(map) h(x) h(y)=1; ⑥ h(map) h(x) h(y)=1; ⑦ s(name)=1; ⑧ s(name)=1; ⑨ d(selection)=1; ⑩ d(target) h(x) h(y)=67; ⑪ d(target) h(x) h(y) s(text)=1
+source=git:2066774; mode check per skill: BATTLE／WORLD 不同 handler、逐筆比對形狀相同=54; wrapper（兩種模式都先經過外層）=21; 兩種模式共用同一 handler=106
+```
 
 | skillId | 常數 | row | col | 記錄類型 | 尾段形狀 | 判定依據 |
 |---:|---|---:|---:|---|---|---|
-| 1 | `BASIC_HEAL` | 0 | 0 | HealingSpell | ④ d(target) | useHealingSpell CS:74148 |
+| 1 | `BASIC_HEAL` | 0 | 0 | HealingSpell | ④ d(target) | useHealingSpell CS:74148；WORLD：useClassicWorldHealingSpell CS:73700（同形狀） |
 | 2 | `LIGHT` | 0 | 1 | LightSpell | ① 無尾段 | useLightSpell CS:34284 |
-| 3 | `SHIELD` | 0 | 2 | ShieldSpell | ① 無尾段 | useShieldSpell，targeting=Targeting.SELF_SELECTOR |
-| 4 | `LIGHT_ARROW` | 0 | 3 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 5 | `TELEPORT` | 0 | 4 | （dispatcher 特例） | ⑤ h(map) h(x) h(y) | useSpellBeforeDragonTargets → useTeleportSpell CS:27905 |
-| 6 | `ICE_ARROW` | 0 | 5 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 7 | `WIND_CUTTER` | 0 | 6 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
+| 3 | `SHIELD` | 0 | 2 | ShieldSpell | ① 無尾段 | useShieldSpell CS:34349；targeting=SELF_SELECTOR |
+| 4 | `LIGHT_ARROW` | 0 | 3 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 5 | `TELEPORT` | 0 | 4 | （dispatcher 特例） | ⑤ h(map) h(x) h(y) | useTeleportSpell CS:27905；dispatcher 在 phase 檢查前轉交（useSpellBeforeDragonTargets CS:32165 起） |
+| 6 | `ICE_ARROW` | 0 | 5 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 7 | `WIND_CUTTER` | 0 | 6 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
 | 8 | `HOLY_WEAPON` | 0 | 7 | WeaponBuffSpell | ④ d(target) | useWeaponBuffSpell CS:39818 |
-| 9 | `CURE_POISON` | 1 | 0 | CurseRemovalSpell | ④ d(target) | useCurseRemovalSpell CS:70516 |
-| 10 | `CHILL_TOUCH` | 1 | 1 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 11 | `CURSE_POISON` | 1 | 2 | PoisonSpell | ⑩ d(target) h(x) h(y) | usePoisonSpell CS:69474 |
+| 9 | `CURE_POISON` | 1 | 0 | CurseRemovalSpell | ④ d(target) | useCurseRemovalSpell CS:70516；WORLD：useClassicWorldCurseRemovalSpell CS:70274（同形狀） |
+| 10 | `CHILL_TOUCH` | 1 | 1 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 11 | `CURSE_POISON` | 1 | 2 | PoisonSpell | ⑩ d(target) h(x) h(y) | usePoisonSpell CS:69474；WORLD：useClassicWorldPoisonSpell CS:69162（同形狀） |
 | 12 | `ENCHANT_WEAPON` | 1 | 3 | ItemWeaponEnchantSpell | ④ d(target) | useItemWeaponEnchantSpell CS:55148 |
 | 13 | `DETECTION` | 1 | 4 | DetectionSpell | ① 無尾段 | useDetectionSpell CS:55819 |
 | 14 | `DECREASE_WEIGHT` | 1 | 5 | WeightSpell | ① 無尾段 | useWeightSpell CS:44495 |
-| 15 | `FIRE_ARROW` | 1 | 6 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 16 | `STALAC` | 1 | 7 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 17 | `LIGHTNING` | 2 | 0 | LineAttackSpell | ⑩ d(target) h(x) h(y) | useLineAttackSpell CS:59792 |
-| 18 | `TURN_UNDEAD` | 2 | 1 | TurnUndeadSpell | ⑩ d(target) h(x) h(y) | useTurnUndeadSpell CS:46440 |
-| 19 | `EXTRA_HEAL` | 2 | 2 | HealingSpell | ④ d(target) | useHealingSpell CS:74148 |
-| 20 | `CURSE_BLIND` | 2 | 3 | BlindSpell | ⑩ d(target) h(x) h(y) | useBlindSpell CS:47793 |
+| 15 | `FIRE_ARROW` | 1 | 6 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 16 | `STALAC` | 1 | 7 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 17 | `LIGHTNING` | 2 | 0 | LineAttackSpell | ⑩ d(target) h(x) h(y) | useLineAttackSpell CS:59792；WORLD：useClassicWorldLineAttackSpell CS:64711（同形狀） |
+| 18 | `TURN_UNDEAD` | 2 | 1 | TurnUndeadSpell | ⑩ d(target) h(x) h(y) | useTurnUndeadSpell CS:46440；WORLD：useClassicWorldTurnUndeadSpell CS:46651（同形狀） |
+| 19 | `EXTRA_HEAL` | 2 | 2 | HealingSpell | ④ d(target) | useHealingSpell CS:74148；WORLD：useClassicWorldHealingSpell CS:73700（同形狀） |
+| 20 | `CURSE_BLIND` | 2 | 3 | BlindSpell | ⑩ d(target) h(x) h(y) | useBlindSpell CS:47793；WORLD：useClassicWorldBlindSpell CS:47507（同形狀） |
 | 21 | `BLESSED_ARMOR` | 2 | 4 | ItemArmorEnchantSpell | ④ d(target) | useItemArmorEnchantSpell CS:55310 |
-| 22 | `FROZEN_CLOUD` | 2 | 5 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | area maximumRange=6（CS:33683–33697） |
+| 22 | `FROZEN_CLOUD` | 2 | 5 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | useAreaAttackSpell CS:60738；maximumRange=6（分支 CS:33683–33697）；WORLD：useClassicWorldAreaAttackSpell CS:67161（同形狀） |
 | 23 | `REVEAL_WEAKNESS` | 2 | 6 | RevealWeaknessSpell | ④ d(target) | useRevealWeaknessSpell CS:55611 |
-| 25 | `BURNING_FIREBALL` | 3 | 0 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | area maximumRange=6（CS:33683–33697） |
-| 26 | `PHYSICAL_ENCHANT_DEX` | 3 | 1 | AbilityBuffSpell | ④ d(target) | useAbilityBuffSpell CS:39586，requestShape=OBJECT_TARGET |
-| 27 | `WEAPON_BREAK` | 3 | 2 | WeaponBreakSpell | ⑩ d(target) h(x) h(y) | useWeaponBreakSpell CS:56464 |
-| 28 | `VAMPIRIC_TOUCH` | 3 | 3 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
+| 25 | `BURNING_FIREBALL` | 3 | 0 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | useAreaAttackSpell CS:60738；maximumRange=6（分支 CS:33683–33697）；WORLD：useClassicWorldAreaAttackSpell CS:67161（同形狀） |
+| 26 | `PHYSICAL_ENCHANT_DEX` | 3 | 1 | AbilityBuffSpell | ④ d(target) | useAbilityBuffSpell CS:39586；requestShape=OBJECT_TARGET |
+| 27 | `WEAPON_BREAK` | 3 | 2 | WeaponBreakSpell | ⑩ d(target) h(x) h(y) | useWeaponBreakSpell CS:56464；WORLD：useClassicWorldWeaponBreakSpell CS:56687（同形狀） |
+| 28 | `VAMPIRIC_TOUCH` | 3 | 3 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
 | 29 | `SLOW` | 3 | 4 | EntangleSpell | ⑩ d(target) h(x) h(y) | useEntangleSpell CS:48957 |
-| 30 | `EARTH_JAIL` | 3 | 5 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | area maximumRange=8（CS:33683–33697） |
+| 30 | `EARTH_JAIL` | 3 | 5 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | useAreaAttackSpell CS:60738；maximumRange=8（分支 CS:33683–33697）；WORLD：useClassicWorldAreaAttackSpell CS:67161（同形狀） |
 | 31 | `COUNTER_MAGIC` | 3 | 6 | CounterMagicSpell | ① 無尾段 | useCounterMagicSpell CS:34538 |
 | 32 | `MEDITATION` | 3 | 7 | RegenSpell | ① 無尾段 | useRegenSpell CS:44707 |
-| 33 | `CURSE_PARALYZE` | 4 | 0 | ParalysisSpell | ⑩ d(target) h(x) h(y) | useParalysisSpell CS:70025 |
-| 34 | `CALL_LIGHTNING` | 4 | 1 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 35 | `GREATER_HEAL` | 4 | 2 | HealingSpell | ④ d(target) | useHealingSpell CS:74148 |
+| 33 | `CURSE_PARALYZE` | 4 | 0 | ParalysisSpell | ⑩ d(target) h(x) h(y) | useParalysisSpell CS:70025；WORLD：useClassicWorldParalysisSpell CS:69705（同形狀） |
+| 34 | `CALL_LIGHTNING` | 4 | 1 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 35 | `GREATER_HEAL` | 4 | 2 | HealingSpell | ④ d(target) | useHealingSpell CS:74148；WORLD：useClassicWorldHealingSpell CS:73700（同形狀） |
 | 36 | `TAMING_MONSTER` | 4 | 3 | TamingSpell | ⑩ d(target) h(x) h(y) | useTamingSpell CS:72350 |
-| 37 | `REMOVE_CURSE` | 4 | 4 | CurseRemovalSpell | ④ d(target) | useCurseRemovalSpell CS:70516 |
-| 38 | `CONE_OF_COLD` | 4 | 5 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 39 | `MANA_DRAIN` | 4 | 6 | ManaDrainSpell | ⑩ d(target) h(x) h(y) | useManaDrainSpell CS:47245 |
-| 40 | `DARKNESS` | 4 | 7 | BlindSpell | ⑩ d(target) h(x) h(y) | useBlindSpell CS:47793 |
+| 37 | `REMOVE_CURSE` | 4 | 4 | CurseRemovalSpell | ④ d(target) | useCurseRemovalSpell CS:70516；WORLD：useClassicWorldCurseRemovalSpell CS:70274（同形狀） |
+| 38 | `CONE_OF_COLD` | 4 | 5 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 39 | `MANA_DRAIN` | 4 | 6 | ManaDrainSpell | ⑩ d(target) h(x) h(y) | useManaDrainSpell CS:47245；WORLD：useClassicWorldManaDrainSpell CS:46914（同形狀） |
+| 40 | `DARKNESS` | 4 | 7 | BlindSpell | ⑩ d(target) h(x) h(y) | useBlindSpell CS:47793；WORLD：useClassicWorldBlindSpell CS:47507（同形狀） |
 | 41 | `CREATE_ZOMBIE` | 5 | 0 | CreateZombieSpell | ④ d(target) | useCreateZombieSpell CS:71326 |
-| 42 | `PHYSICAL_ENCHANT_STR` | 5 | 1 | AbilityBuffSpell | ④ d(target) | useAbilityBuffSpell CS:39586，requestShape=OBJECT_TARGET |
+| 42 | `PHYSICAL_ENCHANT_STR` | 5 | 1 | AbilityBuffSpell | ④ d(target) | useAbilityBuffSpell CS:39586；requestShape=OBJECT_TARGET |
 | 43 | `HASTE` | 5 | 2 | HasteSpell | ④ d(target) | useHasteSpell CS:40143 |
-| 44 | `CANCELLATION` | 5 | 3 | CancellationSpell | ④ d(target) | useWorldRoiCancellation CS:42498, useCancellationSpell CS:43199 |
-| 45 | `ERUPTION` | 5 | 4 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 46 | `SUNBURST` | 5 | 5 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 47 | `WEAKNESS` | 5 | 6 | WeaknessSpell | ⑩ d(target) h(x) h(y) | useWeaknessSpell CS:57343 |
+| 44 | `CANCELLATION` | 5 | 3 | CancellationSpell | ④ d(target) | useWorldRoiCancellation CS:42498；useCancellationSpell CS:43199 |
+| 45 | `ERUPTION` | 5 | 4 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 46 | `SUNBURST` | 5 | 5 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 47 | `WEAKNESS` | 5 | 6 | WeaknessSpell | ⑩ d(target) h(x) h(y) | useWeaknessSpell CS:57343；WORLD：useClassicWorldWeaknessSpell CS:57013（同形狀） |
 | 48 | `BLESS_WEAPON` | 5 | 7 | WeaponBuffSpell | ④ d(target) | useWeaponBuffSpell CS:39818 |
 | 49 | `HEAL_ALL` | 6 | 0 | GroupHealingSpell | ① 無尾段 | useGroupHealingSpell CS:73409 |
-| 50 | `ICE_LANCE` | 6 | 1 | FreezeAttackSpell | ⑩ d(target) h(x) h(y) | freeze areaRadius=0 lineTargeted=false（CS:33607–33617） |
+| 50 | `ICE_LANCE` | 6 | 1 | FreezeAttackSpell | ⑩ d(target) h(x) h(y) | useFreezeAttackSpell CS:62540；areaRadius=0 lineTargeted=false（分支 CS:33607–33617）；WORLD：useClassicWorldFreezeAttackSpell CS:62072（同形狀） |
 | 51 | `SUMMON_MONSTER` | 6 | 2 | SummonSpell | ⑨ d(selection) | useSummonSpell CS:70920 |
 | 52 | `HOLY_WALK` | 6 | 3 | MovementBuffSpell | ① 無尾段 | useMovementBuffSpell CS:41258 |
-| 53 | `TORNADO` | 6 | 4 | AreaAttackSpell | ① 無尾段 | area maximumRange=0（CS:33683–33697） |
+| 53 | `TORNADO` | 6 | 4 | AreaAttackSpell | ① 無尾段 | useCenteredAreaAttackSpell CS:61245；maximumRange=0（分支 CS:33683–33697）；WORLD：useClassicWorldCenteredAreaAttackSpell CS:66546（同形狀） |
 | 54 | `GREATER_HASTE` | 6 | 5 | SelfHasteSpell | ① 無尾段 | useSelfHasteSpell CS:40464 |
 | 55 | `BERSERKERS` | 6 | 6 | CombatBuffSpell | ④ d(target) | useCombatBuffSpell CS:40561 |
-| 56 | `DISEASE` | 6 | 7 | WeaknessSpell | ⑩ d(target) h(x) h(y) | useWeaknessSpell CS:57343 |
-| 57 | `FULL_HEAL` | 7 | 0 | HealingSpell | ④ d(target) | useHealingSpell CS:74148 |
-| 58 | `FIRE_WALL` | 7 | 1 | GroundSpell | ③ h(x) h(y) | useGroundSpell CS:72741 |
-| 59 | `BLIZZARD` | 7 | 2 | AreaAttackSpell | ① 無尾段 | area maximumRange=0（CS:33683–33697） |
-| 60 | `INVISIBILITY` | 7 | 3 | InvisibilitySpell | ② d(clientTick) | useInvisibilitySpell CS:45996，requestShape=SELF_TICK |
-| 61 | `RESURRECTION` | 7 | 4 | ResurrectionSpell | ④ d(target) | useCallOfNatureSpell CS:71846, useResurrectionSpell CS:72140 |
-| 62 | `EARTHQUAKE` | 7 | 5 | AreaAttackSpell | ① 無尾段 | area maximumRange=0（CS:33683–33697） |
-| 63 | `LIFE_STREAM` | 7 | 6 | GroundSpell | ③ h(x) h(y) | useGroundSpell CS:72741 |
-| 64 | `SILENCE` | 7 | 7 | SilenceSpell | ⑩ d(target) h(x) h(y) | useSilenceSpell CS:48326 |
-| 65 | `LIGHTNING_STORM` | 8 | 0 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | area maximumRange=10（CS:33683–33697） |
-| 66 | `FOG_OF_SLEEPING` | 8 | 1 | SleepSpell | ⑩ d(target) h(x) h(y) | useSleepSpell CS:59301 |
+| 56 | `DISEASE` | 6 | 7 | WeaknessSpell | ⑩ d(target) h(x) h(y) | useWeaknessSpell CS:57343；WORLD：useClassicWorldWeaknessSpell CS:57013（同形狀） |
+| 57 | `FULL_HEAL` | 7 | 0 | HealingSpell | ④ d(target) | useHealingSpell CS:74148；WORLD：useClassicWorldHealingSpell CS:73700（同形狀） |
+| 58 | `FIRE_WALL` | 7 | 1 | GroundSpell | ③ h(x) h(y) | useGroundSpell CS:72741；WORLD：useClassicWorldGroundSpell CS:72875（同形狀） |
+| 59 | `BLIZZARD` | 7 | 2 | AreaAttackSpell | ① 無尾段 | useCenteredAreaAttackSpell CS:61245；maximumRange=0（分支 CS:33683–33697）；WORLD：useClassicWorldCenteredAreaAttackSpell CS:66546（同形狀） |
+| 60 | `INVISIBILITY` | 7 | 3 | InvisibilitySpell | ② d(clientTick) | useInvisibilitySpell CS:45996；requestShape=SELF_TICK |
+| 61 | `RESURRECTION` | 7 | 4 | ResurrectionSpell | ④ d(target) | useCallOfNatureSpell CS:71846；useResurrectionSpell CS:72140；WORLD：useClassicWorldResurrectionSpell CS:71568（同形狀） |
+| 62 | `EARTHQUAKE` | 7 | 5 | AreaAttackSpell | ① 無尾段 | useCenteredAreaAttackSpell CS:61245；maximumRange=0（分支 CS:33683–33697）；WORLD：useClassicWorldCenteredAreaAttackSpell CS:66546（同形狀） |
+| 63 | `LIFE_STREAM` | 7 | 6 | GroundSpell | ③ h(x) h(y) | useGroundSpell CS:72741；WORLD：useClassicWorldGroundSpell CS:72875（同形狀） |
+| 64 | `SILENCE` | 7 | 7 | SilenceSpell | ⑩ d(target) h(x) h(y) | useSilenceSpell CS:48326；WORLD：useClassicWorldSilenceSpell CS:48014（同形狀） |
+| 65 | `LIGHTNING_STORM` | 8 | 0 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | useAreaAttackSpell CS:60738；maximumRange=10（分支 CS:33683–33697）；WORLD：useClassicWorldAreaAttackSpell CS:67161（同形狀） |
+| 66 | `FOG_OF_SLEEPING` | 8 | 1 | SleepSpell | ⑩ d(target) h(x) h(y) | useSleepSpell CS:59301；WORLD：useClassicWorldSleepSpell CS:58903（同形狀） |
 | 67 | `SHAPE_CHANGE` | 8 | 2 | PolymorphSpell | ④ d(target) | usePolymorphSpell CS:34086 |
 | 68 | `IMMUNE_TO_HARM` | 8 | 3 | DamageProtectionSpell | ④ d(target) | useDamageProtectionSpell CS:40701 |
 | 69 | `MASS_TELEPORT` | 8 | 4 | MassTeleportSpell | ⑥ h(map) h(x) h(y) | useMassTeleportSpell CS:40875 |
-| 70 | `FIRE_STORM` | 8 | 5 | AreaAttackSpell | ① 無尾段 | area maximumRange=0（CS:33683–33697） |
-| 71 | `DECAY_POTION` | 8 | 6 | DecayPotionSpell | ⑩ d(target) h(x) h(y) | useDecayPotionSpell CS:54838 |
-| 72 | `COUNTER_DETECTION` | 8 | 7 | CounterDetectionSpell | ① 無尾段 | useCounterDetectionSpell CS:56184 |
+| 70 | `FIRE_STORM` | 8 | 5 | AreaAttackSpell | ① 無尾段 | useCenteredAreaAttackSpell CS:61245；maximumRange=0（分支 CS:33683–33697）；WORLD：useClassicWorldCenteredAreaAttackSpell CS:66546（同形狀） |
+| 71 | `DECAY_POTION` | 8 | 6 | DecayPotionSpell | ⑩ d(target) h(x) h(y) | useDecayPotionSpell CS:54838；WORLD：useClassicWorldDecayPotionSpell CS:54519（同形狀） |
+| 72 | `COUNTER_DETECTION` | 8 | 7 | CounterDetectionSpell | ① 無尾段 | useCounterDetectionSpell CS:56184；WORLD：useClassicWorldCounterDetectionSpell CS:55970（同形狀） |
 | 73 | `CREATE_MAGICAL_WEAPON` | 9 | 0 | MagicalWeaponSpell | ④ d(target) | useMagicalWeaponSpell CS:55450 |
-| 74 | `METEOR_STRIKE` | 9 | 1 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | area maximumRange=10（CS:33683–33697） |
-| 75 | `GREATER_RESURRECTION` | 9 | 2 | ResurrectionSpell | ④ d(target) | useCallOfNatureSpell CS:71846, useResurrectionSpell CS:72140 |
-| 76 | `MASS_SLOW` | 9 | 3 | MassSlowSpell | ⑩ d(target) h(x) h(y) | useMassSlowSpell CS:58571 |
-| 77 | `DISINTEGRATE` | 9 | 4 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
+| 74 | `METEOR_STRIKE` | 9 | 1 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | useAreaAttackSpell CS:60738；maximumRange=10（分支 CS:33683–33697）；WORLD：useClassicWorldAreaAttackSpell CS:67161（同形狀） |
+| 75 | `GREATER_RESURRECTION` | 9 | 2 | ResurrectionSpell | ④ d(target) | useCallOfNatureSpell CS:71846；useResurrectionSpell CS:72140；WORLD：useClassicWorldResurrectionSpell CS:71568（同形狀） |
+| 76 | `MASS_SLOW` | 9 | 3 | MassSlowSpell | ⑩ d(target) h(x) h(y) | useMassSlowSpell CS:58571；WORLD：useClassicWorldMassSlowSpell CS:58138（同形狀） |
+| 77 | `DISINTEGRATE` | 9 | 4 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
 | 78 | `ABSOLUTE_BARRIER` | 9 | 5 | AbsoluteBarrierSpell | ① 無尾段 | useAbsoluteBarrierSpell CS:34656 |
 | 79 | `ADVANCE_SPIRIT` | 9 | 6 | AdvanceSpiritSpell | ④ d(target) | useAdvanceSpiritSpell CS:34743 |
-| 80 | `FREEZING_BLIZZARD` | 9 | 7 | FreezeAttackSpell | ① 無尾段 | freeze areaRadius=10 lineTargeted=false（CS:33607–33617） |
-| 87 | `SHOCK_STUN` | 10 | 6 | ShockStunSpell | ⑩ d(target) h(x) h(y) | useShockStunSpell CS:63012 |
+| 80 | `FREEZING_BLIZZARD` | 9 | 7 | FreezeAttackSpell | ① 無尾段 | useCenteredFreezeAttackSpell CS:61654；areaRadius=10 lineTargeted=false（分支 CS:33607–33617）；WORLD：useClassicWorldCenteredFreezeAttackSpell CS:65703（同形狀） |
+| 87 | `SHOCK_STUN` | 10 | 6 | ShockStunSpell | ⑩ d(target) h(x) h(y) | useShockStunSpell CS:63012；WORLD：useClassicWorldShockStunSpell CS:63356（同形狀） |
 | 88 | `REDUCTION_ARMOR` | 10 | 7 | ReductionArmorSpell | ① 無尾段 | useReductionArmorSpell CS:36151 |
 | 89 | `BOUNCE_ATTACK` | 11 | 0 | BounceAttackSpell | ① 無尾段 | useBounceAttackSpell CS:36289 |
 | 90 | `SOLID_CARRIAGE` | 11 | 1 | SolidCarriageSpell | ① 無尾段 | useSolidCarriageSpell CS:36431 |
 | 91 | `COUNTER_BARRIER` | 11 | 2 | CounterBarrierSpell | ① 無尾段 | useCounterBarrierSpell CS:36595 |
-| 97 | `BLIND_HIDING` | 12 | 0 | InvisibilitySpell | ① 無尾段 | useInvisibilitySpell CS:45996，requestShape=SELECTOR_ONLY |
+| 97 | `BLIND_HIDING` | 12 | 0 | InvisibilitySpell | ① 無尾段 | useInvisibilitySpell CS:45996；requestShape=SELECTOR_ONLY |
 | 98 | `ENCHANT_VENOM` | 12 | 1 | EnchantVenomSpell | ① 無尾段 | useEnchantVenomSpell CS:46140 |
-| 99 | `SHADOW_ARMOR` | 12 | 2 | ShieldSpell | ① 無尾段 | useShieldSpell，targeting=Targeting.SELF_SELECTOR |
+| 99 | `SHADOW_ARMOR` | 12 | 2 | ShieldSpell | ① 無尾段 | useShieldSpell CS:34349；targeting=SELF_SELECTOR |
 | 100 | `BRING_STONE` | 12 | 3 | BringStoneSpell | ④ d(target) | useBringStoneSpell CS:46253 |
 | 101 | `MOVING_ACCELERATION` | 12 | 4 | MovementBuffSpell | ① 無尾段 | useMovementBuffSpell CS:41258 |
 | 102 | `BURNING_SPIRIT` | 12 | 5 | PhysicalProcBuffSpell | ① 無尾段 | usePhysicalProcBuffSpell CS:41359 |
-| 103 | `DARK_BLIND` | 12 | 6 | BlindSpell | ⑩ d(target) h(x) h(y) | useBlindSpell CS:47793 |
+| 103 | `DARK_BLIND` | 12 | 6 | BlindSpell | ⑩ d(target) h(x) h(y) | useBlindSpell CS:47793；WORLD：useClassicWorldBlindSpell CS:47507（同形狀） |
 | 104 | `VENOM_RESIST` | 12 | 7 | PoisonResistanceSpell | ① 無尾段 | usePoisonResistanceSpell CS:41897 |
 | 105 | `DOUBLE_BRAKE` | 13 | 0 | PhysicalProcBuffSpell | ① 無尾段 | usePhysicalProcBuffSpell CS:41359 |
 | 106 | `UNCANNY_DODGE` | 13 | 1 | DodgeBuffSpell | ① 無尾段 | useDodgeBuffSpell CS:41632 |
 | 107 | `SHADOW_FANG` | 13 | 2 | ItemWeaponEnchantSpell | ④ d(target) | useItemWeaponEnchantSpell CS:55148 |
-| 108 | `FINAL_BURN` | 13 | 3 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell（selector-only 變體的 6 個技能都在外層 wrapper 內） |
-| 109 | `DRESS_MIGHTY` | 13 | 4 | AbilityBuffSpell | ① 無尾段 | useAbilityBuffSpell CS:39586，requestShape=SELECTOR_ONLY |
-| 110 | `DRESS_DEXTERITY` | 13 | 5 | AbilityBuffSpell | ① 無尾段 | useAbilityBuffSpell CS:39586，requestShape=SELECTOR_ONLY |
+| 108 | `FINAL_BURN` | 13 | 3 | AttackSpell | ⑩ d(target) h(x) h(y) | useAttackSpell CS:63784；一般（分支 CS:33698–33717）；WORLD：useClassicWorldAttackSpell CS:68066（同形狀） |
+| 109 | `DRESS_MIGHTY` | 13 | 4 | AbilityBuffSpell | ① 無尾段 | useAbilityBuffSpell CS:39586；requestShape=SELECTOR_ONLY |
+| 110 | `DRESS_DEXTERITY` | 13 | 5 | AbilityBuffSpell | ① 無尾段 | useAbilityBuffSpell CS:39586；requestShape=SELECTOR_ONLY |
 | 111 | `DRESS_EVASION` | 13 | 6 | RangedEvasionBuffSpell | ① 無尾段 | useRangedEvasionBuffSpell CS:41769 |
 | 112 | `ARMOR_BREAK` | 13 | 7 | ArmorBreakSpell | ① 無尾段 | useArmorBreakSpell CS:34881 |
 | 113 | `TRUE_TARGET` | 14 | 0 | TrueTargetSpell | ⑪ d(target) h(x) h(y) s(text) | useTrueTargetSpell CS:44995 |
@@ -410,13 +421,13 @@ python3 -I 維護工具/generate-spell-request-shapes.py <lito-launcher-server c
 | 148 | `FIRE_WEAPON` | 18 | 3 | FireWeaponSpell | ④ d(target) | useFireWeaponSpell CS:50714 |
 | 149 | `WIND_SHOT` | 18 | 4 | WindShotSpell | ④ d(target) | useWindShotSpell CS:50899 |
 | 150 | `WIND_WALK` | 18 | 5 | MovementBuffSpell | ① 無尾段 | useMovementBuffSpell CS:41258 |
-| 151 | `EARTH_SKIN` | 18 | 6 | ShieldSpell | ④ d(target) | useShieldSpell，targeting=Targeting.PLAYER_OBJECT |
+| 151 | `EARTH_SKIN` | 18 | 6 | ShieldSpell | ④ d(target) | useShieldSpell CS:34349；targeting=PLAYER_OBJECT |
 | 152 | `ENTANGLE` | 18 | 7 | EntangleSpell | ⑩ d(target) h(x) h(y) | useEntangleSpell CS:48957 |
 | 153 | `ERASE_MAGIC` | 19 | 0 | EraseMagicSpell | ⑩ d(target) h(x) h(y) | useEraseMagicSpell CS:49375 |
 | 154 | `LESSER_ELEMENTAL` | 19 | 1 | ElementalSummonSpell | ① 無尾段 | useElementalSummonSpell CS:70760 |
 | 155 | `FIRE_BLESS` | 19 | 2 | FireBlessSpell | ① 無尾段 | useFireBlessSpell CS:51046 |
 | 156 | `STORM_EYE` | 19 | 3 | StormEyeSpell | ① 無尾段 | useStormEyeSpell CS:51236 |
-| 157 | `EARTH_BIND` | 19 | 4 | BindSpell | ⑩ d(target) h(x) h(y) | useBindSpell CS:57936 |
+| 157 | `EARTH_BIND` | 19 | 4 | BindSpell | ⑩ d(target) h(x) h(y) | useBindSpell CS:57936；WORLD：useClassicWorldBindSpell CS:57649（同形狀） |
 | 158 | `NATURES_TOUCH` | 19 | 5 | NaturesTouchSpell | ④ d(target) | useNaturesTouchSpell CS:52825 |
 | 159 | `EARTH_BLESS` | 19 | 6 | EarthBlessSpell | ① 無尾段 | useEarthBlessSpell CS:51578 |
 | 160 | `AQUA_PROTECTER` | 19 | 7 | AquaProtectSpell | ④ d(target) | useAquaProtectSpell CS:53191 |
@@ -424,7 +435,7 @@ python3 -I 維護工具/generate-spell-request-shapes.py <lito-launcher-server c
 | 162 | `GREATER_ELEMENTAL` | 20 | 1 | ElementalSummonSpell | ① 無尾段 | useElementalSummonSpell CS:70760 |
 | 163 | `BURNING_WEAPON` | 20 | 2 | FireWeaponSpell | ④ d(target) | useFireWeaponSpell CS:50714 |
 | 164 | `NATURES_BLESSING` | 20 | 3 | NaturesBlessingSpell | ① 無尾段 | useNaturesBlessingSpell CS:73147 |
-| 165 | `CALL_OF_NATURE` | 20 | 4 | ResurrectionSpell | ④ d(target) | useCallOfNatureSpell CS:71846, useResurrectionSpell CS:72140 |
+| 165 | `CALL_OF_NATURE` | 20 | 4 | ResurrectionSpell | ④ d(target) | useCallOfNatureSpell CS:71846；useResurrectionSpell CS:72140；WORLD：useClassicWorldResurrectionSpell CS:71568（同形狀） |
 | 166 | `STORM_SHOT` | 20 | 5 | StormShotSpell | ④ d(target) | useStormShotSpell CS:51427 |
 | 167 | `WIND_SHACKLE` | 20 | 6 | WindShackleSpell | ⑩ d(target) h(x) h(y) | useWindShackleSpell CS:53677 |
 | 168 | `IRON_SKIN` | 20 | 7 | IronSkinSpell | ④ d(target) | useIronSkinSpell CS:51761 |
@@ -438,41 +449,53 @@ python3 -I 維護工具/generate-spell-request-shapes.py <lito-launcher-server c
 | 176 | `ADDITIONAL_FIRE` | 21 | 7 | AdditionalFireSpell | ① 無尾段 | useAdditionalFireSpell CS:44358 |
 | 181 | `DRAGON_SKIN` | 22 | 4 | DragonSkinSpell | ① 無尾段 | useDragonSkinSpell CS:51889 |
 | 182 | `BURNING_SLASH` | 22 | 5 | BurningSlashSpell | ① 無尾段 | useBurningSlashSpell CS:52717 |
-| 183 | `GUARD_BRAKE` | 22 | 6 | GuardBrakeSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED（線上必須 11 bytes） |
-| 184 | `MAGMA_BREATH` | 22 | 7 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED（線上必須 11 bytes） |
+| 183 | `GUARD_BRAKE` | 22 | 6 | GuardBrakeSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED：DragonSkillRequests.dispatch DragonSkillRequests.java:22（長度 11 檢查 :28、parser :32、截 3 bytes 轉交 :35） → 內層 useGuardBrakeSpell CS:35319 |
+| 184 | `MAGMA_BREATH` | 22 | 7 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED：DragonSkillRequests.dispatch DragonSkillRequests.java:22（長度 11 檢查 :28、parser :32、截 3 bytes 轉交 :35） → 內層 useSelectorOnlyTargetedAreaAttackSpell CS:60362 |
 | 185 | `AWAKEN_ANTHARAS` | 23 | 0 | AwakenSpell | ① 無尾段 | useAwakenSpell CS:51996 |
 | 186 | `BLOODLUST` | 23 | 1 | BloodlustSpell | ① 無尾段 | useBloodlustSpell CS:52203 |
-| 187 | `FOE_SLAYER` | 23 | 2 | FoeSlayerSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED（線上必須 11 bytes） |
-| 188 | `RESIST_FEAR` | 23 | 3 | ResistFearSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED（線上必須 11 bytes） |
-| 189 | `SHOCK_SKIN` | 23 | 4 | AreaAttackSpell | ① 無尾段 | area maximumRange=0（CS:33683–33697） |
+| 187 | `FOE_SLAYER` | 23 | 2 | FoeSlayerSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED：DragonSkillRequests.dispatch DragonSkillRequests.java:22（長度 11 檢查 :28、parser :32、截 3 bytes 轉交 :35） → 內層 useFoeSlayerSpell CS:52356 |
+| 188 | `RESIST_FEAR` | 23 | 3 | ResistFearSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED：DragonSkillRequests.dispatch DragonSkillRequests.java:22（長度 11 檢查 :28、parser :32、截 3 bytes 轉交 :35） → 內層 useResistFearSpell CS:35895 |
+| 189 | `SHOCK_SKIN` | 23 | 4 | AreaAttackSpell | ① 無尾段 | useCenteredAreaAttackSpell CS:61245；maximumRange=0（分支 CS:33683–33697）；WORLD：useClassicWorldCenteredAreaAttackSpell CS:66546（同形狀） |
 | 190 | `AWAKEN_FAFURION` | 23 | 5 | AwakenSpell | ① 無尾段 | useAwakenSpell CS:51996 |
 | 191 | `MORTAL_BODY` | 23 | 6 | MortalBodySpell | ① 無尾段 | useMortalBodySpell CS:36733 |
-| 192 | `THUNDER_GRAB` | 23 | 7 | AttackSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED（線上必須 11 bytes） |
-| 193 | `HORROR_OF_DEATH` | 24 | 0 | GuardBrakeSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED（線上必須 11 bytes） |
-| 194 | `FREEZING_BREATH` | 24 | 1 | FreezeAttackSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED（線上必須 11 bytes） |
+| 192 | `THUNDER_GRAB` | 23 | 7 | AttackSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED：DragonSkillRequests.dispatch DragonSkillRequests.java:22（長度 11 檢查 :28、parser :32、截 3 bytes 轉交 :35） → 內層 useSelectorOnlyTargetedAttackSpell CS:60410 |
+| 193 | `HORROR_OF_DEATH` | 24 | 0 | GuardBrakeSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED：DragonSkillRequests.dispatch DragonSkillRequests.java:22（長度 11 檢查 :28、parser :32、截 3 bytes 轉交 :35） → 內層 useGuardBrakeSpell CS:35319 |
+| 194 | `FREEZING_BREATH` | 24 | 1 | FreezeAttackSpell | ⑩ d(target) h(x) h(y) | DragonSkillRequests.TARGETED：DragonSkillRequests.dispatch DragonSkillRequests.java:22（長度 11 檢查 :28、parser :32、截 3 bytes 轉交 :35） → 內層 useSelectorOnlyTargetedFreezeAttackSpell CS:60389 |
 | 195 | `AWAKEN_VALAKAS` | 24 | 2 | AwakenSpell | ① 無尾段 | useAwakenSpell CS:51996 |
 | 201 | `MIRROR_IMAGE` | 25 | 0 | DodgeBuffSpell | ① 無尾段 | useDodgeBuffSpell CS:41632 |
-| 202 | `CONFUSION` | 25 | 1 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK（線上必須 11 bytes） |
-| 203 | `SMASH` | 25 | 2 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK（線上必須 11 bytes） |
-| 204 | `ILLUSION_OGRE` | 25 | 3 | IllusionOgreSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
+| 202 | `CONFUSION` | 25 | 1 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useSelectorOnlyTargetedAttackSpell CS:60410 |
+| 203 | `SMASH` | 25 | 2 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useSelectorOnlyTargetedAttackSpell CS:60410 |
+| 204 | `ILLUSION_OGRE` | 25 | 3 | IllusionOgreSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useIllusionOgreSpell CS:38689 |
 | 205 | `CUBE_IGNITION` | 25 | 4 | CubeIgnitionSpell | ① 無尾段 | useCubeIgnitionSpell CS:36920 |
 | 206 | `CONCENTRATION` | 25 | 5 | RegenSpell | ① 無尾段 | useRegenSpell CS:44707 |
-| 207 | `MIND_BREAK` | 25 | 6 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK（線上必須 11 bytes） |
-| 208 | `BONE_BREAK` | 25 | 7 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK（線上必須 11 bytes） |
-| 209 | `ILLUSION_LICH` | 26 | 0 | IllusionLichSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
+| 207 | `MIND_BREAK` | 25 | 6 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useSelectorOnlyTargetedAttackSpell CS:60410 |
+| 208 | `BONE_BREAK` | 25 | 7 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useSelectorOnlyTargetedAttackSpell CS:60410 |
+| 209 | `ILLUSION_LICH` | 26 | 0 | IllusionLichSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useIllusionLichSpell CS:39238 |
 | 210 | `CUBE_QUAKE` | 26 | 1 | CubeQuakeSpell | ① 無尾段 | useCubeQuakeSpell CS:37042 |
-| 211 | `PATIENCE` | 26 | 2 | PatienceSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
-| 212 | `PHANTASM` | 26 | 3 | PhantasmSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
-| 213 | `ARM_BREAKER` | 26 | 4 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK（線上必須 11 bytes） |
-| 214 | `ILLUSION_DIAMOND_GOLEM` | 26 | 5 | DiamondGolemSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
+| 211 | `PATIENCE` | 26 | 2 | PatienceSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 usePatienceSpell CS:37696 |
+| 212 | `PHANTASM` | 26 | 3 | PhantasmSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 usePhantasmSpell CS:37835 |
+| 213 | `ARM_BREAKER` | 26 | 4 | AttackSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.ATTACK：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useSelectorOnlyTargetedAttackSpell CS:60410 |
+| 214 | `ILLUSION_DIAMOND_GOLEM` | 26 | 5 | DiamondGolemSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useDiamondGolemSpell CS:38871 |
 | 215 | `CUBE_SHOCK` | 26 | 6 | CubeShockSpell | ① 無尾段 | useCubeShockSpell CS:37161 |
-| 216 | `INSIGHT` | 26 | 7 | InsightSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
-| 217 | `PANIC` | 27 | 0 | PanicSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
-| 218 | `JOY_OF_PAIN` | 27 | 1 | JoyOfPainSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
-| 219 | `ILLUSION_AVATAR` | 27 | 2 | IllusionAvatarSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER（線上必須 11 bytes） |
+| 216 | `INSIGHT` | 26 | 7 | InsightSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useInsightSpell CS:39053 |
+| 217 | `PANIC` | 27 | 0 | PanicSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 usePanicSpell CS:38131 |
+| 218 | `JOY_OF_PAIN` | 27 | 1 | JoyOfPainSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useJoyOfPainSpell CS:38446 |
+| 219 | `ILLUSION_AVATAR` | 27 | 2 | IllusionAvatarSpell | ⑩ d(target) h(x) h(y) | IllusionSkillRequests.OTHER：IllusionSkillRequests.dispatch IllusionSkillRequests.java:9（長度 11 檢查 :12、parser :13、截 3 bytes 轉交 :19） → 內層 useIllusionAvatarSpell CS:39437 |
 | 220 | `CUBE_HARMONY` | 27 | 3 | CubeHarmonySpell | ① 無尾段 | useCubeHarmonySpell CS:37280 |
 
-**與重建版既有驗證的交叉核對**（`docs/NATIVE-*`，這些驗證是對 JAR 205DC1BA 做的）：光箭 4 帶目標 ID 與座標 → ⑩；治癒 1 帶物件 ID → ④；護盾 3 只帶 selector → ①；火牆 58 為 `14 07 01 x:u16 y:u16` → ③；生命之泉 63 為 row7／column6 加 u16 座標 → ③。五項都和上表一致。
+**與重建版既有驗證的交叉核對**（歷史文件證據，不是本輪重跑；版本以各文件自己記載的為準）：
+
+| 技能 | 文件記載 | 文件 | 文件記載的 JAR | §6.3 |
+|---|---|---|---|---|
+| 治癒 1 | 帶物件 ID | NATIVE-SKILLS | `58973343…7A74AA7` | ④ |
+| 護盾 3 | 只帶 selector | NATIVE-SKILLS | `58973343…7A74AA7` | ① |
+| 光箭 4 | C14 帶目標物件 ID 及目前座標 | NATIVE-ATTACK-SKILLS | 只寫「固定正式 JAR」，沒有 SHA → **待核對** | ⑩ |
+| 冰箭 6 | 已接入（第 38 行） | NATIVE-ATTACK-SKILLS | 同上 → **待核對** | ⑩ |
+| 風刃 7 | 由 BattleSpellCatalog／Protocol 取得 | NATIVE-WIND-CUTTER | `BBC59308…2DD5DCE43` | ⑩ |
+| 火牆 58 | `14 07 01 x:u16 y:u16` | NATIVE-GROUND-SKILLS | `58973343…7A74AA7` | ③ |
+| 生命之泉 63 | row7／column6 加 u16 座標 | NATIVE-REAGENT-SKILLS | 只寫「現行 JAR」，沒有 SHA → **待核對** | ③ |
+
+其中有文件明確記載封包格式的五項（1、3、4、58、63）都和上表一致；6、7 的文件只證明「已接入」，沒有寫出封包格式。
 
 ## 7. 退出與重新開始
 
