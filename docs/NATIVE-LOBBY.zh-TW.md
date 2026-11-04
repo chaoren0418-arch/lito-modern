@@ -1,5 +1,7 @@
 # 原生頻道、大廳清單與返回
 
+> 協定欄位以 [PROTOCOL-CONTRACT.md](PROTOCOL-CONTRACT.md) 為準（框架、欄位、opcode、錯誤碼）。本文只記錄重建版 client 的處理方式、上限與驗證證據；以下表格的「欄位定義」欄直接連到契約章節，不再重複寫 wire 版型。
+
 同一 `LiToModern.exe` 的原生視窗在選角後顯示四個正式頻道入口，接收進入結果、頻道人數與房間清單。按「返回選角」經正式來源刷新往返取得新角色清單；重選角色後可再次進入頻道。後續房間進出、成員與準備子集已接線，詳見 [原生房間驗證](NATIVE-ROOM.zh-TW.md)；戰鬥與返回場景尚待完成。
 
 ```powershell
@@ -9,15 +11,15 @@ pwsh -NoProfile -File .\啟動現代客戶端.ps1 -NativeLoginEndpoint 127.0.0.1
 
 ## 協定與狀態
 
-| 封包／流程 | 現行行為 |
-| --- | --- |
-| C_CA 0..3 | 四個固定 Tournament 頻道；名稱與順序透過正式 JAR 的 GameHub.CHANNEL_NAMES oracle 核對，畫面編號為 1..4 |
-| S_C9 | 成功完整 13 bytes：result、channel、u32/u16/u32 尾段；拒絕完整 3 bytes：result 1 或 10、channel。未收到成功與匹配的人數資料前不顯示進入完成 |
-| S_CA | 6 bytes，channel、u16 users、u16 capacity；保留無號範圍 |
-| C_CE → S_CC subtype 0 | 房間 ID u32、MS950 名稱、attributes、u16 users/capacity/reserved、option。房間依 server ID 更新，最多 512 筆 |
-| 房間更新結束 | C_CE 後接同頻道 C_CA；正式 session 對重複進入只回 S_CA，人數回覆在該次房間列之後。收到它才原子發布本次快照，不把空清單誤認為逾時 |
-| 切換頻道 | 同一命令批次依序送 C_CB、C_CA 新頻道，等待新的 S_C9/S_CA 與房間快照 |
-| 返回選角 | C_CB（若在頻道）、C_CA 100 → S_F5 → C_C8 當前來源 → S_03/S_CB；完整清單到齊才增加 directory generation、開放選角 |
+| 封包／流程 | 欄位定義 | 重建版 client 處理 |
+| --- | --- | --- |
+| C_CA 0..3 | [§5.2](PROTOCOL-CONTRACT.md#52-頻道) | 四個固定 Tournament 頻道；名稱與順序以正式 JAR 的 GameHub.CHANNEL_NAMES oracle 核對，畫面編號為 1..4 |
+| S_C9 | [§5.2](PROTOCOL-CONTRACT.md#52-頻道) | 沒收到成功回覆和對應的人數資料之前，不顯示「進入完成」 |
+| S_CA | [§5.2](PROTOCOL-CONTRACT.md#52-頻道) | 人數與容量保留無號範圍 |
+| C_CE → S_CC subtype 0 | [§5.3](PROTOCOL-CONTRACT.md#53-房間) | 房間依伺服器 ID 更新，最多 512 筆 |
+| 房間更新結束 | — | C_CE 後接同頻道 C_CA；正式 session 對重複進入只回 S_CA，人數回覆在該次房間列之後。收到它才原子發布本次快照，不把空清單誤認為逾時 |
+| 切換頻道 | — | 同一命令批次依序送 C_CB、C_CA 新頻道，等待新的 S_C9/S_CA 與房間快照 |
+| 返回選角 | [§7](PROTOCOL-CONTRACT.md#7-退出與重新開始) | C_CB（若在頻道）、C_CA 100 → S_F5 → C_C8 當前來源 → S_03/S_CB；完整清單到齊才增加 directory generation、開放選角 |
 
 命令佇列仍是四個有界項目，每項可原子接納一或兩個有序封包。先驗證整批再入列，避免只排入「離開」卻沒排入後續動作；實際 socket 寫入仍逐封包檢查取消、期限，完整寫出才更新 TX 計數器，部分寫入失敗就退役連線。排入並不表示伺服器已完成操作，畫面必須等相應回覆。
 

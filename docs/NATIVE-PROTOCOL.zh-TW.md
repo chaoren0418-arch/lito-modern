@@ -1,5 +1,7 @@
 # 原生 TCP 基礎與隔離驗證
 
+> 協定欄位以 [PROTOCOL-CONTRACT.md](PROTOCOL-CONTRACT.md) 為準（框架、欄位、opcode、錯誤碼）。本文只記錄重建版 client 的處理方式、上限與驗證證據；以下表格的「欄位定義」欄直接連到契約章節，不再重複寫 wire 版型。
+
 現行 `LiToModern.exe` 的 `--probe-native-loopback <IP:port>` 與原生連線控制器，使用正式部署 JAR 的 TCP 框架／加密／版本契約。預設玩家入口仍是離線共享資源場景。版本接受只表示握手成功；帳密／來源選擇已由後續原生登入控制器接入，見 NATIVE-LOGIN.zh-TW.md；GAME 交接、通知與選角子集見 NATIVE-GAME.zh-TW.md，完整玩法尚未接入。
 
 ## 來源與重跑
@@ -17,13 +19,13 @@ pwsh -NoProfile -File .\啟動現代客戶端.ps1 -ProbeNativeEndpoint 127.0.0.1
 
 ## 封包與欄位
 
-| 項目 | 目前核對的契約 |
-| --- | --- |
-| frame | u16 little endian 總長，含 2-byte header；有效總長 2..65535，body 最多 65533 |
-| S_KEY | 未加密 body 恰好 5 bytes：opcode 1、u32 little endian seed |
-| cipher | RX／TX 各自初始化 `(0x87546ca1 << 32) \| seed`；little endian 8-byte key 加 chained XOR；每完整 body 推進 body 長度，header 不計入 |
-| C_VERSION | 10-byte body；opcode 0、u16 magic `0x8033`、u32 product 950、u8 fromCd（目前 0）、u16 build `0x14f8` |
-| S_VERSION_CHECK | opcode `0x3a`；拒絕恰好 `[0x3a, 1]`；成功 selector 0，含 protocol minor、revision、4 個相容欄位、2 flags、country；revision ≥ `0x9e38` 另有 server type dword，總長 30，較舊 revision 總長 26 |
+| 項目 | 欄位定義 | 重建版 client 處理 |
+| --- | --- | --- |
+| frame | [§2](PROTOCOL-CONTRACT.md#2-傳輸框架與加密) | client 接受的總長是 2..65535（body 最多 65533）；伺服器端另有 `max.frame` 上限 |
+| S_KEY | [§2](PROTOCOL-CONTRACT.md#2-傳輸框架與加密) | 唯一的明文封包，收到後才建立 RX／TX cipher |
+| cipher | [§2](PROTOCOL-CONTRACT.md#2-傳輸框架與加密) | 先用暫存 cipher 加密，完整寫出才提交 TX 計數器（見下方生命週期） |
+| C_VERSION | [§4.1](PROTOCOL-CONTRACT.md#41-版本交換兩個端點相同) | fromCd 固定送 0 |
+| S_VERSION_CHECK | [§4.1](PROTOCOL-CONTRACT.md#41-版本交換兩個端點相同) | 依 revision 判斷版型：revision ≥ `0x9e38` 為 30 bytes（含 server type dword），較舊的 revision 為 26 bytes；兩種都接受，尾端有多餘欄位則視為錯誤 |
 
 當前正式 JAR 的成功回覆有 revision `0x0734fd33`、protocol minor 13、country 3、server type `0x00077d82`。數值用固定寬度無號型別；網路欄位不因 x64 而放大。JSON 中 u64 計數器與 epoch 用十進位字串，避免超過 JavaScript 的精確整數範圍。
 

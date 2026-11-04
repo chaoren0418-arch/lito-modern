@@ -1,20 +1,22 @@
 # 原生 GAME 交接與角色清單
 
+> 協定欄位以 [PROTOCOL-CONTRACT.md](PROTOCOL-CONTRACT.md) 為準（框架、欄位、opcode、錯誤碼）。本文只記錄重建版 client 的處理方式、上限與驗證證據；以下表格的「欄位定義」欄直接連到契約章節，不再重複寫 wire 版型。
+
 同一個 x64 `LiToModern.exe`、原生登入視窗與連線 owner 接上 LOGIN → GAME。選來源取得 S_F4 後，按「取得角色」關閉並回收 LOGIN worker；確認轉址與所選來源公告的 endpoint 一致，才以新 epoch 連線 GAME、重新交換版本並認證。2026-10-14 跨端點傳送新增後，帳密在 Zeroizing 記憶體中保留至當次連線使用期結束，以供正式 GAME 端重新認證；取消、失敗或開始新的 LOGIN 均清除，從不進入 Snapshot／收據／日誌。失敗只保留一次重試的登入端點、帳號、來源與角色關聯，仍需重新輸入密碼並認證。詳見[傳送交接](NATIVE-TELEPORT.zh-TW.md)。
 
 GAME 端維持正式 GameHub 的來源交接權威。角色清單只在完整收到 count 指定的所有列後發布；空清單有獨立呈現，上限八筆，拒絕重複名字、額外列與欄位域錯誤。選角 C_C9 回送該列原始 MS950 名字位元組，不從畫面文字重建。S_C8 回覆成功後顯示已選角色；普通頻道、大廳清單與返回流程已由後續接入，見 [原生大廳驗證](NATIVE-LOBBY.zh-TW.md)。
 
 ## 正式封包
 
-| 封包 | 處理 |
-| --- | --- |
-| S_NOTICE 0x4b | u16 訊息 ID，438 確認送 C_LOGIN_RESULT 0x61，其餘送 C_READ_NOTICE 0x46；等待使用者確認時暫停回覆期限 |
-| S_E6 → C_E2 | opcode-only bootstrap readiness，一次就緒確認後才接受角色清單 |
-| S_NEWS 0x38 | MS950 NUL 公告，保留換行；確認僅關閉本地公告。C_READ_NEWS 0x33 是再次索取公告，不是 ACK |
-| S_03 | u8 count 0..8 |
-| S_CB | 原始 name/clan 與 79-byte 數值尾段；職業、性別、lawful、HP/MP、AC、等級、六能力、時間、五種排名與異動、戰績、校驗值 |
-| C_C9 | 目前完整清單中的角色原始名字 NUL |
-| S_C8 | 0 接受、1 拒絕、7 參與限制、8 名字無效；拒絕返回清單，成功保留選取狀態 |
+| 封包 | 欄位定義 | 重建版 client 處理 |
+| --- | --- | --- |
+| S_NOTICE 0x4b → C_LOGIN_RESULT／C_READ_NOTICE | [§4.3](PROTOCOL-CONTRACT.md#43-game-端點重新認證--通知--角色清單--選角) | 等待使用者確認期間暫停回覆期限 |
+| S_E6 → C_E2 | [§4.3](PROTOCOL-CONTRACT.md#43-game-端點重新認證--通知--角色清單--選角) | 就緒確認只送一次，確認後才接受角色清單 |
+| S_NEWS 0x38 | [§4.3](PROTOCOL-CONTRACT.md#43-game-端點重新認證--通知--角色清單--選角)、文字規則 [§1](PROTOCOL-CONTRACT.md#1-基本型別protocolreaderprotocolwriter) | 保留換行；使用者確認只關閉本地公告。C_READ_NEWS 0x33 是再次索取公告，不是 ACK |
+| S_03 | [§4.3](PROTOCOL-CONTRACT.md#43-game-端點重新認證--通知--角色清單--選角) | 依 count 等待全部角色列到齊 |
+| S_CB | [§5.1](PROTOCOL-CONTRACT.md#51-選角補-43) | 拒絕重複名字、多餘列與欄位超出範圍；完整清單到齊才發布 |
+| C_C9 | [§5.1](PROTOCOL-CONTRACT.md#51-選角補-43) | 回送 S_CB 收到的原始名字位元組，不從畫面文字重建 |
+| S_C8 | [§5.1](PROTOCOL-CONTRACT.md#51-選角補-43) | 拒絕時返回清單，成功時保留選取狀態 |
 
 正式配置要求訊息 438 為通知序列最後一項。數字通知在目前視窗只顯示 ID；原 Text 訊息資源映射仍未完成。公告文字與一般名字的控制字元規則分開，公告可有 CR/LF/Tab，名字不可有控制字元。
 

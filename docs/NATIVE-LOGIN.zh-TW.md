@@ -1,5 +1,7 @@
 # 原生帳密登入與來源選服
 
+> 協定欄位以 [PROTOCOL-CONTRACT.md](PROTOCOL-CONTRACT.md) 為準（框架、欄位、opcode、錯誤碼）。本文只記錄重建版 client 的處理方式、上限與驗證證據；以下表格的「欄位定義」欄直接連到契約章節，不再重複寫 wire 版型。
+
 `LiToModern.exe --native-login <IP:port>` 使用原生 TCP 登入控制器，提供 Unicode 帳號、密碼與來源清單控件。唯一現行入口亦可呼叫：
 
 ```powershell
@@ -25,15 +27,15 @@ LOGIN 階段到來源選擇與取得遊戲轉址為止；視窗後續已有「�
 
 ## 已實作的正式欄位
 
-| 封包 | 目前實作 |
-| --- | --- |
-| C_LOGIN 0x01 | MS950 account NUL、password NUL、4-byte 本地 IPv4；DIRECT layout，不附舊啟動器 preamble／connector |
-| S_LOGIN_CHECK 0x00 | 完整 `ccdsch`，成功與失敗均解析 value、serverName、flag、nativeWord；拒絕 selector 5/8/26/22 有明確狀態 |
-| S_LITO_LOGIN_OK 0xe7 | opcode-only 成功回覆 |
-| S_LITO_TIMELIMIT 0xe9 | u32 時間值；不改變認證狀態 |
-| S_SERVER_LIST 0x3b | 1..127 筆來源，每筆 MS950 名稱（最多 63 bytes）／IPv4／u16 port |
-| C_C8 0xc8 | 送出從當次伺服器清單選取的名稱；不假設清單序號等於來源 ID |
-| S_LITO_VS_SERVER_IP 0xf4 | u8 index、IPv4、u16 port，保留轉址等待後續 GAME 流程 |
+| 封包 | 欄位定義 | 重建版 client 處理 |
+| --- | --- | --- |
+| C_LOGIN 0x01 | [§4.2](PROTOCOL-CONTRACT.md#42-login-端點帳密--來源清單--轉址) | 只送 DIRECT 版型，不附舊啟動器的 preamble／connector |
+| S_LOGIN_CHECK 0x00 | [§4.2](PROTOCOL-CONTRACT.md#42-login-端點帳密--來源清單--轉址)、錯誤碼 [§4.4](PROTOCOL-CONTRACT.md#44-錯誤碼) | 成功與失敗都完整解析；拒絕碼 5／8／26／22 各有明確狀態（0x1A=26、0x16=22） |
+| S_LITO_LOGIN_OK 0xe7 | [§4.2](PROTOCOL-CONTRACT.md#42-login-端點帳密--來源清單--轉址) | 收到時視為成功回覆 |
+| S_LITO_TIMELIMIT 0xe9 | [§4.2](PROTOCOL-CONTRACT.md#42-login-端點帳密--來源清單--轉址) | 只記錄時間值，不改變認證狀態 |
+| S_SERVER_LIST 0x3b | [§4.2](PROTOCOL-CONTRACT.md#42-login-端點帳密--來源清單--轉址) | 依收到的清單呈現來源 |
+| C_C8 0xc8 | [§4.2](PROTOCOL-CONTRACT.md#42-login-端點帳密--來源清單--轉址) | 送出的是當次清單中選取的名稱，不假設清單序號等於來源 ID |
+| S_LITO_VS_SERVER_IP 0xf4 | [§4.2](PROTOCOL-CONTRACT.md#42-login-端點帳密--來源清單--轉址) | 保留轉址資訊，等待後續 GAME 流程 |
 
 帳號／密碼採正式 server 的 UTF-16 長度限制 64／128，拒絕 NUL、控制字元、無法以 MS950 精確表示的內容及截斷。轉碼禁止 best-fit／replacement fallback，中文 fixture 必須和 Java MS950 完全相同。未使用舊固定角色或 READY／lease 才能登入的候選條件。
 
