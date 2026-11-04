@@ -26,3 +26,4 @@
 - 2026-11-05 — #16 T004-4: T004-4: C_USE_SPELL 技能 (row,column) → 尾段形狀對照表（design，claude-chat，PR #25 已合併）→ [報告](reports/issue-16.md)
 - 2026-11-05 — #21 T004-5: PROTOCOL-CONTRACT 補 S_LITO_GAME_INFO 0xD5（房間摘要子型別）（design，claude-chat，PR #28 已合併）→ [報告](reports/issue-21.md)
 - 2026-11-05 — #14 T004-2: T004-2: Rust 集中 opcode 常數表（native_opcodes.rs）（code，codex-local，PR #29 已合併）→ [報告](reports/issue-14.md)
+- 2026-11-05 — #32 主控：同步 TASKS.md 狀態（調度台進度圖的資料來源）（plan，claude-chat，PR #38 已合併）→ [報告](reports/issue-32.md)
