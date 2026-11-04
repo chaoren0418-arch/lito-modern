@@ -34,7 +34,16 @@
 | `raw` | 原樣位元組 | 來源 2121 |
 | IPv4 欄位 | `d`；第一個 octet 放在最低位元組，所以 wire 上就是自然順序（`127.0.0.2` → `7F 00 00 02`） | 來源 ClientSession.java:88455 `ipv4LittleEndian` |
 
-文字規則：MS950 必須**精確往返**。builder 一律拒絕控制字元，以及無法無損編碼成 MS950 的字（`containsControl` 加上 round-trip 比對）。client 端不可以用 best-fit 或 replacement 轉碼（已驗證，NATIVE-LOGIN）。
+文字規則：`Writer.s` 本身**不做**任何檢查，只做 MS950 編碼並補一個 NUL（P:2089–2097）。各欄位的限制由個別 builder 或 parser 負責，**規則不一致**，client 必須依欄位分別處理：
+
+| 欄位類別 | 伺服器規則 | 對應 |
+|---|---|---|
+| 帳號／密碼（C_LOGIN） | 1..64／1..128 UTF-16 字元；parser 只拆出 NUL 結尾字串，**不檢查**控制字元 | P:4945；CS:7383–7386 |
+| 名稱類（伺服器名、來源名、角色名、房間成員名、血盟名） | 不可含 ISO 控制字元，必須能精確往返 MS950，另有各自的長度上限（例如角色名 ≤27、血盟名 ≤16、來源名 ≤63、S_LOGIN_CHECK serverName ≤40） | `containsControl` P:8765、`requireBoundedLegacyString` P:13169、P:5109–5133 |
+| 公告與物品名（S_NEWS、S_ADD_INVENTORY 的 name） | `requireNativeString` 只檢查 null 和長度 ≤255 bytes；**允許** CR／LF／Tab 等控制字元 | P:13191–13195、P:5551–5556 |
+| 告示板文字 | 只允許 CR／LF／Tab 三種控制字元 | `containsUnsafeBoardControl` P:8773 |
+
+client 的編碼政策（已驗證，NATIVE-LOGIN／NATIVE-GAME）：送出的文字一律精確轉成 MS950，不使用 best-fit 或 replacement；無法表示的字直接拒絕送出。收到的文字依上表分類解碼，公告類必須保留換行，不可以把含換行的合法公告當成格式錯誤。
 
 ## 2. 傳輸、框架與加密
 
@@ -191,7 +200,7 @@ C: C_LITO_SELECT_CHAR 0xC9(name) → S: S_LITO_SELECT_CHAR_RESULT 0xC8(code)
 | `S_LITO_JOIN_RESULT 0xCE` | 接受：`c c(0) d(roomId) s(name) c(attrs) s(password) h(max(2,combatants)) h(capacity) c(option0) h(mapId) c(0)×5 s(owner) c(opt1..opt4) c(selCount) c(sel)×N`；拒絕：`c c(code)` | CS:10332–10345；`joinRejected` P:2295 | — |
 | 加入失敗碼 | `LitoJoinFailure` P:3407：1 靜默清理、3 房間已滿、4 已開戰、5 房間已關閉、7 被踢、10 上位限制、11 密碼錯、12 戰鬥已結束、13 僅限隊伍房、14 不開放觀戰、20 職業限制、21 伺服器限制 | | |
 | `C_LITO_ROOM_USER 0xCD` | `c d(roomId)` | `sendRoomUser` CS:10165 | CHANNEL |
-| `S_LITO_ROOM_USER 0xCD` | `c d(roomId) s(name≤27) c(force 0/1) c(type) c(sex) d(winRateDen) d(wins) d(losses) c(ready) s(affiliation≤16) c(0) s("Ready") d(disconnects) c(channelSel) c(ready) d(channelRank) c(grade 0..14) c(cert)×N c(badge)×M d(master 0/1)`；ready 的值：0 未準備、1 已準備、2 商店清單。N、M 由 awards 決定，**推測**為固定長度，需核對 P:2509–2533 | `litoRoomParticipant` P:2419 | — |
+| `S_LITO_ROOM_USER 0xCD` | `c d(roomId≠0) s(name 1..27) c(force 0/1) c(type 0..6) c(sex 0/1) d(winRateDen) d(wins) d(losses) c(ready) s(affiliation 0..16) c(0) s("Ready") d(disconnects) c(channelSel −1..4，有號) c(ready) d(channelRank) c(grade 0..14) c(certificate)×**12** c(badgeEdition)×**5** d(litoMaster 0/1)`。ready：0 未準備、1 已準備、2 商店清單。certificate 每格是 0，或 `generation<<4 \| material`（generation≥1，material 只能是 1 秘銀／2 金／4 銀）。badgeEdition 依序對應死鬥、榮譽、任務、計時、攻城五種模式的屆數，各 1 byte。litoMaster 目前只用到 bit0 | `litoRoomParticipant` P:2419–2533；`GameStateStore.TournamentAwards` 的固定長度 GSS:893–894，驗證在 919 行起，`validTournamentLegacyCertificate` GSS:5742 | — |
 | `C_LITO_EXIT_ROOM 0xD0` | opcode-only | `exitRoom` CS:14568 | ROOM／BATTLE／RESULT → CHANNEL（CS:14627／14675）；在 BATTLE 中送出時會先結算（CS:14605） |
 | `S_LITO_EXIT_ROOM 0xD0` | `c d(roomId) s(displayName)` | CS:14641 | — |
 | `S_LITO_DELETE_ROOM 0xCF` | `c d(roomId)` | `broadcastRoomDeleted` CS:14784 | — |
@@ -226,19 +235,22 @@ BATTLE: …戰鬥…  → S_LITO_END_GAME 0xD3 d(winner) → RESULT
 | `C_MOVE 0x0A` | `c h(srcX) h(srcY) c(heading 0..7)`；送的是**起點**，伺服器依 heading 推進一格 | `moveRequest` P:8891；`move` CS:26832（要求 hp>0） |
 | `C_CHANGE_DIRECTION 0x09` | `c [c(heading)]`；heading 可省略，省略時視為 0 | CS:32085；廣播 `S_CHANGE_DIRECTION 0x1C d(objId) c(heading)` |
 | `C_ATTACK 0x17`／`C_FAR_ATTACK 0x18` | `c d(targetId≠0) h(x) h(y)` | `attackRequest` P:8849；CS:74608 |
-| `C_USE_SPELL 0x14` | `c c(row) c(column≤7)` 後接依技能而定的尾段：無、`d(target)`、`h(x) h(y)`、`d(target) h(x) h(y)` 等 | `spellSelector` P:8933；P:8965–9347；`useSpell` CS:32161 |
+| `C_USE_SPELL 0x14` | `c c(row) c(column 0..7)` 後接尾段。尾段形狀由**該技能**決定，伺服器依技能呼叫對應的 parser；長度不符時丟 `IllegalArgumentException`，交給 `rejectMalformedPacket` 處理。十種形狀見下一列；各形狀欄位名取自 P:4059–4095 的 record | `spellSelector` P:8933；`useSpell` CS:32161 |
+| ↳ 尾段形狀 | ① 無尾段：`selectorOnlySpellRequest` P:8965（71 個呼叫點）<br>② `d(clientTick)`：`selfSpellRequest` P:9003<br>③ `h(x) h(y)`：`groundSpellRequest` P:9043<br>④ `d(targetId≠0)`：`objectSpellRequest` P:9083（33 個呼叫點）<br>⑤ `h(mapId) h(x) h(y)`：`teleportSpellRequest` P:9125<br>⑥ `h(mapId) h(x) h(y)`：`massTeleportSpellRequest` P:9165<br>⑦ `s(targetName)`：`callClanSpellRequest` P:9205<br>⑧ `s(targetName)`：`runClanSpellRequest` P:9259<br>⑨ `d(selection≠0)`：`summonSpellRequest` P:9311<br>⑩ `d(targetId≠0) h(x) h(y)`：`attackSpellRequest` P:9347（44 個呼叫點）。<br>**每個技能（row,column）對應哪一種形狀，不在本契約範圍**，已拆成 T004-4，由 `BattleSpellCatalog` 產生對照表。在對照表完成前，client 只承諾支援已在 `docs/NATIVE-*SKILLS*`、`NATIVE-ATTACK-SKILLS` 驗證過的技能 | 呼叫點數以 `grep -c "Protocol.<parser>("` 計 |
 | `C_USE_ITEM 0x1C` | `c d(invObjId≠0)` 後接依道具而定的尾段（預設是 `s(arg)`） | P:4529／4611；`useInventoryItem` CS:23071 |
 | `C_SAY 0x13`／`C_CHAT 0x77` | `c c(type) s(msg 1..255 bytes)`；`C_CHAT` 的 type 必須是 12 | `chatRequest` P:5707；`say` CS:15860（ROOM／BATTLE／CHANNEL／WORLD） |
 | `S_SAY 0x13` | `c c(type) d(objId) s(msg≤511) h(x) h(y)` | P:11335 |
 | `S_PUT_OBJECT 0x0B` | `c h(x) h(y) d(objId) h(gfx) c(action) c(heading) c(light) c(speed) d(0) h(lawful) s(name) s(title) c(status) d(emblem) s(clan) s("") c(0) c(hpRatio) c(0) c(level) s("") h(0) c(0)`；`status&4` 為真時再接 `c(0xFF) d(0)`。寵物、NPC 等其他版型見 P:14975–16013 | `battleActorWithHeading` P:14895 |
 | `S_MOVE_OBJECT 0x12` | `c d(objId) h(srcX) h(srcY) c(heading)`；client 從起點推進一格 | NativeMovement.java:5–12 |
 | `S_REMOVE_OBJECT 0x15` | `c d(objId)` | P:12307 |
-| `S_HIT_POINT 0x0D`／`S_MANA_POINT 0x4D` | `c h(cur) h(max)`；**注意**：`NumericBreakthrough.enabled()` 時兩個欄位都改成 `d`（Writer 的特例，P:2055–2071），client 必須以 body 長度 5 或 9 判斷 | P:10691；CS:12187 等 |
-| `S_STATUS 0x0C` | `c d(objId) c(level) d(exp)` + 六能力 `c×6`（levelAbility 時改為 `d`） + `h(hp) h(maxHp) h(mp) h(maxMp) c(ac)`（NumericBreakthrough 時改為 `d×5`） + `d(0) c(food) c(weight) h(lawful)` + 四屬性 `c×4`（elementalResistance 時改為 `d`）。**變長版型由伺服器開關決定**，需由 T004-1 確認正式設定 | `characterStatus` P:10711 |
+| `S_HIT_POINT 0x0D`／`S_MANA_POINT 0x4D` | schema 0：`c h(cur) h(max)`，body 5 bytes；schema ≥1：`c d(cur) d(max)`，body 9 bytes（`Writer.c` 的特例：第一個 byte 是這兩個 opcode 時，接下來兩個 `h` 改寫成 `d`）。schema 怎麼決定見下方「數值 schema」 | P:2057–2071；P:10691 |
+| `S_STATUS 0x0C` | 依序為：`c(0x0C) d(objId) c(min(level,255)) d(exp u32)`；六能力，順序 **STR、INT、WIS、DEX、CON、CHA**（注意和 §5.1 角色清單的順序不同）；`cur HP, max HP, cur MP, max MP, AC`；`d(0) c(foodGauge) c(weightGauge) h(lawful，有號 i16)`；四屬性抗性，順序 **FIRE、WATER、WIND、EARTH**。各段寬度依 schema 而定：<br>schema 0：能力 `c`×6、HP/MP `h`×4（無號）、AC `c`（有號 i8）、抗性 `c`×4（有號 i8）→ body **37** bytes<br>schema 1：HP/MP/AC 改成 `d`×5（AC 為有號 i32，範圍 ±999999）→ **48**<br>schema 2、3：能力也改成 `d`×6 → **66**<br>schema 4：抗性也改成 `d`×4（有號 i32）→ **78**<br>food／weight gauge 是 0..29 的投影值，不是 DB 原值 | `characterStatus` P:10711–10917（能力順序 10857、gauge 10895） |
+| 數值 schema | 伺服器在啟動時讀環境變數 `LITO_NUMERIC_BREAKTHROUGH`（或 `-Dlito.numeric.breakthrough`），值 1..4 有效，其他值都視為 0。**wire 上沒有協商**。正式登入器預設 `NumericBreakthroughEnabled=true`，啟動本機伺服器時帶 schema **4**；伺服器若獨立啟動、沒設變數，就是 schema 0。client 必須依 body 長度判斷 schema：`S_STATUS` 37／48／66／78，`S_HIT_POINT` 5／9；長度不在這些值裡時視為協定錯誤 | `NumericBreakthrough` 第 6、20、25 行起；登入器 `LauncherService.cs:18`、`LauncherSettings.cs:54`、`LocalServerService.cs:230` |
 | `S_ATTACK 0x23` | 一般物理攻擊：`c c(action) d(attacker) d(target) c(hit?10:0) c(heading) d(0)`；其他變體（傷害、技能、遠程）的尾段**未讀** | P:9501；變體 P:9551–9787 |
 | `S_EFFECT 0x37` | `c d(objId) h(gfx)` | P:16117 |
-| `S_ADD_INVENTORY 0x16` | `c d(objId) c(useType) c(charge) h(icon) c(bless) d(count) c(identified) s(name) c(detailLen) raw(detail)` | P:12039／12741 |
-| `C_ALIVE 0x20` | 恰好 1 byte；伺服器回 `S_TIME`，不是 `S_PING`。任何 phase 都接受 | CS:15270 |
+| `S_ADD_INVENTORY 0x16` | `c` 後接一筆 inventory record：`d(objId) c(useType) c(charge) h(icon) c(bless 0..3) d(count≥1) c(identified) s(name ≤255 bytes) c(detailLen) raw(detail)` | P:12039；`appendInventoryRecord` P:12741 |
+| `S_ADD_INVENTORY_BATCH 0x7C` | `c c(count 0..255)` 後接 count 筆和上一列相同的 inventory record；選角後的背包初始化用這個封包 | `inventoryBatch` P:12053；CS:9750、10513 |
+| `C_ALIVE 0x20` → `S_TIME 0x21` | 請求恰好 1 byte；伺服器回 `c(0x21) d(gameSeconds 0..0x7FFFFFFF)`（client 當作 32-bit time_t），不是 `S_PING`。任何 phase 都接受 | CS:15270–15282；`worldTime` P:12023 |
 
 ## 7. 退出與重新開始
 
@@ -247,13 +259,14 @@ BATTLE: …戰鬥…  → S_LITO_END_GAME 0xD3 d(winner) → RESULT
 | `C_QUIT 0x0F` | opcode-only；伺服器設定 `quitRequested` 後關閉 socket；在 CHANNEL 中送出時可能先暫存頻道交接資訊，以便接續 | `requestQuit` CS:15020–15050 |
 | `C_LOGOUT 0x02` | opcode-only（嚴格） | P:5569；`requestLogout` CS:15056 |
 | `C_RESTART 0x10` → `S_RESTART 0x65` | 兩者都是 opcode-only；要求 phase ≥ AUTHENTICATED，且沒有其他待處理的轉場 | `requestRestart` CS:15075；P:16431 |
-| 回到選服 | 原生順序是 `S_RESTART → C_LITO_QUIT_FIGHT → S_LITO_QUIT_FIGHT → C_LITO_LEAVE_CHANNEL／C_LITO_EXIT_ROOM → S_F5 → C_LITO_LIN_CHARACTER_INFO`（`PendingTransition` CS:177–182）；另一條路是在 LOBBY 送 `C_LITO_ENTER_CHANNEL(100)`，伺服器回 `S_LITO_VS_SERVER_ALLOW_JOIN 0xF5` | CS:8074、9836–9840 |
+| 回到選服 | 原生順序是 `S_RESTART → C_LITO_QUIT_FIGHT → S_LITO_QUIT_FIGHT → C_LITO_LEAVE_CHANNEL／C_LITO_EXIT_ROOM → S_LITO_VS_SERVER_ALLOW_JOIN → C_LITO_LIN_CHARACTER_INFO`（`PendingTransition` CS:177–182）；另一條路是在 LOBBY 送 `C_LITO_ENTER_CHANNEL(100)`，伺服器回 `S_LITO_VS_SERVER_ALLOW_JOIN` | CS:8074、9836–9840、15252 |
+| `S_LITO_VS_SERVER_ALLOW_JOIN 0xF5` | opcode-only（`allowPostTransition`）。client 收到後要用目前選定的來源名稱送 `C_LITO_LIN_CHARACTER_INFO 0xC8`，重新取得角色清單 | P:1551、16441–16443；CS:9839、14996、15252 |
 | `S_KICK 0x66` | `c c(reason)`；目前只使用 reason 0 | P:12415；CS:88026 |
 | 斷線 | socket 關閉後，伺服器在 `finally` 中做清理：交易、隊伍、持久 buff、房主轉移（ROOM） | CS:1112 起 |
 
 ## 8. 未涵蓋與待驗證
 
 - **待驗證**：§1–§7 的常數和版型都還沒有對正式 JAR `e1498871` 核對過，見 `docs/plans/issue-4.json` 的 T004-1。§2、§4 的版型已經對 `205DC1BA` 驗證過。
-- **待驗證**：`NumericBreakthrough`、`levelAbility`、`elementalResistance` 在正式設定下是否開啟。這會決定 `S_HIT_POINT`、`S_MANA_POINT`、`S_STATUS` 的長度。
-- **未涵蓋**：交易、血盟、好友、商店（`C_LITO_BUY_LIST`／`C_LITO_SELL_LIST` 等）、觀戰、配對、經典 WORLD 的 `C_ENTER_WORLD`、GM 指令，以及 `S_ATTACK` 的各個變體與 300 多種技能尾段。以上依 TASKS 的優先順序另開任務補充。
+- **已釐清**：schema 由伺服器啟動時的環境變數決定，正式登入器帶 4。client 依 body 長度判斷，見 §6.2「數值 schema」。**待驗證**：正式 JAR 的 `NumericBreakthrough` 與來源是否一致（T004-1）。
+- **未涵蓋**：交易、血盟、好友、商店（`C_LITO_BUY_LIST`／`C_LITO_SELL_LIST` 等）、觀戰、配對、經典 WORLD 的 `C_ENTER_WORLD`、GM 指令，以及 `S_ATTACK` 的各個變體。每個技能（row,column）對應哪種 `C_USE_SPELL` 尾段，見 T004-4。以上依 TASKS 的優先順序另開任務補充。
 - **規則**：伺服器版本變更時，先重跑 T004-1 的靜態核對並更新本文；不可以只改 SHA。
