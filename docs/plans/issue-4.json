@@ -1,0 +1,36 @@
+[
+  {
+    "id": "T004-1",
+    "title": "T004-1: 以正式 JAR e1498871 靜態核對 PROTOCOL-CONTRACT 常數",
+    "stage": "resource",
+    "priority": "P2",
+    "text": "範圍：只新增 `docs/reports/issue-<N>.md`；可在 `scratch/` 放一次性腳本（不進 git）；不改其他檔。\n做：在本機用 `javap -c -constant` 或解壓讀取正式 JAR `D:\\lineage開發\\3-lito開發\\lito登入器\\LiTo381-Launcher\\app\\server\\LiTo381-SharedResources-candidate.jar`（SHA256 e1498871…，唯讀）中的 `local.lito381.server.Protocol` 及 `Protocol$CipherState`、`Protocol$LoginCheckResult`、`Protocol$LitoVsServerAvailability`，逐項比對 `docs/PROTOCOL-CONTRACT.md` §1–§5 列出的 opcode 值、KEY_HIGH、VERSION_MAGIC/PRODUCT/BUILD、versionAccepted 的常數、LoginCheckResult 值與 ServerConfig 預設（max.frame、login.bootstrap.sequence）。\n驗收：報告列出每個比對項「一致／不一致／JAR 無此成員」，並寫出 JAR SHA256 的實際計算值；任何不一致都要附 javap 片段。只做靜態讀取：不啟動 JAR、不連 DB、不跑測試，也不改 PROTOCOL-CONTRACT.md（不一致之處由 Claude 修訂）。",
+    "depends_on": []
+  },
+  {
+    "id": "T004-2",
+    "title": "T004-2: Rust 集中 opcode 常數表（native_opcodes.rs）",
+    "stage": "code",
+    "priority": "P2",
+    "text": "範圍：新建 `LiTo381-Modern/src/modern_lito/native_opcodes.rs`；修改 `LiTo381-Modern/src/modern_lito/mod.rs`（只加 mod 宣告）、`native_version.rs`、`native_login_wire.rs`、`native_game.rs`、`native_lobby.rs`（只把 opcode 魔術數字換成常數）。\n做：依 `docs/PROTOCOL-CONTRACT.md` §2–§5 的 opcode 表建立 `pub const C_*: u8`／`S_*: u8`（名稱沿用伺服器 Protocol.java），再把上列四個檔案裡的 opcode 字面值換成常數；同一個值在 C 和 S 方向意義不同（例如 0xC8／0xC9），不可以共用常數。不改任何行為，也不改 wire 格式。\n驗收：CI `cargo check --locked --all-targets` 與 `cargo test --locked --lib` 綠；新增一個單元測試，斷言每個常數值等於契約表中的值；PR 描述列出替換了哪些字面值。不跑 GUI，不啟動遊戲。",
+    "depends_on": []
+  },
+  {
+    "id": "T004-3",
+    "title": "T004-3: NATIVE-PROTOCOL/LOGIN/GAME/LOBBY/ROOM 文件改指向 PROTOCOL-CONTRACT",
+    "stage": "plan",
+    "priority": "P3",
+    "text": "範圍：`docs/NATIVE-PROTOCOL.zh-TW.md`、`docs/NATIVE-LOGIN.zh-TW.md`、`docs/NATIVE-GAME.zh-TW.md`、`docs/NATIVE-LOBBY.zh-TW.md`、`docs/NATIVE-ROOM.zh-TW.md`。\n做：這些文件的封包表與 `docs/PROTOCOL-CONTRACT.md` 重複的部分，改成一行連結到契約對應的章節；保留各文件獨有的驗證證據與 205DC1BA 快照說明。每個文件開頭加一句「協定欄位以 PROTOCOL-CONTRACT.md 為準」。不改 PROTOCOL-CONTRACT.md，也不改 docs/REPORT.md。\n驗收：重複的封包欄位表都已移除，或改為連結；連結錨點都能對到；差異中只有上列五個檔案加上 `docs/reports/issue-<N>.md`。",
+    "depends_on": [
+      "T004-1"
+    ]
+  },
+  {
+    "id": "T004-4",
+    "title": "T004-4: C_USE_SPELL 技能 (row,column) → 尾段形狀對照表",
+    "stage": "design",
+    "priority": "P2",
+    "text": "範圍：`docs/PROTOCOL-CONTRACT.md` 新增 §6.3（只改這一節）＋ `docs/reports/issue-<N>.md`。\n做：對照 lito-launcher-server `BattleSpellCatalog.java` 與 `ClientSession.java` 中 11 種 `Protocol.*SpellRequest` parser 的呼叫點（selectorOnly 71、object 33、attack 44、self／ground／teleport／massTeleport／callClan／runClan／summon／trueTarget），列出每個技能的 skillId、row、column、尾段形狀與伺服器 handler 方法及 `檔案:行號`。只讀伺服器來源，不改伺服器。\n驗收：重建版目前已接線的技能（docs/NATIVE-*SKILLS*、NATIVE-ATTACK-SKILLS、NATIVE-REAGENT-SKILLS、NATIVE-GROUND-SKILLS 提到的）全部都有對照列；同一個 (row,column) 若在不同模式下用不同形狀，要分開列出；附可重跑的核對指令與輸出。",
+    "depends_on": []
+  }
+]
