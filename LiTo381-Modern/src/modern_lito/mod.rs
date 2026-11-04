@@ -159,6 +159,7 @@ pub(crate) mod resource_cipher;
 pub mod resources;
 pub mod rebuild_verification;
 pub mod native_wire;
+pub mod native_opcodes;
 pub mod native_version;
 pub mod native_connection;
 pub mod native_login;

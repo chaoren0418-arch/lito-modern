@@ -1,5 +1,6 @@
 //! Pinned492090 cssd/cssds and480560 chdch subset. Fixtures are NOT currentOS authority.
 use anyhow::{ensure,Result};
+use crate::modern_lito::native_opcodes::{C_LOGIN,C_VERSION};
 use zeroize::Zeroizing;
 #[derive(Clone,Debug,PartialEq,Eq)]pub enum FixtureVariant {Normal,Special{supplemental:Vec<u8>}}
 #[derive(Clone,Debug,PartialEq,Eq)]pub struct FixtureEnvironment {pub(crate) label:String,pub(crate) code_page:u32,pub(crate) from_cd_registry_dword:u32,pub(crate) revision_word_source:u32,pub(crate) variant:FixtureVariant}
@@ -10,13 +11,13 @@ impl FixtureEnvironment {
   Ok(Self{label:label.into(),code_page,from_cd_registry_dword,revision_word_source,variant})
  }
  pub fn provenance(&self)->&str{&self.label}
- pub fn compatibility_body(&self)->[u8;10]{let mut out=[0u8;10];out[1..3].copy_from_slice(&0x8033u16.to_le_bytes());out[3..7].copy_from_slice(&self.code_page.to_le_bytes());out[7]=if matches!(self.variant,FixtureVariant::Normal){self.from_cd_registry_dword as u8}else{2};out[8..10].copy_from_slice(&(self.revision_word_source as u16).to_le_bytes());out}
+ pub fn compatibility_body(&self)->[u8;10]{let mut out=[0u8;10];out[0]=C_VERSION;out[1..3].copy_from_slice(&0x8033u16.to_le_bytes());out[3..7].copy_from_slice(&self.code_page.to_le_bytes());out[7]=if matches!(self.variant,FixtureVariant::Normal){self.from_cd_registry_dword as u8}else{2};out[8..10].copy_from_slice(&(self.revision_word_source as u16).to_le_bytes());out}
 }
 /// Exactnormalformatterorder: c1,saccount,s password,d sin_addr rawnetworkoctets.
 /// Supplemental s existsONLYin64BBF8nonzero cssdsbranch.155 is Moderncandidatebound.
 pub fn serialize_fixture_login(account:&[u8],password:&[u8],local_ipv4:[u8;4],environment:&FixtureEnvironment)->Result<Zeroizing<Vec<u8>>>{
  ensure!((2..=27).contains(&account.len())&&(4..=13).contains(&password.len())&&!account.contains(&0)&&!password.contains(&0),"ownedlogininputoutside sourcecapacities");
- let mut body=Zeroizing::new(Vec::new());body.push(1);body.extend_from_slice(account);body.push(0);body.extend_from_slice(password);body.push(0);body.extend_from_slice(&local_ipv4);
+ let mut body=Zeroizing::new(Vec::new());body.push(C_LOGIN);body.extend_from_slice(account);body.push(0);body.extend_from_slice(password);body.push(0);body.extend_from_slice(&local_ipv4);
  if let FixtureVariant::Special{supplemental}= &environment.variant{body.extend_from_slice(supplemental);body.push(0);}
  ensure!(body.len()<=155,"authbodyexceedsModerncandidate155bound");Ok(body)
 }

@@ -1,5 +1,10 @@
 //! Native Tournament channel replies and room rows. No Modern v47 envelopes.
-use super::native_login::decode_text;
+use super::{
+    native_login::decode_text,
+    native_opcodes::{
+        C_LITO_ENTER_CHANNEL, S_LITO_CHANNEL_INFO, S_LITO_ENTER_CHANNEL_RESULT, S_LITO_ROOM_INFO,
+    },
+};
 use anyhow::{ensure, Context, Result};
 
 pub const CHANNEL_NAMES: [&str; 4] = ["DeathKnight", "Baphomet", "Succubus", "Ogre"];
@@ -37,7 +42,7 @@ fn active(id: u8) -> bool {
 pub fn parse(b: &[u8]) -> Result<Packet> {
     let op = *b.first().context("empty lobby packet")?;
     Ok(match op {
-        0xc9 => {
+        S_LITO_ENTER_CHANNEL_RESULT => {
             ensure!(b.len() >= 3 && active(b[2]), "channel result envelope");
             let words = match b[1] {
                 0 => {
@@ -63,7 +68,7 @@ pub fn parse(b: &[u8]) -> Result<Packet> {
                 words,
             }
         }
-        0xca => {
+        S_LITO_CHANNEL_INFO => {
             ensure!(b.len() == 6 && active(b[1]), "channel population envelope");
             Packet::Channel(Channel {
                 id: b[1],
@@ -71,7 +76,7 @@ pub fn parse(b: &[u8]) -> Result<Packet> {
                 capacity: u16::from_le_bytes([b[4], b[5]]),
             })
         }
-        0xcc => {
+        S_LITO_ROOM_INFO => {
             ensure!(b.len() >= 2, "room subtype missing");
             if b[1] != 0 {
                 return Ok(Packet::Other);
@@ -102,7 +107,7 @@ pub fn parse(b: &[u8]) -> Result<Packet> {
 }
 pub fn enter(id: u8) -> Result<Vec<u8>> {
     ensure!(id <= 3, "ordinary channel index");
-    Ok(vec![0xca, id])
+    Ok(vec![C_LITO_ENTER_CHANNEL, id])
 }
 pub fn upsert(rows: &mut Vec<Room>, room: Room) -> Result<()> {
     if let Some(old) = rows.iter_mut().find(|r| r.id == room.id) {
