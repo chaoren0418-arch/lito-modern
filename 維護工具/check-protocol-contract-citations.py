@@ -51,7 +51,14 @@ checks = [
  (srv/"UnifiedConfiguration.java",79,'"advertised.host",target.getProperty("game.bind")'),(srv/"Main.java",67,"loginServer.bind"),
  (lau/"LauncherService.cs",18,"NumericBreakthroughSchemaVersion = 4"),(lau/"LauncherSettings.cs",54,"NumericBreakthroughEnabled { get; set; } = true"),
  (lau/"LocalServerService.cs",230,"LITO_NUMERIC_BREAKTHROUGH"),
+ (srv/P,4107,"record TrueTargetRequest"),(srv/P,9389,"static TrueTargetRequest trueTargetRequest"),(srv/P,9391,"spellSelector(payload)"),
+ (srv/P,14785,"static byte[] observerBox"),(srv/CS,8886,"sendInventoryBootstrap();"),(srv/CS,9733,"sendInventoryBootstrap()"),
+ (srv/CS,9734,"if (inventoryBootstrapSent) return;"),(srv/CS,9723,"inventoryBootstrapSent = false"),(srv/CS,20272,"inventoryBootstrapSent = false"),
+ (srv/CS,20413,"inventoryBootstrapSent = false"),(srv/CS,20483,"inventoryBootstrapSent = false"),(srv/CS,10484,"Protocol.battleBootstrap(scene.mapId(), 1)"),
+ (srv/CS,12008,"Protocol.battleBootstrap("),(srv/CS,12010,"sendEncrypted(bootstrap.world()"),(srv/CS,12017,"BattleRules.Mode.TIME_ATTACK"),
+ (srv/CS,12021,"phase = Phase.BATTLE;"),(srv/CS,12034,"sendInventoryBootstrap();"),(srv/CS,44998,"Protocol.trueTargetRequest(payload)"),
 ]
+EXPECTED_HEAD = "2066774824b314b2c65834f9afe72b68f7391f06"
 ok = 0
 for f, n, needle in checks:
     lines = f.read_text(encoding="utf-8").split("\n")
@@ -59,4 +66,9 @@ for f, n, needle in checks:
     ok += hit
     if not hit: print(f"FAIL {f.name}:{n} expected {needle!r} got {lines[n-1].strip()[:80]!r}")
 head = subprocess.run(["git","-C",str(root),"rev-parse","HEAD"],capture_output=True,text=True).stdout.strip()
-print(f"source HEAD {head}; {ok}/{len(checks)} citations OK")
+selector_parsers = sum("spellSelector(payload)" in l for l in (srv/P).read_text(encoding="utf-8").split("\n"))
+print(f"source HEAD {head}; {ok}/{len(checks)} citations OK; spellSelector(payload) parsers={selector_parsers}")
+if head != EXPECTED_HEAD:
+    print(f"FAIL source HEAD {head} != expected {EXPECTED_HEAD}"); sys.exit(2)
+if ok != len(checks) or selector_parsers != 11:
+    sys.exit(1)

@@ -30,7 +30,7 @@
     "title": "T004-4: C_USE_SPELL 技能 (row,column) → 尾段形狀對照表",
     "stage": "design",
     "priority": "P2",
-    "text": "範圍：`docs/PROTOCOL-CONTRACT.md` 新增 §6.3（只改這一節）＋ `docs/reports/issue-<N>.md`。\n做：對照 lito-launcher-server `BattleSpellCatalog.java` 與 `ClientSession.java` 中 10 種 `Protocol.*SpellRequest` parser 的呼叫點（selectorOnly 71、object 33、attack 44、self／ground／teleport／massTeleport／callClan／runClan／summon），列出每個技能的 skillId、row、column、尾段形狀與伺服器 handler 方法及 `檔案:行號`。只讀伺服器來源，不改伺服器。\n驗收：重建版目前已接線的技能（docs/NATIVE-*SKILLS*、NATIVE-ATTACK-SKILLS、NATIVE-REAGENT-SKILLS、NATIVE-GROUND-SKILLS 提到的）全部都有對照列；同一個 (row,column) 若在不同模式下用不同形狀，要分開列出；附可重跑的核對指令與輸出。",
+    "text": "範圍：`docs/PROTOCOL-CONTRACT.md` 新增 §6.3（只改這一節）＋ `docs/reports/issue-<N>.md`。\n做：對照 lito-launcher-server `BattleSpellCatalog.java` 與 `ClientSession.java` 中 11 種 `Protocol.*SpellRequest` parser 的呼叫點（selectorOnly 71、object 33、attack 44、self／ground／teleport／massTeleport／callClan／runClan／summon／trueTarget），列出每個技能的 skillId、row、column、尾段形狀與伺服器 handler 方法及 `檔案:行號`。只讀伺服器來源，不改伺服器。\n驗收：重建版目前已接線的技能（docs/NATIVE-*SKILLS*、NATIVE-ATTACK-SKILLS、NATIVE-REAGENT-SKILLS、NATIVE-GROUND-SKILLS 提到的）全部都有對照列；同一個 (row,column) 若在不同模式下用不同形狀，要分開列出；附可重跑的核對指令與輸出。",
     "depends_on": []
   }
 ]

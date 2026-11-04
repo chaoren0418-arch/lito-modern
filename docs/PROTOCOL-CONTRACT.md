@@ -214,7 +214,15 @@ ROOM: C_LITO_READY_GAME 0xD2 c(state)          ← 參加者切換準備狀態
       S_LITO_READY_GAME 0xD1 s(name) c(state)  ← 廣播
       C_LITO_READY_GAME 0xD2（opcode-only）    ← 房主開戰
       S_LITO_COUNTDOWN 0xE1 c(value)（推測：開戰前倒數）
-      S_WORLD 0x28 h(mapId) c(0) → S_LITO_START_GAME 0xD2 → S_LITO_TIMELIMIT 0xE9 d(seconds)；phase=BATTLE
+      ── 一般對戰（startBattle CS:11968；BATTLE 在 CS:12021 設定）：
+      S_WORLD 0x28 h(mapId) c(0)
+      S_LITO_START_GAME 0xD2
+      S_LITO_OBSERVER_BOX 0xE2 h(minX) h(minY) h(maxXExcl) h(maxYExcl)
+      [S_LITO_TIMELIMIT 0xE9 d(seconds)]       ← 只有 mode ≠ TIME_ATTACK 才送
+      S_TIME 0x21 d(gameSeconds)
+      [S_ADD_INVENTORY_BATCH 0x7C …]           ← 只有背包需要重建時才送（見 §6.2）
+      之後是 HP／狀態／物件等封包；phase=BATTLE
+      ── 租裝城鎮（CS:10484–10513）：S_WORLD → S_START_GAME → S_OBSERVER_BOX → S_TIME → S_ADD_INVENTORY_BATCH（必送），不送 TIMELIMIT
 BATTLE: …戰鬥…  → S_LITO_END_GAME 0xD3 d(winner) → RESULT
 ```
 
@@ -222,7 +230,8 @@ BATTLE: …戰鬥…  → S_LITO_END_GAME 0xD3 d(winner) → RESULT
 |---|---|---|
 | `C_LITO_READY_GAME 0xD2` | 只有 opcode 表示房主開戰；`c c(state 0/1/2)` 表示切換準備狀態 | `litoReadyRequest` P:16643；`setReady` CS:11627（ROOM） |
 | `S_LITO_READY_GAME 0xD1` | `c s(name) c(state)` | `readyState` P:16609 |
-| 開戰三包 | `S_WORLD c h(mapId) c(0)`、`S_LITO_START_GAME c`、`S_LITO_TIMELIMIT c d(sec)`，順序固定 | `battleBootstrap` P:2209–2218；`startBattle` CS:11968（phase 在 12001 改成 BATTLE，12010 送出） |
+| 開戰序列 | 前兩包固定是 `S_WORLD c h(mapId) c(0)` → `S_LITO_START_GAME c`。S_WORLD 必須先送，因為 S_D2 會用它設定的地圖狀態（CS:12002–12005 的註解）。接著是 `S_LITO_OBSERVER_BOX`；`S_LITO_TIMELIMIT` **依模式**送出（TIME_ATTACK 不送，CS:12017）；然後是 `S_TIME`，以及條件式的背包重建。client **不可以**把 TIMELIMIT 當成必收封包，也不可以把 OBSERVER_BOX、S_TIME 當成異常 | builder `battleBootstrap` P:2209–2218；實際送出順序見 `startBattle` CS:12008–12034 |
+| `S_LITO_OBSERVER_BOX 0xE2` | `c h(minX) h(minY) h(maxXExclusive) h(maxYExclusive)`，必須 `min < maxExclusive ≤ 0xFFFF`；內容是場地的可視範圍 | `observerBox` P:14785–14799 |
 | `S_LITO_END_GAME 0xD3` | `c d(winner)`：0xFFFFFFFF 平手、0 是 force0、1 是 force1 | `battleResult` P:2255；`LitoBattleResult` P:1437 |
 | `S_LITO_COUNTDOWN 0xE1` | `c c(value)` | `serverCountdown` CS:11690 |
 | `C_LITO_QUIT_FIGHT 0xD9` → `S_LITO_QUIT_FIGHT 0xF0` | 請求是 opcode-only；回覆是 `c c(0)`；BATTLE 時結算、RESULT 時等待確認、ROOM 時回到房間 | `quitFight` CS:14891 |
@@ -235,8 +244,8 @@ BATTLE: …戰鬥…  → S_LITO_END_GAME 0xD3 d(winner) → RESULT
 | `C_MOVE 0x0A` | `c h(srcX) h(srcY) c(heading 0..7)`；送的是**起點**，伺服器依 heading 推進一格 | `moveRequest` P:8891；`move` CS:26832（要求 hp>0） |
 | `C_CHANGE_DIRECTION 0x09` | `c [c(heading)]`；heading 可省略，省略時視為 0 | CS:32085；廣播 `S_CHANGE_DIRECTION 0x1C d(objId) c(heading)` |
 | `C_ATTACK 0x17`／`C_FAR_ATTACK 0x18` | `c d(targetId≠0) h(x) h(y)` | `attackRequest` P:8849；CS:74608 |
-| `C_USE_SPELL 0x14` | `c c(row) c(column 0..7)` 後接尾段。尾段形狀由**該技能**決定，伺服器依技能呼叫對應的 parser；長度不符時丟 `IllegalArgumentException`，交給 `rejectMalformedPacket` 處理。十種形狀見下一列；各形狀欄位名取自 P:4059–4095 的 record | `spellSelector` P:8933；`useSpell` CS:32161 |
-| ↳ 尾段形狀 | ① 無尾段：`selectorOnlySpellRequest` P:8965（71 個呼叫點）<br>② `d(clientTick)`：`selfSpellRequest` P:9003<br>③ `h(x) h(y)`：`groundSpellRequest` P:9043<br>④ `d(targetId≠0)`：`objectSpellRequest` P:9083（33 個呼叫點）<br>⑤ `h(mapId) h(x) h(y)`：`teleportSpellRequest` P:9125<br>⑥ `h(mapId) h(x) h(y)`：`massTeleportSpellRequest` P:9165<br>⑦ `s(targetName)`：`callClanSpellRequest` P:9205<br>⑧ `s(targetName)`：`runClanSpellRequest` P:9259<br>⑨ `d(selection≠0)`：`summonSpellRequest` P:9311<br>⑩ `d(targetId≠0) h(x) h(y)`：`attackSpellRequest` P:9347（44 個呼叫點）。<br>**每個技能（row,column）對應哪一種形狀，不在本契約範圍**，已拆成 T004-4，由 `BattleSpellCatalog` 產生對照表。在對照表完成前，client 只承諾支援已在 `docs/NATIVE-*SKILLS*`、`NATIVE-ATTACK-SKILLS` 驗證過的技能 | 呼叫點數以 `grep -c "Protocol.<parser>("` 計 |
+| `C_USE_SPELL 0x14` | `c c(row) c(column 0..7)` 後接尾段。尾段形狀由**該技能**決定，伺服器依技能呼叫對應的 parser；長度不符時丟 `IllegalArgumentException`，交給 `rejectMalformedPacket` 處理。十一種形狀見下一列；各形狀欄位名取自 P:4059–4107 的 record | `spellSelector` P:8933；`useSpell` CS:32161 |
+| ↳ 尾段形狀 | ① 無尾段：`selectorOnlySpellRequest` P:8965（71 個呼叫點）<br>② `d(clientTick)`：`selfSpellRequest` P:9003<br>③ `h(x) h(y)`：`groundSpellRequest` P:9043<br>④ `d(targetId≠0)`：`objectSpellRequest` P:9083（33 個呼叫點）<br>⑤ `h(mapId) h(x) h(y)`：`teleportSpellRequest` P:9125<br>⑥ `h(mapId) h(x) h(y)`：`massTeleportSpellRequest` P:9165<br>⑦ `s(targetName)`：`callClanSpellRequest` P:9205<br>⑧ `s(targetName)`：`runClanSpellRequest` P:9259<br>⑨ `d(selection≠0)`：`summonSpellRequest` P:9311<br>⑩ `d(targetId≠0) h(x) h(y)`：`attackSpellRequest` P:9347（44 個呼叫點）<br>⑪ `d(targetId≠0) h(x) h(y) s(text)`：`trueTargetRequest` P:9389–9405，只用於 skillId 113（True Target）；text 必須是 MS950 ≤0x34 bytes、可精確編碼、無控制字元，且不可有剩餘 bytes；BATTLE 與 WORLD 都接受（`useTrueTargetSpell` CS:44995–45004）。<br>以上 11 種就是 Protocol.java 中所有呼叫 `spellSelector(payload)` 的 parser（P:8967–9391，共 11 處）。<br>**每個技能（row,column）對應哪一種形狀，不在本契約範圍**，已拆成 T004-4，由 `BattleSpellCatalog` 產生對照表。在對照表完成前，client 只承諾支援已在 `docs/NATIVE-*SKILLS*`、`NATIVE-ATTACK-SKILLS` 驗證過的技能 | 呼叫點數以 `grep -c "Protocol.<parser>("` 計 |
 | `C_USE_ITEM 0x1C` | `c d(invObjId≠0)` 後接依道具而定的尾段（預設是 `s(arg)`） | P:4529／4611；`useInventoryItem` CS:23071 |
 | `C_SAY 0x13`／`C_CHAT 0x77` | `c c(type) s(msg 1..255 bytes)`；`C_CHAT` 的 type 必須是 12 | `chatRequest` P:5707；`say` CS:15860（ROOM／BATTLE／CHANNEL／WORLD） |
 | `S_SAY 0x13` | `c c(type) d(objId) s(msg≤511) h(x) h(y)` | P:11335 |
@@ -249,7 +258,8 @@ BATTLE: …戰鬥…  → S_LITO_END_GAME 0xD3 d(winner) → RESULT
 | `S_ATTACK 0x23` | 一般物理攻擊：`c c(action) d(attacker) d(target) c(hit?10:0) c(heading) d(0)`；其他變體（傷害、技能、遠程）的尾段**未讀** | P:9501；變體 P:9551–9787 |
 | `S_EFFECT 0x37` | `c d(objId) h(gfx)` | P:16117 |
 | `S_ADD_INVENTORY 0x16` | `c` 後接一筆 inventory record：`d(objId) c(useType) c(charge) h(icon) c(bless 0..3) d(count≥1) c(identified) s(name ≤255 bytes) c(detailLen) raw(detail)` | P:12039；`appendInventoryRecord` P:12741 |
-| `S_ADD_INVENTORY_BATCH 0x7C` | `c c(count 0..255)` 後接 count 筆和上一列相同的 inventory record；選角後的背包初始化用這個封包 | `inventoryBatch` P:12053；CS:9750、10513 |
+| `S_ADD_INVENTORY_BATCH 0x7C` | `c c(count 0..255)` 後接 count 筆和上一列相同的 inventory record；超過 255 筆時，剩下的改用單筆 `S_ADD_INVENTORY` 補送 | `inventoryBatch` P:12053；`sendInventoryBootstrap` CS:9733–9761 |
+| 背包初始化時機 | `sendInventoryBootstrap` 有一次性旗標：`inventoryBootstrapSent` 為真時直接返回（CS:9734）。**第一次發送在選角成功時**：S_C8(0) 之後送 S_ADD_INVENTORY_BATCH，再送 S_ADD_SPELL（CS:8886–8891；原註解說明大廳的背包和技能視窗會用到）。`startBattle` 也會呼叫一次（CS:12034），只有旗標被重設過才會真的再送；重設點是載入角色資料、商店買賣、點數同步、結算後重置經濟（CS:9723、20272、20413、20483）。重建前，伺服器會先對 client 已有的物件送 `S_REMOVE_INVENTORY`（CS:9735–9740）。所以 client 必須在 LOBBY 選角後就能接收背包批次，在 BATTLE 開場也要能接受重建 | 同左 |
 | `C_ALIVE 0x20` → `S_TIME 0x21` | 請求恰好 1 byte；伺服器回 `c(0x21) d(gameSeconds 0..0x7FFFFFFF)`（client 當作 32-bit time_t），不是 `S_PING`。任何 phase 都接受 | CS:15270–15282；`worldTime` P:12023 |
 
 ## 7. 退出與重新開始
