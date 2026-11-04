@@ -1,0 +1,10 @@
+[
+  {
+    "id": "T003-R1",
+    "title": "T003-R1: 44 檔隔離候選本體 SHA256 與 src/ diff 統計（本機靜態）",
+    "stage": "resource",
+    "priority": "P3",
+    "text": "runner: codex-local（候選目錄只在使用者電腦上）。\n範圍：只新增 `docs/reports/issue-<N>.md`；一次性腳本放 `scratch/`（不進 git）；不改其他檔，也不改 `docs/CANDIDATES.md`（由 Claude 依報告更新）。\n做：在 `D:\\lineage開發\\3-lito開發\\lito重建版\\維護工具\\candidates\\` 找出最新的 `native-E149-static2941-ready-<stamp>/` 目錄（以 `驗證紀錄/current/native-E149-static2941-ready-development/` 的 evidence 指向為準），對 `docs/CANDIDATES.md` 一覽表的 44 個 overlay key 逐一計算候選檔的 SHA256；`src/`（或 `tests/`）有同名檔的，用 `git diff --no-index --numstat <src檔> <候選檔>` 算出增刪行數；沒有同名檔的，只記行數。\n驗收：報告列出 stamp 目錄名、44 列（overlay key／候選 SHA256／src 同名檔 SHA256 或「無」／+行／−行），以及總計；缺檔要明確標示。只做靜態讀取：不套用候選、不建置、不跑測試、不啟動遊戲、不連 DB。",
+    "depends_on": []
+  }
+]
