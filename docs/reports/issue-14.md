@@ -53,10 +53,10 @@
   實際輸出：`test tests::opcode_constants_match_protocol_contract_sections_2_to_5 ... ok`（1 passed）。
 - 靜態 diff 確認四個檔只換 opcode 常數、沒有改欄位解析或組包順序。
 - `native_opcodes.rs`、`native_version.rs` 通過 `rustfmt --edition 2021 --check`。
-
-### 待驗證（交給 GitHub Actions）
-
-- CI `cargo check --locked --all-targets` 與 `cargo test --locked --lib`（windows-latest）。本 Linux 雲端環境不能跑這兩項。
+- GitHub Actions [run 41889440513](https://github.com/chaoren0418-arch/lito-modern/actions/runs/41889440513)（程式碼 head `ee1b196`，windows-latest；其後若僅修訂本報告，以 PR 最新 Checks 為準）：
+  - `cargo check --locked --all-targets`：success。
+  - `cargo test --locked --lib --no-fail-fast`：success；**1889 passed、0 failed、575 ignored**（較基線 1888 多 1，即新增的 opcode 測試）。
+  - 日誌含 `test modern_lito::native_opcodes::tests::opcode_constants_match_protocol_contract_sections_2_to_5 ... ok`。
 
 ## 未驗證什麼
 
@@ -78,7 +78,7 @@
 
 ## 給下一棒的提示
 
-- 請 Claude 審查 PR：確認 C／S 未共用常數、四個檔沒有行為變更、CI `cargo check --locked --all-targets` 與 `cargo test --locked --lib` 綠。通過後由使用者合併。
+- 請 Claude 審查 PR #29：確認 C／S 未共用常數、四個檔沒有行為變更。CI 已綠（run 41889440513）。通過後由使用者合併。
 - 後續若要繼續去魔術數字：優先 `native_login.rs`（LOGIN 收包與大廳／戰鬥送包），再補 §6／§7 opcode 到同一張表。`native_lobby.rs` 的 `0xf5` 可在補 §7 時改成 `S_LITO_VS_SERVER_ALLOW_JOIN`。
 - `native_version::S_VERSION` 是公開別名，外部測試若仍用此名不必改。
 - 本任務不另拆 plan。調度器合併後自行加 `docs/REPORT.md` 索引。
