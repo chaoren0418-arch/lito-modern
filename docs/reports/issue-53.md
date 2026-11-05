@@ -5,7 +5,7 @@
 - 核對 Issue #53 為 `open`、`runner:dot`、`task:running`；執行前只有調度器派工留言，未見既有結果，且本機沒有 #53 分支或報告。
 - 讀取專案規則、T010 與測試規劃。Issue #53 指定與 2026-11-04 CI 統計比較，沒有指定來源 commit。2026-11-05 透過 GitHub compare API 確認本機已有的 `c6f7b12b2421e6c25b53d885238dc34575ce1140` 與遠端 `main` 完全相同，因此固定該 commit 執行。
 - 原工作目錄的 `main` 為初始化提交 `92bbda0`，追蹤檔案乾淨，但有未追蹤且被忽略的歷史證據檔。`git checkout --no-overwrite-ignore` 以 `The following untracked working tree files would be overwritten by checkout` 拒絕切換，未覆寫原資料。
-- 改在專案內建立獨立 worktree，分支遵循 `AGENTS.md` 的 `feat/<任務編號>-<短名>` 規則：`feat/53-local-test-baseline`。未在原目錄強制 checkout、reset 或 clean。
+- 改在專案內建立獨立 worktree。交付分支依使用者對調度器任務的明確指示採 `task/53`；此指示優先於 `AGENTS.md` 的一般分支命名。未在原目錄強制 checkout、reset 或 clean。
 - 依序安排 `cargo check --all-targets`、Debug 與 Release 的非 ignored `cargo test --lib`，每步只執行一次；首個非零結束碼即停止後續步驟。
 
 ## 執行環境與路徑差異
@@ -101,4 +101,4 @@ cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir t
 ## 產出
 
 - `docs/reports/issue-53.md`（本報告）。
-- 分支：`feat/53-local-test-baseline`。
+- 分支：`task/53`。
