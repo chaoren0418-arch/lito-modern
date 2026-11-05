@@ -33,7 +33,7 @@ use windows::{
         System::LibraryLoader::GetModuleHandleW,
         UI::{
             HiDpi::{SetProcessDpiAwarenessContext, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2},
-            WindowsAndMessaging::*,
+            WindowsAndMessaging::{IsWindowVisible, *},
         },
     },
 };
@@ -243,6 +243,9 @@ pub fn run_from_args(args: &[String]) -> Result<()> {
             "create scene update timer"
         );
         let _ = ShowWindow(hwnd, SW_SHOW);
+        if !IsWindowVisible(hwnd).as_bool() {
+            let _ = ShowWindow(hwnd, SW_SHOW);
+        }
         let mut message = MSG::default();
         loop {
             match GetMessageW(&mut message, None, 0, 0).0 {
