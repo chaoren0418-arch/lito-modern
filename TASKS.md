@@ -26,14 +26,15 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 ### T005 | done | Cursor | `啟動現代客戶端.ps1`, `LiTo381-Modern/tools/build.ps1`
 去硬編路徑（`D:\lineage開發\...`）改相對 repo 根或環境變數 `LITO_CLIENT_ROOT`。
 驗收：clone 到任意路徑可建置。
-現況（2026-11-05）：已完成（Issue #3，PR #5）；Windows 原機實際建置仍待驗證（測試暫緩）。
+現況（2026-11-05）：已完成（Issue #3，PR #5）；Windows 原機實際建置與 clone 到其他路徑的腳本行為仍待驗證，交給 T010-F：只有在 clone 位置實際 `-BuildOnly` 成功才算驗證，T010-A 不算 T005 驗收。`build.ps1` 仍是 i686／`target/`，修正交給 T010-G。
 
-## M1 驗證（需使用者明確同意恢復測試）
+## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）
 
-### T010 | blocked(使用者同意) | 使用者+Claude | `docs/TESTING.md`
+### T010 | todo | 本機 dot／codex-local＋Claude | `docs/TESTING.md`
 跑 12 個 gate 案、四元件 inventory、17 原控制／6 反例；結果與失敗收據記錄。
+拆分（`docs/plans/issue-43.json`）：T010-A 單元測試基線 → T010-S ignored／整合測試的安全分類（靜態） → T010-B 白名單 ignored 測試 → T010-C 白名單整合測試 → T010-E 跑 gate 與 inventory（另需 T010-D 盤點 gate 定義）→ T011-A G06；T010-F 驗證 T005 建置腳本（依賴 A；clone 位置要實際執行 `-BuildOnly`）；T010-G 修正 `build.ps1` 的 i686／`target/` 參數（code）。前置阻塞時不解除後續門檻；首個失敗保存原始收據，另開 bug Issue。
 
-### T011 | blocked(T010) | 使用者+Claude | G06 兩版 16 案 640 次
+### T011 | blocked(T010) | 本機 dot／codex-local＋Claude | G06 兩版 16 案 640 次
 核對 PID／FILETIME／Job／DB 退出、33／31 秒、32＋8 雙 trace。首個失敗停止，不自動重試。
 
 ## M2 #97–#100 與 G06

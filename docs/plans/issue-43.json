@@ -1,0 +1,87 @@
+[
+  {
+    "id": "T010-A",
+    "title": "T010-A: 本機單元測試基線（cargo check＋cargo test --lib，Debug／Release）",
+    "stage": "test",
+    "priority": "P1",
+    "text": "做：在工作目錄依序執行：\n1. `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`\n2. `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast`\n3. `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --release --no-fail-fast`\n這三步都**不帶** `--ignored`，所以只會跑非 ignored 的單元測試。記錄每一步的結束碼、耗時，以及 passed／failed／ignored 數，並和 CI 基線（2026-11-04：2463 個測試、1888 通過、0 失敗、575 ignored）比較。\n驗收：報告列出三步的完整統計與差異；任何失敗都附測試名與原始輸出位置。\n\n共通規則：\n- 工作目錄是使用者電腦的 `D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern`；cargo 的共通參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。cargo 自己的選項（例如 `--no-fail-fast`、`--release`、`--lib`、`--test <名>`）要放在 `--` **之前**；`--` 之後只放測試程式的參數（例如 `--ignored`、`--exact`、測試全名）。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；不開原生 GUI 視窗做驗收（T030 等 M2 之後）。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 前置任務阻塞，或只完成盤點而無法執行時，本任務要回報為阻塞，不可以當成通過而解除後續門檻。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": []
+  },
+  {
+    "id": "T010-S",
+    "title": "T010-S: ignored 單元測試與整合測試的安全分類（靜態，不執行）",
+    "stage": "resource",
+    "priority": "P1",
+    "text": "做：**只讀原始碼，不執行任何測試**。\n1. 用 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib -- --ignored --list` 列出 575 個 ignored 測試的全名；`--list` 只列名稱，不執行。\n2. 用 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --tests -- --list` 與 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --tests -- --ignored --list` 列出 `tests/` 的整合測試，並記錄每個測試是不是 `#[ignore]`。另外靜態讀 `LiTo381-Modern/Cargo.toml` 的 `[[test]]` `required-features`：目前 `native_teleport_controller`（第 24–27 行）需要 `teleport-wire-test`，沒有 feature 的列名指令會漏掉它。這類 target 要另外用 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_teleport_controller --features teleport-wire-test -- --list` 列出，並一起分類，不可以從盤點中消失。\n3. 逐一讀測試原始碼，分成：**安全**（只讀資源、loopback socket、唯讀正式 JAR、記憶體 repository）、**GUI**（建立視窗、啟動 EXE、`OPERATOR ONLY` 等）、**DB**（SQL、`flow(true, …)` 等，例如 `src/modern_lito/canonical_slow_sql_tests.rs:458-465`）、**不明副作用**、**缺前置條件**。審查已知的例子包括 `canonical_slow_sql_tests.rs:458-465`（SQL）與 `r383_official_window_host_tests.rs:103`（官方 EXE 視窗），必須分到 DB 和 GUI。\n4. 產出兩份白名單。`scratch/t010-whitelist-lib.txt`：每行一個 ignored 單元測試全名。`scratch/t010-whitelist-tests.txt`：每行以 Tab 分隔四欄——`<test target>`、`<測試全名>`、`<是否 ignored：yes/no>`、`<需要的 features，沒有就填 ->`。\n驗收：報告列出每一類的數量與每個測試的分類理由（檔名:行號）；白名單只能包含「安全」類；兩份白名單的內容也要逐行附在報告中，供 B、C 使用與審查。範圍：只新增 `docs/reports/issue-<N>.md`，白名單檔放 `scratch/`。",
+    "depends_on": [
+      "T010-A"
+    ]
+  },
+  {
+    "id": "T010-B",
+    "title": "T010-B: 本機逐一執行白名單內的 ignored 單元測試",
+    "stage": "test",
+    "priority": "P1",
+    "text": "做：設定只讀資源變數 `LITO_SHARED_RESOURCE_ROOT=D:\\lineage開發\\0-客戶端`、`LITO_EFFECTLIST_REFERENCE=D:\\lineage開發\\客戶端xml\\effectlist2.xml`（其他變數依 T010-S 報告）。**只執行** T010-S 報告中「安全」白名單上的測試，每個測試單獨一次執行，指令如下：\n```powershell\nGet-Content <T010-S 報告附的白名單> | ForEach-Object { cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast -- --ignored --exact $_ }\n```\n**禁止**執行沒有 `--exact` 篩選的 `--ignored`。不在白名單上的測試（GUI、DB、不明副作用、缺前置條件）一律不執行，沿用 T010-S 的分類列為待驗證。\n驗收：報告逐一列出白名單上每個測試的結果（通過／失敗／錯誤），並統計各類未執行的數量；失敗附原始輸出位置。每次執行都要確認輸出是 `running 1 test`，而且 passed 或 failed 加起來是 1；如果是 `running 0 tests` 或仍顯示 ignored，**不算通過**，要標為「未實際執行」並寫明原因（例如全名不符）。\n\n共通規則：\n- 工作目錄是使用者電腦的 `D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern`；cargo 的共通參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。cargo 自己的選項（例如 `--no-fail-fast`、`--release`、`--lib`、`--test <名>`）要放在 `--` **之前**；`--` 之後只放測試程式的參數（例如 `--ignored`、`--exact`、測試全名）。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；不開原生 GUI 視窗做驗收（T030 等 M2 之後）。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 前置任務阻塞，或只完成盤點而無法執行時，本任務要回報為阻塞，不可以當成通過而解除後續門檻。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-S"
+    ]
+  },
+  {
+    "id": "T010-C",
+    "title": "T010-C: 本機逐一執行白名單內的整合測試（loopback 隔離 harness）",
+    "stage": "test",
+    "priority": "P2",
+    "text": "做：設定 `LITO_MODERN_TEST_JAVA`（JDK 17）、`LITO_MODERN_TEST_JAVA_CLASSPATH`、`LITO_MODERN_TEST_SERVER_ROOT`，指向正式 JAR `D:\\lineage開發\\3-lito開發\\lito登入器\\LiTo381-Launcher\\app\\server\\LiTo381-SharedResources-candidate.jar`（唯讀；先實算 SHA256，確認是 e1498871…d99d498）。**只執行** T010-S 整合測試白名單上的測試，每個測試單獨一次：\n```powershell\ncargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test <test target> [--features <features>] --no-fail-fast -- --include-ignored --exact <測試全名>\n```\n`--include-ignored` 讓白名單裡的 `#[ignore]` 項目也真的執行（例如 `tests/native_additional_finite_resources.rs:31-32` 這類資源測試，是否安全仍以 S 的判定為準）；`--features` 依白名單第 4 欄帶入，例如 `native_teleport_controller` 要帶 `--features teleport-wire-test`。精確篩選 `--exact` 不可以移除。\n**禁止**執行沒有篩選的 `cargo test --tests`。不在白名單上的測試列為待驗證。\n驗收：報告列出 JAR SHA256 實算值，以及白名單上每個測試的結果和未執行項目的統計；失敗附原始輸出位置。每次執行都要確認輸出是 `running 1 test`，而且 passed 或 failed 加起來是 1；`running 0 tests` 或 ignored **不算通過**。\n\n共通規則：\n- 工作目錄是使用者電腦的 `D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern`；cargo 的共通參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。cargo 自己的選項（例如 `--no-fail-fast`、`--release`、`--lib`、`--test <名>`）要放在 `--` **之前**；`--` 之後只放測試程式的參數（例如 `--ignored`、`--exact`、測試全名）。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；不開原生 GUI 視窗做驗收（T030 等 M2 之後）。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 前置任務阻塞，或只完成盤點而無法執行時，本任務要回報為阻塞，不可以當成通過而解除後續門檻。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-B"
+    ]
+  },
+  {
+    "id": "T010-D",
+    "title": "T010-D: 盤點 M1 gate 定義（12 gate 案／四元件 inventory／17 原控制＋6 反例／G06 16 案 640 次）",
+    "stage": "resource",
+    "priority": "P1",
+    "text": "做：這些定義只在使用者電腦上。請從上層目錄的 `LiTo381-總開發報告.md`、`驗證紀錄/`，以及 `維護工具/` 的 gate、checkpoint、inventory 腳本（例如 `inventory.py`、`inventory-pinned-library-tests.py`、`*_broad_gate.py`、`continue-native-startup-G06-controller.py`、`checkpoint-*-G06-*.py`）找出「當版」的：\n(1) 12 個 gate 案，以及其中 4 案需要的原資源；\n(2) 四元件 inventory；\n(3) 17 個原控制與 6 個反例；\n(4) G06 兩版 16 案 × 640 次的計畫，包括 PID、FILETIME、Job、DB 退出與 33／31 秒期限的核對方式。\n每一項寫出：定義出處（檔案與行號或段落）、執行腳本與完整指令、需要的資源或環境、是否會連 DB、啟動遊戲程序或開視窗（會的話寫明如何隔離，或標為不可執行）、預估耗時。\n範圍：只新增 `docs/reports/issue-<N>.md`；**不執行**任何 gate 或測試。\n驗收：四類定義都有出處與可執行指令；找不到的要明確標「找不到」，不可以推測補上。",
+    "depends_on": []
+  },
+  {
+    "id": "T010-E",
+    "title": "T010-E: 本機執行 12 gate 案、四元件 inventory、17 原控制＋6 反例",
+    "stage": "test",
+    "priority": "P2",
+    "text": "做：依 T010-D 報告列出的定義與指令，逐項執行可安全執行的 gate、inventory 與控制／反例。T010-D 標為「會連 DB、啟動遊戲或開視窗，且無法隔離」的項目不執行，列為待驗證。\n驗收：報告逐項列出結果（已驗證通過／失敗／待驗證與原因）；首個失敗保存原始收據並停止該組，其他組照常執行。\n\n共通規則：\n- 工作目錄是使用者電腦的 `D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern`；cargo 的共通參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。cargo 自己的選項（例如 `--no-fail-fast`、`--release`、`--lib`、`--test <名>`）要放在 `--` **之前**；`--` 之後只放測試程式的參數（例如 `--ignored`、`--exact`、測試全名）。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；不開原生 GUI 視窗做驗收（T030 等 M2 之後）。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 前置任務阻塞，或只完成盤點而無法執行時，本任務要回報為阻塞，不可以當成通過而解除後續門檻。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-D",
+      "T010-C"
+    ]
+  },
+  {
+    "id": "T010-F",
+    "title": "T010-F: 本機驗證 T005 建置腳本（-WhatIf／-BuildOnly，以及 clone 到其他路徑）",
+    "stage": "test",
+    "priority": "P3",
+    "text": "做：驗證 T005（#3，PR #5）改過的兩支腳本，**不啟動遊戲**：\n1. 在 repo 根目錄執行 `pwsh -NoProfile -File .\\啟動現代客戶端.ps1 -WhatIf -BuildOnly`，以及 `-WhatIf -Verify`，記錄輸出與結束碼。\n2. 執行 `pwsh -NoProfile -File .\\啟動現代客戶端.ps1 -BuildOnly`。這一步只建置並印出 exe 路徑，不啟動程式；記錄結束碼，以及產出 exe 的路徑與 SHA256。\n3. 只執行 `pwsh -NoProfile -File .\\LiTo381-Modern\\tools\\build.ps1 -WhatIf`（`-Mode Test` 與 `-Mode Debug` 各一次），記錄印出的 cargo 指令。**不要**實際執行 `build.ps1`：它的第 22、32 行目前使用 `target/` 與 `i686-pc-windows-msvc`，也沒有 `-j1`，`build-evidence.ps1` 第 63–68、80 行也固定是 i686 產物，和共通規則的 x86_64／`target/current` 不一致。這是已知問題，修正另列為 T010-G；實際執行要等 T010-G 合併後。報告把它列為「待驗證（等 T010-G）」，32 位元建置不可以算成 x64 驗收。\n4. 把 repo `git clone` 到專案內的 `scratch\\clone-test\\`（不可放到專案外），並 `git checkout` 到本任務開始時 main 的 commit（記錄 SHA）。在 clone 裡：\n   (a) 不設定 `LITO_CLIENT_ROOT`，以及設定成相對路徑，各執行一次 `-WhatIf -BuildOnly`，確認路徑解析是相對於 clone 的 repo 根；\n   (b) 實際執行一次 `pwsh -NoProfile -File .\\啟動現代客戶端.ps1 -BuildOnly`。這一步只建置並印出 exe 路徑，不啟動程式。記錄結束碼、產出 exe 的路徑（必須在 clone 的 `LiTo381-Modern\\target\\current\\…` 之下），以及 exe 的 SHA256。\n   完成後刪除 `scratch\\clone-test\\`。\n**禁止**使用 `-NativeLoginEndpoint`、`-OfflineScene`、`-ProbeNativeEndpoint` 等會啟動程式的模式。\n驗收：報告逐步列出指令、結束碼與關鍵輸出。T005 的「clone 到任意路徑可建置」只有在步驟 4(b) 實際建置成功，而且產物位於 clone 之下時，才算已驗證；只有 `-WhatIf` 成功時，只能算「路徑解析已驗證，異路徑實際建置待驗證」。`build.ps1` 的實際建置維持待驗證，等 T010-G。\n\n共通規則：\n- 工作目錄是使用者電腦的 `D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern`；cargo 的共通參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。cargo 自己的選項（例如 `--no-fail-fast`、`--release`、`--lib`、`--test <名>`）要放在 `--` **之前**；`--` 之後只放測試程式的參數（例如 `--ignored`、`--exact`、測試全名）。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；不開原生 GUI 視窗做驗收（T030 等 M2 之後）。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 前置任務阻塞，或只完成盤點而無法執行時，本任務要回報為阻塞，不可以當成通過而解除後續門檻。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-A"
+    ]
+  },
+  {
+    "id": "T010-G",
+    "title": "T010-G: build.ps1／build-evidence.ps1 對齊 x86_64-pc-windows-msvc、target/current、-j1",
+    "stage": "code",
+    "priority": "P3",
+    "text": "範圍：`LiTo381-Modern/tools/build.ps1`、`LiTo381-Modern/tools/build-evidence.ps1`。\n做：#3 審查時就已記錄的既有問題——`build.ps1` 第 22、32 行使用 `target/` 與 `--target i686-pc-windows-msvc`，也沒有 `-j1`；`build-evidence.ps1` 第 63–68、80 行固定 i686 產物路徑。這些都和 CLAUDE.md 規定的 x86_64-pc-windows-msvc、`target/current`、`--locked --offline -j1` 不一致。請改成和 `啟動現代客戶端.ps1` 相同的參數，並保留 `-WhatIf`、缺路徑時的錯誤訊息與 `LITO_CLIENT_ROOT` 解析。不改其他檔案，不啟動遊戲。\n驗收：CI `cargo check` 綠；PR 描述附改前與改後 `build.ps1 -WhatIf` 印出的 cargo 指令；寫明「怎麼驗證／未驗證什麼」（實際 Windows 建置交給 T010-F 之後的本機任務）。",
+    "depends_on": []
+  },
+  {
+    "id": "T011-A",
+    "title": "T011-A: 本機執行 G06 兩版 16 案 640 次",
+    "stage": "test",
+    "priority": "P2",
+    "text": "做：依 T010-D 報告的 G06 計畫與腳本，執行兩版 16 案、共 640 次，核對 PID、FILETIME、Job、DB 退出、33／31 秒自然期限，以及 32＋8 雙 trace。**首個失敗就停止，不自動重試**；保存該次的原始收據。若 T010-D 判定 G06 需要連正式 DB、啟動既有遊戲程序或開 GUI 且無法隔離，本任務不執行，回報為阻塞並寫明原因。\n前置：T010-A、B、C、E 都必須已完成並有報告，透過 T010-E 的依賴鏈保證。任何一個是阻塞或失敗時，本任務也回報為阻塞。\n驗收：報告列出已完成的次數、每案通過數，以及首個失敗（若有）的完整收據位置與重現指令。\n\n共通規則：\n- 工作目錄是使用者電腦的 `D:\\lineage開發\\3-lito開發\\lito重建版\\LiTo381-Modern`；cargo 的共通參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。cargo 自己的選項（例如 `--no-fail-fast`、`--release`、`--lib`、`--test <名>`）要放在 `--` **之前**；`--` 之後只放測試程式的參數（例如 `--ignored`、`--exact`、測試全名）。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；不開原生 GUI 視窗做驗收（T030 等 M2 之後）。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 前置任務阻塞，或只完成盤點而無法執行時，本任務要回報為阻塞，不可以當成通過而解除後續門檻。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-E"
+    ]
+  }
+]
