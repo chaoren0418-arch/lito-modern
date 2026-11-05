@@ -1,14 +1,14 @@
-# Issue #101：T012 本機測試套件（前置阻擋）
+# Issue #101：T012 本機測試套件（第 2 次嘗試，前置阻擋）
 
 ## 結論
 
-**blocked，未完成、未通過驗收。** 2026-11-06 本機前置檢查找不到 `pwsh`，無法確認可用的 PowerShell 7.0 以上版本。依本任務步驟 0「找不到 pwsh 或版本低於 7，就標 blocked 並回報，不改用 Windows PowerShell 5.1」，停止後續實作與測試；沒有以 Windows PowerShell 5.1 代跑。
+**blocked，未完成、未通過驗收。** 2026-11-06 第 2 次嘗試重新執行本機前置檢查，仍找不到 `pwsh`，無法確認可用的 PowerShell 7.0 以上版本。依本任務步驟 0「找不到 pwsh 或版本低於 7，就標 blocked 並回報，不改用 Windows PowerShell 5.1」，停止後續實作與測試；沒有以 Windows PowerShell 5.1 代跑。
 
 ## 做了什麼／怎麼驗證
 
 - 工作目錄：`D:\lineage開發\3-lito開發\lito重建版\scratch\wt\task-101`；沿用 `task/101`，未 checkout 或建立分支。
-- 起始提交：`b2d5b84c6f86936dd00fa7914bed960add8402d0`；起始工作樹乾淨。
-- 已讀 `AGENTS.md`、`docs/REPORT.md`、`TASKS.md` 的 T012／T013、啟動腳本與 #54／#56 報告。`啟動現代客戶端.ps1` 首行確為 `#Requires -Version 7.0`。
+- 本次起始提交：`8fc1592ad572e256ce1405270839d2bb0e7f4d63`（前次阻擋報告）；起始工作樹乾淨。
+- 本次已讀 `AGENTS.md`、`docs/REPORT.md`、前次阻擋報告，核對 `TASKS.md` 的 T012／T013 與啟動腳本首行 `#Requires -Version 7.0`。尚未進入白名單擷取或實作階段。
 - `docs/DEMO.md` 在此基準不存在，未變更。
 
 ### 已驗證：PowerShell 前置結果
@@ -31,11 +31,12 @@ $PSVersionTable.PSVersion.ToString()
 
 此版本是 **Windows PowerShell 5.1**，不是 pwsh 的版本。PowerShell 7 路徑／版本均為「未取得」，不可把上述數值當成符合前置要求。
 
-補充只讀搜尋結果：
+本次補充只讀搜尋結果：
 
 - `C:\Program Files\PowerShell\7\pwsh.exe`、`C:\Program Files\PowerShell\7-preview\pwsh.exe`、`C:\Users\CHAOREN\AppData\Local\Microsoft\WindowsApps\pwsh.exe`：`Test-Path` 均為 False。
-- `C:\Program Files`、`C:\Program Files (x86)` 的 PowerShell 名稱目錄檢查僅見 `WindowsPowerShell`；使用者 Local Programs／WinGet Packages 未找到 PowerShell 安裝項目。
-- 遞迴搜尋存在的 `D:\dev-cache`、`D:\dev-orchestrator\tools`、`D:\lito-dev-runtime`，未取得 `pwsh.exe`；`D:\dev-tools` 與原專案 `tools` 亦未取得候選。
+- `C:\Program Files\PowerShell`、`C:\Users\CHAOREN\AppData\Local\Microsoft\WinGet\Packages`、`D:\dev-tools` 均不存在。
+- `rg` 不在本次 PATH，改以 `Get-ChildItem -Recurse -File -Filter pwsh.exe` 搜尋。使用者 `AppData\Local\Programs`、`D:\dev-orchestrator\tools`、`D:\lito-dev-runtime` 搜尋均無結果，且搜尋錯誤數為 0。
+- `D:\dev-cache` 遞迴搜尋未取得 `pwsh.exe`，但有 2 筆搜尋錯誤，因此此目錄不能視為完整排除；沒有為了搜尋變更權限。
 
 這些結果只證明本工作階段 PATH 與上述位置沒有找到可用 pwsh，不推論整台電腦絕無其他安裝位置。未下載或安裝 PowerShell、未變更 PATH 或其他系統設定。
 
@@ -61,6 +62,6 @@ pwsh -NoProfile -File 維護工具/run-local-test-suite.ps1 -Quick
 
 ## 給下一棒的提示
 
-由調度器安排本機執行器確認／補齊 PowerShell 7 的可用執行環境，再重派 #101；若有既有安裝，提供完整 `pwsh.exe` 路徑即可繼續前置查核，無須要求使用者代跑測試。此阻擋報告不代表 T012 已完成，請保留 blocked／未驗收狀態。
+第 2 次嘗試仍重現相同前置阻擋。由調度器安排本機執行器確認／補齊 PowerShell 7 的可用執行環境，取得實際 `pwsh.exe` 路徑與版本收據後再重派 #101；若有既有安裝，提供完整路徑即可繼續前置查核，無須要求使用者代跑測試。此阻擋報告不代表 T012 已完成，請保留 blocked／未驗收狀態。
 
 解除後先記錄該 pwsh 的實際路徑與版本，再按 #54 原文建立 UTF-8／LF 白名單、實作腳本與嚴格成功門檻，實跑完整與 Quick 兩條命令。以本報告更新替換阻擋內容，附原樣總表、最終結束碼與基線比較；若當時 T013 已合併，再按授權更新 DEMO 測試連結。完成後交 Claude 審查、使用者合併。
