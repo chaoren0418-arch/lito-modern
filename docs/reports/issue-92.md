@@ -7,8 +7,8 @@
   - 伺服器的 `server-source-gap.md` 與 `docs/maintenance/` 是依結構讀相關章節，不是逐檔全讀；已在 PLAN 的來源表寫明。
 - **G01–G12 的 46 項**都已對到任務、不確定項，或有理由的排除（附錄 E1）。
 - **候選 44 檔**都已對到重寫任務（附錄 E2）。
-- **主線**（M1＋V1）剩 **2 項，封頂**（T011-F、T011-B）：T011-H、T012、T013 已完成，V1 完成；U-M1-1 已兌現為 T011-F（#111），分母因此由 10 變 11。
-- **M2、M3** 的完成定義已凍結，任務各 **53 張、43 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
+- **主線**（M1＋V1）剩 **1 項，封頂**（T011-B，重跑 #118）：T011-H、T011-F、T012、T013 已完成，V1 完成；U-M1-1 已兌現為 T011-F（#111），分母因此由 10 變 11。
+- **M2、M3** 的完成定義已凍結，任務各 **53 張、44 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
 - **證據**：「已驗證」的說法都可以用 `維護工具/check-issue-92-evidence.sh` 重跑，原始輸出附在「證據」一節。
 
 ## 第 4 次嘗試的修正（對應第 3 輪 claude-local 審查）
@@ -41,7 +41,7 @@
    - 補讀建置鏈：伺服器 398 個 `build*.py`，以及鏈中不在 build*.py 的 3 段，重建 0.6.35→0.6.71 的 patch 鏈（附錄 D）。
    - 依此新增 M2 任務：T041、T043、T044、T045、T046、T047、T048、T050；新增 M3 任務：T042、T049、T052。
    - 依此擴大既有任務：T023、T028、T029 各加 1 張；T025、T033、T034、T035、T036 擴大範圍（張數不變）。
-   - 新增不確定項 U-M3-7、U-M3-8，以及多項排除。
+   - 新增不確定項 U-M3-8，以及多項排除（U-M3-7 後來在第 4 次改為任務 T056）。
    - 結果：M2 由 30 張改為 46 張，M3 由 26 張改為 31 張；主線不變。
    - 更正：上一版說 HISTORY「去掉 850 行逐字重複」，不正確。實際是 849 行空白加 2 行重複，內容 738 行，4 段都已逐行讀完。
 2. **漏列驗收所需的腳本擴充**：
@@ -60,8 +60,8 @@
   - T024 2、T028 4、T029 2、T023 4；
   - T041 1、T043 2、T044 3、T045 2、T046 3、T047 2、T048 1、T050 1；
   - T054 2、T055 2。
-- **預定 M3（43 張）**：
-  - T040 1、T034 1、T035 2、T030 1、T031 2、T036 15、T038 3、T037 1、T032 1；
+- **預定 M3（44 張）**：
+  - T040 1、T034 1、T035 2、T030 1、T031 2、T036 15、T038 3、T037 2、T032 1；
   - T042 1、T049 2、T052 2；
   - T053 2、T056 2、T057 2、T058 2、T059 2、T060 1。
 - **排除或延後**：
@@ -75,11 +75,11 @@
 | 區段 | 完成 | 剩餘 |
 |---|---|---|
 | M0 | 5（T001–T005） | 0 |
-| M1 | 2（T010、T011-H） | 2（T011-F、T011-B） |
+| M1 | 3（T010、T011-H、T011-F） | 1（T011-B，重跑 #118） |
 | M1-V1 | 2（T012、T013） | 0 |
-| 合計 | 9 | **2**（分母 11；U-M1-1 兌現） |
+| 合計 | 10 | **1**（分母 11；U-M1-1 兌現） |
 
-- 分母只有在 U-M1-1、U-V1-1、U-V1-2 兌現時可以增加，最多到 13。兌現時 PR 要引用編號與估算。
+- U-M1-1 已兌現為 T011-F；U-V1-1、U-V1-2 沒有兌現，已關閉。主線分母固定為 11。
 - M2、M3 開放時（需要 `needs:user`）分別加 53、43，不確定項上限各為 +8、+18。
 
 ## 證據
@@ -100,7 +100,7 @@ bash 維護工具/check-issue-92-evidence.sh /path/to/lito-modern /path/to/lito-
 - E8：E149 內含的候選層。
 
 判定：
-- 已驗證：E1、E2、E3、E4 的 quitFight、broadcastDefaultRoomReset、exitRoom、E7、E8。
+- 已驗證：E1、E2、E3（目錄 181、main 38 是解析得到；「候選獨有 48」是用 1–98 扣掉 main 與 97／98 算出來的，候選的 `item_targeted` 另含 107，嚴格是 49／90）、E4 的 quitFight、broadcastDefaultRoomReset、exitRoom、E7、E8。
 - 待驗證：E4 的 `rentalItemSelectionContext`（offset 59 呼叫 `hasRentalBattleHandoff`）與修補提案是否等價；商人屬性來源沒核對。
 - 只是轉述：E5、E6。
 
@@ -220,7 +220,7 @@ lines 1589 nonempty 740 unique 738 dup 2
 
 ## 怎麼驗證
 - 張數核對：
-  - M2：1+2+2+1+6+10+2+4+2+4+1+2+3+2+3+2+1+1+2+2=53；M3：1+1+2+1+2+15+3+1+1+1+2+2+2+2+2+2+2+1=43；主線分母 5+4+2=11。
+  - M2：1+2+2+1+6+10+2+4+2+4+1+2+3+2+3+2+1+1+2+2=53；M3：1+1+2+1+2+15+3+2+1+1+2+2+2+2+2+2+2+1=44；主線分母 5+5+1=11。
   - 技能：38+48+4+91=181；T022 各批 9+9+7+11+11+10+8+7+9+10=91；T027 每批 8 個，共 6 批＝48。
 - `grep -n "^## \|^### " TASKS.md`：`## M*` 區段下只有主線項目，M2／M3 下沒有 `###` 項目。
 
@@ -267,7 +267,7 @@ lines 1589 nonempty 740 unique 738 dup 2
 | L635、L671–L725 | 63 的 320 秒；其他地面、攻擊、投射物技能 | T028、T022 |
 | L1106、L1109、L753 | 遠程 arrow／flightType、alpha 命中、拒絕提示 | T029 |
 | L713、L751、L1109 | 特殊變身與中斷、hurt queue | T024 |
-| L1052–L1062 | 觀戰單獨離場、初始鏡頭 | T023 |
+| L1052–L1062 | 觀戰單獨離場、初始鏡頭 | T054 |
 | L1155、L1172、L1227 | 更多取消／舊世代、跨世代 wire | T023 |
 | L1150 | TeleportMe 原圖示排版 | T023 |
 | L515、L541、L957–L986、L1527–L1567 | 租裝、旅館、商人 GUI；3600／7200 秒自然租期 | T034、T030 |
@@ -276,7 +276,7 @@ lines 1589 nonempty 740 unique 738 dup 2
 | L399、L431 | 大廳 reselect 後斷線（C02 清空 equipment-vital） | 排除（伺服器端） |
 | L1106–L1131 | 正式來源漂移（D7222DED、6928A147）後全面重驗 | U-M2-2 |
 | L163–L305、L1298–L1578 | 照明、光罩、水下、map303、背景 scheduler、相機、Bank viewport、RGB565 | 排除（畫面等價研究），U-M3-5 |
-| L69–L135、L179、L453 | map563 30 人回歸 | U-M3-6（T033 判定） |
+| L69–L135、L179、L453 | map563 30 人回歸 | U-M3-6（T037 判定） |
 | L555、L1078、L1086、L1175–L1199 | 普通 WORLD C05、131 進 map4、869／$748、WORLD 分支、攻城 P 鍵 | 排除（WORLD） |
 | L711 等 | Debug 281／Release 282 編譯警告 | 排除（建置雜項） |
 | L919、L93、L1014 | before-rebuild zip、NUL 診斷映像、外部 LiTo.bin | 排除（建置雜項） |
@@ -320,7 +320,7 @@ L65 之前的 141 案，HISTORY 沒有分項。L137–L1588 沒有「新 N 案�
 
 ## 相依
 - PR #99 的 base 已改為 main（#98 已合併）；送審差異只含 #92 自己的 4 個檔案。
-- 等 #106（本機唯讀盤點）完成，才能做完步驟 0。
+- #106 已完成（G01–G12 原文、候選 554 個測試宣告）。
 - 後續建議（不在本張範圍）：CLAUDE.md 那句「475 個測試案全未跑」容易和 574／481 混淆，建議另開 Issue 改寫。
 
 ## 附錄 C：研究紀錄全讀 → 新增或擴大的任務
@@ -329,10 +329,10 @@ NATIVE 文件 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完，總數�
 | 出處 | 事項 | 歸屬 |
 |---|---|---|
 | NATIVE-EMBLEMS:29–31 | `EBF5EE66`（E149 的祖先）起，startBattle 關閉訓練 bot（E149 待核對），54 情境要用兩個真實玩家重做 | T043（M2，2 張） |
-| NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40 | 在途移動、靜默拒絕、碰撞、動態門與占位、城門、G04 剩餘項 | T044（2 張） |
+| NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40 | 在途移動、靜默拒絕、碰撞、動態門與占位、城門、G04 剩餘項 | T044（3 張） |
 | NATIVE-ITEM-ACTIONS:9、:39、NATIVE-GROUND-SKILLS:33 | 帶目標或選項的物品、type3、194／197、C76、耗材 | T045（2 張） |
 | NATIVE-SKILLS:41、NATIVE-SKILL-SELECTION:27、NATIVE-REAGENT-SKILLS:31、NATIVE-ATTACK-SKILLS:3、:32 | 快捷列、技能書、buff／AC／冷卻／MP UI、技能中斷 | T046（3 張） |
-| NATIVE-ANIMATION:11、NATIVE-COMBAT:30、NATIVE-WORLD:24、:34 | 影格事件 Effect／Hit；gfx1544 action0 | T047（1 張） |
+| NATIVE-ANIMATION:11、NATIVE-COMBAT:30、NATIVE-WORLD:24、:34 | 影格事件 Effect／Hit；gfx1544 action0 | T047（2 張） |
 | NATIVE-OUTCOMES:13、NATIVE-CONTINUOUS:22 | S_RESURRECT 等復活分支 | T048（1 張） |
 | NATIVE-WORLD:18 | subtype33 完整性挑戰，沒有送 C_ADDR | T050（1 張） |
 | NATIVE-COMBAT:36、:38、NATIVE-NAVIGATION:23、NATIVE-OUTCOMES:19 | 自動追擊、目標圈、攻擊速度、延遲回覆重試 | T029 擴為 2 張 |
@@ -343,7 +343,7 @@ NATIVE 文件 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完，總數�
 | NATIVE-INVENTORY:44；NATIVE-LOGIN:14 | 數量重複顯示；截圖逾時 | T035 |
 | NATIVE-ROOM:46、NATIVE-TELEPORT:22、NATIVE-WORLD-ROOFS:35、NATIVE-WORLD-INTEGRATION:123 | 建房、中文密碼、圖示排版、屋頂進出、G09 音效事件 | T034 |
 | NATIVE-WORLD-INTEGRATION:5、:9、:13、:150、:177；NATIVE-SCENE-LOADING:9；NATIVE-RESOURCE-LATENCY:17；NATIVE-LABEL-UPDATES:50 | 整庫 lib 記憶體失敗、runner 漏 pin、根因未定的失敗 | T036 |
-| NATIVE-OPTIMIZED-PROFILE:18、NATIVE-WORLD-LABELS:13、:25、NATIVE-ROOM:48、NATIVE-WORLD-INTEGRATION:129 | emblem／稱號／名稱權限、ARGO、map500 入口 | T033 判定；U-M3-7、U-M3-8 |
+| NATIVE-OPTIMIZED-PROFILE:18、NATIVE-WORLD-LABELS:13、:25、NATIVE-ROOM:48、NATIVE-WORLD-INTEGRATION:129 | emblem／稱號／名稱權限、ARGO、map500 入口 | emblem 與名稱歸 T056、map500 入口歸 T055、ARGO 歸 U-M3-8（T037 判定） |
 | `native-E149-component-*.md`、`owned-mysql-README.md:19`、`mass69-integration.md:17` | 四元件、原版 6 反例、候選 14 案、元件矩陣 28 案 | 排除（候選資格，#58） |
 
 ## 附錄 D：伺服器建置鏈（0.6.35 → 0.6.71）
@@ -439,7 +439,7 @@ NATIVE 文件 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完，總數�
 | G09 原始音效與裝置生命週期 | …incomplete… | T059、T030 |
 | G10 Release 全流程與可攜交付 | …incomplete… | T031、T042、T036 |
 | G11 效能、長時間、故障恢復 | …incomplete… | T038、T050 |
-| G12 整理與整體完成稽核 | pending_full_G01_G12_current_source_acceptance | T037、T032 |
+| G12 整理與整體完成稽核 | pending_full_G01_G12_current_source_acceptance | T037（2 張：證據保存與冗餘整理、46 項稽核）、T032 |
 
 CLAUDE.md 目標裡的「聊天」在 G01–G12 沒有單獨一項，另外新增 T060。
 

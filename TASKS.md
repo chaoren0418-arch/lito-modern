@@ -5,10 +5,10 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 
 ## 範圍凍結規則（2026-11-06，#92）
 - **完成定義凍結**：每個里程碑的「驗收：使用者打開會看到什麼」寫完後不再改寫；要改需開新 Issue 說明理由並標 `needs:user`。
-- **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 2 項，封頂**（T011-F、T011-B；T011-H、T012、T013 已完成）。T011-F 是 U-M1-1 兌現（#81 首跑失敗），分母因此由 10 變 11。V1 已完成，U-V1-1、U-V1-2 沒有兌現，已關閉。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
-- **分母只因「不確定項」兌現而變動**：主線的不確定項見 `PLAN.md`「盤點：已知範圍」的 U-M1-1、U-V1-1、U-V1-2，最多 +3 張。兌現時 PR 說明要引用當初的編號與估算。
+- **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 1 項，封頂**（T011-B；T011-H、T011-F、T012、T013 已完成）。T011-F 是 U-M1-1 兌現（#81 首跑失敗），分母因此由 10 變 11。V1 已完成，U-V1-1、U-V1-2 沒有兌現，已關閉。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
+- **分母只因「不確定項」兌現而變動**：主線的不確定項 U-M1-1 已兌現為 T011-F；U-V1-1、U-V1-2 沒有兌現，已關閉。主線分母固定為 11，只有在 M2 開放（需要 `needs:user`）時才會變動。兌現時 PR 說明要引用當初的編號與估算。
 - **新發現的工作一律進 `## Backlog`**，不算進度。要升級成主線，必須同時砍掉一項主線，或經使用者同意（`needs:user`）。
-- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 53 張、M3 43 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
+- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 53 張、M3 44 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
 
 ## M0 可建置（完成）
 驗收：使用者打開會看到什麼（凍結）：GitHub Actions 的 `build.yml` 在 main 最新一次是綠色；`docs/reports/issue-59.md` 有 clone 到其他路徑後 `啟動現代客戶端.ps1 -BuildOnly` 結束碼 0 的實際輸出。
@@ -37,7 +37,7 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 驗收：clone 到任意路徑可建置。
 現況（2026-11-05）：已完成（Issue #3，PR #5）；Windows 原機實際建置與 clone 到其他路徑的腳本行為仍待驗證，交給 T010-F：只有在 clone 位置實際 `-BuildOnly` 成功才算驗證，T010-A 不算 T005 驗收。`build.ps1` 仍是 i686／`target/`，修正交給 T010-G。
 
-## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）— 主線剩 2 項，封頂
+## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）— 主線剩 1 項，封頂
 驗收：使用者打開會看到什麼（凍結）：
 - `docs/reports/issue-53.md`、`issue-55.md`、`issue-56.md` 有當版 main 的 check、lib Debug／Release、白名單的實際數字（已有）。
 - T011-B 的報告有 G06 當版 5 個 scenario（timeout、refused、wrong-service、cancel-retry、cancel-expiry）各自的實際輸出：`running 1 test`、`1 passed`，以及 result.json 的 sessions／memberships 檢查結果。
@@ -55,11 +55,11 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 ### T011-H | done | 本機 codex-local | Java harness、`維護工具/run-teleport-failure.ps1`、Rust 守門（#91，PR #95）
 Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runner：白名單、repo 根、隔離的 temp／JVM options、來源 SHA 綁定、三個 listener 的所有權、java 與 Rust 分開清理、原子 lease；Rust 端拒絕 2000／3306。範圍與驗收見 `docs/plans/issue-82.json`。
 
-### T011-F | todo | 本機 codex-local | `native_disintegrate.rs`、`native_cone_cold.rs`、`native_call_lightning.rs`（#111）
+### T011-F | done | 本機 codex-local（PR #115） | `native_disintegrate.rs`、`native_cone_cold.rs`、`native_call_lightning.rs`（#111）
 U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載 77 Disintegrate 的特效資源，資格檢查不符（`disintegrate_assets.rs:207`），錯誤一路往上丟，中止了整個連線。修正方向：特效資源資格不符時，改標「呈現不可用」並記錄原因，不中止連線或流程；不放寬資格檢查，也不替換資源。範圍與驗收見 #111。
 
-### T011-B | blocked(T011-F) | 本機 codex-local | 執行當版 G06 5 個 scenario（#81 首跑：timeout 失敗，其餘 4 案未執行）
-**可排程條件**：T011-H 合併並通過審查，T011-B 就改回 queued（已成立：PR #95 於 2026-11-05 通過審查並合併）。**每案啟動 Rust 前的檢查**：lease、目錄契約、javac、來源綁定、三個 listener 的所有權，任何一項失敗都中止，回報為阻塞。**實跑後的驗收**：`running 1 test` 而且 1 passed；result.json 的 sessions／memberships 檢查通過；退出鏈完整；E149 資源在 memory 模式下的初始化有實際證據。沒有實跑，不能宣稱通過。首個失敗就停止，不自動重試。
+### T011-B | todo | 本機 codex-local | 執行當版 G06.3d 5 個 scenario（重跑 #118；首跑 #81 的結果是 timeout 失敗、其餘 4 案未執行）
+**可排程條件**：T011-H 與 T011-F 都已合併並通過審查（PR #95、PR #115），重跑 #118 已排入佇列。**每案啟動 Rust 前的檢查**：lease、目錄契約、javac、來源綁定、三個 listener 的所有權，任何一項失敗都中止，回報為阻塞。**實跑後的驗收**：`running 1 test` 而且 1 passed；result.json 的 sessions／memberships 檢查通過；退出鏈完整；E149 資源在 memory 模式下的初始化有實際證據。沒有實跑，不能宣稱通過。首個失敗就停止，不自動重試。
 
 ## M1-V1 打開就看得到（V1；2026-11-06，#86；兩張平行）— 主線 0 項（完成）
 驗收：使用者打開會看到什麼（凍結）：
@@ -85,9 +85,9 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 驗收：使用者打開會看到什麼（凍結）：
 - 在一台乾淨的 Windows x64 主機（沒有 VS 預覽 runtime）上解壓可攜 ZIP，雙擊 ZIP 內的啟動入口（T031 提供可雙擊的 `.cmd` 或 exe，不需要另外安裝 PowerShell 7），連本機自架的 E149 伺服器，走完競技場流程「登入→大廳→進房→戰鬥→退出」。
 - `docs/GUI-ACCEPTANCE.md`（M3 新增）列出 T030 清單的每一項，各附截圖或錄影，以及「通過／失敗／待伺服器」。
-- `docs/G01-G12.md`（M3 新增）有 G01–G12 每一項的定義、證據連結與狀態。
+- `docs/G01-G12-AUDIT.md`（T037 新增）對 `docs/G01-G12.md` 的 46 項逐項列出：本次驗收結論、證據連結、已知限制、重跑指令，以及驗收時的來源版本（客戶端 commit、E149）。
 - 執行 `run-local-test-suite.ps1 -Full`，Debug 與 Release 的總表結束碼 0；不能執行的項目逐項寫明排除理由。
-任務清單：見 Backlog「預定 M3」（43 張，開放時原樣升級）。
+任務清單：見 Backlog「預定 M3」（44 張，開放時原樣升級）。
 
 ## Backlog（不算進度）
 本區有兩種項目：一種是 M2／M3 已排定的任務，開放時原樣升級；另一種是排除或延後的工作。2026-11-06 依 #92，原本在 M2／M3 的 T020–T024、T030–T032，以及修補提案 T040，都移到這裡。它們和「打開就看得到」（V1）沒有直接因果關係。
@@ -188,7 +188,7 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 
   （2 張）
 
-### 預定 M3（43 張；開放時原樣升級，總數不變）
+### 預定 M3（44 張；開放時原樣升級，總數不變）
 - **T040 | backlog(M3) | Claude | lito-launcher-server Issue**：把修補提案四項（租裝返回、同端點傳送、房間最後離開、商人屬性來源）以 Issue 加證據路徑的形式交給伺服器 repo，不搬 ASM 工具。伺服器接收後，刪除本 repo 的 `修補提案/`。（1 張）
 - **T033 | done | 本機 codex-local | `docs/G01-G12.md`**：已由 #106 提前完成（`工作佇列.json` SHA256 `0EC8ACBF…830AC`，共 46 項：12 個主項、34 個子項），不計入 M3 張數。map563 與 ARGO 的範圍判定改由 T037 做（U-M3-6、U-M3-8）。
 - **T034 | backlog(M3) | Claude | `docs/GUI-ACCEPTANCE.md`（新增）**：T030 的檢查清單。
@@ -232,7 +232,11 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
   - 量測快取、worker、handle、音效、取消與退出；修復超限或持續增長的項目。
 
   （3 張）
-- **T037 | backlog(M3) | Claude | `docs/G01-G12.md`**：G01–G12 逐項稽核，每項附證據連結與狀態。（1 張）
+- **T037 | backlog(M3) | Claude＋本機 | `docs/G01-G12-AUDIT.md`（新增）**：G12 稽核，依 G12 的 work 分 2 張：
+  - 第 1 張：保存唯一原始碼、逆向與回復證據，再整理已核實的冗餘產物。只整理專案內、本專案自己產生的產物；不動封存、硬連結、正式資源；刪除前列清單。
+  - 第 2 張：對 46 項逐項核對驗收、已知限制、重跑指令與現行來源漂移，寫進 `docs/G01-G12-AUDIT.md`；同時判定 map563、ARGO 是否在範圍內（U-M3-6、U-M3-8）。
+
+  （2 張）
 - **T032 | backlog(M3) | Claude | `docs/ARCHITECTURE.zh-TW.md`**：重寫為現況版（現在是流水帳）。（1 張）
 - **T042 | backlog(M3) | 本機 codex-local | `維護工具/run-local-test-suite.ps1`**：加入 `-Full` 模式，涵蓋 Debug 與 Release，以及 T036 放行的全部項目；無法執行的項目逐項輸出排除理由。這是 M3 完成定義要用的腳本。（1 張）
 - **T049 | backlog(M3) | Cursor | `src/`：背包與介面文字**。範圍包括：
@@ -271,7 +275,7 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 - **T060 | backlog(M3) | Cursor＋本機 | 聊天**。CLAUDE.md 目標明列「聊天」。要驗證聊天視窗收發、過濾視窗、私訊的當版行為；目前 `chat_filtered_window_tests.rs:22`、`direct_chat_window_tests.rs:438` 是 GUI ignored 測試（#54），GUI 部分併入 T034 清單。（1 張）
 
 ### 排除或延後（不在 M0–M3 完成定義內）
-- **WORLD 地圖專屬項目**：伺服器端已確認「LiTo 只有競技場，沒有 WORLD 地圖」（lito-launcher-server `docs/maintenance/combat-continuation-current.zh-TW.md:14`）。因此排除：map303 floor gate、水下 shader／phase／scroll、屋頂 runtime、攻城 P 鍵、經典 C_ENTER_WORLD 分支等。競技場與租裝城鎮仍在範圍內。
+- **WORLD 地圖專屬項目**：伺服器端已確認「LiTo 只有競技場，沒有 WORLD 地圖」（lito-launcher-server `docs/maintenance/combat-continuation-current.zh-TW.md:14`）。因此排除：map303 floor gate、水下 shader／phase／scroll、攻城 P 鍵、經典 C_ENTER_WORLD 分支等 WORLD 地圖才有的項目。競技場與租裝城鎮仍在範圍內；屋頂屬於 G07.3，已歸 T058，不在排除之列。
 - **凍結候選資格檢查**：12 gate 案（候選版）、四元件 inventory、17 原控制＋6 反例、舊 G06 16 案 640 次、候選 overlay QA 475 案（#58、#61 以 not planned 關閉，#33 裁定凍結）。
 - **G06 正向前提**：非預設物品、source／account、timer。E149 全 Code 掃描找不到建立或排程的 caller，等伺服器端提供生產者再議。
 - **伺服器缺陷**：商人屬性來源（例如 29047 戒指火抗 0，應為 10）。客戶端只顯示權威封包，GUI 驗收寫「與伺服器送出的一致」。
