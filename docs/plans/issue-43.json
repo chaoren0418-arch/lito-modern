@@ -1,0 +1,60 @@
+[
+  {
+    "id": "T010-A",
+    "title": "T010-A: 本機單元測試基線（cargo check＋cargo test --lib，Debug／Release）",
+    "stage": "test",
+    "priority": "P1",
+    "text": "做：在 `LiTo381-Modern/` 依序執行：\n1. `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`\n2. `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast`\n3. 同上加 `--release`\n記錄每一步的結束碼、耗時，以及 passed／failed／ignored 數，並和 CI 基線（2026-11-04：2463 個測試、1888 通過、0 失敗、575 ignored）比較。\n驗收：報告列出三步的完整統計與差異；任何失敗都附測試名與原始輸出位置。\n\n共通規則：\n- 在使用者電腦的專案目錄 `D:\\lineage開發\\3-lito開發\\lito重建版` 執行；cargo 參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；需要伺服器的測試只能用 loopback 隔離 harness，以及記憶體 repository。\n- 不開原生 GUI 視窗做驗收（T030 等 M2 之後）。需要視窗的測試列為「待驗證（GUI）」，不要執行。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（stdout／stderr，放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": []
+  },
+  {
+    "id": "T010-B",
+    "title": "T010-B: 本機執行需資源／證據的 ignored 單元測試",
+    "stage": "test",
+    "priority": "P1",
+    "text": "做：依 `docs/TESTING.md`「ignored 的三類」，在使用者電腦設定 `LITO_SHARED_RESOURCE_ROOT=D:\\lineage開發\\0-客戶端`、`LITO_EFFECTLIST_REFERENCE=D:\\lineage開發\\客戶端xml\\effectlist2.xml` 等只讀資源變數，再執行 `cargo test … --lib -- --ignored --no-fail-fast`（Debug）。\n逐一分類 575 個 ignored 測試：原本的 488 個（資源、socket、JAR）與 2026-11-04 新增的 87 個（`requires: local evidence roots`）。需要視窗的不執行，列為待驗證（GUI）；需要正式 JAR 的只用唯讀的 e1498871 路徑。\n驗收：報告列出每一類的執行數、通過、失敗、未執行（原因）；失敗附測試名與原始輸出位置。\n\n共通規則：\n- 在使用者電腦的專案目錄 `D:\\lineage開發\\3-lito開發\\lito重建版` 執行；cargo 參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；需要伺服器的測試只能用 loopback 隔離 harness，以及記憶體 repository。\n- 不開原生 GUI 視窗做驗收（T030 等 M2 之後）。需要視窗的測試列為「待驗證（GUI）」，不要執行。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（stdout／stderr，放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-A"
+    ]
+  },
+  {
+    "id": "T010-C",
+    "title": "T010-C: 本機整合測試 cargo test --tests（loopback 隔離 harness）",
+    "stage": "test",
+    "priority": "P2",
+    "text": "做：設定 `LITO_MODERN_TEST_JAVA`（JDK 17）、`LITO_MODERN_TEST_JAVA_CLASSPATH`、`LITO_MODERN_TEST_SERVER_ROOT`，指向正式 JAR `lito登入器\\LiTo381-Launcher\\app\\server\\LiTo381-SharedResources-candidate.jar`（唯讀，先確認 SHA256 是 e1498871…），再執行 `cargo test … --tests --no-fail-fast`。只允許 ephemeral loopback port 與記憶體 repository；任何會連正式 DB 或固定正式埠的測試都不要執行，列為待驗證並寫明原因。\n驗收：報告列出每個整合測試檔的通過、失敗、未執行數，以及 JAR SHA256 實算值；失敗附原始輸出位置。\n\n共通規則：\n- 在使用者電腦的專案目錄 `D:\\lineage開發\\3-lito開發\\lito重建版` 執行；cargo 參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；需要伺服器的測試只能用 loopback 隔離 harness，以及記憶體 repository。\n- 不開原生 GUI 視窗做驗收（T030 等 M2 之後）。需要視窗的測試列為「待驗證（GUI）」，不要執行。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（stdout／stderr，放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-A"
+    ]
+  },
+  {
+    "id": "T010-D",
+    "title": "T010-D: 盤點 M1 gate 定義（12 gate 案／四元件 inventory／17 原控制＋6 反例／G06 16 案 640 次）",
+    "stage": "resource",
+    "priority": "P1",
+    "text": "做：這些定義只在使用者電腦上，請從上層目錄的 `LiTo381-總開發報告.md`、`驗證紀錄/`，以及 `維護工具/` 的 gate、checkpoint、inventory 腳本（例如 `inventory.py`、`inventory-pinned-library-tests.py`、`*_broad_gate.py`、`continue-native-startup-G06-controller.py`、`checkpoint-*-G06-*.py`）找出「當版」的：\n(1) 12 個 gate 案，以及其中 4 案需要的原資源；\n(2) 四元件 inventory；\n(3) 17 個原控制與 6 個反例；\n(4) G06 兩版 16 案 × 640 次的計畫，包括 PID、FILETIME、Job、DB 退出與 33／31 秒期限的核對方式。\n每一項寫出：定義出處（檔案與行號或段落）、執行腳本與完整指令、需要的資源或環境、是否會連 DB 或啟動遊戲程序（會的話寫明如何隔離，或標為不可執行）、預估耗時。\n範圍：只新增 `docs/reports/issue-<N>.md`；不執行任何 gate 或測試。\n驗收：四類定義都有出處與可執行指令；找不到的要明確標「找不到」，不可以推測補上。",
+    "depends_on": []
+  },
+  {
+    "id": "T010-E",
+    "title": "T010-E: 本機執行 12 gate 案、四元件 inventory、17 原控制＋6 反例",
+    "stage": "test",
+    "priority": "P2",
+    "text": "做：依 T010-D 報告列出的定義與指令，逐項執行可安全執行的 gate、inventory 與控制／反例。T010-D 標為「會連 DB 或啟動遊戲、無法隔離」的項目不執行，列為待驗證。\n驗收：報告逐項列出結果（已驗證通過／失敗／待驗證與原因）；首個失敗保存原始收據並停止該組，其他組照常執行。\n\n共通規則：\n- 在使用者電腦的專案目錄 `D:\\lineage開發\\3-lito開發\\lito重建版` 執行；cargo 參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；需要伺服器的測試只能用 loopback 隔離 harness，以及記憶體 repository。\n- 不開原生 GUI 視窗做驗收（T030 等 M2 之後）。需要視窗的測試列為「待驗證（GUI）」，不要執行。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（stdout／stderr，放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-D",
+      "T010-A"
+    ]
+  },
+  {
+    "id": "T011-A",
+    "title": "T011-A: 本機執行 G06 兩版 16 案 640 次",
+    "stage": "test",
+    "priority": "P2",
+    "text": "做：依 T010-D 報告的 G06 計畫與腳本，執行兩版 16 案、共 640 次，核對 PID、FILETIME、Job、DB 退出、33／31 秒自然期限，以及 32＋8 雙 trace。**首個失敗就停止，不自動重試**；保存該次原始收據。若 T010-D 判定 G06 需要連正式 DB 或啟動既有遊戲程序且無法隔離，本任務不執行，回報為阻塞並寫明原因。\n驗收：報告列出已完成的次數、每案通過數、首個失敗（若有）的完整收據位置與重現指令。\n\n共通規則：\n- 在使用者電腦的專案目錄 `D:\\lineage開發\\3-lito開發\\lito重建版` 執行；cargo 參數一律是 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。\n- 不連正式服務或 DB，不啟動、附加或停止既有遊戲程序或正式伺服器；需要伺服器的測試只能用 loopback 隔離 harness，以及記憶體 repository。\n- 不開原生 GUI 視窗做驗收（T030 等 M2 之後）。需要視窗的測試列為「待驗證（GUI）」，不要執行。\n- 結果只分「已驗證／推測／待驗證」；略過、ignored、逾時、沒有執行的測試都**不算通過**，要分開計數。\n- 首個失敗：保存原始輸出（stdout／stderr，放 `scratch/` 或 `LiTo381-Modern/logs/`，不進 git），報告附失敗測試名、錯誤摘要與重現指令；不自動重試，不修改 src。\n- 只新增 `docs/reports/issue-<N>.md`；不改 src／tests／docs 的其他檔案。",
+    "depends_on": [
+      "T010-D",
+      "T010-E"
+    ]
+  }
+]

@@ -26,14 +26,15 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 ### T005 | done | Cursor | `啟動現代客戶端.ps1`, `LiTo381-Modern/tools/build.ps1`
 去硬編路徑（`D:\lineage開發\...`）改相對 repo 根或環境變數 `LITO_CLIENT_ROOT`。
 驗收：clone 到任意路徑可建置。
-現況（2026-11-05）：已完成（Issue #3，PR #5）；Windows 原機實際建置仍待驗證（測試暫緩）。
+現況（2026-11-05）：已完成（Issue #3，PR #5）；Windows 原機實際建置由 T010-A 驗證。
 
-## M1 驗證（需使用者明確同意恢復測試）
+## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）
 
-### T010 | blocked(使用者同意) | 使用者+Claude | `docs/TESTING.md`
+### T010 | todo | 本機 dot／codex-local＋Claude | `docs/TESTING.md`
 跑 12 個 gate 案、四元件 inventory、17 原控制／6 反例；結果與失敗收據記錄。
+拆分（`docs/plans/issue-43.json`）：T010-A 單元測試基線 → T010-B 需資源的 ignored 測試 → T010-C 整合測試；T010-D 盤點 gate 定義 → T010-E 跑 gate 與 inventory。首個失敗保存原始收據，另開 bug Issue。
 
-### T011 | blocked(T010) | 使用者+Claude | G06 兩版 16 案 640 次
+### T011 | blocked(T010) | 本機 dot／codex-local＋Claude | G06 兩版 16 案 640 次
 核對 PID／FILETIME／Job／DB 退出、33／31 秒、32＋8 雙 trace。首個失敗停止，不自動重試。
 
 ## M2 #97–#100 與 G06
