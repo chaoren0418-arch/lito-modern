@@ -64,12 +64,12 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 - 在本機執行 `pwsh -File 維護工具/run-local-test-suite.ps1`，看到 check／lib Debug／lib Release／白名單 ignored／白名單整合測試的總表，結束碼 0。
 
 ### T012 | todo | 本機 codex-local | `維護工具/run-local-test-suite.ps1`（新增）、`維護工具/test-whitelist/`（新增）
-一個指令跑完本機測試套件：check、lib Debug／Release、白名單 ignored、白名單整合測試，最後印出總表。
+一個指令跑完本機測試套件：check、lib Debug／Release、白名單 ignored、白名單整合測試，最後印出總表。前置：記錄 pwsh 路徑與版本（7.0 以上），找不到就 blocked；子程序的 TEMP／TMP 指向 `target/current/scratch`，並清除繼承的 `LITO_*`。
 驗收：附上完整指令與實際輸出（總表），而且腳本最終結束碼必須是 0：check 結束碼 0；Debug 與 Release 都有有效結果且 failed=0；白名單每一項都是 `running 1 test` 而且通過。出現 0 tests、結果缺失、failed>0 或命令非 0 都算失敗。數字和 #53、#55、#56 比較，合理變動可以說明，但不能免除上述門檻。
 
-### T013 | todo | 本機 dot | `docs/screenshots/`（新增）、`docs/DEMO.md`（新增）
-截圖客戶端的三個不連線畫面：`-ConfigureNative` 設定畫面、`-NativeLoginEndpoint` 登入畫面（不按連線）、`-OfflineScene` 離線場景，並寫 `docs/DEMO.md`。
-驗收：repo 內有三張對應實際畫面的 PNG，DEMO.md 可以直接顯示圖片，並寫明每張的重現指令與預期畫面。缺任何一張就是未完成（blocked），要如實記錄錯誤與恢復方式，但不能用錯誤紀錄代替截圖。
+### T013 | todo | 本機 dot | `LiTo381-Modern/src/modern_lito/scene_preview.rs`（只加第二次 ShowWindow）、`docs/screenshots/`（新增）、`docs/DEMO.md`（新增）
+先修 `scene_preview.rs`：比照登入與設定視窗，在第一次 ShowWindow 之後補 `IsWindowVisible` 檢查與第二次 ShowWindow，讓腳本用 Hidden 啟動 `-OfflineScene` 時視窗仍可見。然後截圖客戶端的三個不連線畫面：`-ConfigureNative` 設定畫面、`-NativeLoginEndpoint` 登入畫面（不按連線）、`-OfflineScene` 離線場景，並寫 `docs/DEMO.md`。
+驗收：修正通過 cargo check；照 DEMO.md 的重現指令啟動時三個視窗都確實可見；repo 內有三張對應實際畫面的 PNG，DEMO.md 可以直接顯示圖片，並寫明每張的重現指令與預期畫面。缺任何一張就是未完成（blocked），要如實記錄錯誤與恢復方式，但不能用錯誤紀錄代替截圖。
 
 ## M2 技能與 G06 收尾（尚未開放）— 主線 0 項
 驗收：使用者打開會看到什麼（凍結）：
