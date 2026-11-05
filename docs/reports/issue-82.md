@@ -80,6 +80,10 @@ H2 的驗收（本機）：pwsh 語法檢查、5 次 `-WhatIf`、`Get-NetTCPConn
 2. **javac 驗收的隔離**：H1、H2 驗收時的 javac 也套用同一個隔離環境（owned tmp、`-J-Djava.io.tmpdir`、清除繼承的 JVM options），並附上指令與環境變數清單。
 3. **T011-B 條件的循環**：分成可排程、啟動前檢查、實跑後驗收三層，TASKS.md 同步。
 
+### 第 4 次調整（2026-11-06，依 #86「任務切大一點」）
+
+原本的 T011-H1（producer）與 T011-H2（runner）合併成一張 code 任務 **T011-H**，內容不變，分「第一部分：Java harness」「第二部分：runner 與 Rust」依序完成，預估 1～2 小時。這樣只需要走一次閘門、審查與合併。本報告其他段落提到的 H1、H2，分別對應 T011-H 的第一部分與第二部分；T011-B 的可排程條件改為「T011-H 合併並通過審查」。
+
 ## 怎麼驗證
 
 - 雲端閱讀 `維護工具/run-teleport-failure.ps1` 全文（main，82 行），以及 `tests/native_teleport_failure.rs` 的第 26、105–132 行，上表引用的行號都來自這次閱讀。
