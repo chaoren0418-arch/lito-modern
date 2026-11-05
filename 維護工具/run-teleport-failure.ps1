@@ -1,82 +1,288 @@
 #Requires -Version 7.0
-[CmdletBinding()]param([Parameter(Mandatory)][string]$TestBinary,[Parameter(Mandatory)][string]$ReferenceJar,[ValidateSet('timeout','cancel-expiry','cancel-retry','refused','wrong-service')][string]$Scenario='timeout')
-$ErrorActionPreference='Stop';$PSNativeCommandUseErrorActionPreference=$false
-$taskRoot='D:\lineage開發\3-lito開發\lito重建版';$project=Join-Path $taskRoot 'LiTo381-Modern'
-$allowed=[IO.Path]::GetFullPath((Join-Path $project 'target/current'))+[IO.Path]::DirectorySeparatorChar
-foreach($path in @($TestBinary,$ReferenceJar)){if(![IO.Path]::GetFullPath($path).StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw 'Only owned test artifacts are accepted'}}
-$jarSha=(Get-FileHash -LiteralPath $ReferenceJar).Hash
-if($jarSha -notin @('BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43','9719F45DB324206617726CE06D1A9E2184E9A3B3AEFAB3D50F3EBBDFBF09CFAC','6928A147DF1E784304B9080632C56121B173BF60B172023EBD263E82FD448628','76EBE06D89DBD19CDB577E229657883C16156C77A23EDE288880C25584D2E3CC','C02AAAE8D54A27E30460BE2E3C47709EE64D35F007A8BE27AC74A327268B9539')){throw 'Review candidate drift'}
-$existing=Get-CimInstance Win32_Process|Where-Object {$_.CommandLine -and $_.CommandLine.Contains('target/current/native-teleport-failure') -and $_.Name -eq 'java.exe'}
-if($existing){throw 'An owned teleport run is already active; inspect its receipt and lease before starting another'}
-$stamp=[DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss-fff')
-$root=Join-Path $project ('target/current/native-teleport-failure/'+$stamp)
-$output=Join-Path $taskRoot ('驗證紀錄/current/native-teleport-failure/'+$stamp)
-$classes=Join-Path $root 'oracle';New-Item -ItemType Directory -Path $classes,$output -Force|Out-Null
+[CmdletBinding()]
+param(
+ [Parameter(Mandatory)][string]$TestBinary,
+ [Parameter(Mandatory)][string]$ReferenceJar,
+ [ValidateSet('timeout','cancel-expiry','cancel-retry','refused','wrong-service')][string]$Scenario='timeout',
+ [switch]$WhatIf
+)
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+$taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+$project=Join-Path $taskRoot 'LiTo381-Modern'
+$target=[IO.Path]::GetFullPath((Join-Path $project 'target/current'))
+$allowed=$target+[IO.Path]::DirectorySeparatorChar
+$TestBinary=[IO.Path]::GetFullPath($TestBinary)
+$ReferenceJar=[IO.Path]::GetFullPath($ReferenceJar)
+foreach($path in @($TestBinary,$ReferenceJar)){
+ if(!$path.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw 'Only owned artifacts under this worktree target/current are accepted'}
+}
+$e149='E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498'
+$whitelist=@($e149,'BBC59308C43DF89EE5029D3B3C802BE8AD55FEE65C41FACA99A76912DD5DCE43','9719F45DB324206617726CE06D1A9E2184E9A3B3AEFAB3D50F3EBBDFBF09CFAC','6928A147DF1E784304B9080632C56121B173BF60B172023EBD263E82FD448628','76EBE06D89DBD19CDB577E229657883C16156C77A23EDE288880C25584D2E3CC','C02AAAE8D54A27E30460BE2E3C47709EE64D35F007A8BE27AC74A327268B9539')
+$jarSha=(Get-FileHash -LiteralPath $ReferenceJar -Algorithm SHA256).Hash
+$stamp=[DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ')+'-'+[guid]::NewGuid().ToString('N')
+$runs=Join-Path $target 'native-teleport-failure'
+$leasePath=Join-Path $runs 'runner.lease'
+$root=Join-Path $runs $stamp
+$runtime=Join-Path $root 'runtime'
+$classes=Join-Path $root 'classes'
+$tmp=Join-Path $root 'tmp'
+$immutable=Join-Path $root 'immutable-test.exe'
+$output=Join-Path $target ('verification/native-teleport-failure/'+$stamp)
 $jdk='C:\Program Files\Microsoft\jdk-17.0.17.10-hotspot\bin'
-function Quote([string]$s){if($s.Contains('"')){throw 'Invalid process argument'};'"'+$s+'"'}
-function Stop-OwnedTeleport([Diagnostics.Process]$process){
- if($process.HasExited){return}
- $live=Get-CimInstance Win32_Process -Filter ('ProcessId='+$process.Id)
- if(!$live -and $process.HasExited){return}
- $command=if($live){$live.CommandLine.Replace('/','\').Replace('\\','\')}else{''}
- if(!$live -or [Math]::Abs(($live.CreationDate.ToUniversalTime()-$process.StartTime.ToUniversalTime()).TotalSeconds) -gt 1 -or !$command.Contains($root.Replace('/','\'))){throw 'Owned teleport PID/creation/command mismatch; stop refused'}
- $process.Kill();$process.WaitForExit(5000)|Out-Null
+$javac=Join-Path $jdk 'javac.exe';$java=Join-Path $jdk 'java.exe'
+$sources=@((Join-Path $project 'tests/oracle/NativePeerHarness.java'),(Join-Path $project 'tests/oracle/NativeTeleportFailureHarness.java'))
+$javacArgs=@(('-J-Djava.io.tmpdir='+$tmp),'-J-Dfile.encoding=UTF-8','-encoding','UTF-8','-cp',$ReferenceJar,'-d',$classes)+$sources
+$javaArgs=@(('-Djava.io.tmpdir='+$tmp),'-Dfile.encoding=UTF-8','-Xverify:all','-cp',($classes+';'+$ReferenceJar),'local.lito381.server.NativeTeleportFailureHarness',$runtime,$Scenario)
+$testNames=@{
+ 'timeout'='destination_timeout_retires_old_authority_and_allows_fresh_login'
+ 'cancel-expiry'='cancellation_retires_destination_and_expired_handoff_requires_fresh_selection'
+ 'cancel-retry'='cancellation_then_immediate_retry_consumes_staged_character_once'
+ 'refused'='refused_destination_retires_authority_and_allows_fresh_login'
+ 'wrong-service'='wrong_service_destination_retires_authority_and_allows_fresh_login'
 }
-$sourceFormal='D:\lineage開發\3-lito開發\lito登入器\LiTo381-Launcher\app\server\LiTo381-SharedResources-candidate.jar'
-$observedSourceBefore=(Get-FileHash -LiteralPath $sourceFormal).Hash
-$server=$null;$client=$null;$leaseSeconds=if($Scenario -eq 'cancel-expiry'){340}else{220}
-$receipt=@{status='running';runtime=$root;output=$output;test_binary=$TestBinary;test_binary_sha256=(Get-FileHash -LiteralPath $TestBinary).Hash;jar_sha256=$jarSha;test_scope='one opt-in integration test; two actual players, B/C no-response destination, bounded failure, fresh LOGIN/GAME authentication, staged character continuation and map500 reentry';formal_deployed=$false;scenario=$Scenario}
-if($Scenario -eq 'cancel-expiry'){$receipt.test_scope='two players cancel while destination GAME connects; real 33s wait, expired staged loadout, fresh LOGIN/GAME, manual selection and map500 movement'}
-if($Scenario -eq 'cancel-retry'){$receipt.test_scope='two players cancel destination GAME, fresh authenticated LOGIN/GAME before staged expiry, one-shot server character/loadout continuation and map500 movement'}
-if($Scenario -eq 'refused'){$receipt.test_scope='previously owned closed ephemeral loopback destination, Java ConnectException independently confirms TCP refusal; client uses default bounded connect, authority retirement, fresh LOGIN/GAME, original character/loadout continuation and map500 movement'}
-if($Scenario -eq 'wrong-service'){$receipt.test_scope='two players redirected to a real formal LOGIN service; successful native handshake/authentication then bounded GAME rejection, authority retirement and fresh source GAME recovery'}
-function Save {$receipt|ConvertTo-Json -Depth 14|Set-Content -LiteralPath (Join-Path $output 'receipt.json') -Encoding utf8}
-Save
-try {
- $pins=@{}
- foreach($name in @('LiTo381-Modern/Cargo.toml','LiTo381-Modern/.cargo/config.toml','LiTo381-Modern/tests/oracle/NativePeerHarness.java','維護工具/run-teleport-failure.ps1','LiTo381-Modern/tests/native_teleport_failure.rs','LiTo381-Modern/src/modern_lito/native_services.rs','LiTo381-Modern/src/modern_lito/native_teleport.rs','LiTo381-Modern/src/modern_lito/native_login.rs','LiTo381-Modern/src/modern_lito/native_connection.rs','LiTo381-Modern/tests/oracle/NativeTeleportFailureHarness.java')){$pins[$name]=(Get-FileHash -LiteralPath (Join-Path $taskRoot $name)).Hash}
+$testArgs=@($testNames[$Scenario],'--exact','--ignored','--nocapture')
+$removedEnvironment=@('JAVA_TOOL_OPTIONS','_JAVA_OPTIONS','JDK_JAVA_OPTIONS','CLASSPATH')
+function Format-Command([string]$Executable,[string[]]$Arguments){
+ '& '+"'"+$Executable.Replace("'","''")+"' "+(($Arguments|ForEach-Object {"'"+$_.Replace("'","''")+"'"}) -join ' ')
+}
+# Read-only preview: no directory, lease, snapshot or process is created.
+if($WhatIf){
+ [ordered]@{what_if=$true;repo=$taskRoot;target=$target;test_binary=$TestBinary;reference_jar=$ReferenceJar;jar_sha256=$jarSha;whitelisted=($jarSha -in $whitelist);e149=($jarSha -eq $e149);lease=$leasePath;run=$root;runtime=$runtime;classes=$classes;tmp=$tmp;immutable=$immutable;receipt=(Join-Path $root 'receipt.json');output=$output;working_directory=$root;environment=@{TEMP=$tmp;TMP=$tmp;LITO_TELEPORT_ROOT=$runtime;LITO_TELEPORT_SCENARIO=$Scenario;LITO_TELEPORT_REFERENCE_SHA=$jarSha.ToLowerInvariant()};removed_environment=$removedEnvironment;commands=@((Format-Command $javac $javacArgs),(Format-Command $java $javaArgs),(Format-Command $immutable $testArgs))}|ConvertTo-Json -Depth 6
+ return
+}
+if($jarSha -notin $whitelist){throw 'Review candidate drift: JAR is not whitelisted'}
+# Historical pins remain documented, but this owned harness requires E149.
+if($jarSha -ne $e149){throw 'This runner requires the reviewed E149 reference'}
 
- $receipt.source_pins=$pins;Save
- $sourceArchive=Join-Path $output 'source-snapshot';New-Item -ItemType Directory -Path $sourceArchive -Force|Out-Null
- foreach($name in $pins.Keys){$destination=Join-Path $sourceArchive $name;New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force|Out-Null;Copy-Item -LiteralPath (Join-Path $taskRoot $name) -Destination $destination}
- $originalTestBinary=$TestBinary;$TestBinary=Join-Path $root 'immutable-teleport-test.exe';Copy-Item -LiteralPath $originalTestBinary -Destination $TestBinary
- if((Get-FileHash -LiteralPath $TestBinary).Hash -ne $receipt.test_binary_sha256){throw 'Immutable binary differs'}
- $receipt.immutable_test_binary=$TestBinary;Save
- & (Join-Path $jdk 'javac.exe') '-J-Dfile.encoding=UTF-8' -encoding UTF-8 -cp $ReferenceJar -d $classes (Join-Path $taskRoot 'LiTo381-Modern/tests/oracle/NativePeerHarness.java') (Join-Path $project 'tests/oracle/NativeTeleportFailureHarness.java') *> (Join-Path $output 'javac.log')
- if($LASTEXITCODE -ne 0){throw 'Harness compile failed'}
- $server=Start-Process -FilePath (Join-Path $jdk 'java.exe') -ArgumentList @('-Dfile.encoding=UTF-8','-Xverify:all','-cp',(Quote ($classes+';'+$ReferenceJar)),'local.lito381.server.NativeTeleportFailureHarness',(Quote $root),$Scenario) -WorkingDirectory $root -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $output 'server.log') -RedirectStandardError (Join-Path $output 'server.stderr.txt')
- $end=[DateTime]::UtcNow.AddSeconds(15)
- while(!(Test-Path -LiteralPath (Join-Path $root 'ready.json'))){if($server.HasExited -or [DateTime]::UtcNow -ge $end){throw 'Server not ready'};Start-Sleep -Milliseconds 50}
- $info=[Diagnostics.ProcessStartInfo]::new($TestBinary);$info.UseShellExecute=$false;$info.CreateNoWindow=$true;$info.WorkingDirectory=$project
- $info.Environment['LITO_TELEPORT_SCENARIO']=$Scenario;$info.Environment['LITO_TELEPORT_ROOT']=$root;$info.Environment['LITO_TELEPORT_REFERENCE_SHA']=$jarSha.ToLowerInvariant();$info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true
- $testName=if($Scenario -eq 'wrong-service'){'wrong_service_destination_retires_authority_and_allows_fresh_login'}elseif($Scenario -eq 'refused'){'refused_destination_retires_authority_and_allows_fresh_login'}elseif($Scenario -eq 'cancel-retry'){'cancellation_then_immediate_retry_consumes_staged_character_once'}elseif($Scenario -eq 'cancel-expiry'){'cancellation_retires_destination_and_expired_handoff_requires_fresh_selection'}else{'destination_timeout_retires_old_authority_and_allows_fresh_login'}
- $info.ArgumentList.Add($testName)
- foreach($arg in @('--exact','--ignored','--nocapture')){$info.ArgumentList.Add($arg)}
- $client=[Diagnostics.Process]::Start($info);$stdout=$client.StandardOutput.ReadToEndAsync();$stderr=$client.StandardError.ReadToEndAsync()
- $receipt.owned_processes=@(@{pid=$server.Id;start_utc=$server.StartTime.ToUniversalTime().ToString('o');kind='formal_loopback_server'},@{pid=$client.Id;start_utc=$client.StartTime.ToUniversalTime().ToString('o');kind='immutable_selected_rust_test'});$receipt.lease_deadline_utc=[DateTime]::UtcNow.AddSeconds($leaseSeconds).ToString('o');Save
- $end=[DateTime]::UtcNow.AddSeconds($leaseSeconds)
- while(!$client.HasExited){if([DateTime]::UtcNow -ge $end){throw 'Teleport handoff test timeout'};Start-Sleep -Milliseconds 100}
- $stdout.GetAwaiter().GetResult()|Set-Content -LiteralPath (Join-Path $output 'test.log') -Encoding utf8
- $stderr.GetAwaiter().GetResult()|Set-Content -LiteralPath (Join-Path $output 'test.stderr.txt') -Encoding utf8
- $receipt.test_exit_code=$client.ExitCode
- $end=[DateTime]::UtcNow.AddSeconds(8)
- while(!$server.HasExited -and [DateTime]::UtcNow -lt $end){Start-Sleep -Milliseconds 100}
- if(!$server.HasExited){throw 'Server cleanup did not complete'}
- $receipt.server_exit_code=$server.ExitCode
- if($client.ExitCode -ne 0 -or $server.ExitCode -ne 0){throw 'Teleport handoff test or cleanup failed; inspect saved logs'}
- $receipt.server=Get-Content -LiteralPath (Join-Path $root 'result.json') -Raw|ConvertFrom-Json
- if(!$receipt.server.memberships_empty -or $receipt.server.actual_client_sessions -ne $(if($Scenario -eq 'wrong-service'){10}else{8}) -or $receipt.server.authority_mutations -ne 0 -or $receipt.server.staged_loadouts_after_reentry -ne 0){throw 'Isolation/cleanup mismatch'}
- $receipt.status=if($Scenario -eq 'wrong-service'){'verified_wrong_service_destination_and_fresh_login'}elseif($Scenario -eq 'refused'){'verified_destination_refused_and_fresh_login'}elseif($Scenario -eq 'cancel-retry'){'verified_cancel_immediate_retry'}elseif($Scenario -eq 'cancel-expiry'){'verified_cancel_expiry_and_fresh_selection'}else{'verified_destination_timeout_and_fresh_login'}
- foreach($name in $pins.Keys){if((Get-FileHash -LiteralPath (Join-Path $taskRoot $name)).Hash -ne $pins[$name]){throw 'Source drift during run'}}
- if((Get-FileHash -LiteralPath $TestBinary).Hash -ne $receipt.test_binary_sha256 -or (Get-FileHash -LiteralPath $ReferenceJar).Hash -ne $jarSha){throw 'Binary drift during run'}
- $receipt.observed_source_before_sha256=$observedSourceBefore;$receipt.observed_source_after_sha256=(Get-FileHash -LiteralPath $sourceFormal).Hash
- $receipt.reference_is_current=($receipt.observed_source_before_sha256 -eq $jarSha -and $receipt.observed_source_after_sha256 -eq $jarSha)
- $receipt.reference_scope='immutable owned version pin; changing readonly adjacent source is observed separately'
- $receipt.inputs_unchanged=$true
-}catch{$receipt.status='failed';$receipt.error=$_.Exception.Message;throw}
-finally {
- foreach($proc in @($client,$server)){if($proc -and !$proc.HasExited){Stop-OwnedTeleport $proc}}
- foreach($name in @('ready.json','result.json','server-trace.jsonl','staged-trace.jsonl','a-failure.json','b-failure.json')){if(Test-Path -LiteralPath (Join-Path $root $name)){Copy-Item -LiteralPath (Join-Path $root $name) -Destination (Join-Path $output $name)}}
- Save
+function Assert-OwnedPath([string]$Path){
+ $cursor=[IO.Path]::GetFullPath($Path)
+ if($cursor -ne $target -and !$cursor.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw "Outside target/current: $cursor"}
+ while($true){
+  $item=Get-Item -LiteralPath $cursor -Force
+  if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw "ReparsePoint rejected: $cursor"}
+  if($cursor -eq $target){break}
+  $cursor=Split-Path -Parent $cursor
+ }
 }
+function New-OwnedDirectory([string]$Path){
+ if(!(Test-Path -LiteralPath $Path)){
+  Assert-OwnedPath (Split-Path -Parent $Path)
+  $null=New-Item -ItemType Directory -Path $Path
+ }
+ Assert-OwnedPath $Path
+}
+function Get-Pin([string]$Path){
+ if(Test-Path -LiteralPath $Path -PathType Leaf){return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash}
+ if(Test-Path -LiteralPath $Path){throw "Expected file: $Path"}
+ return 'absent'
+}
+function Get-ClassPins {
+ $pins=@{}
+ foreach($file in Get-ChildItem -LiteralPath $classes -Filter '*.class' -Recurse -File){
+  Assert-OwnedPath $file.FullName
+  $pins[[IO.Path]::GetRelativePath($classes,$file.FullName)]=(Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+ }
+ return $pins
+}
+function Save-Receipt {
+ $json=$receipt|ConvertTo-Json -Depth 14
+ [IO.File]::WriteAllText((Join-Path $root 'receipt.json'),$json,[Text.UTF8Encoding]::new($false))
+ if(Test-Path -LiteralPath $output -PathType Container){[IO.File]::WriteAllText((Join-Path $output 'receipt.json'),$json,[Text.UTF8Encoding]::new($false))}
+}
+function Start-OwnedProcess([string]$Kind,[string]$Executable,[string[]]$Arguments,[hashtable]$ExtraEnvironment=@{}){
+ $info=[Diagnostics.ProcessStartInfo]::new($Executable)
+ $info.UseShellExecute=$false;$info.CreateNoWindow=$true;$info.WorkingDirectory=$root
+ $info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true
+ $info.StandardOutputEncoding=[Text.Encoding]::UTF8;$info.StandardErrorEncoding=[Text.Encoding]::UTF8
+ foreach($argument in $Arguments){$info.ArgumentList.Add($argument)}
+ $info.Environment['TEMP']=$tmp;$info.Environment['TMP']=$tmp
+ foreach($name in $removedEnvironment){$null=$info.Environment.Remove($name)}
+ foreach($name in $ExtraEnvironment.Keys){$info.Environment[$name]=$ExtraEnvironment[$name]}
+ # All actual names, only controlled values: do not serialize inherited secrets.
+ $entry=@{kind=$Kind;executable=$Executable;arguments=$Arguments;command=(Format-Command $Executable $Arguments);working_directory=$root;environment_names=@($info.Environment.Keys|Sort-Object);environment_overrides=(@{TEMP=$tmp;TMP=$tmp}+$ExtraEnvironment);environment_removed=$removedEnvironment;pid=$null;start_utc=$null;image=$null;identity_bound=$false;exit_code=$null;killed=$false;wait_for_exit=$false;cleanup_errors=@()}
+ $receipt.processes+=@($entry)
+ $process=[Diagnostics.Process]::new();$process.StartInfo=$info
+ if(!$process.Start()){throw "Could not start $Kind"}
+ # Register before reading identity, so any later failure still reaches finally.
+ $owned=@{process=$process;entry=$entry;stdout=$null;stderr=$null}
+ $processes.Add($owned)
+ $null=$process.Handle
+ $entry.pid=$process.Id
+ $owned.stdout=$process.StandardOutput.ReadToEndAsync();$owned.stderr=$process.StandardError.ReadToEndAsync()
+ $entry.start_utc=$process.StartTime.ToUniversalTime().ToString('o')
+ $entry.image=$process.MainModule.FileName
+ if(![string]::Equals($entry.image,$Executable,[StringComparison]::OrdinalIgnoreCase)){throw "$Kind image mismatch"}
+ $entry.identity_bound=$true
+ return $owned
+}
+function Stop-OwnedProcess($Owned){
+ $process=$Owned.process;$entry=$Owned.entry
+ try {
+  if(!$process.HasExited){
+   if(!$entry.identity_bound){throw 'Unbound process identity: kill refused'}
+   $live=[Diagnostics.Process]::GetProcessById($entry.pid)
+   try {
+    if(!$live.HasExited){
+     if($live.Id -ne $entry.pid -or $live.StartTime.ToUniversalTime().ToString('o') -ne $entry.start_utc -or ![string]::Equals($live.MainModule.FileName,$entry.image,[StringComparison]::OrdinalIgnoreCase)){throw 'PID/start time/image mismatch: kill refused'}
+     # Kill via the retained original handle, never by a bare PID.
+     $process.Kill();$entry.killed=$true
+    }
+   } finally {$live.Dispose()}
+  }
+  $entry.wait_for_exit=$process.WaitForExit(5000)
+  if(!$entry.wait_for_exit){throw 'WaitForExit timed out after cleanup'}
+  $entry.exit_code=$process.ExitCode
+ } catch {
+  # A natural exit racing identity lookup is provable via the original handle.
+  if($process.HasExited -and $process.WaitForExit(5000)){$entry.wait_for_exit=$true;$entry.exit_code=$process.ExitCode}
+  else {$entry.cleanup_errors+=@($_.Exception.Message);throw}
+ } finally {
+  if($entry.wait_for_exit){
+   foreach($stream in @('stdout','stderr')){
+    try {
+     if($null -ne $Owned[$stream]){
+      if(!$Owned[$stream].Wait(5000)){throw "$stream drain timed out"}
+      [IO.File]::WriteAllText((Join-Path $output ($entry.kind+'.'+$stream+'.txt')),$Owned[$stream].GetAwaiter().GetResult(),[Text.UTF8Encoding]::new($false))
+     }
+    } catch {$entry.cleanup_errors+=@($_.Exception.Message)}
+   }
+   $process.Dispose()
+  }
+ }
+}
+function Assert-Ready($Ready,$Server){
+ if($Ready.jar_sha256 -ne $jarSha -or $Ready.jar_sha256 -ne $e149){throw 'ready JAR binding mismatch'}
+ if($Server.process.HasExited -or $Ready.pid -ne $Server.entry.pid){throw 'ready PID binding mismatch'}
+ if($Ready.login_host -cne '127.0.0.1' -or $Ready.town_host -cne '127.0.0.2' -or $Ready.destination_host -cne $(if($Scenario -eq 'refused'){'127.0.0.1'}else{'127.0.0.3'})){throw 'Unexpected ready loopback address'}
+ if($Ready.destination_refused -ne ($Scenario -eq 'refused') -or $Ready.destination_wrong_service -ne ($Scenario -eq 'wrong-service')){throw 'ready scenario mismatch'}
+ foreach($endpoint in @(@{host=$Ready.login_host;port=$Ready.port;name='login'},@{host=$Ready.town_host;port=$Ready.town_port;name='town'},@{host=$Ready.destination_host;port=$Ready.destination_port;name='destination'})){
+  $port=$endpoint.port
+  if($port -isnot [long] -and $port -isnot [int]){throw 'Non-integer listener port'}
+  if($port -lt 1024 -or $port -gt 65535 -or $port -in @(2000,3306)){throw "Forbidden listener port: $port"}
+  $absent=$endpoint.name -eq 'destination' -and $Scenario -eq 'refused'
+  if($absent){
+   # Enumerate successfully before filtering, so an absent destination is not
+   # confused with a failed exact query. Wildcard binds also violate refusal.
+   $listeners=@(Get-NetTCPConnection -State Listen -ErrorAction Stop|Where-Object {$_.LocalPort -eq $port -and $_.LocalAddress -in @($endpoint.host,'0.0.0.0','::')})
+  } else {
+   $listeners=@(Get-NetTCPConnection -State Listen -LocalAddress $endpoint.host -LocalPort $port -ErrorAction Stop)
+  }
+  if($absent){if($listeners.Count -ne 0){throw 'Refused destination has a listener'}}
+  elseif($listeners.Count -ne 1 -or $listeners[0].OwningProcess -ne $Server.entry.pid -or $listeners[0].OwningProcess -ne $Ready.pid){throw "Listener ownership mismatch: $($endpoint.name)"}
+  $receipt.listeners+=@(@{name=$endpoint.name;host=$endpoint.host;port=$port;expected_absent=$absent;owners=@($listeners|ForEach-Object OwningProcess);checked_utc=[DateTime]::UtcNow.ToString('o')})
+ }
+}
+
+# Only the lease container is created before acquiring the atomic lease.
+Assert-OwnedPath $target
+foreach($path in @($TestBinary,$ReferenceJar)){Assert-OwnedPath $path}
+New-OwnedDirectory $runs
+$lease=$null
+try {$lease=[IO.File]::Open($leasePath,[IO.FileMode]::CreateNew,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)}
+catch {throw "Cannot acquire lease $leasePath. Inspect its owning runner and receipt; existing leases are never removed automatically. $($_.Exception.Message)"}
+$receipt=@{status='running';scenario=$Scenario;root=$root;runtime=$runtime;output=$output;jar_path=$ReferenceJar;jar_sha256=$jarSha;processes=@();listeners=@();cleanup_errors=@();drift_errors=@();source_pins=@{};class_pins=@{};formal_deployed=$false}
+$processes=[Collections.Generic.List[object]]::new()
+$rootCreated=$false;$classesRecorded=$false;$failure=$null
+$leaseSeconds=if($Scenario -eq 'cancel-expiry'){340}else{220}
+try {
+ $runner=[Diagnostics.Process]::GetCurrentProcess()
+ $leaseData=@{pid=$PID;start_utc=$runner.StartTime.ToUniversalTime().ToString('o');root=$root}|ConvertTo-Json
+ $bytes=[Text.Encoding]::UTF8.GetBytes($leaseData);$lease.Write($bytes,0,$bytes.Length);$lease.Flush($true)
+ $receipt.lease_owner=$leaseData|ConvertFrom-Json
+ Assert-OwnedPath $runs
+ $null=New-Item -ItemType Directory -Path $root
+ $rootCreated=$true;Assert-OwnedPath $root
+ foreach($path in @($classes,$tmp)){$null=New-Item -ItemType Directory -Path $path;Assert-OwnedPath $path}
+ if(Test-Path -LiteralPath $runtime){throw 'runtime must not exist before Java starts'}
+ New-OwnedDirectory (Join-Path $target 'verification')
+ New-OwnedDirectory (Join-Path $target 'verification/native-teleport-failure')
+ $null=New-Item -ItemType Directory -Path $output;Assert-OwnedPath $output
+ $receipt.test_binary=$TestBinary;$receipt.test_binary_sha256=Get-Pin $TestBinary
+ [IO.File]::Copy($TestBinary,$immutable,$false)
+ Assert-OwnedPath $immutable
+ if((Get-Pin $immutable) -ne $receipt.test_binary_sha256){throw 'Immutable binary differs'}
+ $receipt.immutable_test_binary=$immutable
+ foreach($name in @('LiTo381-Modern/Cargo.toml','LiTo381-Modern/Cargo.lock','LiTo381-Modern/.cargo/config.toml','LiTo381-Modern/tests/oracle/NativePeerHarness.java','LiTo381-Modern/tests/oracle/NativeTeleportFailureHarness.java','維護工具/run-teleport-failure.ps1','LiTo381-Modern/tests/native_teleport_failure.rs','LiTo381-Modern/src/modern_lito/native_services.rs','LiTo381-Modern/src/modern_lito/native_teleport.rs','LiTo381-Modern/src/modern_lito/native_login.rs','LiTo381-Modern/src/modern_lito/native_connection.rs')){
+  $receipt.source_pins[$name]=Get-Pin (Join-Path $taskRoot $name)
+ }
+ Save-Receipt
+ $compiler=Start-OwnedProcess 'javac' $javac $javacArgs
+ if(!$compiler.process.WaitForExit(60000)){throw 'Harness compile timeout'}
+ if($compiler.process.ExitCode -ne 0){throw 'Harness compile failed'}
+ $receipt.class_pins=Get-ClassPins;$classesRecorded=$true
+ if($receipt.class_pins.Count -eq 0){throw 'No harness classes produced'}
+ Save-Receipt
+ if(Test-Path -LiteralPath $runtime){throw 'runtime must not exist before Java starts'}
+ $server=Start-OwnedProcess 'java' $java $javaArgs
+ $readyPath=Join-Path $runtime 'ready.json'
+ $end=[DateTime]::UtcNow.AddSeconds(15)
+ while(!(Test-Path -LiteralPath $readyPath)){
+  if($server.process.HasExited -or [DateTime]::UtcNow -ge $end){throw 'Server not ready'}
+  Start-Sleep -Milliseconds 50
+ }
+ Assert-OwnedPath $readyPath
+ # File creation may precede its final write; retry parsing while Java lives.
+ while($true){
+  try {$ready=Get-Content -LiteralPath $readyPath -Raw -Encoding utf8|ConvertFrom-Json;break}
+  catch {if($server.process.HasExited -or [DateTime]::UtcNow -ge $end){throw};Start-Sleep -Milliseconds 50}
+ }
+ Assert-Ready $ready $server
+ $receipt.ready=$ready
+ if((Get-Pin $ReferenceJar) -ne $jarSha){throw 'JAR changed before Rust startup'}
+ Save-Receipt
+ $client=Start-OwnedProcess 'rust' $immutable $testArgs @{LITO_TELEPORT_SCENARIO=$Scenario;LITO_TELEPORT_ROOT=$runtime;LITO_TELEPORT_REFERENCE_SHA=$jarSha.ToLowerInvariant()}
+ $receipt.lease_deadline_utc=[DateTime]::UtcNow.AddSeconds($leaseSeconds).ToString('o');Save-Receipt
+ if(!$client.process.WaitForExit($leaseSeconds*1000)){throw 'Teleport handoff test timeout'}
+ if(!$server.process.WaitForExit(8000)){throw 'Server cleanup did not complete'}
+ if($client.process.ExitCode -ne 0 -or $server.process.ExitCode -ne 0){throw 'Teleport handoff test or cleanup failed'}
+ $testText=$client.stdout.GetAwaiter().GetResult()
+ if($testText -notmatch 'running 1 test\b' -or $testText -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;'){throw 'Expected exactly one executed passing Rust test'}
+ $resultPath=Join-Path $runtime 'result.json';Assert-OwnedPath $resultPath
+ $result=Get-Content -LiteralPath $resultPath -Raw -Encoding utf8|ConvertFrom-Json
+ if($result.status -ne 'sessions_closed' -or $result.memberships_empty -ne $true -or $result.actual_client_sessions -ne $(if($Scenario -eq 'wrong-service'){10}else{8}) -or $result.authority_mutations -ne 0 -or $result.staged_loadouts_after_reentry -ne 0 -or $result.sql_access -ne $false -or $result.state_persistent -ne $false -or $result.full_game_reentry_verified -ne $true -or $result.jar_sha256 -ne $jarSha){throw 'Isolation/cleanup result mismatch'}
+ $receipt.server=$result;$receipt.status='verified_'+$Scenario
+} catch {$failure=$_.Exception.Message;$receipt.status='failed';$receipt.error=$failure}
+finally {
+ # Attempt each owned process independently, including failed compilation.
+ foreach($kind in @('rust','java','javac')){
+  foreach($owned in @($processes|Where-Object {$_.entry.kind -eq $kind})){
+   try {Stop-OwnedProcess $owned} catch {$receipt.cleanup_errors+=@($kind+': '+$_.Exception.Message)}
+   $receipt.cleanup_errors+=@($owned.entry.cleanup_errors|ForEach-Object {$kind+': '+$_})
+  }
+ }
+ foreach($name in $receipt.source_pins.Keys){
+  try {if((Get-Pin (Join-Path $taskRoot $name)) -ne $receipt.source_pins[$name]){throw "Source drift: $name"}}
+  catch {$receipt.drift_errors+=@($_.Exception.Message)}
+ }
+ if($classesRecorded){
+  try {
+   $after=Get-ClassPins
+   if($after.Count -ne $receipt.class_pins.Count){throw 'Class inventory drift'}
+   foreach($name in $receipt.class_pins.Keys){if(!$after.ContainsKey($name) -or $after[$name] -ne $receipt.class_pins[$name]){throw "Class drift: $name"}}
+  } catch {$receipt.drift_errors+=@($_.Exception.Message)}
+ }
+ foreach($path in @($ReferenceJar,$TestBinary,$immutable)){
+  try {
+   $expected=if($path -eq $ReferenceJar){$jarSha}elseif($receipt.ContainsKey('test_binary_sha256')){$receipt.test_binary_sha256}else{'absent'}
+   if((Get-Pin $path) -ne $expected){throw "Binary drift: $path"}
+  } catch {$receipt.drift_errors+=@($_.Exception.Message)}
+ }
+ if($receipt.cleanup_errors.Count -or $receipt.drift_errors.Count){$receipt.status='failed';if(!$failure){$failure='Cleanup or input drift failed; inspect receipt'}}
+ $receipt.inputs_unchanged=($receipt.drift_errors.Count -eq 0)
+ try {
+  if($rootCreated){
+   foreach($name in @('ready.json','result.json','server-trace.jsonl','staged-trace.jsonl','a-failure.json','b-failure.json')){
+    try {if(Test-Path -LiteralPath (Join-Path $runtime $name)){Assert-OwnedPath (Join-Path $runtime $name);Copy-Item -LiteralPath (Join-Path $runtime $name) -Destination (Join-Path $output $name)}}
+    catch {$receipt.status='failed';$receipt.cleanup_errors+=@($_.Exception.Message);$failure='Evidence copy failed'}
+   }
+   Save-Receipt
+  }
+ } finally {
+  # Only this successful CreateNew owner closes and removes this lease.
+  $lease.Dispose()
+  Remove-Item -LiteralPath $leasePath -ErrorAction Stop
+ }
+}
+if($failure){throw $failure}
 Write-Output $output
