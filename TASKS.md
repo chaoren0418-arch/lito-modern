@@ -8,7 +8,7 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 - **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 4 項，封頂**（T011-H、T011-B、T012、T013）。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
 - **分母只因「不確定項」兌現而變動**：主線的不確定項見 `PLAN.md`「盤點：已知範圍」的 U-M1-1、U-V1-1、U-V1-2，最多 +3 張。兌現時 PR 說明要引用當初的編號與估算。
 - **新發現的工作一律進 `## Backlog`**，不算進度。要升級成主線，必須同時砍掉一項主線，或經使用者同意（`needs:user`）。
-- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 30 張、M3 26 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
+- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 46 張、M3 31 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
 
 ## M0 可建置（完成）
 驗收：使用者打開會看到什麼（凍結）：GitHub Actions 的 `build.yml` 在 main 最新一次是綠色；`docs/reports/issue-59.md` 有 clone 到其他路徑後 `啟動現代客戶端.ps1 -BuildOnly` 結束碼 0 的實際輸出。
@@ -76,7 +76,7 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 - 打開 `docs/SKILLS-STATUS.md`（M2 新增），看到 E149 目錄每個技能一列：送包形狀測試（名稱＋通過與否）、資源／特效核對、「以 E149 為準可驗」或「伺服器待定」。凡是標可驗的列，全部顯示通過。
 - 執行 `run-local-test-suite.ps1`，總表多出「技能」與「G06」兩類，結束碼 0。G06 包含當版 5 個 scenario，以及補回的 3 個舊 scenario。
 - #97 暗隱術的 12 個 ready-gate 案在 `src/` 的版本全部通過（8 純案＋4 原資源案）。
-任務清單：見 Backlog「預定 M2」（30 張，開放時原樣升級）。
+任務清單：見 Backlog「預定 M2」（46 張，開放時原樣升級）。
 
 ## M3 GUI 與交付（尚未開放）— 主線 0 項
 驗收：使用者打開會看到什麼（凍結）：
@@ -84,12 +84,12 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 - `docs/GUI-ACCEPTANCE.md`（M3 新增）列出 T030 清單的每一項，各附截圖或錄影，以及「通過／失敗／待伺服器」。
 - `docs/G01-G12.md`（M3 新增）有 G01–G12 每一項的定義、證據連結與狀態。
 - 執行 `run-local-test-suite.ps1 -Full`，Debug 與 Release 的總表結束碼 0；不能執行的項目逐項寫明排除理由。
-任務清單：見 Backlog「預定 M3」（26 張，開放時原樣升級）。
+任務清單：見 Backlog「預定 M3」（31 張，開放時原樣升級）。
 
 ## Backlog（不算進度）
 本區有兩種項目：一種是 M2／M3 已排定的任務，開放時原樣升級；另一種是排除或延後的工作。2026-11-06 依 #92，原本在 M2／M3 的 T020–T024、T030–T032，以及修補提案 T040，都移到這裡。它們和「打開就看得到」（V1）沒有直接因果關係。
 
-### 預定 M2（30 張；開放時原樣升級，總數不變）
+### 預定 M2（46 張；開放時原樣升級，總數不變）
 技能集合以 `docs/PROTOCOL-CONTRACT.md` §6.3 為準：git `2066774`，共 181 項，也就是 180 個 catalog 記錄加上 dispatcher 特例 5 TELEPORT。E149 與 `2066774` 的 `BattleSpellCatalog` 常數 223／223 完全相同，`new *Spell(` 也同為 186 處。逐 ID 去重後的分配如下，合計 38＋48＋4＋91＝181，沒有重複：
 
 | 集合 | 數量 | ID |
@@ -140,27 +140,51 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
   - 8、9、11、10、28、18：各自的其他目標、clock 邊界、自然到期（L1070–L1131）。
   - 63：320 秒（L635）。
 
-  分 3 張：攻擊與目標類、狀態與自身類、地面、特效與資源類。（3 張）
-- **T029 | backlog(M2) | Cursor | `src/`：非技能的戰鬥基礎**。普通遠程：D722 起新增的 ResourceDatabase.arrow／flightType 映射，舊弓箭收據不能當現版驗收（L1106、L1109）；弓／投擲 stance20／62；alpha 命中與拒絕提示接線（L753）。（1 張）
+  另外要在 `src` 重寫候選裡對 main 既有技能的修正：S23 class4 與冰箭的 NativeSpellClock 時序、全域整數毫秒起點、class1 啟動位置、火球 class5 時序（`維護工具/native-E149-S23-clock*.md`、`native-E149-class1-origin.md`、`native-E149-fireball-*.md`）；處理 ignored 的全 caster golden 測試，以及 list.spr 全量嚴格 parser 的 614 行錯誤（NATIVE-ATTACK-SKILLS:42）。
+  分 4 張：攻擊與目標類、狀態與自身類、地面、特效與資源類、候選修正重寫。（4 張）
+- **T029 | backlog(M2) | Cursor | `src/`：非技能的戰鬥基礎**，分 2 張：
+  - 遠程：D722 起新增的 ResourceDatabase.arrow／flightType 映射，舊弓箭收據不能當現版驗收（L1106、L1109）；弓／投擲 stance20／62；S23 其他 type；特殊投射物（NATIVE-COMBAT:20、:22、NATIVE-RANGED:21）。
+  - 操作：alpha 命中、自動追擊、目標圈、拒絕提示、攻擊專用速度、延遲回覆與重試交錯（L753、NATIVE-COMBAT:36、:38、NATIVE-NAVIGATION:23、NATIVE-OUTCOMES:19、:34）。
+
+  （2 張）
 - **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06 客戶端可獨立完成的部分**，分 3 張：
   - 第二次 cancel 的一次性 LOGIN 恢復（同端點、同帳號、同來源）；C8 清單確認；8／30／60 秒與 33／31 秒；在 `src` 重整 13 檔 registry 與 fixture 14 檔。
   - 補回 3 個舊 scenario（repeated_cancellation、failed_handoff_then_repeated_cancel、expired_stage_and_source_handoff）；更多取消／舊世代、畸形或跨世代 wire 回覆（L1155、L1172、L1227）；G06 通用 finite History 四 profile（L45）。
   - 觀戰（G06.2）：單獨主動離場、原 native 初始鏡頭偏移（L1052–L1062）；TeleportMe 原圖示排版（L1150）。
 
-  同端點 C02（selection=0 的 rental-item-set，L1230）依賴伺服器，列在 U-M3-1。（3 張）
+  - G06 物品接續中可以到達的拒絕與期限案例：StateCopy 拒絕 active ScheduledFuture／EquipmentTimerLease／pending magic-stone expiry、租裝自然到期（`維護工具/native-E149-extended-item-observation.md:15-27`）；T 鍵入口與 cancel-late 案例（`native-E149-integrated-client.md:15`、`native-E149-recovery-case-contract.md:11`）；畸形與跨世代 wire 回覆（NATIVE-WORLD-INTEGRATION:126、:164）。
 
-### 預定 M3（26 張；開放時原樣升級，總數不變）
+  同端點 C02（selection=0 的 rental-item-set，L1230）依賴伺服器，列在 U-M3-1。沒有正常 GAME 產生路徑的非預設值（元素、鑲卡、魔石、覺醒、dark-item payload）歸「G06 正向前提」排除。（4 張）
+
+- **T041 | backlog(M2) | 本機 codex-local | `維護工具/run-local-test-suite.ps1`**：擴充 T012 的腳本，加入「技能」與「G06」兩類。技能類跑 T026 狀態表列出的測試，G06 類跑 8 個 scenario；成功門檻和 T012 相同。這是 M2 完成定義要用的腳本。（1 張）
+- **T043 | backlog(M2) | Cursor＋本機 | `tests/`、fixture**：雙真實玩家戰鬥 fixture。E149 的 startBattle 會強制關閉舊訓練 bot，所以 schema37 的 54 個情境不能標成新版通過。要用兩個真實玩家連線，重新核對攻擊、HP／MP、死亡、結算、重入（NATIVE-EMBLEMS:29–31）。T028、T029、T048 的戰鬥驗證以它為前提。（2 張）
+- **T044 | backlog(M2) | Cursor | `src/`：移動正確性與 G04 剩餘項**。範圍包括：
+  - 已在途移動、靜默拒絕（Cube: Quake 等）、本地碰撞預判；
+  - 動態門與動態物件占位、場地邊界；
+  - 城門、全部碰撞模式；
+  - 移動中斷、其他模式物件、持續輸入中斷。
+
+  出處：NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40。（2 張）
+- **T045 | backlog(M2) | Cursor | `src/`：物品系統缺口**。需要目標或選項的 use_type、type3 charge、194／197 正式流程、C76 銷毀、生命之泉等耗材（NATIVE-ITEM-ACTIONS:9、:39、NATIVE-GROUND-SKILLS:33）。交易不在範圍內。（2 張）
+- **T046 | backlog(M2) | Cursor | `src/`：快捷列、技能書與狀態 UI**。CLAUDE.md 目標明列「快捷列」。範圍包括技能圖示與快捷列綁定、完整技能書、buff／AC／冷卻／MP 呈現，以及技能中斷（NATIVE-SKILLS:41、NATIVE-SKILL-SELECTION:27、NATIVE-REAGENT-SKILLS:31、NATIVE-ATTACK-SKILLS:3、:32）。（3 張）
+- **T047 | backlog(M2) | Cursor | `src/`**：影格事件 Effect／Hit 映射到特效（NATIVE-ANIMATION:11、NATIVE-COMBAT:30），以及 gfx1544 action0 在 catalog 缺定義、首幀只畫出 11／12 個物件（NATIVE-WORLD:24、:34）。（1 張）
+- **T048 | backlog(M2) | Cursor | `src/`**：復活的其他分支，包括 S_RESURRECT 與榮譽模式延遲重生（NATIVE-OUTCOMES:13、NATIVE-CONTINUOUS:22）。（1 張）
+- **T050 | backlog(M2) | Cursor | `src/`**：S_EVENT subtype33 完整性挑戰目前只記錄，沒有送 C_ADDR；要調查並接線，否則不能宣稱長時間戰鬥相容（NATIVE-WORLD:18）。（1 張）
+
+### 預定 M3（31 張；開放時原樣升級，總數不變）
 - **T040 | backlog(M3) | Claude | lito-launcher-server Issue**：把修補提案四項（租裝返回、同端點傳送、房間最後離開、商人屬性來源）以 Issue 加證據路徑的形式交給伺服器 repo，不搬 ASM 工具。伺服器接收後，刪除本 repo 的 `修補提案/`。（1 張）
-- **T033 | backlog(M3) | 本機 codex-local | `docs/G01-G12.md`（新增）**：從使用者電腦的 `工作佇列.json` 取回 G01–G12 的正式定義（只讀，不新增或修改該檔），寫成文件。同時判定 map563 是不是 WORLD 地圖（影響 U-M3-6）。（1 張）
+- **T033 | backlog(M3) | 本機 codex-local | `docs/G01-G12.md`（新增）**：從使用者電腦的 `工作佇列.json` 取回 G01–G12 的正式定義（只讀，不新增或修改該檔），寫成文件。同時判定 map563 是不是 WORLD 地圖（影響 U-M3-6），以及 ARGO、map500 其餘入口、血盟 emblem 與名稱權限是否在範圍內（影響 U-M3-7、U-M3-8）。（1 張）
 - **T034 | backlog(M3) | Claude | `docs/GUI-ACCEPTANCE.md`（新增）**：T030 的檢查清單。
   - 流程：普通房、租裝入口與商店、旅館返回（3600／7200 秒自然租期）、商人與市民、Enter 負向、EOF／取消、新技能、owner 退役與傳送恢復、觀戰、雙玩家戰鬥退出、小地圖、NPC caption。
   - 核對面向：實體輸入、像素、IME、多 DPI、聲音（實體裝置、無裝置／拔插）。
+  - 其他清單項：建房、中文密碼往返（NATIVE-ROOM:46）、TeleportMe 原圖示排版（NATIVE-TELEPORT:22）、屋頂進出（NATIVE-WORLD-ROOFS:35）、開門 O 鍵、觀戰切換與鏡頭、G09 音效事件。
   - 數值 schema 寫明登入器的啟動方式。
 
   （1 張）
 - **T035 | backlog(M3) | Cursor | `src/`、`維護工具/`：已知 GUI 與輸入缺陷**，分 2 張：
   - Release 長入口提示換行被下方操作列裁切（NATIVE-WORLD-INTEGRATION:156）。
-  - FrameArrived 逾時、geometry unavailable 的恢復路徑，以及 Release 的 OS SendInput 輸入探針失敗：擷取逾時、click 缺 geometry、沒有 result.json（HISTORY L1411–L1417）。
+  - FrameArrived 逾時、geometry unavailable 的恢復路徑，以及 Release 的 OS SendInput 輸入探針失敗：擷取逾時、click 缺 geometry、沒有 result.json（HISTORY L1411–L1417、NATIVE-LOGIN:14）。
+  - 伺服器名稱含 `(數量)` 時，數量會重複顯示（NATIVE-INVENTORY:44）。
 
   （2 張）
 - **T030 | backlog(M3) | 使用者 | 依 T034 清單做原生 GUI 實機驗收**：真機驗收，`needs:user`。（1 張）
@@ -174,10 +198,23 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
   - 雜項環境變數 40 項 1 張；
   - 自有隔離 DB 盤點 1 張、執行 1 張。
 
-  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。歷史上未關閉的失敗要在對應那一張重驗：C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）。（15 張）
+  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：
+  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；
+  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；
+  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）
 - **T038 | backlog(M3) | 本機 dot＋Claude | G11 效能驗收**：依 `acceptance-budget-v1.json`，Release 做 60 分鐘／20 週期、warm reload 分布、8 秒移動與 60 秒等待預算（HISTORY L159、L171、L1204）。（1 張）
 - **T037 | backlog(M3) | Claude | `docs/G01-G12.md`**：G01–G12 逐項稽核，每項附證據連結與狀態。（1 張）
 - **T032 | backlog(M3) | Claude | `docs/ARCHITECTURE.zh-TW.md`**：重寫為現況版（現在是流水帳）。（1 張）
+- **T042 | backlog(M3) | 本機 codex-local | `維護工具/run-local-test-suite.ps1`**：加入 `-Full` 模式，涵蓋 Debug 與 Release，以及 T036 放行的全部項目；無法執行的項目逐項輸出排除理由。這是 M3 完成定義要用的腳本。（1 張）
+- **T049 | backlog(M3) | Cursor | `src/`：背包與介面文字**。範圍包括：
+  - 祝福光暈、詛咒色盤（NATIVE-INVENTORY-ICONS:41）；
+  - 物品名稱 runtime 模板、格式顏色、遞迴引用（NATIVE-INVENTORY-NAMES:39）；
+  - 數字通知的 Text 資源映射（NATIVE-GAME:21）、LTstring 原版 UI（NATIVE-LOBBY:46）；
+  - S0F／S10 系統訊息 GUI（NATIVE-WORLD-INTEGRATION:84）；
+  - 地面與世界物品名稱。
+
+  （2 張）
+- **T052 | backlog(M3) | Cursor | `src/`**：裝備與彈藥 UI（NATIVE-RANGED:13、:37）；地面物品直接滑鼠拾取與排序；特殊物品選項（NATIVE-REAGENT-SKILLS:31、:33）。（2 張）
 
 ### 排除或延後（不在 M0–M3 完成定義內）
 - **WORLD 地圖專屬項目**：伺服器端已確認「LiTo 只有競技場，沒有 WORLD 地圖」（lito-launcher-server `docs/maintenance/combat-continuation-current.zh-TW.md:14`）。因此排除：map303 floor gate、水下 shader／phase／scroll、屋頂 runtime、攻城 P 鍵、經典 C_ENTER_WORLD 分支等。競技場與租裝城鎮仍在範圍內。
@@ -190,3 +227,13 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 - **WORLD 專屬（依 HISTORY）**：普通 WORLD C05 入口、技能 131 進 map4、WORLD 主視窗、869／$748 NPC action3、毒咒與寒冷戰慄的 WORLD 分支、攻城 P 鍵（L555、L1078、L1086、L1175–L1199）。
 - **建置雜項**：Debug 281／Release 282 個編譯警告（L711 等）、外部 LiTo.bin／Server_Game.jar（L1014；本 repo 不包裝 LiTo.bin）、before-rebuild zip 與 NUL 診斷映像（L919、L93）。
 - **候選 overlay QA 475 案的逐案清單**：HISTORY L1–L65 逐輪記錄了其中 334 案（第 141 案之後）的新增數；前 141 案沒有分項，逐案名稱只在使用者電腦上未追蹤的候選目錄。這些案已延後，不影響主線；若重新評估候選，再由本機任務列出。
+- **研究紀錄中確認排除的項目**（NATIVE-*、`維護工具/*.md`）：
+  - 盟戰：S69 戰爭旗標、FA 限制、盟戰結束（NATIVE-ACTOR-RELATIONS:11、:20、NATIVE-LABEL-UPDATES:19）。
+  - see-invisible／GM 視野（NATIVE-ACTOR-STATES:17）。
+  - C0B 末 byte 的 remembered-ID 與 986ms 節流（NATIVE-GROUND-PICKUP:15）。
+  - 資源缺件的附件與陰影 bank（NATIVE-ACTOR-LAYERS:11）。
+  - 原版等價研究：動作中斷順序、延遲補償、效果細分座標（NATIVE-COMBAT:26、NATIVE-ANIMATION:17、NATIVE-SKILLS:19）。
+  - 交易；VS-server directory（NATIVE-LOGIN:44）。
+  - 多客戶端即時競態與自然搶拾（NATIVE-REAL-PEERS:43、:45、NATIVE-ROOM:46）。
+  - connect 階段 Drop 等 timeout（NATIVE-PROTOCOL:36）、舊版名單查詢分支（NATIVE-WORLD-LABELS:15）。
+  - 候選資格的「四元件／原版 6 反例／候選 14 案／元件矩陣 28 案」（`維護工具/native-E149-component-*.md`、`native-E149-owned-mysql-README.md:19`），以及 action0 cadence 之外的全域 scheduler 交錯、clock import。
