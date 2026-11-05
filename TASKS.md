@@ -8,7 +8,7 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 - **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 4 項，封頂**（T011-H、T011-B、T012、T013）。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
 - **分母只因「不確定項」兌現而變動**：主線的不確定項見 `PLAN.md`「盤點：已知範圍」的 U-M1-1、U-V1-1、U-V1-2，最多 +3 張。兌現時 PR 說明要引用當初的編號與估算。
 - **新發現的工作一律進 `## Backlog`**，不算進度。要升級成主線，必須同時砍掉一項主線，或經使用者同意（`needs:user`）。
-- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 24 張、M3 24 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
+- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 30 張、M3 26 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
 
 ## M0 可建置（完成）
 驗收：使用者打開會看到什麼（凍結）：GitHub Actions 的 `build.yml` 在 main 最新一次是綠色；`docs/reports/issue-59.md` 有 clone 到其他路徑後 `啟動現代客戶端.ps1 -BuildOnly` 結束碼 0 的實際輸出。
@@ -76,7 +76,7 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 - 打開 `docs/SKILLS-STATUS.md`（M2 新增），看到 E149 目錄每個技能一列：送包形狀測試（名稱＋通過與否）、資源／特效核對、「以 E149 為準可驗」或「伺服器待定」。凡是標可驗的列，全部顯示通過。
 - 執行 `run-local-test-suite.ps1`，總表多出「技能」與「G06」兩類，結束碼 0。G06 包含當版 5 個 scenario，以及補回的 3 個舊 scenario。
 - #97 暗隱術的 12 個 ready-gate 案在 `src/` 的版本全部通過（8 純案＋4 原資源案）。
-任務清單：見 Backlog「預定 M2」（24 張，開放時原樣升級）。
+任務清單：見 Backlog「預定 M2」（30 張，開放時原樣升級）。
 
 ## M3 GUI 與交付（尚未開放）— 主線 0 項
 驗收：使用者打開會看到什麼（凍結）：
@@ -84,28 +84,87 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 - `docs/GUI-ACCEPTANCE.md`（M3 新增）列出 T030 清單的每一項，各附截圖或錄影，以及「通過／失敗／待伺服器」。
 - `docs/G01-G12.md`（M3 新增）有 G01–G12 每一項的定義、證據連結與狀態。
 - 執行 `run-local-test-suite.ps1 -Full`，Debug 與 Release 的總表結束碼 0；不能執行的項目逐項寫明排除理由。
-任務清單：見 Backlog「預定 M3」（24 張，開放時原樣升級）。
+任務清單：見 Backlog「預定 M3」（26 張，開放時原樣升級）。
 
 ## Backlog（不算進度）
 本區有兩種項目：一種是 M2／M3 已排定的任務，開放時原樣升級；另一種是排除或延後的工作。2026-11-06 依 #92，原本在 M2／M3 的 T020–T024、T030–T032，以及修補提案 T040，都移到這裡。它們和「打開就看得到」（V1）沒有直接因果關係。
 
-### 預定 M2（24 張；開放時原樣升級，總數不變）
-- **T025 | backlog(M2) | Claude | `docs/PROTOCOL-CONTRACT.md`**：版本綁定。寫明 M2／M3 都以 E149（e1498871）為準；對齊第 8 節「待對 e1498871 核對」與 T004-1 已完成之間的矛盾；查清目錄 180 項（E149）與 181 項（2066774）差的是哪一項。（1 張）
-- **T026 | backlog(M2) | Claude | `docs/SKILLS-STATUS.md`（新增）**：技能分類。把 181 個技能逐一對到伺服器缺口組（伺服器 T021 目標／Ctrl、T022 自施、T023 受控 NPC、T024 HP 生產端、T025 材料、T028 顯示），分成「以 E149 為準可驗」與「伺服器待定」兩類。後者只驗送包形狀與畫面，不驗與原版同源。（1 張）
-- **T020 | backlog(M2) | Cursor | `src/`：#97 暗隱術**：在 `src/` 重寫 ingress clock、專用 queue、Static2941Bank 與資源就緒 gate；共享 callback、重入繪圖 producer 與固定 sample、巢狀 drain 的交錯；把 12 個 ready-gate 案移植到 main。候選第 29–30 列只當設計參考。（2 張）
-- **T021 | backlog(M2) | Cursor | `src/`：#98 附加劇毒、#99 影之防護、#100 提煉魔石**（技能目錄 ID，不是 Issue 編號）。（1 張）
-- **T027 | backlog(M2) | Cursor | `src/`：候選獨有的 49 個技能重做進 `src`**：12、20–23、25、27、29、30、33、36、37、39–41、44–48、50、51、53、55、56、59、61、62、64–71、73–76、79、80、87–91（97、98 已含在 T020、T021）。依候選檔的依賴邊分 6 批，每批約 8 個；每批都要有送包形狀與收包測試，並通過 `run-local-test-suite.ps1`。（6 張）
-- **T022 | backlog(M2) | Cursor | `src/`：剩下的技能（目錄扣掉 main 39 個、候選 49 個與 97–100）**，依目錄分 10 批：101–118（2 張）、129–138（1 張）、精靈 145–176（3 張）、龍騎士 181–195（2 張）、幻術師 201–220 扣掉 206（2 張；21 個 wrapper 技能一律走 11-byte 形狀）。（10 張）
-- **T024 | backlog(M2) | Cursor | `src/`**：#87 持續 4183（wire→model 時間、S0B 重送交錯），加上 LT hurt/base（45／46 hurt 相對 gfx、倍率、u32 rollover）。（1 張）
-- **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`**：G06 客戶端可獨立完成的部分。第二次 cancel 的一次性 LOGIN 恢復（同端點、同帳號、同來源）；C8 清單確認；8／30／60 秒與 33／31 秒；在 `src` 重整 13 檔 registry 與 fixture 14 檔；補回 3 個舊 scenario（repeated_cancellation、failed_handoff_then_repeated_cancel、expired_stage_and_source_handoff）。（2 張）
+### 預定 M2（30 張；開放時原樣升級，總數不變）
+技能集合以 `docs/PROTOCOL-CONTRACT.md` §6.3 為準：git `2066774`，共 181 項，也就是 180 個 catalog 記錄加上 dispatcher 特例 5 TELEPORT。E149 與 `2066774` 的 `BattleSpellCatalog` 常數 223／223 完全相同，`new *Spell(` 也同為 186 處。逐 ID 去重後的分配如下，合計 38＋48＋4＋91＝181，沒有重複：
 
-### 預定 M3（24 張；開放時原樣升級，總數不變）
+| 集合 | 數量 | ID |
+|---|---|---|
+| main 已接 | 38 | 1–4、6–11、13–19、26、28、31、32、34、35、38、42、43、49、52、54、57、58、60、63、72、77、78、131、206 |
+| 候選獨有 | 48 | 見 T027 |
+| #97–#100 | 4 | 97–100 |
+| 未接 | 91 | 見 T022 |
+
+- **T025 | backlog(M2) | Claude | `docs/PROTOCOL-CONTRACT.md`**：版本綁定。寫明 M2／M3 都以 E149（e1498871）為準；對齊第 8 節「待對 e1498871 核對」與 T004-1 已完成之間的矛盾。另外把 180／181 的來源寫進契約：180 個 catalog 記錄，加上 TELEPORT 是 dispatcher 特例（`維護工具/generate-spell-request-shapes.py:192`）。（1 張）
+- **T026 | backlog(M2) | Claude | `docs/SKILLS-STATUS.md`（新增）**：技能分類。把 181 個技能逐一對到伺服器缺口組（伺服器 T021 目標／Ctrl、T022 自施、T023 受控 NPC、T024 HP 生產端、T025 材料、T028 顯示），分成「以 E149 為準可驗」與「伺服器待定」兩類。後者只驗送包形狀與畫面，不驗與原版同源。（1 張）
+- **T020 | backlog(M2) | Cursor | `src/`：#97 暗隱術**：在 `src/` 重寫 ingress clock、專用 queue、Static2941Bank 與資源就緒 gate（在 enqueue 前，原 4E5C00 先 SPR 再 4D65F0）。範圍包括：
+  - 共享 callback、重入繪圖 producer 與 4D6570 固定 sample 的交錯；4E2150 兩個 suffix 的上游 CFG；4857B0 巢狀 drain；方向 6 alias／shadow defaults；
+  - native clock 的 import 初始化與 rollover；
+  - 把 12 個 ready-gate 案移植到 main；重編 library-test 與七個整合 metadata（HISTORY L1–L13）。
+
+  候選第 29–30 列只當設計參考。（2 張）
+- **T021 | backlog(M2) | Cursor | `src/`：#98 附加劇毒、#99 影之防護、#100 提煉魔石**（技能目錄 ID，不是 Issue 編號）。97／98 要驗權威 S34／S08 現身、材料／低 MP／HP 邊界、原資源／音效／History、自然期限（L13）。（1 張）
+- **T027 | backlog(M2) | Cursor | `src/`：候選獨有的 48 個技能重做進 `src`**，逐 ID 分 6 批，每批 8 個：
+  - 批 1：5、12、20–23、25、27
+  - 批 2：29、30、33、36、37、39–41
+  - 批 3：44–48、50、51、53
+  - 批 4：55、56、59、61、62、64–66
+  - 批 5：67–71、73–75
+  - 批 6：76、79、80、87–91
+
+  5 TELEPORT 和 G06 有關，要跟 T023 對齊。各技能的歷史待測條件見 HISTORY L17–L65，例如 #69 的 S55-C4E-S5A-C08、EOF 取消與八秒失敗、#88／#89 的 HP 成本邊界 279／278。每批都要有送包形狀與收包測試，並通過 `run-local-test-suite.ps1`。分批可以依候選依賴邊在 6 批之間調換，但總數不變。（6 張）
+- **T022 | backlog(M2) | Cursor | `src/`：未接的 91 個技能**，分 10 批：
+  - 批 1：101–109；批 2：110–118
+  - 批 3：129、130、132–134、137、138
+  - 批 4：145–155；批 5：156–166；批 6：167–176
+  - 批 7：181–188；批 8：189–195
+  - 批 9：201–205、207–210；批 10：211–220
+
+  21 個 wrapper 技能一律走 11-byte 的 ⑩ 形狀；113 TRUE_TARGET 帶 MS950 文字。共用 `native_skills::selector_only` helper，coverage parser 也要涵蓋（L11、L13、L17）。（10 張）
+- **T024 | backlog(M2) | Cursor | `src/`**：時序與 hurt，分 2 張：
+  - #87 持續 4183：wire→model 時間、S0B 重送交錯、idle 標籤守衛（L1–L25）。
+  - LT hurt／base：原 hurt guard、LT 相對 gfx 與初始化（不得猜 base）、action0 速度倍率、uint32 長 uptime rollover、#45 class7 child hurt 排除（L49–L65）；hurt queue threshold（L1109）；特殊變身與動作中斷分支（L713、L751）。
+
+  （2 張）
+- **T028 | backlog(M2) | Cursor＋本機 | `src/`、`tests/`：main 已接 38 技能的當版補驗**。這 38 個只有舊來源的限定資格（HISTORY L93–L135「只保留原版本資格」）。已知缺口：
+  - 13 偵測術、60 隱身術：Release 真實施法揭露；SELF_TICK 原生呼叫者時鐘（L93–L149）。
+  - 19／35／57 較高治癒：其他目標（L327、L1265）。
+  - 2 日光術：夜間亮度、3600 秒自然到期（L1282–L1304）。
+  - 72：3934 空影格的專屬 SHA／slots policy（L1580、L1584）。
+  - 77 Disintegrate：舊來源路徑（L1425）。
+  - 6 冰箭：全 caster golden（L1026）。
+  - 8、9、11、10、28、18：各自的其他目標、clock 邊界、自然到期（L1070–L1131）。
+  - 63：320 秒（L635）。
+
+  分 3 張：攻擊與目標類、狀態與自身類、地面、特效與資源類。（3 張）
+- **T029 | backlog(M2) | Cursor | `src/`：非技能的戰鬥基礎**。普通遠程：D722 起新增的 ResourceDatabase.arrow／flightType 映射，舊弓箭收據不能當現版驗收（L1106、L1109）；弓／投擲 stance20／62；alpha 命中與拒絕提示接線（L753）。（1 張）
+- **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06 客戶端可獨立完成的部分**，分 3 張：
+  - 第二次 cancel 的一次性 LOGIN 恢復（同端點、同帳號、同來源）；C8 清單確認；8／30／60 秒與 33／31 秒；在 `src` 重整 13 檔 registry 與 fixture 14 檔。
+  - 補回 3 個舊 scenario（repeated_cancellation、failed_handoff_then_repeated_cancel、expired_stage_and_source_handoff）；更多取消／舊世代、畸形或跨世代 wire 回覆（L1155、L1172、L1227）；G06 通用 finite History 四 profile（L45）。
+  - 觀戰（G06.2）：單獨主動離場、原 native 初始鏡頭偏移（L1052–L1062）；TeleportMe 原圖示排版（L1150）。
+
+  同端點 C02（selection=0 的 rental-item-set，L1230）依賴伺服器，列在 U-M3-1。（3 張）
+
+### 預定 M3（26 張；開放時原樣升級，總數不變）
 - **T040 | backlog(M3) | Claude | lito-launcher-server Issue**：把修補提案四項（租裝返回、同端點傳送、房間最後離開、商人屬性來源）以 Issue 加證據路徑的形式交給伺服器 repo，不搬 ASM 工具。伺服器接收後，刪除本 repo 的 `修補提案/`。（1 張）
-- **T033 | backlog(M3) | 本機 codex-local | `docs/G01-G12.md`（新增）**：從使用者電腦的 `工作佇列.json` 取回 G01–G12 的正式定義（只讀，不新增或修改該檔），寫成文件。（1 張）
-- **T034 | backlog(M3) | Claude | `docs/GUI-ACCEPTANCE.md`（新增）**：T030 的檢查清單。普通房、租裝入口、旅館返回、Enter 負向、EOF／取消、新技能、owner 退役與傳送恢復；3600／7200 秒自然租期、雙玩家戰鬥退出；實體輸入、像素、IME、多 DPI、聲音。數值 schema 寫明登入器的啟動方式。（1 張）
-- **T035 | backlog(M3) | Cursor | `src/`**：已知 GUI 缺陷。Release 長入口提示換行被下方操作列裁切（NATIVE-WORLD-INTEGRATION:156），以及 FrameArrived 逾時／geometry unavailable 的恢復路徑。（1 張）
+- **T033 | backlog(M3) | 本機 codex-local | `docs/G01-G12.md`（新增）**：從使用者電腦的 `工作佇列.json` 取回 G01–G12 的正式定義（只讀，不新增或修改該檔），寫成文件。同時判定 map563 是不是 WORLD 地圖（影響 U-M3-6）。（1 張）
+- **T034 | backlog(M3) | Claude | `docs/GUI-ACCEPTANCE.md`（新增）**：T030 的檢查清單。
+  - 流程：普通房、租裝入口與商店、旅館返回（3600／7200 秒自然租期）、商人與市民、Enter 負向、EOF／取消、新技能、owner 退役與傳送恢復、觀戰、雙玩家戰鬥退出、小地圖、NPC caption。
+  - 核對面向：實體輸入、像素、IME、多 DPI、聲音（實體裝置、無裝置／拔插）。
+  - 數值 schema 寫明登入器的啟動方式。
+
+  （1 張）
+- **T035 | backlog(M3) | Cursor | `src/`、`維護工具/`：已知 GUI 與輸入缺陷**，分 2 張：
+  - Release 長入口提示換行被下方操作列裁切（NATIVE-WORLD-INTEGRATION:156）。
+  - FrameArrived 逾時、geometry unavailable 的恢復路徑，以及 Release 的 OS SendInput 輸入探針失敗：擷取逾時、click 缺 geometry、沒有 result.json（HISTORY L1411–L1417）。
+
+  （2 張）
 - **T030 | backlog(M3) | 使用者 | 依 T034 清單做原生 GUI 實機驗收**：真機驗收，`needs:user`。（1 張）
-- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`**：clean host 可攜交付。改用正式版 VC runtime，不依賴 VS 預覽 runtime；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）
+- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`：clean host 可攜交付**。改用正式版 VC runtime，不依賴 VS 預覽 runtime；移除 5 處開發診斷 hardcode（L1569）；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）
 - **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：
   - 檔案寫入所有權審查（83 項）1 張；
   - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；
@@ -114,8 +173,9 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
   - 原機 snapshot 99 項 1 張；
   - 雜項環境變數 40 項 1 張；
   - 自有隔離 DB 盤點 1 張、執行 1 張。
-  
-  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。（15 張）
+
+  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。歷史上未關閉的失敗要在對應那一張重驗：C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）。（15 張）
+- **T038 | backlog(M3) | 本機 dot＋Claude | G11 效能驗收**：依 `acceptance-budget-v1.json`，Release 做 60 分鐘／20 週期、warm reload 分布、8 秒移動與 60 秒等待預算（HISTORY L159、L171、L1204）。（1 張）
 - **T037 | backlog(M3) | Claude | `docs/G01-G12.md`**：G01–G12 逐項稽核，每項附證據連結與狀態。（1 張）
 - **T032 | backlog(M3) | Claude | `docs/ARCHITECTURE.zh-TW.md`**：重寫為現況版（現在是流水帳）。（1 張）
 
@@ -126,3 +186,7 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 - **伺服器缺陷**：商人屬性來源（例如 29047 戒指火抗 0，應為 10）。客戶端只顯示權威封包，GUI 驗收寫「與伺服器送出的一致」。
 - **效能最佳化**：超出 G11 預算之外的優化，例如首次 Debug 載入 28 秒、封存 hash 23.65 秒。
 - **TW 資源** `TW13081901.pak` 缺檔：5 個 TW 項目不能替代。
+- **畫面等價研究**（HISTORY L163–L305、L1298–L1578）：照明／光罩、水下時鐘與後處理、map303 背景／viewport、背景 64ms scheduler、相機非初始更新、Bank viewport、RGB565 framebuffer 等價。這些項目不在 M0–M3 的完成定義內；如果 T037 稽核判定 G01–G12 需要，依 U-M3-5 兌現。
+- **WORLD 專屬（依 HISTORY）**：普通 WORLD C05 入口、技能 131 進 map4、WORLD 主視窗、869／$748 NPC action3、毒咒與寒冷戰慄的 WORLD 分支、攻城 P 鍵（L555、L1078、L1086、L1175–L1199）。
+- **建置雜項**：Debug 281／Release 282 個編譯警告（L711 等）、外部 LiTo.bin／Server_Game.jar（L1014；本 repo 不包裝 LiTo.bin）、before-rebuild zip 與 NUL 診斷映像（L919、L93）。
+- **候選 overlay QA 475 案的逐案清單**：HISTORY L1–L65 逐輪記錄了其中 334 案（第 141 案之後）的新增數；前 141 案沒有分項，逐案名稱只在使用者電腦上未追蹤的候選目錄。這些案已延後，不影響主線；若重新評估候選，再由本機任務列出。
