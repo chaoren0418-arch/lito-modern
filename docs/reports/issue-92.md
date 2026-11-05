@@ -1,15 +1,34 @@
 # #92 範圍凍結：完成定義、主線封頂、backlog 分流
 
-結論（第 4 版）：
-- **步驟 0 已完成**：
-  - 雲端來源逐檔讀完：HISTORY、51 份 NATIVE 文件、75 份研究紀錄、伺服器 398 個 build*.py 另加 3 段。
-  - 本機未追蹤的來源由 #106 唯讀取回後讀完：`工作佇列.json` 的 G01–G12 共 46 項，以及 44 個候選檔共 554 個測試宣告。
-  - 伺服器的 `server-source-gap.md` 與 `docs/maintenance/` 是依結構讀相關章節，不是逐檔全讀；已在 PLAN 的來源表寫明。
-- **G01–G12 的 46 項**都已對到任務、不確定項，或有理由的排除（附錄 E1）。
-- **候選 44 檔**都已對到重寫任務（附錄 E2）。
-- **主線**（M1＋V1）剩 **1 項，封頂**（T011-B，重跑 #118）：T011-H、T011-F、T012、T013 已完成，V1 完成；U-M1-1 已兌現為 T011-F（#111），分母因此由 10 變 11。
-- **M2、M3** 的完成定義已凍結，任務各 **53 張、44 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
+結論（第 5 版）：
+- **步驟 0 已完成**，使用者點名的來源都已逐檔讀完：
+  - 雲端：HISTORY、51 份 NATIVE 文件、75 份研究紀錄。
+  - 伺服器：398 個 build*.py 另加 3 段、`docs/maintenance/` 86 檔（70 份 md／txt 全文；16 份 JSON 用 python 走訪全部元素）、`server-source-gap.md`。
+  - 本機：G01–G12 共 46 項、候選 554 個測試宣告，由 #106 唯讀取回。
+  - 伺服器隔離候選讀到「建置鏈、收據與 class 清單」層級；候選 JAR 沒有反編譯，理由見 PLAN 的來源表。
+- **對照**：G01–G12 的 46 項（附錄 E1）、候選 44 檔（附錄 E2）、伺服器 maintenance 86 檔（附錄 F）都已歸到任務、不確定項或有理由的排除。
+- **主線**（M1＋V1）剩 **1 項，封頂**：T011-B，重跑 #118。T011-H、T011-F、T012、T013 已完成；分母 11。
+- **M2、M3** 的完成定義已凍結，任務各 **57 張、44 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
 - **證據**：「已驗證」的說法都可以用 `維護工具/check-issue-92-evidence.sh` 重跑，原始輸出附在「證據」一節。
+
+## 第 5 次嘗試的修正（對應第 4 輪 claude-local 審查）
+1. **[P1] 主線落後 main**：
+   - T011-F（PR #115）改為 done。
+   - 開了 G06.3d 重跑 Issue #118（codex-local，已排入佇列），T011-B 指向 #118、狀態 todo。
+   - 主線改為完成 10、剩 1、分母 11；PLAN、TASKS、報告、PR 描述都已同步。
+2. **[P1] 伺服器研究紀錄**：
+   - `docs/maintenance/` 86 檔（約 2.6 MB）與 `server-source-gap.md` 都在雲端的伺服器 clone 裡，所以直接逐檔全讀，不需要調整範圍：md／txt 70 份全文；16 份 JSON 用 python 走訪全部元素，`combat-coverage-current.json` 的 808 列與 `layout-cleanup` 的 1474 筆都核對「處理數＝陣列長度」。
+   - 結果見附錄 F。新增 T061（Ctrl 強制目標 LFC1：Rust 客戶端完全沒有實作）、T062（選角 8 角色分頁）、T063（寵物與召喚物控制），並擴大 T023、T025、T026、T029、T038、T044、T045、T046、T047、T054、T057、T060。GM 工具依 G 定義排除。M2 改為 57 張。
+   - 已刪除 PLAN 裡「這批已延後，不影響主線」的說法，改為引用 #106 的 554／493 與差額 18。計數口徑的裁定是主控決定，不是不可逆決策，所以不另外開 `needs:user`。
+3. **[P1] 凍結內容**：
+   - 屋頂從 WORLD 排除項拿掉（G07.3，已歸 T058）。
+   - M3 完成定義改為由 T037 產出 `docs/G01-G12-AUDIT.md`。
+   - T037 依 G12 擴為 2 張（證據保存與冗餘整理、46 項稽核），M3 改為 44 張。
+4. **[P2] 文字同步**：
+   - 「最多 +3／13」改為「分母固定 11」。
+   - 「等 #106」改為「#106 已完成」。
+   - L1052 改歸 T054；T033／U-M3-7 的引用都改為現行項目；T044、T047 的張數更正為 3 張、2 張。
+   - E3 註明「候選獨有 48」的計算方式，以及 107 的例外（嚴格是 49／90）。
 
 ## 第 4 次嘗試的修正（對應第 3 輪 claude-local 審查）
 1. **[P1] G01–G12 定義與排除衝突**：已依 #106 取回的原文（`docs/G01-G12.md`）逐條對照 46 項，結果見附錄 E1。
@@ -54,22 +73,22 @@
 （第 2 次嘗試的修正內容保留在 git 歷史：commit 6009727。）
 
 ## 移到 backlog 的項目
-- **預定 M2（53 張）**：
+- **預定 M2（57 張）**：
   - T025 1、T026 2、T020 2、T021 1；
   - T027 6、T022 10；
   - T024 2、T028 4、T029 2、T023 4；
   - T041 1、T043 2、T044 3、T045 2、T046 3、T047 2、T048 1、T050 1；
-  - T054 2、T055 2。
+  - T054 2、T055 2、T061 2、T062 1、T063 1。
 - **預定 M3（44 張）**：
   - T040 1、T034 1、T035 2、T030 1、T031 2、T036 15、T038 3、T037 2、T032 1；
   - T042 1、T049 2、T052 2；
   - T053 2、T056 2、T057 2、T058 2、T059 2、T060 1。
 - **排除或延後**：
-  - G06.4 與 WORLD 專屬；凍結候選資格檢查與候選測試（隨候選凍結）；
-  - G06 正向前提；伺服器缺陷；
-  - 畫面等價研究（照明、水下、map303 背景、RGB565 等，沒有列在 G01–G12）；建置雜項；
+  - G06.4 與 WORLD 專屬；凍結候選資格檢查與候選測試；G06 正向前提；伺服器缺陷；
+  - 畫面等價研究（沒有列在 G01–G12）；建置雜項；
   - 盟戰玩法（不含狀態呈現）；see-invisible／GM 視野；C0B remembered-ID；原版等價研究；
-  - 玩家之間的交易；VS-server directory；多客戶端即時競態；`TW13081901.pak` 缺檔；超出 G11 的效能最佳化。
+  - 玩家之間的交易；GM 工具；VS-server directory；多客戶端即時競態；`TW13081901.pak` 缺檔；
+  - 超出 G11 的效能最佳化；伺服器內部項目（附錄 F）。
 
 ## 主線剩餘數
 | 區段 | 完成 | 剩餘 |
@@ -80,7 +99,7 @@
 | 合計 | 10 | **1**（分母 11；U-M1-1 兌現） |
 
 - U-M1-1 已兌現為 T011-F；U-V1-1、U-V1-2 沒有兌現，已關閉。主線分母固定為 11。
-- M2、M3 開放時（需要 `needs:user`）分別加 53、43，不確定項上限各為 +8、+18。
+- M2、M3 開放時（需要 `needs:user`）分別加 57、44，不確定項上限各為 +8、+18。
 
 ## 證據
 重跑指令（唯讀；只在暫存目錄解出 class，不建置、不連服務）：
@@ -220,7 +239,7 @@ lines 1589 nonempty 740 unique 738 dup 2
 
 ## 怎麼驗證
 - 張數核對：
-  - M2：1+2+2+1+6+10+2+4+2+4+1+2+3+2+3+2+1+1+2+2=53；M3：1+1+2+1+2+15+3+2+1+1+2+2+2+2+2+2+2+1=44；主線分母 5+5+1=11。
+  - M2：1+2+2+1+6+10+2+4+2+4+1+2+3+2+3+2+1+1+2+2+2+1+1=57；M3：1+1+2+1+2+15+3+2+1+1+2+2+2+2+2+2+2+1=44；主線分母 5+5+1=11。
   - 技能：38+48+4+91=181；T022 各批 9+9+7+11+11+10+8+7+9+10=91；T027 每批 8 個，共 6 批＝48。
 - `grep -n "^## \|^### " TASKS.md`：`## M*` 區段下只有主線項目，M2／M3 下沒有 `###` 項目。
 
@@ -457,3 +476,28 @@ CLAUDE.md 目標裡的「聊天」在 G01–G12 沒有單獨一項，另外新�
 | T027 | 5 native_skills、7 tests/native_blind、15 native_additional_finite_effects、16 tests/native_slow29、18 tests/native_advance79、19 tests/native_item_spells、20 tests/native_magical73、22 tests/native_object374448、24 native_attack_many、30 native_skill_effects、31 native_eruption45、33 native_eruption45_scene、35 native_blizzard59、36 native_resurrection61、37 native_appearance27、40 native_shape67、41 native_mass69、42 native_fire70 | 356 |
 | 沒有新增測試 | 3 native_login_window、17 native_selector_effects、32 native_eruption45_assets、39 native_combat_animation（4 檔都是 0 個測試）；另外 34 tower_assets 有 7 個測試都和 main 同名，已列在 T020 | 0 |
 | **合計** | 44 檔 | **493** |
+
+## 附錄 F：伺服器 `docs/maintenance/` 86 檔與 `server-source-gap.md` → 歸屬
+路徑都在 lito-launcher-server（`2066774`）的 `lito伺服器/LiTo381-Server/docs/maintenance/`。分 4 組逐檔讀完：1、32、37 份 md／txt，加 16 份 JSON，合計 86，和目錄的檔案數相同。下表只列對客戶端有影響的項目；鎖、FIFO、completion 佇列、生命週期、外控設定鍵、目錄整理等純伺服器內部項目，各組報告都標為「無客戶端影響」。
+
+| 出處 | 事項 | 歸屬 |
+|---|---|---|
+| `forced-combat-0.6.67.md:5`、`:11-13`；`source-material-control-ingress.zh-TW.md:5`、`:10`；`combat-continuation-current.zh-TW.md:21`、`:52`、`:76-77`；`combat-integration-lifecycle.zh-TW.md:282-302`、`:757-763`；`source-completion-work-current.zh-TW.md:41` | Ctrl 強制目標 LFC1 擴充與目標選取政策；Rust 客戶端沒有實作 | **T061（新）** |
+| `buff-schema-and-character-pages-20261018.zh-TW.md:15-39`；`combat-closeout-current.zh-TW.md:74`；`release-verification-20261018.zh-TW.md:16` | 8 角色分頁、選服、血盟名稱 16 bytes | **T062（新）** |
+| `combat-continuation-current.zh-TW.md:64-65` | 寵物 69 項控制、召喚物期限與解放 | **T063（新）** |
+| `movement-lock-0.6.66.md:5`、`:11` | C_BLINK 與 S_PARALYSE 模式 17 解鎖 | T044 |
+| `native-thunder-teleport-policy-progress.zh-TW.md:5`；`source-mass-teleport-exit.zh-TW.md:15`；`combat-integration-lifecycle.zh-TW.md:27`、`:66`、`:86` | 沒有 S_PORTAL 的解鎖；portal 的 showId | T023、T011-B |
+| `empty-melee-0.6.49.json` L34–42 | 空揮封包與拒絕條件 | T029 |
+| `room-rules-0.6.61.md:21-25`；`bot-room-count-0.6.64.md:5-12`；`room-directory-0.6.54.json` L21–29 | 房間規則、ArenaBot 人數、跨來源同頻道 | T054 |
+| `dragon-presentation-0.6.48.json` L37–44；`dragon-combat-0.6.47.json` L38–42；`illusion-presentation-0.6.50.json` L232–236；`combat-continuation-current.zh-TW.md:255-282` | 狀態圖示 3080、`6D h c(181)`、幻術 lease、ICONS1／ICON_I2H／OwnCharStatus | T046、T047 |
+| `native-light-action-current.zh-TW.md:25`；`native-self-cast-current.zh-TW.md:5`；`native-cast-timeline-current.zh-TW.md:7`、`:15`；`native-invisibility-cast-policy-progress.zh-TW.md:6` | 光術封包順序、1480ms 動畫窗、SprTable 截斷、隱身重施 | T046、T047、T025 |
+| `combat-coverage-current.json`（808 列）；`combat-coverage-current.md:202-253`；`combat-parity-0.6.68.json` L9 | 技能矩陣（180＋1 列對應本目錄 181）、待查處理器、別名、208 秒數、卡瑞／莎爾 | T026 |
+| `native-de-inventory-root-current.zh-TW.md:7`、`:13`；`native-de-item-binding-current.zh-TW.md:7`；`gm-travel-0.6.68.md:19`、`:32`；`native-triple-arrow-policy-progress.zh-TW.md:7`；`native-item-weapon-material-progress.zh-TW.md:5`；`data-sources-0.6.60.json` L402–439、L1000–1029 | unsigned 物件 ID、5-byte remove、Storm_Walk、三重矢扣箭、依裝備武器決定目標、擂台商店、S_SHOW_MAP | T045 |
+| `native-de-terrain-current.zh-TW.md:11`；`data-sources-0.6.60.json` L972–999；`resource-database-0.6.63.md:9-16` | 經典地圖差異、504 雙域、LTzone、map_page | T057 |
+| `native-de-chat-current.zh-TW.md:9-11` | NPC 對話 opcode 45 | T060 |
+| `combat-integration-lifecycle.zh-TW.md:221`、`:252`、`:742`；`docs/server-source-gap.md:37-1454`；`source-administration-validation.json` L21–23 | 換版重核清單、Maven 產物差異、來源伺服器清單 | T025 |
+| `dragon-skills-0.6.46.json` L45 | 斷線延遲結算記一敗 | T038 |
+| `combat-integration-lifecycle.zh-TW.md:295`；`source-completion-work-current.zh-TW.md:5`；`combat-continuation-current.zh-TW.md:14` | LiTo 只有競技場（BATTLE），WORLD 只保留後端回歸 | 支持 WORLD 排除 |
+| `gm-travel-0.6.68.*`、`gm-polyme-0.6.71.md`、`source-administration-validation.json` | GM 工具 | 排除（G01–G12 沒有這一項） |
+| `combat-parity-0.6.68.json` L10–13；`native-skill-consumption-current.zh-TW.md:5`；`native-de-item-publication-current.zh-TW.md:7` | 治癒 +100、AC 減免、MP 公式、數量落後 | 排除（伺服器缺陷或權威值，客戶端只顯示） |
+| `layout-cleanup-20261012.json`（1474 筆，src 0 筆）、`layout-validation-20261012.json`、`combat-report-simplification-20261019.json` | 目錄整理、純文件精簡 | 無客戶端影響 |
