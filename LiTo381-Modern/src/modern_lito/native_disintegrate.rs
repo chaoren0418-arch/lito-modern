@@ -83,11 +83,16 @@ pub struct Cue {
 pub(crate) struct History {
     generation: Option<u64>,
     seen: BTreeSet<Key>,
+    // Preserve a failed presentation load across same-world scene replacement.
+    unavailable: Option<(PathBuf, String)>,
 }
 impl History {
     pub(crate) fn merge(&mut self, other: &Self) {
         if self.generation == other.generation {
             self.seen.extend(other.seen.iter().copied());
+            if self.unavailable.is_none() {
+                self.unavailable = other.unavailable.clone();
+            }
         }
     }
 }
@@ -99,6 +104,16 @@ struct Active {
     frame: usize,
     finished: bool,
 }
+/// Presentation availability never grants or revokes permission to cast.
+#[derive(Clone, Debug, Default, Eq, PartialEq, serde::Serialize)]
+#[serde(tag = "state", rename_all = "snake_case")]
+pub enum PresentationStatus {
+    #[default]
+    Pending,
+    Ready,
+    Unavailable { reason: String },
+}
+
 #[derive(Default)]
 pub struct Effects {
     publication: Arc<()>,
@@ -106,6 +121,7 @@ pub struct Effects {
     root: Option<PathBuf>,
     generation: Option<u64>,
     assets: Option<Arc<DisintegrateAssets>>,
+    presentation: PresentationStatus,
     clips: BTreeMap<u16, Clip>,
     seen: BTreeSet<Key>,
     active: Vec<Active>,
@@ -179,6 +195,12 @@ impl Effects {
         History {
             generation: self.generation,
             seen: self.seen.clone(),
+            unavailable: match (&self.root, &self.presentation) {
+                (Some(root), PresentationStatus::Unavailable { reason }) => {
+                    Some((root.clone(), reason.clone()))
+                }
+                _ => None,
+            },
         }
     }
     pub(crate) fn restore_history(&mut self, history: History) {
@@ -200,6 +222,7 @@ impl Effects {
         self.owner = None;
         self.root = None;
         self.assets = None;
+        self.presentation = PresentationStatus::Pending;
         self.clips.clear();
         self.pending_history = None;
     }
@@ -209,6 +232,16 @@ impl Effects {
         owner: Arc<()>,
         world: &World,
         cancel: &AtomicBool,
+    ) -> Result<()> {
+        self.prepare_with_loader(root, owner, world, cancel, DisintegrateAssets::load_current_tw)
+    }
+    fn prepare_with_loader(
+        &mut self,
+        root: &Path,
+        owner: Arc<()>,
+        world: &World,
+        cancel: &AtomicBool,
+        load: impl FnOnce(&Path, &AtomicBool) -> Result<DisintegrateAssets>,
     ) -> Result<()> {
         if cancel.load(Ordering::Acquire) {
             self.retire();
@@ -230,7 +263,7 @@ impl Effects {
             anyhow::bail!("resource owner reused with another root");
         }
         if !same {
-            let restored = self.pending_history.take();
+            let restored = self.pending_history.take().unwrap_or_else(|| self.history());
             let retire_existing = self.owner.is_some() && self.generation == Some(world.generation);
             self.retire();
             self.owner = Some(owner);
@@ -240,19 +273,29 @@ impl Effects {
             if retire_existing {
                 self.seen.extend(world.projectiles.iter().map(key));
             }
-            if let Some(history) = restored.filter(|h| h.generation == Some(world.generation)) {
+            if restored.generation == Some(world.generation) {
+                let history = restored;
                 ensure!(
                     history.seen.len() <= 4096,
                     "disintegrate admission history budget"
                 );
                 self.seen.extend(history.seen);
+                if let Some((failed_root, reason)) = history.unavailable {
+                    if failed_root == root {
+                        self.presentation = PresentationStatus::Unavailable { reason };
+                    }
+                }
             }
         }
         if self.generation != Some(world.generation) {
             self.clear_presentation();
             self.generation = Some(world.generation);
+            if matches!(self.presentation, PresentationStatus::Unavailable { .. }) {
+                self.presentation = PresentationStatus::Pending;
+            }
         }
         if self.assets.is_some()
+            || matches!(self.presentation, PresentationStatus::Unavailable { .. })
             || !(world.learned_skills.contains(&77)
                 || world
                     .projectiles
@@ -261,7 +304,24 @@ impl Effects {
         {
             return Ok(());
         }
-        let assets = Arc::new(DisintegrateAssets::load_current_tw(&root, cancel)?);
+        let loaded = load(&root, cancel);
+        // Cancellation is lifecycle control, not a resource qualification failure.
+        if cancel.load(Ordering::Acquire) {
+            self.retire();
+            anyhow::bail!("disintegrate preparation cancelled");
+        }
+        let assets = match loaded {
+            Ok(assets) => Arc::new(assets),
+            Err(error) => {
+                let reason = format!("{error:#}");
+                eprintln!(
+                    "disintegrate presentation unavailable (generation {}): {reason}",
+                    world.generation
+                );
+                self.presentation = PresentationStatus::Unavailable { reason };
+                return Ok(());
+            }
+        };
         let mut clips = BTreeMap::new();
         for gfx in [11746u16, 11748] {
             let a = assets
@@ -277,6 +337,7 @@ impl Effects {
         }
         self.assets = Some(assets);
         self.clips = clips;
+        self.presentation = PresentationStatus::Ready;
         Ok(())
     }
     fn require_owner(&self, owner: &Arc<()>) -> Result<()> {
@@ -300,6 +361,9 @@ impl Effects {
         if self.generation != Some(world.generation) {
             self.clear_presentation();
             self.generation = Some(world.generation);
+            if matches!(self.presentation, PresentationStatus::Unavailable { .. }) {
+                self.presentation = PresentationStatus::Pending;
+            }
         }
         ensure!(
             self.last_now.is_none_or(|last| now >= last),
@@ -458,7 +522,17 @@ impl Effects {
         Ok(draws)
     }
     pub fn snapshot(&self) -> serde_json::Value {
-        serde_json::json!({"generation":self.generation,"assets_ready":self.assets.is_some(),"active":self.active.iter().filter(|a|!a.finished).count(),"seen":self.seen.len(),"started":self.started,"hit_entries":self.hits,"omitted":self.omitted,
+        serde_json::json!({"generation":self.generation,"presentation":self.presentation,"assets_ready":self.assets.is_some(),"active":self.active.iter().filter(|a|!a.finished).count(),"seen":self.seen.len(),"started":self.started,"hit_entries":self.hits,"omitted":self.omitted,
         "prepared_sound_events":self.events.len(),"authority_mutated":false})
     }
+}
+
+#[cfg(test)]
+mod availability_tests {
+    use super::*;
+    type Assets = DisintegrateAssets;
+    const SKILL: u16 = 77;
+    const GRAPHICS: u16 = 11746;
+    const FEATURE: &str = "disintegrate";
+    include!("native_tw_presentation_tests.rs");
 }
