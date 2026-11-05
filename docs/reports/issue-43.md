@@ -43,7 +43,7 @@
 
 - 第 2 次嘗試實際執行：`python3 -m json.tool docs/plans/issue-43.json > /dev/null; echo "json.tool exit=$?"` 輸出 `json.tool exit=0`。另外檢查 8 筆的 depends_on 都指向存在的 id：`8 items; deps ok: True`。
 - 三份規則檔只改同一行、內容一致，原本就都是 LF，沒有改換行格式。
-- 最終差異（`git diff --stat origin/main...task/43`，在第 3 次嘗試推送後實際執行）：7 個檔案，+175／−10。第 2 次嘗試時是 +160／−10；第 1 次的「5 檔 +11／−10」只是三份規則、PLAN、TASKS 的小計。
+- 最終差異（`git diff --stat origin/main...task/43`，在第 3 次嘗試最後一次推送時實際執行）：7 個檔案，+176／−10。第 2 次嘗試時是 +160／−10；第 1 次的「5 檔 +11／−10」只是三份規則、PLAN、TASKS 的小計。
 
 ### 第 2 次嘗試的修正（對應 codex-local 審查）
 
