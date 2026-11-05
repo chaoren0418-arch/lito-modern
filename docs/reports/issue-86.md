@@ -19,6 +19,11 @@
 
    之後規劃時，只改文件或只改一兩行的小修改，一律併進相鄰任務。
 
+### 第 2 次嘗試的修正（對應 codex-local 審查）
+
+1. **T013 不能用錯誤紀錄代替截圖**：撤回「三張 PNG（或明確記錄失敗原因）」。改成完成條件是三張對應實際畫面的 PNG、DEMO.md 可以直接顯示圖片，並附重現指令與預期畫面。缺任何一張就算未完成（blocked），要如實記錄錯誤原文與恢復方式，但不能宣告 T013 或 V1 完成。plans、TASKS、PLAN 都已同步。
+2. **T012 的綠燈門檻**：明定 check 結束碼 0；Debug 與 Release 都必須有有效的 libtest 結果，而且 failed=0；白名單每一項都必須 `running 1 test` 而且通過。出現 0 tests、結果缺失或解析失敗、failed>0、命令非 0，腳本最終結束碼都必須非 0，任務也不能驗收通過。測試數的合理變動可以說明，但不能免除門檻。plans、TASKS、PLAN 都已同步。
+
 ## 怎麼驗證
 
 - 雲端讀 `啟動現代客戶端.ps1` 第 60–80 行，確認三個模式（`-ConfigureNative`、`-NativeLoginEndpoint`、`-OfflineScene`）都是 `Start-Process` 啟動 exe 後就返回。`docs/NATIVE-LOGIN.zh-TW.md` 記載登入視窗要在使用者按「連線」後才建立連線，所以登入畫面截圖不會連線；T013 另外要求連線目標是一個已關閉、OS 配發的 loopback 埠。
