@@ -36,8 +36,8 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 - 待驗證：白名單以外的 574 個 ignored 單元測試（GUI 5、DB 119、不明副作用 20、缺前置條件 430），以及 481 個整合測試（GUI 1、DB 1、不明副作用 438、缺前置條件 41），分類見 #54。「不明副作用」共 458 項，要先完成副作用與安全邊界核對才能排執行。另外 `build.ps1` 的實際執行也待驗證。
 - 延後（候選資格，不計入 M1）：12 個 gate 案、四元件 inventory、17 原控制＋6 反例（#58 以 not planned 關閉：全是凍結候選的資格檢查）。
 
-### T011 | blocked(T011-R) | 本機 dot／codex-local＋Claude | G06（當版）：`tests/native_teleport_failure.rs` 的 5 個 scenario
-舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。先由 T011-R 在本機盤點 owned harness 的產生方式與前置條件，再由 T011-B 執行。首個失敗就停止，不自動重試。
+### T011 | blocked(T011-H) | 本機 dot／codex-local＋Claude | G06（當版）：`tests/native_teleport_failure.rs` 的 5 個 scenario
+舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。T011-R（#80，報告 `task/80` `8bd1634`）已完成盤點：當版沒有可直接使用的 harness 產生工具。#82 裁定採用 memory 模式（不需要 DB），由一個 code 任務 T011-H 依序完成（2026-11-06 依 #86 合併）：Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；接著 runner：白名單、repo 根、隔離的 temp／JVM options、來源 SHA 綁定、三個 listener 的所有權、java 與 Rust 分開清理、原子 lease，以及 Rust 端拒絕 2000／3306）。**可排程條件**：T011-H 合併並通過審查，T011-B（#81）就改回 queued。**每案啟動 Rust 前的檢查**：lease、目錄契約、javac、來源綁定、三個 listener 的所有權，任何一項失敗都中止，回報為阻塞。**實跑後的驗收**：`running 1 test` 而且 1 passed；result.json 的 sessions／memberships 檢查通過；退出鏈完整；E149 資源在 memory 模式下的初始化有實際證據。沒有實跑，不能宣稱通過。首個失敗就停止，不自動重試。
 
 ## M2 #97–#100 與 G06
 
