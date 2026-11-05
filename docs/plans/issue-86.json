@@ -1,0 +1,18 @@
+[
+  {
+    "id": "T012",
+    "title": "T012（V1）: 一個指令跑完本機測試套件並印出總表（run-local-test-suite.ps1）",
+    "stage": "code",
+    "priority": "P1",
+    "text": "runner: codex-local。預估 1～2 小時（依 #86：相關的小修改合併在這一張）。\n範圍：新增 `維護工具/run-local-test-suite.ps1`、`維護工具/test-whitelist/lib.txt`、`維護工具/test-whitelist/tests.tsv`；新增 `docs/reports/issue-<N>.md`。不改 src、tests 或其他檔案。\n做：\n1. 把 `docs/reports/issue-54.md`「白名單原文」一節的兩份白名單，原樣存成上面兩個檔案（UTF-8、LF；tests.tsv 為四欄 Tab 分隔）。\n2. 寫 `run-local-test-suite.ps1`，在 `LiTo381-Modern/` 依序執行：(a) `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`；(b) `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast`；(c) 同上加 `--release`；(d) 白名單 lib 每一行執行一次 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast -- --ignored --exact <名>`；(e) 白名單 tests 每一行執行一次 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test <target> [--features …] --no-fail-fast -- --include-ignored --exact <名>`。\n3. 每一步都解析 libtest 的 `test result:` 行，結尾印出總表：步驟、結束碼、passed、failed、ignored、未實際執行（`running 0 tests`）、耗時。總表另存一份到 `LiTo381-Modern/target/current/verification/local-test-suite/<stamp>/summary.txt`（不進 git）。任何一步失敗，最後的結束碼就是非 0，但其他步驟照常執行。\n4. 支援 `-Quick`，只跑 (a)(b)，給使用者日常快速驗證用。\n5. 不連正式服務或 DB，不開 GUI；白名單以外的 ignored 不執行。\n驗收（本機實際執行一次完整版，不加 -Quick）：\n- 報告附上完整指令 `pwsh -NoProfile -File 維護工具/run-local-test-suite.ps1`，以及**原樣貼出**的總表輸出與結束碼；\n- 數字和 #53（lib 1889／0／575）、#55（1／1）、#56（76／76）比較，有差異要寫原因；\n- 報告另外列出使用者日常可以直接複製的兩行指令（完整版與 `-Quick`），以及各自的預期輸出樣子。",
+    "depends_on": []
+  },
+  {
+    "id": "T013",
+    "title": "T013（V1）: 客戶端三個不連線畫面截圖＋docs/DEMO.md",
+    "stage": "test",
+    "priority": "P1",
+    "text": "runner: dot。預估 1～2 小時。2026-11-06 使用者同意（#86，CLAUDE.md 已加上這個例外）：本機執行者可以啟動**自己建置的**客戶端，進入不連線的畫面並截圖。\n範圍：新增 `docs/screenshots/v1-configure.png`、`docs/screenshots/v1-login.png`、`docs/screenshots/v1-offline-scene.png`、`docs/DEMO.md`，以及 `docs/reports/issue-<N>.md`。不改 src 或腳本。\n做（在 repo 根目錄）：\n1. `pwsh -NoProfile -File .\\啟動現代客戶端.ps1 -BuildOnly`，記錄 exe 路徑與 SHA256。\n2. **設定畫面**：`pwsh -NoProfile -File .\\啟動現代客戶端.ps1 -ConfigureNative`。等視窗出現後截圖，再依 PID 關閉自己啟動的 LiToModern.exe。\n3. **登入畫面**：先用 `[Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback,0)` 取得一個 OS 配發的埠，然後立刻關閉，讓這個埠上沒有任何服務。再執行 `pwsh -NoProfile -File .\\啟動現代客戶端.ps1 -NativeLoginEndpoint 127.0.0.1:<該埠>`。視窗出現後截圖，**不要按「連線」，也不要輸入帳密**，然後依 PID 關閉程序。\n4. **離線場景**：`pwsh -NoProfile -File .\\啟動現代客戶端.ps1 -OfflineScene`（資源根預設是 `D:\\lineage開發\\0-客戶端`，唯讀）。等畫面渲染後截圖（可以等 10～30 秒），再依 PID 關閉程序。\n5. 截圖方法：依 PID 找到主視窗，用 .NET 的 `PrintWindow` 或 `Graphics.CopyFromScreen` 擷取該視窗範圍，存成 PNG，單張不超過 2 MB；必要時縮小。截圖失敗時（歷史上曾出現 `FrameArrived timed out`），改用另一種方法再試一次；仍然失敗，就在 DEMO.md 寫明錯誤原文，不要用其他圖片代替。\n6. 寫 `docs/DEMO.md`：每個畫面放截圖（相對路徑 `screenshots/…`）、重現指令、預期畫面描述與實際觀察。另附一段「怎麼跑測試」，連到 T012 的 `run-local-test-suite.ps1`，以及 #53 的數字（lib 1889 通過、0 失敗）。\n限制：只啟動自己建置的 exe，只關閉自己啟動的 PID；不連正式服務或 DB，不按連線，不操作既有遊戲程序；每一步結束都要確認沒有殘留自己啟動的程序。\n驗收：repo 內有三張 PNG（或明確記錄失敗原因），DEMO.md 可以在 GitHub 上直接看到圖；報告列出每一步的指令、PID、結束或關閉結果。",
+    "depends_on": []
+  }
+]

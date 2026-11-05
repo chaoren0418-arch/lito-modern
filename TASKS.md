@@ -39,6 +39,16 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 ### T011 | blocked(T011-R) | 本機 dot／codex-local＋Claude | G06（當版）：`tests/native_teleport_failure.rs` 的 5 個 scenario
 舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。先由 T011-R 在本機盤點 owned harness 的產生方式與前置條件，再由 T011-B 執行。首個失敗就停止，不自動重試。
 
+## V1 打開就看得到（2026-11-06，#86；兩張平行）
+
+### T012 | todo | 本機 codex-local | `維護工具/run-local-test-suite.ps1`（新增）、`維護工具/test-whitelist/`（新增）
+一個指令跑完本機測試套件：check、lib Debug／Release、白名單 ignored、白名單整合測試，最後印出總表。
+驗收：附上完整指令與實際輸出（總表）。數字要和 #53、#55、#56 一致，或寫明差異的原因。
+
+### T013 | todo | 本機 dot | `docs/screenshots/`（新增）、`docs/DEMO.md`（新增）
+截圖客戶端的三個不連線畫面：`-ConfigureNative` 設定畫面、`-NativeLoginEndpoint` 登入畫面（不按連線）、`-OfflineScene` 離線場景，並寫 `docs/DEMO.md`。
+驗收：repo 內有三張 PNG，DEMO.md 寫明每張圖的重現指令與預期畫面；截圖失敗也要如實記錄。
+
 ## M2 #97–#100 與 G06
 
 ### T020 | blocked(T010) | Cursor | #97：共享 callback、重入繪圖 producer、固定 sample／巢狀 drain 交錯
