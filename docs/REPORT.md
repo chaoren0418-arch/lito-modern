@@ -33,3 +33,4 @@
 - 2026-11-05 — #43 主控：使用者同意恢復測試（解除 T010），請排 M1 測試任務（plan，claude-chat，PR #52 已合併）→ [報告](reports/issue-43.md)
 - 2026-11-05 — #60 T010-G: T010-G: build.ps1／build-evidence.ps1 對齊 x86_64-pc-windows-msvc、target/current、-j1（code，codex-local，PR #62 已合併）→ [報告](reports/issue-60.md)
 - 2026-11-05 — #57 T010-D: T010-D: 盤點 M1 gate 定義（12 gate 案／四元件 inventory／17 原控制＋6 反例／G06 16 案 640 次）（resource，dot，PR #66 已合併）→ [報告](reports/issue-57.md)
+- 2026-11-05 — #53 T010-A: T010-A: 本機單元測試基線（cargo check＋cargo test --lib，Debug／Release）（test，dot，PR #67 已合併）→ [報告](reports/issue-53.md)
