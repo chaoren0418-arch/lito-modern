@@ -46,12 +46,25 @@
 
 H2 的驗收（本機）：pwsh 語法檢查、5 次 `-WhatIf`、`Get-NetTCPConnection` 查詢權限確認（只查詢）、依 H1 方式實際 javac、`cargo check --tests`。**退出鏈與實際 listener 所有權只能在實跑中驗證**，H2 報告要列為待驗證。
 
-## T011-B（#81）的解鎖條件
+## 目錄契約與啟動順序（第 3 次嘗試新增，H1 與 H2 共用）
 
-- H1 與 H2 都合併並通過審查；
-- T011-B 執行時，javac、來源綁定、埠所有權、lease 任何一項失敗，都要**在啟動 Rust scenario 前中止**，並回報為阻塞；
-- E149 資源在 memory 模式下的初始化、退出鏈，都只有 T011-B 實跑才算驗證；
-- 全部滿足後，雲端主控才會更新 #81 的本文並改回 queued。
+| 路徑 | 誰建立 | 內容 |
+|---|---|---|
+| `<run>` = `target/current/native-teleport-failure/<stamp>-<GUID>/` | runner（不帶 `-Force`，已存在就失敗；每一層都不能是 ReparsePoint） | 工作目錄；Java 與 Rust 的 cwd |
+| `<run>/classes/` | runner | javac 輸出 |
+| `<run>/tmp/` | runner | javac、java、Rust 的 TEMP／TMP 與 java.io.tmpdir |
+| `<run>/immutable-test.exe`、`<run>/receipt.json` | runner | 測試執行檔副本與收據 |
+| `<run>/runtime/` = `LITO_TELEPORT_ROOT` = Java 的第一個參數 | **Java**（`createDirectory`，已存在就失敗；`toRealPath` 檢查） | ready.json、server.properties、trace、captures |
+
+啟動順序：lease → 建立 `<run>`、`classes`、`tmp`，確認 `runtime` 不存在 → immutable exe 與 SHA → 隔離環境下 javac → 隔離環境下 java（建立 runtime）→ ready、jar SHA、三個 listener 的所有權 → Rust（`LITO_TELEPORT_ROOT=<run>/runtime`）→ result.json → finally 清理、核對漂移、寫 receipt、釋放 lease。runner 與 Java 不再搶著建立同一個目錄。
+
+**隔離環境**（javac、java、Rust 一律適用，**包括 H1／H2 驗收時的 javac**）：`ProcessStartInfo`；`TEMP`／`TMP` 指向 owned 的 `tmp`；javac 加 `-J-Djava.io.tmpdir`，java 加 `-Djava.io.tmpdir`；移除 `JAVA_TOOL_OPTIONS`、`_JAVA_OPTIONS`、`JDK_JAVA_OPTIONS`、`CLASSPATH`；環境變數清單寫進 receipt 或報告。
+
+## T011-B（#81）的條件（第 3 次嘗試改為三層，消除循環依賴）
+
+1. **可排程條件**：H1 與 H2 都合併並通過審查。滿足後，雲端主控就更新 #81 的本文並改回 queued。這一層不包含任何只有實跑才能驗證的項目。
+2. **每案啟動 Rust 前的檢查**：lease、目錄契約、隔離環境下的 javac、來源與 JAR 的 SHA 綁定、三個 listener 的所有權。任何一項失敗都中止，回報為阻塞，**不啟動 Rust scenario**。
+3. **實跑後的驗收**：`running 1 test` 而且 1 passed；result.json 的 sessions、memberships、authority_mutations 檢查通過；java 與 Rust 都有退出證據；E149 資源在 memory 模式下的初始化有實際證據。沒有實跑，不能宣稱通過。
 
 ### 第 2 次嘗試的修正（對應 codex-local 審查的 5 點）
 
@@ -60,6 +73,12 @@ H2 的驗收（本機）：pwsh 語法檢查、5 次 `-WhatIf`、`Get-NetTCPConn
 3. java 與 Rust 分開清理、lease 原子性：H2 第 8–9 點。
 4. 拆成 producer（H1）→ runner（H2）兩個任務，H2 依賴 H1；#81 依賴兩者；並記錄 #80 的 SHA。
 5. 驗收與解鎖一致：javac 在 H1 與 H2 都要實際執行；`Get-NetTCPConnection` 權限在 H2 確認；退出鏈與 E149 初始化留給 T011-B，並明定前置失敗就中止。
+
+### 第 3 次嘗試的修正（對應 codex-local 第 2 輪審查的 3 點）
+
+1. **root 建立責任互斥**：改成 runner 擁有 `<run>`，Java 新建 `<run>/runtime`（見上方目錄契約表），並寫出完整的啟動順序與 stale runtime／ready 的拒絕條件；H1、H2 的 plans 文字同步。
+2. **javac 驗收的隔離**：H1、H2 驗收時的 javac 也套用同一個隔離環境（owned tmp、`-J-Djava.io.tmpdir`、清除繼承的 JVM options），並附上指令與環境變數清單。
+3. **T011-B 條件的循環**：分成可排程、啟動前檢查、實跑後驗收三層，TASKS.md 同步。
 
 ## 怎麼驗證
 
