@@ -31,3 +31,4 @@
 - 2026-11-05 — #41 T003-R1: T003-R1: 44 檔隔離候選依 contract 取檔、SHA256、src/ diff 統計與依賴圖（本機靜態）（resource，codex-local，PR #45 已合併）→ [報告](reports/issue-41.md)
 - 2026-11-05 — #46 T003-R2: 依 #41 結果更新 CANDIDATES.md（SHA256、diff 統計、依賴圖結論）（design，claude-chat，PR #50 已合併）→ [報告](reports/issue-46.md)
 - 2026-11-05 — #43 主控：使用者同意恢復測試（解除 T010），請排 M1 測試任務（plan，claude-chat，PR #52 已合併）→ [報告](reports/issue-43.md)
+- 2026-11-05 — #60 T010-G: T010-G: build.ps1／build-evidence.ps1 對齊 x86_64-pc-windows-msvc、target/current、-j1（code，codex-local，PR #62 已合併）→ [報告](reports/issue-60.md)
