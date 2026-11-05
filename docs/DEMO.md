@@ -57,15 +57,15 @@ pwsh -NoProfile -File .\啟動現代客戶端.ps1 -OfflineScene
 
 ## 怎麼跑測試
 
-以下是在 `LiTo381-Modern` 目錄執行的單元測試命令，列供重現；本次沒有執行：
+在 repo 根目錄執行[本機測試套件](../維護工具/run-local-test-suite.ps1)。Windows PowerShell 5.1 與 PowerShell 7 都支援；以下日常指令不要求 PATH 有 pwsh：
 
 ```powershell
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --release --no-fail-fast
+powershell -NoProfile -ExecutionPolicy Bypass -File 維護工具\run-local-test-suite.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File 維護工具\run-local-test-suite.ps1 -Quick
 ```
 
-[#53 既有基準](reports/issue-53.md)：Debug 與 Release 各為 lib **1889 通過、0 失敗、575 ignored**；ignored 不算通過。這是歷史結果，不宣稱本次重跑。
+完整版依序跑 check、lib Debug／Release、1 項 ignored lib 白名單與 76 項整合白名單；Quick 只跑 check 與 lib Debug。每步都列入總表，任一步失敗、0 tests 或結果缺失，整體結束碼就不是 0，但仍繼續其他步驟。
 
-測試套件入口：**待 T012 合併**。本輪查證 #101 仍 open，當版 main 尚無 `維護工具/run-local-test-suite.ps1`，因此不放尚不存在的連結。
+總表儲存於 `LiTo381-Modern/target/current/verification/local-test-suite/<stamp>/summary.txt`；同目錄有逐步 log。兩種 PowerShell 的實跑指令、原樣總表與結束碼見 [#101 驗收報告](reports/issue-101.md)。Debug／Release 各為 **1889 通過、0 失敗、575 ignored**，白名單分別為 **1／1、76／76**；ignored 與白名單外未執行項目不算通過，這也不代表 GUI／線上功能完成驗收。
 
 本輪指令、可見性、PID、清理及限制見 [#102 報告](reports/issue-102.md)。
