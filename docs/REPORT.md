@@ -37,3 +37,4 @@
 - 2026-11-05 — #59 T010-F: T010-F: 本機驗證 T005 建置腳本（-WhatIf／-BuildOnly，以及 clone 到其他路徑）（test，dot，PR #69 已合併）→ [報告](reports/issue-59.md)
 - 2026-11-05 — #54 T010-S: T010-S: ignored 單元測試與整合測試的安全分類（靜態，不執行）（resource，dot，PR #71 已合併）→ [報告](reports/issue-54.md)
 - 2026-11-05 — #55 T010-B: T010-B: 本機逐一執行白名單內的 ignored 單元測試（test，dot，PR #73 已合併）→ [報告](reports/issue-55.md)
+- 2026-11-05 — #56 T010-C: T010-C: 本機逐一執行白名單內的整合測試（loopback 隔離 harness）（test，dot，PR #75 已合併）→ [報告](reports/issue-56.md)
