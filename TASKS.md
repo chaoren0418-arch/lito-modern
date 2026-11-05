@@ -99,7 +99,7 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 | #97–#100 | 4 | 97–100 |
 | 未接 | 91 | 見 T022 |
 
-- **T025 | backlog(M2) | Claude | `docs/PROTOCOL-CONTRACT.md`**：版本綁定。寫明 M2／M3 都以 E149（e1498871）為準；對齊第 8 節「待對 e1498871 核對」與 T004-1 已完成之間的矛盾。另外把 180／181 的來源寫進契約：180 個 catalog 記錄，加上 TELEPORT 是 dispatcher 特例（`維護工具/generate-spell-request-shapes.py:192`）。（1 張）
+- **T025 | backlog(M2) | Claude | `docs/PROTOCOL-CONTRACT.md`**：版本綁定。寫明 M2／M3 都以 E149（e1498871）為準；對齊第 8 節「待對 e1498871 核對」與 T004-1 已完成之間的矛盾。另外把 180／181 的來源寫進契約：180 個 catalog 記錄，加上 TELEPORT 是 dispatcher 特例（`維護工具/generate-spell-request-shapes.py:192`）。再寫一份「伺服器換版時客戶端要重核」的清單：JAR SHA 與血統分支、`Protocol$*` 變動與 opcode／欄位、ClientSession／GameHub 變動 class、技能結果與狀態圖示 ID、房間與結算、移動與傳送、裝備與租賃、GM 指令、登入流程、相容 DLL 與 hook 位址（見報告附錄 D）。（1 張）
 - **T026 | backlog(M2) | Claude | `docs/SKILLS-STATUS.md`（新增）**：技能分類。把 181 個技能逐一對到伺服器缺口組（伺服器 T021 目標／Ctrl、T022 自施、T023 受控 NPC、T024 HP 生產端、T025 材料、T028 顯示），分成「以 E149 為準可驗」與「伺服器待定」兩類。後者只驗送包形狀與畫面，不驗與原版同源。（1 張）
 - **T020 | backlog(M2) | Cursor | `src/`：#97 暗隱術**：在 `src/` 重寫 ingress clock、專用 queue、Static2941Bank 與資源就緒 gate（在 enqueue 前，原 4E5C00 先 SPR 再 4D65F0）。範圍包括：
   - 共享 callback、重入繪圖 producer 與 4D6570 固定 sample 的交錯；4E2150 兩個 suffix 的上游 CFG；4857B0 巢狀 drain；方向 6 alias／shadow defaults；

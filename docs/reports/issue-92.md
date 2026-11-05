@@ -1,53 +1,51 @@
 # #92 範圍凍結：完成定義、主線封頂、backlog 分流
 
-結論（第 2 版，依 codex-review 退回的 4 點修正）：
-- 步驟 0 已完成：HISTORY 全文逐行讀完，技能目錄逐 ID 去重，「已驗證」的說法都附上指令與輸出。
+結論（第 3 版）：
+- 步驟 0 已完成，所有來源都逐檔讀完，沒有抽讀：
+  - HISTORY 全文；
+  - 51 份 NATIVE 文件；
+  - 75 份研究紀錄；
+  - 伺服器 398 個 build*.py，另加不在 build*.py 裡的 3 段。
 - 主線（M1＋V1）剩 **4 項，封頂**。
-- M2、M3 的完成定義已凍結，任務各 30 張、26 張，都已一次列完並放在 Backlog，等開放時原樣升級。
+- M2、M3 的完成定義已凍結，任務各 **46 張、31 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
+- 完成定義會用到的腳本擴充，已列成 T041（M2）與 T042（M3）。
+- 「已驗證」的說法都可以用 `維護工具/check-issue-92-evidence.sh` 重跑，原始輸出附在「證據」一節。
 
-## 第 2 次嘗試的修正
-1. **[P1] 盤點補完**：
-   - HISTORY（git blob `7dd82ba`，1589 行）先去掉 850 行逐字重複，剩 738 行，分 4 段逐行讀完，沒有抽讀。逐項對照見附錄 A。
-   - 475 案：HISTORY L1–L65 的逐輪計數已全部列出，見附錄 B。前 141 案在 HISTORY 沒有分項，逐案名稱只在使用者電腦上未追蹤的候選目錄。這批已延後，不影響主線，已在 TASKS「排除或延後」寫明。
-   - 依全文補上的工作：
-     - T028：main 38 技能的當版補驗，3 張。
-     - T029：非技能的戰鬥基礎，1 張。
-     - T023 擴為 3 張：觀戰、更多取消與跨世代 wire。
-     - T024 擴為 2 張：idle 守衛、action0 倍率、rollover。
-     - T035 擴為 2 張：SendInput 探針。
-     - T038：G11 效能驗收，1 張。
-     - T031：5 處 hardcode。
-     - T036：C72D 1 敗、66470 紅測試。
-   - 新增的不確定項：U-M3-5 畫面等價研究、U-M3-6 map563。
-   - 新增的排除項：畫面等價研究、WORLD 專屬、建置雜項。
-   - M2 由 24 張改為 30 張，M3 由 24 張改為 26 張。主線不變。
-2. **[P1] 技能數量**：逐 ID 去重，合計 38＋48＋4＋91＝181（證據 E3）。
-   - main 實際是 38 個，不是 39。
-   - T027 改為 48 個：原列的 47 個，再加上 5 TELEPORT。這張是 dispatcher 特例，main 沒有它的請求。
-   - T022 改為明列 91 個：原寫「129–138」會含進已實作的 131，以及目錄沒有的 135、136。
-   - 180／181 查清：181＝180 個 catalog 記錄＋TELEPORT 特例；E149 與 `2066774` 的 catalog 常數 223／223 相同（證據 E2）。
-   - T027、T022 都補上逐批 ID。
-3. **[P2] 證據**：下面「證據」一節附完整 hash、指令與原始輸出。依實際核對結果修正兩處：
-   - 同端點傳送：E149 的 `rentalItemSelectionContext()` 有呼叫 `GameHub.hasRentalBattleHandoff`。所以「E149 四項都沒修」改為「租裝返回、最後離開已驗證沒修；同端點有另一種守衛，是否等價待驗證；商人屬性來源沒核對」。
-   - 「候選未部署」改為依伺服器端文件的轉述，不列為已驗證。
-4. **[P2] PR 與相依隔離**：開 PR 時 base 設為 `task/86`，送審差異只剩 #92 自己的檔案（PLAN.md、TASKS.md、本報告）。#86 合併後，GitHub 會自動把 base 改成 main。PR 描述列出「移到 backlog 的項目」與「主線剩餘數」。
+## 第 3 次嘗試的修正（對應第 2 輪 codex-review）
+第 2 輪審查的完整內容存在審查者本機的 `scratch/review-92.md`。本機 `gh` 回 HTTP 401，沒能寫回 GitHub，所以這裡依調度器轉貼的 3 點摘要修正。若完整內容還有其他點，請再退回。
+1. **盤點前置未完成**：
+   - 補讀研究紀錄：`docs/NATIVE-*.zh-TW.md` 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完（附錄 C）。
+   - 補讀建置鏈：伺服器 398 個 `build*.py`，以及鏈中不在 build*.py 的 3 段，重建 0.6.35→0.6.71 的 patch 鏈（附錄 D）。
+   - 依此新增 M2 任務：T041、T043、T044、T045、T046、T047、T048、T050；新增 M3 任務：T042、T049、T052。
+   - 依此擴大既有任務：T023、T028、T029 各加 1 張；T025、T033、T034、T035、T036 擴大範圍（張數不變）。
+   - 新增不確定項 U-M3-7、U-M3-8，以及多項排除。
+   - 結果：M2 由 30 張改為 46 張，M3 由 26 張改為 31 張；主線不變。
+   - 更正：上一版說 HISTORY「去掉 850 行逐字重複」，不正確。實際是 849 行空白加 2 行重複，內容 738 行，4 段都已逐行讀完。
+2. **漏列驗收所需的腳本擴充**：
+   - M2 的完成定義要求 `run-local-test-suite.ps1` 總表多出「技能」「G06」兩類，新增 T041。
+   - M3 的完成定義要求 `-Full` 模式，新增 T042。
+3. **證據缺完整指令與原始輸出**：
+   - 新增 `維護工具/check-issue-92-evidence.sh`，涵蓋 E0–E8，可以重跑；本報告附上它的完整原始輸出。
+   - 新證據 E8：E149 已內含伺服器戰鬥候選鏈到 `8d26c9d7` 為止，所以「候選未部署」改為「8d26 之後的層未部署」。
+
+（第 2 次嘗試的修正內容保留在 git 歷史：commit 6009727。）
 
 ## 移到 backlog 的項目
-- **預定 M2（30 張）**：
-  - 原有：T020 #97（2 張）、T021 #98–#100（1 張）、T022 未接 91 技能（10 張）、T023 G06 客戶端（3 張）、T024 4183 與 hurt（2 張）。
-  - 新增：T025 版本綁定（1 張）、T026 技能狀態表（1 張）、T027 候選獨有 48 技能（6 張）、T028 main 38 技能補驗（3 張）、T029 戰鬥基礎（1 張）。
-- **預定 M3（26 張）**：
-  - 原有：T030 實機 GUI（1 張）、T031 可攜交付（2 張）、T032 ARCHITECTURE（1 張）、T040 修補提案移交（1 張）。
-  - 新增：T033 G01–G12 定義（1 張）、T034 GUI 清單（1 張）、T035 GUI／輸入缺陷（2 張）、T036 廣域回歸（15 張）、T037 稽核（1 張）、T038 G11（1 張）。
+- **預定 M2（46 張）**：
+  - T025 版本綁定 1、T026 技能狀態表 1、T020 #97 2、T021 98–100 1；
+  - T027 候選獨有 48 技能 6、T022 未接 91 技能 10；
+  - T024 4183 與 hurt 2、T028 main 38 技能補驗 4、T029 非技能戰鬥 2、T023 G06 客戶端 4；
+  - T041 測試腳本加類別 1、T043 雙真實玩家 fixture 2、T044 移動正確性 2、T045 物品系統 2、T046 快捷列與狀態 UI 3、T047 影格事件 1、T048 復活分支 1、T050 完整性挑戰 1。
+- **預定 M3（31 張）**：
+  - T040 修補提案移交 1、T033 G01–G12 定義 1、T034 GUI 清單 1、T035 GUI／輸入缺陷 2、T030 實機 GUI 1；
+  - T031 可攜交付 2、T036 廣域回歸 15、T038 G11 1、T037 稽核 1、T032 ARCHITECTURE 1；
+  - T042 `-Full` 1、T049 背包與介面文字 2、T052 裝備與地面物品 UI 2。
 - **排除或延後**：
-  - WORLD 地圖專屬（含 HISTORY 列出的 C05、map4、869／$748、WORLD 分支、攻城 P 鍵）；
-  - 凍結候選資格檢查，含 475 案；
-  - G06 正向前提（E149 沒有生產者）；
-  - 商人屬性來源（伺服器缺陷）；
-  - 超出 G11 預算的效能最佳化；
-  - `TW13081901.pak` 缺檔；
-  - 畫面等價研究（照明、水下、map303 背景、scheduler、相機、RGB565）；
-  - 建置雜項（編譯警告、外部 LiTo.bin、封存 zip）。
+  - WORLD 地圖專屬；凍結候選資格檢查（含 475 案、四元件、元件矩陣）；G06 正向前提；
+  - 伺服器缺陷（商人屬性來源）；超出 G11 的效能最佳化；`TW13081901.pak` 缺檔；
+  - 畫面等價研究；建置雜項；
+  - 盟戰；see-invisible／GM 視野；C0B remembered-ID；資源缺件；原版等價研究（中斷順序、延遲補償、細分座標）；
+  - 交易；VS-server directory；多客戶端即時競態。
 
 ## 主線剩餘數
 | 區段 | 完成 | 剩餘 |
@@ -58,74 +56,153 @@
 | 合計 | 6 | **4**（分母 10） |
 
 - 分母只有在 U-M1-1、U-V1-1、U-V1-2 兌現時可以增加，最多到 13。兌現時 PR 要引用編號與估算。
-- M2、M3 開放時（需要 `needs:user`）分別加 30、26，不確定項上限各為 +8、+17。
+- M2、M3 開放時（需要 `needs:user`）分別加 46、31，不確定項上限各為 +8、+20。
 
 ## 證據
-**E1 正式 JAR 的 SHA256**（已驗證）：
+重跑指令（唯讀；只在暫存目錄解出 class，不建置、不連服務）：
+
+```bash
+bash 維護工具/check-issue-92-evidence.sh /path/to/lito-modern /path/to/lito-launcher-server /path/to/scratch/issue-92-ev
 ```
-$ cd lito-launcher-server && sha256sum lito伺服器/LiTo381-Server/reference/base-0.6.71.jar
+
+各段說明：
+- E0：兩個 repo 的 HEAD 與 HISTORY 的 blob。
+- E1：E149 的 SHA256。
+- E2：catalog 常數比對，以及 `new *Spell(` 的出現次數。
+- E3：技能集合，逐 ID 去重。
+- E4：`ClientSession` 四個方法的 javap 輸出。
+- E5、E6：伺服器文件的原句，屬於轉述。
+- E7：HISTORY 的行數統計。
+- E8：E149 內含的候選層。
+
+判定：
+- 已驗證：E1、E2、E3、E4 的 quitFight、broadcastDefaultRoomReset、exitRoom、E7、E8。
+- 待驗證：E4 的 `rentalItemSelectionContext`（offset 59 呼叫 `hasRentalBattleHandoff`）與修補提案是否等價；商人屬性來源沒核對。
+- 只是轉述：E5、E6。
+
+原始輸出（2026-11-06 在雲端環境執行，原樣貼上）：
+
+```
+== E0 版本
+6ff18e60a29c70a7e5c0738abac4d2c123acd229
+2066774824b314b2c65834f9afe72b68f7391f06
+7dd82ba63afc6f86cac8018f70d0e66990343104
+== E1 JAR SHA256
 e1498871c7be6b287821c57ef5d95933db1740d9b4d4a80f6c3465f21d99d498  lito伺服器/LiTo381-Server/reference/base-0.6.71.jar
-```
-
-**E2 catalog 比對**（已驗證）：
-- 指令：用 `unzip` 解出 E149 的 `BattleSpellCatalog*.class`，再用 `javap -p -constants` 取出 `static final int` 常數，和 `git show 2066774:…/BattleSpellCatalog.java` 的常數排序後做 `diff`。
-- 結果：兩邊各 223 行，`diff` 沒有輸出。
-- `new \w+Spell(` 的出現次數：原始碼 186，E149 `javap -c` 裡 `new … BattleSpellCatalog$…Spell` 也是 186。
-- 產生器的來源：`維護工具/generate-spell-request-shapes.py:85` 從 `new (\w+Spell)\(` 收列；`:192` 另外 `rows.append((5, "TELEPORT", …「dispatcher 特例」))`。
-
-**E3 技能集合**（已驗證，可以重現）：
-- 讀 `docs/PROTOCOL-CONTRACT.md` 表格，共 181 列。
-- main 集合由 `LiTo381-Modern/src/modern_lito/native_skills.rs` 取得：`request()` 的 match 臂（:103–141）36 個，加上 `ground_request` 的 58、63（:47），共 38 個。`grep -rnE "vec!\[0x14|\[0x14," src` 和 `grep -rn C_USE_SPELL src` 都沒有找到其他技能請求來源。
-- 計算結果：
-
-```
+== E2 catalog 常數
+223
+223
+diff: 相同
+src new *Spell( = 186
+jar new BattleSpellCatalog$*Spell = 186
+for m in re.finditer(r"new (\w+Spell)\(", cat):
+rows.append((5, "TELEPORT", 0, 4, "（dispatcher 特例）", SHAPE["teleportSpellRequest"],
+             f"useTeleportSpell CS:{tl}；dispatcher 在 phase 檢查前轉交（useSpellBeforeDragonTargets CS:32165 起）"))
+== E3 技能集合
 catalog 181
-main 38 []                      # main 的 ID 全部在目錄內
-T027 listed 47 overlap main []
-catalog<=98 86
-candidate-only (<=98 - main - 97/98) 48 [5] []   # 比原列多出 5
-rest >98 not main 93            # 99、100 和 91 個未接
+main 38 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 26, 28, 31, 32, 34, 35, 38, 42, 43, 49, 52, 54, 57, 58, 60, 63, 72, 77, 78, 131, 206]
+candidate-only 48 [5, 12, 20, 21, 22, 23, 25, 27, 29, 30, 33, 36, 37, 39, 40, 41, 44, 45, 46, 47, 48, 50, 51, 53, 55, 56, 59, 61, 62, 64, 65, 66, 67, 68, 69, 70, 71, 73, 74, 75, 76, 79, 80, 87, 88, 89, 90, 91]
+97-100 4
+rest 91 [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 129, 130, 132, 133, 134, 137, 138, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 201, 202, 203, 204, 205, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220]
+sum 181 overlap 0
+/home/user/lito-modern/LiTo381-Modern/src/bin/native_backend_485f_candidate.rs:122:                assert_eq!(maps.manifest_pin.sha256[..4], [0x14, 0x80, 0x5b, 0xc5]);
+（以上為 native_skills.rs 以外的 0x14 開頭請求，空白表示沒有）
+== E4 ClientSession（E149）
+--- private void quitFight() throws（cs.txt:43123）
+  private void quitFight() throws java.io.IOException;
+    Code:
+       0: aload_0
+       1: getfield      #3506               // Field phase:Llocal/lito381/server/ClientSession$Phase;
+       4: getstatic     #4078               // Field local/lito381/server/ClientSession$Phase.BATTLE:Llocal/lito381/server/ClientSession$Phase;
+       7: if_acmpne     15
+      10: aload_0
+      11: invokevirtual #16685              // Method settleRequestedBattleExit:()V
+      14: return
+--- private void broadcastDefaultRoomReset(long) throws（cs.txt:42951）
+  private void broadcastDefaultRoomReset(long) throws java.io.IOException;
+    Code:
+       0: aload_0
+       1: getfield      #3441               // Field hub:Llocal/lito381/server/GameHub;
+       4: aload_0
+       5: getfield      #3689               // Field currentChannelId:I
+       8: invokevirtual #13115              // Method local/lito381/server/GameHub.roomSnapshots:(I)Ljava/util/List;
+      11: invokeinterface #4744,  1         // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+      16: lload_1
+      17: invokedynamic #16649,  0          // InvokeDynamic #852:test:(J)Ljava/util/function/Predicate;
+      22: invokeinterface #4761,  2         // InterfaceMethod java/util/stream/Stream.filter:(Ljava/util/function/Predicate;)Ljava/util/stream/Stream;
+      27: invokeinterface #8942,  1         // InterfaceMethod java/util/stream/Stream.findFirst:()Ljava/util/Optional;
+      32: lload_1
+      33: invokedynamic #16657,  0          // InvokeDynamic #853:get:(J)Ljava/util/function/Supplier;
+      38: invokevirtual #8955               // Method java/util/Optional.orElseThrow:(Ljava/util/function/Supplier;)Ljava/lang/Object;
+      41: checkcast     #857                // class local/lito381/server/GameHub$RoomSnapshot
+--- private void exitRoom(boolean) throws（cs.txt:302531）
+  private void exitRoom(boolean) throws java.io.IOException;
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokestatic  #52216              // Method local/lito381/server/GmPolyMe.exitRoom:(Llocal/lito381/server/ClientSession;Z)V
+       5: return
+}
+--- private boolean rentalItemSelectionContext();（cs.txt:29507）
+  private boolean rentalItemSelectionContext();
+    Code:
+       0: aload_0
+       1: getfield      #4032               // Field config:Llocal/lito381/server/ServerConfig;
+       4: invokevirtual #10736              // Method local/lito381/server/ServerConfig.rentalTownDirectoryEnabled:()Z
+       7: ifeq          69
+      10: aload_0
+      11: getfield      #10738              // Field rentalTownDirectoryAdvertised:Z
+      14: ifeq          69
+      17: aload_0
+      18: getfield      #3506               // Field phase:Llocal/lito381/server/ClientSession$Phase;
+      21: getstatic     #10931              // Field local/lito381/server/ClientSession$Phase.LOBBY:Llocal/lito381/server/ClientSession$Phase;
+      24: if_acmpne     69
+      27: aload_0
+      28: getfield      #4556               // Field selectedCharacter:Ljava/lang/String;
+      31: invokevirtual #6224               // Method java/lang/String.isEmpty:()Z
+      34: ifne          69
+      37: aload_0
+      38: getfield      #3441               // Field hub:Llocal/lito381/server/GameHub;
+      41: aload_0
+      42: invokevirtual #4839               // Method accountName:()Ljava/lang/String;
+      45: aload_0
+      46: invokevirtual #4562               // Method stateCharacter:()Ljava/lang/String;
+      49: astore_2
+      50: astore_1
+      51: astore_3
+      52: aload_3
+      53: aload_0
+      54: aload_1
+      55: invokestatic  #10597              // Method local/lito381/server/SourceLogin.account:(Llocal/lito381/server/ClientSession;Ljava/lang/String;)Ljava/lang/String;
+      58: aload_2
+      59: invokevirtual #13025              // Method local/lito381/server/GameHub.hasRentalBattleHandoff:(Ljava/lang/String;Ljava/lang/String;)Z
+      62: ifne          69
+      65: iconst_1
+      66: goto          70
+== E5 伺服器文件
+| 戰鬥技能同源化 | 大量隔離候選（最新 `50635f7e…`，2,400 案／5,164 組合）**全部未部署**；開放缺口見 TASKS M2 |
+目前候選：`046c58c5a3609404a8a673e16d0e98366207850f43de2523e0c032f0fc69e76f`。
+== E6
+| **產品場景澄清** | 使用者確認 **LiTo只有競技場，沒有WORLD地圖**。全部目標／Ctrl與游標以競技模式、實際隊伍／關係及回大廳驗收；WORLD只保留既有後端回歸，不再列產品完成門檻。歷史收據維持原樣。[範圍](../.
+== E7 HISTORY 去重
+lines 1589 nonempty 740 unique 738 dup 2
+== E8 E149 內含的戰鬥候選層（8d26 鏈）與未含的下一層
+    17020  1980-01-01 00:00   local/lito381/server/NativeCancellationBattleRuntime.class
+     3314  1980-01-01 00:00   local/lito381/server/NativeMagicalWeaponAction.class
+     5746  1980-01-01 00:00   local/lito381/server/NativeMassTeleportAnswerLife.class
+（NativeStaticNpcScene 未出現＝cancellation-static-runtime 之後未部署）
+| 候選配對 | 採既有後端已驗證核心 `8d26c9d7` 為輸入，保留其他已完成戰鬥工作。啟動入口核對成對 DLL／JAR，沿用原 READY／所有權／關閉程式，伺服器執行輸出隔離。未覆蓋其他工作中的候選。 |
 ```
-
-**E4 修補提案在 E149 上的狀態**（`javap -p -c local/lito381/server/ClientSession.class`，E149 解出）：
-- `quitFight()`：已驗證沒有租裝守衛。
-
-  ```
-  0: aload_0 / 1: getfield phase / 4: getstatic Phase.BATTLE / 7: if_acmpne 15
-  10: aload_0 / 11: invokevirtual settleRequestedBattleExit:()V / 14: return
-  ```
-
-- `broadcastDefaultRoomReset(long)`：已驗證沒有 `roomExists` 檢查，找不到房間時丟例外。
-
-  ```
-  8: invokevirtual GameHub.roomSnapshots:(I) … 27: Stream.findFirst … 38: Optional.orElseThrow
-  ```
-
-- `exitRoom(boolean)`：已驗證整段委派，所以修補提案的 ASM 前綴假設不成立。
-
-  ```
-  0: aload_0 / 1: iload_1 / 2: invokestatic GmPolyMe.exitRoom:(Llocal/lito381/server/ClientSession;Z)V / 5: return
-  ```
-
-- `rentalItemSelectionContext()`：E149 在 config 檢查之後，offset 59 有 `invokevirtual GameHub.hasRentalBattleHandoff`。和修補提案的 `rentalBattleLoadoutActive` 守衛是否等價，**待驗證**。
-- 商人屬性來源（`RentalEquipmentBonuses`）：**沒核對**，待驗證。
-
-**E5 伺服器候選與部署**（轉述伺服器端文件，沒有獨立驗證部署狀態）：
-- lito-launcher-server `2066774` 的 `PLAN.md:15`：「大量隔離候選（最新 `50635f7e…`）**全部未部署**」。
-- `lito伺服器/LiTo381-Server/docs/maintenance/combat-closeout-current.zh-TW.md:7`：「目前候選：`046c58c5a3609404a8a673e16d0e98366207850f43de2523e0c032f0fc69e76f`」。
-- 兩份文件寫的最新候選不同，這是伺服器端的文件不一致。
-
-**E6 產品範圍**（轉述）：lito-launcher-server `lito伺服器/LiTo381-Server/docs/maintenance/combat-continuation-current.zh-TW.md:14`：「使用者確認 **LiTo只有競技場，沒有WORLD地圖**…WORLD只保留既有後端回歸，不再列產品完成門檻」。
 
 ## 怎麼驗證
 - 張數核對：
-  - M2：1+1+2+1+6+10+2+3+1+3=30；M3：1+1+1+2+1+2+15+1+1+1=26；主線分母 5+1+4=10。
+  - M2：1+1+2+1+6+10+2+4+2+4+1+2+2+2+3+1+1+1=46；M3：1+1+1+2+1+2+15+1+1+1+1+2+2=31；主線分母 5+1+4=10。
   - 技能：38+48+4+91=181；T022 各批 9+9+7+11+11+10+8+7+9+10=91；T027 每批 8 個，共 6 批＝48。
 - `grep -n "^## \|^### " TASKS.md`：`## M*` 區段下只有主線項目，M2／M3 下沒有 `###` 項目。
 
 ## 未驗證
 - 同端點守衛是否等價、商人屬性來源（E4）。
-- 伺服器候選是否真的未部署（E5）。
+- 伺服器文件之間的候選 SHA 不一致（E5）。
 - 475 案前 141 案的逐案名稱。
 - 各環境前置條件在使用者電腦上是否存在。
 - 所有張數估計都是推測。
@@ -220,3 +297,69 @@ L65 之前的 141 案，HISTORY 沒有分項。L137–L1588 沒有「新 N 案�
 ## 相依
 - 本分支以 `task/86` 為基底；PR 的 base 設為 `task/86`，送審差異只含 #92 自己的檔案。
 - 後續建議（不在本張範圍）：CLAUDE.md 那句「475 個測試案全未跑」容易和 574／481 混淆，建議另開 Issue 改寫。
+
+## 附錄 C：研究紀錄全讀 → 新增或擴大的任務
+NATIVE 文件 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完，總數與清單一致。下表只列「舊規劃沒涵蓋」的項目；其他已對到既有任務或排除項。
+
+| 出處 | 事項 | 歸屬 |
+|---|---|---|
+| NATIVE-EMBLEMS:29–31 | E149 的 startBattle 關閉訓練 bot，54 情境要用兩個真實玩家重做 | T043（M2，2 張） |
+| NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40 | 在途移動、靜默拒絕、碰撞、動態門與占位、城門、G04 剩餘項 | T044（2 張） |
+| NATIVE-ITEM-ACTIONS:9、:39、NATIVE-GROUND-SKILLS:33 | 帶目標或選項的物品、type3、194／197、C76、耗材 | T045（2 張） |
+| NATIVE-SKILLS:41、NATIVE-SKILL-SELECTION:27、NATIVE-REAGENT-SKILLS:31、NATIVE-ATTACK-SKILLS:3、:32 | 快捷列、技能書、buff／AC／冷卻／MP UI、技能中斷 | T046（3 張） |
+| NATIVE-ANIMATION:11、NATIVE-COMBAT:30、NATIVE-WORLD:24、:34 | 影格事件 Effect／Hit；gfx1544 action0 | T047（1 張） |
+| NATIVE-OUTCOMES:13、NATIVE-CONTINUOUS:22 | S_RESURRECT 等復活分支 | T048（1 張） |
+| NATIVE-WORLD:18 | subtype33 完整性挑戰，沒有送 C_ADDR | T050（1 張） |
+| NATIVE-COMBAT:36、:38、NATIVE-NAVIGATION:23、NATIVE-OUTCOMES:19 | 自動追擊、目標圈、攻擊速度、延遲回覆重試 | T029 擴為 2 張 |
+| `維護工具/native-E149-S23-clock*.md`、`class1-origin.md`、`fireball-*.md`；NATIVE-ATTACK-SKILLS:42 | 候選對 main 既有技能的修正要在 src 重寫；golden 測試；614 行 parser 錯誤 | T028 擴為 4 張 |
+| `native-E149-extended-item-observation.md:15–27`、`integrated-client.md:15`、`recovery-case-contract.md:11`；NATIVE-WORLD-INTEGRATION:126、:164 | 可到達的物品接續拒絕與期限、T 鍵、cancel-late、畸形 wire | T023 擴為 4 張 |
+| NATIVE-INVENTORY-ICONS:41、-NAMES:39、NATIVE-GAME:21、NATIVE-LOBBY:46、NATIVE-WORLD-INTEGRATION:84 | 祝福／詛咒、名稱模板、通知 Text、LTstring、S0F／S10 | T049（M3，2 張） |
+| NATIVE-RANGED:13、:37、NATIVE-REAGENT-SKILLS:31、:33 | 裝備與彈藥 UI、地面直接拾取、特殊物品選項 | T052（M3，2 張） |
+| NATIVE-INVENTORY:44；NATIVE-LOGIN:14 | 數量重複顯示；截圖逾時 | T035 |
+| NATIVE-ROOM:46、NATIVE-TELEPORT:22、NATIVE-WORLD-ROOFS:35、NATIVE-WORLD-INTEGRATION:123 | 建房、中文密碼、圖示排版、屋頂進出、G09 音效事件 | T034 |
+| NATIVE-WORLD-INTEGRATION:5、:9、:13、:150、:177；NATIVE-SCENE-LOADING:9；NATIVE-RESOURCE-LATENCY:17；NATIVE-LABEL-UPDATES:50 | 整庫 lib 記憶體失敗、runner 漏 pin、根因未定的失敗 | T036 |
+| NATIVE-OPTIMIZED-PROFILE:18、NATIVE-WORLD-LABELS:13、:25、NATIVE-ROOM:48、NATIVE-WORLD-INTEGRATION:129 | emblem／稱號／名稱權限、ARGO、map500 入口 | T033 判定；U-M3-7、U-M3-8 |
+| `native-E149-component-*.md`、`owned-mysql-README.md:19`、`mass69-integration.md:17` | 四元件、原版 6 反例、候選 14 案、元件矩陣 28 案 | 排除（候選資格，#58） |
+
+## 附錄 D：伺服器建置鏈（0.6.35 → 0.6.71）
+0.6.35 base（`3f31ef32`）依序經過：
+1. shared-database
+2. source-administration（`205dc1ba`）
+3. dragon-skill-dispatch 0.6.46
+4. dragon-combat 0.6.47
+5. dragon-presentation 0.6.48
+6. empty-melee 0.6.49
+7. illusion-presentation 0.6.50
+8. illusion-targets 0.6.51
+9. room-directory 0.6.54
+10. native-room-state 0.6.58
+11. native-room-admission 0.6.59
+12. durable-settlement 0.6.60
+13. room-rules 0.6.61（`9719f45d`）
+14. resource-database 0.6.62–0.6.68（`c02aaae8`）
+
+接著分成兩支：
+- **0.6.69 這支沒接上正式版**：buff-schema（`75da69b0`），已被 0.6.70 取代。
+- **0.6.70 這支是正式版的路**：
+  1. `de-native-*`（沒進 git）→ `df9464f0`
+  2. → combat-continuation 根目錄（magical-weapon）
+  3. → `integrate_buff.py`（`97b1318a`）
+  4. → 約 65 層 → cancellation-battle-runtime（`8d26c9d7`）
+  5. → 登入器 repo `tools/world-resource-compat/build_presentation_server.py`、`build_selection_recovery.py`、`build_class_icon_server.py`（`daedec7c`＝0.6.70）
+  6. → `tools/gm-polyme/build.py`（`e1498871`＝0.6.71）
+
+對照依據：登入器 repo 的 `docs/maintenance/release-0.6.71.json` 與 `release-0.6.70.json`。
+
+**會影響客戶端的層**：
+- Protocol 變動：empty-melee、native-room-state、dragon-skill-dispatch、summon-parity、presentation-server、class-icons。
+- 技能結果：dragon 兩層、illusion-targets、resource-database、combat 鏈、buff。
+- 房間與結算：room-directory、native-room-admission、room-rules、durable-settlement。
+- 移動與傳送：native-room-state、MovementLock、GmTravel、mass-teleport。
+- 租賃：shared-database 的 RentalBattleHandoff、moveRentalTown。
+
+**伺服器換版時客戶端要重核的 12 項**已寫進 T025。
+
+**要回報給伺服器端雲端對話**（不在本 repo 處理）：
+- `combat-continuation-current.zh-TW.md:9-10`「本戰鬥候選未部署」應改為「8d26 之後未部署」。
+- 伺服器 `PLAN.md` 寫的最新候選（`50635f7e`）與收尾頁（`046c58c5`）不一致。
+- `de-native-*` 那段鏈沒進 git。
