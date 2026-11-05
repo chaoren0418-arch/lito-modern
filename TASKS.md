@@ -5,7 +5,7 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 
 ## 範圍凍結規則（2026-11-06，#92）
 - **完成定義凍結**：每個里程碑的「驗收：使用者打開會看到什麼」寫完後不再改寫；要改需開新 Issue 說明理由並標 `needs:user`。
-- **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 4 項，封頂**（T011-H、T011-B、T012、T013）。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
+- **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 3 項，封頂**（T011-B、T012、T013；T011-H 已完成）。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
 - **分母只因「不確定項」兌現而變動**：主線的不確定項見 `PLAN.md`「盤點：已知範圍」的 U-M1-1、U-V1-1、U-V1-2，最多 +3 張。兌現時 PR 說明要引用當初的編號與估算。
 - **新發現的工作一律進 `## Backlog`**，不算進度。要升級成主線，必須同時砍掉一項主線，或經使用者同意（`needs:user`）。
 - **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 46 張、M3 31 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
@@ -37,7 +37,7 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 驗收：clone 到任意路徑可建置。
 現況（2026-11-05）：已完成（Issue #3，PR #5）；Windows 原機實際建置與 clone 到其他路徑的腳本行為仍待驗證，交給 T010-F：只有在 clone 位置實際 `-BuildOnly` 成功才算驗證，T010-A 不算 T005 驗收。`build.ps1` 仍是 i686／`target/`，修正交給 T010-G。
 
-## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）— 主線剩 2 項，封頂
+## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）— 主線剩 1 項，封頂
 驗收：使用者打開會看到什麼（凍結）：
 - `docs/reports/issue-53.md`、`issue-55.md`、`issue-56.md` 有當版 main 的 check、lib Debug／Release、白名單的實際數字（已有）。
 - T011-B 的報告有 G06 當版 5 個 scenario（timeout、refused、wrong-service、cancel-retry、cancel-expiry）各自的實際輸出：`running 1 test`、`1 passed`，以及 result.json 的 sessions／memberships 檢查結果。
@@ -52,11 +52,11 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 **T011 G06（當版）**（已拆為下面的 T011-H、T011-B，本身不計項）：對象是 `tests/native_teleport_failure.rs` 的 5 個 scenario。
 舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。T011-R（#80）已完成盤點；#82 裁定採用 memory 模式（不需要 DB）。
 
-### T011-H | doing | 本機 codex-local | Java harness、`維護工具/run-teleport-failure.ps1`、Rust 守門（#91）
+### T011-H | done | 本機 codex-local | Java harness、`維護工具/run-teleport-failure.ps1`、Rust 守門（#91，PR #95）
 Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runner：白名單、repo 根、隔離的 temp／JVM options、來源 SHA 綁定、三個 listener 的所有權、java 與 Rust 分開清理、原子 lease；Rust 端拒絕 2000／3306。範圍與驗收見 `docs/plans/issue-82.json`。
 
-### T011-B | blocked(T011-H) | 本機 dot／codex-local | 執行當版 G06 5 個 scenario（#81）
-**可排程條件**：T011-H 合併並通過審查，T011-B 就改回 queued。**每案啟動 Rust 前的檢查**：lease、目錄契約、javac、來源綁定、三個 listener 的所有權，任何一項失敗都中止，回報為阻塞。**實跑後的驗收**：`running 1 test` 而且 1 passed；result.json 的 sessions／memberships 檢查通過；退出鏈完整；E149 資源在 memory 模式下的初始化有實際證據。沒有實跑，不能宣稱通過。首個失敗就停止，不自動重試。
+### T011-B | todo | 本機 codex-local | 執行當版 G06 5 個 scenario（#81，2026-11-06 已改回 queued）
+**可排程條件**：T011-H 合併並通過審查，T011-B 就改回 queued（已成立：PR #95 於 2026-11-05 通過審查並合併）。**每案啟動 Rust 前的檢查**：lease、目錄契約、javac、來源綁定、三個 listener 的所有權，任何一項失敗都中止，回報為阻塞。**實跑後的驗收**：`running 1 test` 而且 1 passed；result.json 的 sessions／memberships 檢查通過；退出鏈完整；E149 資源在 memory 模式下的初始化有實際證據。沒有實跑，不能宣稱通過。首個失敗就停止，不自動重試。
 
 ## M1-V1 打開就看得到（V1；2026-11-06，#86；兩張平行）— 主線剩 2 項，封頂
 驗收：使用者打開會看到什麼（凍結）：
@@ -80,7 +80,7 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
 
 ## M3 GUI 與交付（尚未開放）— 主線 0 項
 驗收：使用者打開會看到什麼（凍結）：
-- 在一台乾淨的 Windows x64 主機（沒有 VS 預覽 runtime）上解壓可攜 ZIP，雙擊 `啟動現代客戶端.ps1`，連本機自架的 E149 伺服器，走完競技場流程「登入→大廳→進房→戰鬥→退出」。
+- 在一台乾淨的 Windows x64 主機（沒有 VS 預覽 runtime）上解壓可攜 ZIP，雙擊 ZIP 內的啟動入口（T031 提供可雙擊的 `.cmd` 或 exe，不需要另外安裝 PowerShell 7），連本機自架的 E149 伺服器，走完競技場流程「登入→大廳→進房→戰鬥→退出」。
 - `docs/GUI-ACCEPTANCE.md`（M3 新增）列出 T030 清單的每一項，各附截圖或錄影，以及「通過／失敗／待伺服器」。
 - `docs/G01-G12.md`（M3 新增）有 G01–G12 每一項的定義、證據連結與狀態。
 - 執行 `run-local-test-suite.ps1 -Full`，Debug 與 Release 的總表結束碼 0；不能執行的項目逐項寫明排除理由。
@@ -147,7 +147,7 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
   - 操作：alpha 命中、自動追擊、目標圈、拒絕提示、攻擊專用速度、延遲回覆與重試交錯（L753、NATIVE-COMBAT:36、:38、NATIVE-NAVIGATION:23、NATIVE-OUTCOMES:19、:34）。
 
   （2 張）
-- **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06 客戶端可獨立完成的部分**，分 3 張：
+- **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06 客戶端可獨立完成的部分**，分 4 張（下面 4 段各 1 張）：
   - 第二次 cancel 的一次性 LOGIN 恢復（同端點、同帳號、同來源）；C8 清單確認；8／30／60 秒與 33／31 秒；在 `src` 重整 13 檔 registry 與 fixture 14 檔。
   - 補回 3 個舊 scenario（repeated_cancellation、failed_handoff_then_repeated_cancel、expired_stage_and_source_handoff）；更多取消／舊世代、畸形或跨世代 wire 回覆（L1155、L1172、L1227）；G06 通用 finite History 四 profile（L45）。
   - 觀戰（G06.2）：單獨主動離場、原 native 初始鏡頭偏移（L1052–L1062）；TeleportMe 原圖示排版（L1150）。
@@ -157,7 +157,7 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
   同端點 C02（selection=0 的 rental-item-set，L1230）依賴伺服器，列在 U-M3-1。沒有正常 GAME 產生路徑的非預設值（元素、鑲卡、魔石、覺醒、dark-item payload）歸「G06 正向前提」排除。（4 張）
 
 - **T041 | backlog(M2) | 本機 codex-local | `維護工具/run-local-test-suite.ps1`**：擴充 T012 的腳本，加入「技能」與「G06」兩類。技能類跑 T026 狀態表列出的測試，G06 類跑 8 個 scenario；成功門檻和 T012 相同。這是 M2 完成定義要用的腳本。（1 張）
-- **T043 | backlog(M2) | Cursor＋本機 | `tests/`、fixture**：雙真實玩家戰鬥 fixture。E149 的 startBattle 會強制關閉舊訓練 bot，所以 schema37 的 54 個情境不能標成新版通過。要用兩個真實玩家連線，重新核對攻擊、HP／MP、死亡、結算、重入（NATIVE-EMBLEMS:29–31）。T028、T029、T048 的戰鬥驗證以它為前提。（2 張）
+- **T043 | backlog(M2) | Cursor＋本機 | `tests/`、fixture**：雙真實玩家戰鬥 fixture。NATIVE-EMBLEMS:29–31 記載：正式 JAR `EBF5EE66` 起，startBattle 會強制關閉舊訓練 bot。EBF5EE66 是 E149 的祖先（0.6.59，見報告附錄 D），E149 是否仍是如此，要在本任務第一步用 javap 核對；所以 schema37 的 54 個情境不能標成新版通過。要用兩個真實玩家連線，重新核對攻擊、HP／MP、死亡、結算、重入（NATIVE-EMBLEMS:29–31）。T028、T029、T048 的戰鬥驗證以它為前提。（2 張）
 - **T044 | backlog(M2) | Cursor | `src/`：移動正確性與 G04 剩餘項**。範圍包括：
   - 已在途移動、靜默拒絕（Cube: Quake 等）、本地碰撞預判；
   - 動態門與動態物件占位、場地邊界；
@@ -181,14 +181,14 @@ Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runn
   - 數值 schema 寫明登入器的啟動方式。
 
   （1 張）
-- **T035 | backlog(M3) | Cursor | `src/`、`維護工具/`：已知 GUI 與輸入缺陷**，分 2 張：
+- **T035 | backlog(M3) | Cursor | `src/`、`維護工具/`：已知 GUI 與輸入缺陷**，分 2 張：第 1 張是截圖與輸入（第 2 項）；第 2 張是版面與文字（第 1、3 項）。
   - Release 長入口提示換行被下方操作列裁切（NATIVE-WORLD-INTEGRATION:156）。
   - FrameArrived 逾時、geometry unavailable 的恢復路徑，以及 Release 的 OS SendInput 輸入探針失敗：擷取逾時、click 缺 geometry、沒有 result.json（HISTORY L1411–L1417、NATIVE-LOGIN:14）。
   - 伺服器名稱含 `(數量)` 時，數量會重複顯示（NATIVE-INVENTORY:44）。
 
   （2 張）
 - **T030 | backlog(M3) | 使用者 | 依 T034 清單做原生 GUI 實機驗收**：真機驗收，`needs:user`。（1 張）
-- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`：clean host 可攜交付**。改用正式版 VC runtime，不依賴 VS 預覽 runtime；移除 5 處開發診斷 hardcode（L1569）；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）
+- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`：clean host 可攜交付**。提供可雙擊的啟動入口（`.cmd` 或直接啟動 exe，不依賴 PowerShell 7）；改用正式版 VC runtime，不依賴 VS 預覽 runtime；移除 5 處開發診斷 hardcode（L1569）；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）
 - **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：
   - 檔案寫入所有權審查（83 項）1 張；
   - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；
