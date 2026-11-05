@@ -33,7 +33,7 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 ### T010 | done | 本機 dot／codex-local＋Claude | `docs/TESTING.md`
 當版 main 驗證（2026-11-05，#76 調整範圍）：
 - 已驗證：`cargo check --all-targets`，以及 `cargo test --lib` 的 Debug 與 Release，都是 2464 個測試、1889 通過、0 失敗（#53）；T010-S 靜態安全分類（#54）；白名單 ignored 單元測試 1／1（#55）；白名單整合測試 76／76（#56）；T005 建置腳本（#59），包括 clone 到其他路徑的實際 `-BuildOnly`。
-- 待驗證：白名單以外的 574 個 ignored 單元測試與 481 個整合測試（GUI／DB／缺前置條件），以及 `build.ps1` 的實際執行。
+- 待驗證：白名單以外的 574 個 ignored 單元測試（GUI 5、DB 119、不明副作用 20、缺前置條件 430），以及 481 個整合測試（GUI 1、DB 1、不明副作用 438、缺前置條件 41），分類見 #54。「不明副作用」共 458 項，要先完成副作用與安全邊界核對才能排執行。另外 `build.ps1` 的實際執行也待驗證。
 - 延後（候選資格，不計入 M1）：12 個 gate 案、四元件 inventory、17 原控制＋6 反例（#58 以 not planned 關閉：全是凍結候選的資格檢查）。
 
 ### T011 | blocked(T011-R) | 本機 dot／codex-local＋Claude | G06（當版）：`tests/native_teleport_failure.rs` 的 5 個 scenario
