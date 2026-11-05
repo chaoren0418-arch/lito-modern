@@ -42,3 +42,4 @@
 - 2026-11-06 — #82 T011-H: 設計當版 G06 owned harness 的最小開發範圍（依 #80 盤點）（design，claude-chat，PR #89 已合併）→ [報告](reports/issue-82.md)
 - 2026-11-06 — #91 T011-H: T011-H: 當版 G06 owned harness 適配（Java ready 契約＋runner 隔離／綁定／所有權／清理／lease＋Rust 守門）（code，codex-local，PR 已合併）→ [報告](reports/issue-91.md)
 - 2026-11-06 — #86 主控：任務切大一點＋排一個「打開就看得到」的里程碑（使用者 2026-11-06 指示）（plan，claude-chat，PR #98 已合併）→ [報告](reports/issue-86.md)
+- 2026-11-06 — #102 T013: T013（V1）: 離線場景視窗在隱藏啟動下仍可見（scene_preview.rs）＋三個不連線畫面截圖＋docs/DEMO.md（code，dot，PR #105 已合併）→ [報告](reports/issue-102.md)
