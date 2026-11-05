@@ -34,3 +34,4 @@
 - 2026-11-05 — #60 T010-G: T010-G: build.ps1／build-evidence.ps1 對齊 x86_64-pc-windows-msvc、target/current、-j1（code，codex-local，PR #62 已合併）→ [報告](reports/issue-60.md)
 - 2026-11-05 — #57 T010-D: T010-D: 盤點 M1 gate 定義（12 gate 案／四元件 inventory／17 原控制＋6 反例／G06 16 案 640 次）（resource，dot，PR #66 已合併）→ [報告](reports/issue-57.md)
 - 2026-11-05 — #53 T010-A: T010-A: 本機單元測試基線（cargo check＋cargo test --lib，Debug／Release）（test，dot，PR #67 已合併）→ [報告](reports/issue-53.md)
+- 2026-11-05 — #59 T010-F: T010-F: 本機驗證 T005 建置腳本（-WhatIf／-BuildOnly，以及 clone 到其他路徑）（test，dot，PR #69 已合併）→ [報告](reports/issue-59.md)
