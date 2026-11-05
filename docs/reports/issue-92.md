@@ -1,29 +1,38 @@
 # #92 範圍凍結：完成定義、主線封頂、backlog 分流
 
-結論（第 3 版）：
-- 步驟 0 **尚未完成**。雲端讀得到的來源都已逐檔讀完：
-  - HISTORY 全文；
-  - 51 份 NATIVE 文件；
-  - 75 份研究紀錄；
-  - 伺服器 398 個 build*.py，另加不在 build*.py 裡的 3 段。
-- 本機未追蹤的兩項來源，交給 #106 唯讀取回：`工作佇列.json` 的 G01–G12 定義、44 個候選檔的 545 個測試。#106 回來後，再對照 G01–G12 重訂任務與排除項，並逐檔列出 475 案。
-- 主線（M1＋V1）剩 **4 項，封頂**：T011-H 已完成；U-M1-1 已兌現為 T011-F（#111），分母因此由 10 變 11。
-- M2、M3 的完成定義已凍結，任務各 **46 張、31 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
-- 完成定義會用到的腳本擴充，已列成 T041（M2）與 T042（M3）。
-- 「已驗證」的說法都可以用 `維護工具/check-issue-92-evidence.sh` 重跑，原始輸出附在「證據」一節。
+結論（第 4 版）：
+- **步驟 0 已完成**：
+  - 雲端來源逐檔讀完：HISTORY、51 份 NATIVE 文件、75 份研究紀錄、伺服器 398 個 build*.py 另加 3 段。
+  - 本機未追蹤的來源由 #106 唯讀取回後讀完：`工作佇列.json` 的 G01–G12 共 46 項，以及 44 個候選檔共 554 個測試宣告。
+  - 伺服器的 `server-source-gap.md` 與 `docs/maintenance/` 是依結構讀相關章節，不是逐檔全讀；已在 PLAN 的來源表寫明。
+- **G01–G12 的 46 項**都已對到任務、不確定項，或有理由的排除（附錄 E1）。
+- **候選 44 檔**都已對到重寫任務（附錄 E2）。
+- **主線**（M1＋V1）剩 **4 項，封頂**：T011-H 已完成；U-M1-1 已兌現為 T011-F（#111），分母因此由 10 變 11。
+- **M2、M3** 的完成定義已凍結，任務各 **53 張、43 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
+- **證據**：「已驗證」的說法都可以用 `維護工具/check-issue-92-evidence.sh` 重跑，原始輸出附在「證據」一節。
 
-## 第 4 次嘗試（對應第 3 輪 claude-local 審查，進行中）
-- **[P1] G01–G12 定義與排除衝突**：同意。定義在本機的 `工作佇列.json`，已開 #106 唯讀取回原文。取回後逐條對照 `work`／`acceptance`（含子項），每條歸到任務、不確定項，或排除並寫明理由。
-  - 審查點名的幾項會在那時補齊：G08 交易、G06 踢人／改房／隊伍、G07 徽章／FA／S69／附件、G11 斷線注入，以及 CLAUDE.md 目標裡的「聊天」。
-  - 不能只用「只有競技場」來排除的項目（例如交易、S69），若要排除會標 `needs:user` 請使用者裁定。
-- **[P1] 475 案**：同意。上一版「所有來源都逐檔讀完」與「前 141 案未讀」互相矛盾，已改成符合實際的說法。44 個候選檔的 545 個 `#[test]` 由 #106 逐檔列出，並核對和 475 的差額。
-- **[P1] PR base**：已改為 main。
-- **[P2] 文字**：
-  - M3 完成定義改為「雙擊 ZIP 內的啟動入口」，並由 T031 提供可雙擊的 `.cmd` 或 exe。
-  - T023 寫明 4 張。
-  - T035 寫明怎麼分 2 張。
-  - T011-H 改為 done，T011-B 改為 todo（#81 已重新排入）；主線改為完成 7、剩 3、分母 10。
-  - T043 改為照原文轉述 `EBF5EE66`，E149 是否相同列為該任務第一步的核對。
+## 第 4 次嘗試的修正（對應第 3 輪 claude-local 審查）
+1. **[P1] G01–G12 定義與排除衝突**：已依 #106 取回的原文（`docs/G01-G12.md`）逐條對照 46 項，結果見附錄 E1。
+   - **重新歸屬**：
+     - G06（房間與跨服務）：新增 T054（G06.1、G06.2：建房、設定、密碼、踢人、房主轉移、模式、隊伍、觀戰）與 T055（G06.3 租裝來源）。
+     - G07（徽章、FA／S69 狀態、屋頂、附件）：新增 T056、T057、T058；不再排除 FA／S69 狀態呈現與附件缺件，缺件改成要求明確診斷。
+     - G11（斷線注入）：T038 擴為 3 張。
+     - G09：新增 T059。
+     - G03：新增 T053（舊 54 情境）。
+     - G04.4、G04.7：T044 擴為 3 張。
+     - G05：T026 擴為玩法支援矩陣。
+     - G07.2：T047 擴為 2 張。
+     - 聊天：新增 T060。
+   - **交易**：G08 的「交易控件」指 G08.2 的 NPC／租裝商店交易數量與權威貨幣提示，已歸 T055、T034。玩家之間的交易在 G01–G12 裡沒有這一項，所以排除；理由來自 G 定義，不是「只有競技場」。
+   - **WORLD 排除**：只剩 G06.4（普通世界 C05）與 HISTORY 列出的 WORLD 專屬項目，依據是伺服器的產品範圍（E6）。
+   - **G06 名稱**：工作佇列的 G06 是「房間管理與跨服務分支」，傳送只是 G06.3d。PLAN 已寫明，CLAUDE.md 的舊說法建議另開 Issue 修正。
+   - **T033**：已由 #106 完成，從 M3 移除。結果是 M2 由 46 張改為 53 張，M3 由 31 張改為 43 張。
+2. **[P1] 475 案**：#106 逐檔、逐函式列出 554 個測試宣告（545 直接＋9 條件），其中 61 個和 main 同名、493 個是候選新增。主控裁定：以 #106 的具名清單取代歷史計數 475；差額 18 沒有歷史具名名冊可以核對，記為「差額未解」。44 檔逐檔對到重寫任務，見附錄 E2。這些測試隨候選凍結，不另外執行。
+3. **[P1] PR base**：已改為 main。
+4. **[P2] 文字修正**：
+   - M3 完成定義的啟動入口已改；T023、T035 的張數寫清楚。
+   - T011-H 改為 done，主線同步。
+   - T043 改為照原文轉述 EBF5EE66。
 
 ## 第 3 次嘗試的修正（對應第 2 輪 codex-review）
 第 2 輪審查的完整內容存在審查者本機的 `scratch/review-92.md`。本機 `gh` 回 HTTP 401，沒能寫回 GitHub，所以這裡依調度器轉貼的 3 點摘要修正。若完整內容還有其他點，請再退回。
@@ -45,21 +54,22 @@
 （第 2 次嘗試的修正內容保留在 git 歷史：commit 6009727。）
 
 ## 移到 backlog 的項目
-- **預定 M2（46 張）**：
-  - T025 版本綁定 1、T026 技能狀態表 1、T020 #97 2、T021 98–100 1；
-  - T027 候選獨有 48 技能 6、T022 未接 91 技能 10；
-  - T024 4183 與 hurt 2、T028 main 38 技能補驗 4、T029 非技能戰鬥 2、T023 G06 客戶端 4；
-  - T041 測試腳本加類別 1、T043 雙真實玩家 fixture 2、T044 移動正確性 2、T045 物品系統 2、T046 快捷列與狀態 UI 3、T047 影格事件 1、T048 復活分支 1、T050 完整性挑戰 1。
-- **預定 M3（31 張）**：
-  - T040 修補提案移交 1、T033 G01–G12 定義 1、T034 GUI 清單 1、T035 GUI／輸入缺陷 2、T030 實機 GUI 1；
-  - T031 可攜交付 2、T036 廣域回歸 15、T038 G11 1、T037 稽核 1、T032 ARCHITECTURE 1；
-  - T042 `-Full` 1、T049 背包與介面文字 2、T052 裝備與地面物品 UI 2。
+- **預定 M2（53 張）**：
+  - T025 1、T026 2、T020 2、T021 1；
+  - T027 6、T022 10；
+  - T024 2、T028 4、T029 2、T023 4；
+  - T041 1、T043 2、T044 3、T045 2、T046 3、T047 2、T048 1、T050 1；
+  - T054 2、T055 2。
+- **預定 M3（43 張）**：
+  - T040 1、T034 1、T035 2、T030 1、T031 2、T036 15、T038 3、T037 1、T032 1；
+  - T042 1、T049 2、T052 2；
+  - T053 2、T056 2、T057 2、T058 2、T059 2、T060 1。
 - **排除或延後**：
-  - WORLD 地圖專屬；凍結候選資格檢查（含 475 案、四元件、元件矩陣）；G06 正向前提；
-  - 伺服器缺陷（商人屬性來源）；超出 G11 的效能最佳化；`TW13081901.pak` 缺檔；
-  - 畫面等價研究；建置雜項；
-  - 盟戰；see-invisible／GM 視野；C0B remembered-ID；資源缺件；原版等價研究（中斷順序、延遲補償、細分座標）；
-  - 交易；VS-server directory；多客戶端即時競態。
+  - G06.4 與 WORLD 專屬；凍結候選資格檢查與候選測試（隨候選凍結）；
+  - G06 正向前提；伺服器缺陷；
+  - 畫面等價研究（照明、水下、map303 背景、RGB565 等，沒有列在 G01–G12）；建置雜項；
+  - 盟戰玩法（不含狀態呈現）；see-invisible／GM 視野；C0B remembered-ID；原版等價研究；
+  - 玩家之間的交易；VS-server directory；多客戶端即時競態；`TW13081901.pak` 缺檔；超出 G11 的效能最佳化。
 
 ## 主線剩餘數
 | 區段 | 完成 | 剩餘 |
@@ -70,7 +80,7 @@
 | 合計 | 7 | **4**（分母 11；U-M1-1 兌現） |
 
 - 分母只有在 U-M1-1、U-V1-1、U-V1-2 兌現時可以增加，最多到 13。兌現時 PR 要引用編號與估算。
-- M2、M3 開放時（需要 `needs:user`）分別加 46、31，不確定項上限各為 +8、+20。
+- M2、M3 開放時（需要 `needs:user`）分別加 53、43，不確定項上限各為 +8、+18。
 
 ## 證據
 重跑指令（唯讀；只在暫存目錄解出 class，不建置、不連服務）：
@@ -210,7 +220,7 @@ lines 1589 nonempty 740 unique 738 dup 2
 
 ## 怎麼驗證
 - 張數核對：
-  - M2：1+1+2+1+6+10+2+4+2+4+1+2+2+2+3+1+1+1=46；M3：1+1+1+2+1+2+15+1+1+1+1+2+2=31；主線分母 5+2+4=11。
+  - M2：1+2+2+1+6+10+2+4+2+4+1+2+3+2+3+2+1+1+2+2=53；M3：1+1+2+1+2+15+3+1+1+1+2+2+2+2+2+2+2+1=43；主線分母 5+2+4=11。
   - 技能：38+48+4+91=181；T022 各批 9+9+7+11+11+10+8+7+9+10=91；T027 每批 8 個，共 6 批＝48。
 - `grep -n "^## \|^### " TASKS.md`：`## M*` 區段下只有主線項目，M2／M3 下沒有 `###` 項目。
 
@@ -378,3 +388,72 @@ NATIVE 文件 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完，總數�
 - `combat-continuation-current.zh-TW.md:9-10`「本戰鬥候選未部署」應改為「8d26 之後未部署」。
 - 伺服器 `PLAN.md` 寫的最新候選（`50635f7e`）與收尾頁（`046c58c5`）不一致。
 - `de-native-*` 那段鏈沒進 git。
+
+## 附錄 E1：G01–G12（46 項）→ 歸屬
+來源是 `docs/G01-G12.md`（#106），「state」是來源記載的原值，不是重新驗收的結論。
+
+| 項目 | 來源 state（摘） | 歸屬 |
+|---|---|---|
+| G01 重建現況與版本基準 | catalog_normal_two_profile_related_baseline_qualified_limited | T025；#92 本身處理「每個剩餘項目有依賴、驗收條件」 |
+| G02 兩名實際玩家的雙場戰鬥與結算 | current_source_required_scope_incomplete… | T043 |
+| G03 回歸探針與新技能／服務整合 | …broad_not_repeated_GUI_pending | T053、T036、T041、T042 |
+| G04 多人移動、碰撞及世界生命週期 | …incomplete… | T044 |
+| G04.1 八方向、同格、權威位置 | verified_defined_scope | T036 回歸重驗 |
+| G04.2 競技場門、動態通行、持續姿態 | verified_defined_scope | T036 回歸重驗 |
+| G04.3 觀戰範圍與隨從主人封包 | verified_packet_state_scope | T054（觀戰）、T036 |
+| G04.4 加入離開、死亡復活、換圖、同 ID 替換 | in_progress | T044、T048 |
+| G04.5 移動鎖、速度、追擊、持續輸入中斷 | verified_input_lifecycle_scope | T029、T036 |
+| G04.6 守護塔生命狀態與動態路徑阻擋 | verified_contract_and_route_scope | T036 |
+| G04.7 其他模式城門、任務怪物、限時物件、進出 | pending | T044 |
+| G05 物品、裝備、技能及狀態完整性 | static_request38_of_book74_missing36… | T026 矩陣，以及 T020–T022、T027、T028、T045、T046、T052 |
+| G05.1 能力值、經驗、AC、抗性、SP／MR | verified_world_schema0_subset | T036、T049（屬性顯示） |
+| G05.2 技能、道具、裝備成功／拒絕矩陣 | …full_gameplay_matrix_GUI_pending | T026、T027、T022、T028、T043 |
+| G05.3 守護塔攻擊與狀態型目標 | verified_…_subset | T036 |
+| G05.4 78 項商人附加屬性 | …client_authority_handling_and_real_modes_pending | T026（依權威值顯示）、T040（伺服器缺陷移交） |
+| G06 房間管理與跨服務分支 | …API_controller_and_GUI_branches_pending | T054、T055、T023 |
+| G06.1 建房、設定、密碼、踢人、房主轉移 | verified_controller_live_subset | T054、T034 |
+| G06.2 模式切換、隊伍、準備、觀戰 | …candidate_verified_formal_integration_pending | T054 |
+| G06.3 租裝來源、村莊、商店與交接 | in_progress | T055 |
+| G06.3a 服務清單、配裝、原資源入村 | verified_entry_subset | T055、T036 |
+| G06.3b NPC 對話、商品、光之寶石、租還 | all78_…_verified | T036、T034 |
+| G06.3c 正常返回、重新入村、服務物品 | candidate_…_formal_integration_pending | T055、T040、U-M3-1 |
+| G06.3d 旅館、傳送與跨端點服務 | current_source_controller_qualified_same_endpoint_…_pending | T011-F、T011-B（主線）、T023、U-M3-1（同端點） |
+| G06.3e 原始對話資源與完整玩家 GUI | …physical_full_flow_pending | T034、T030 |
+| G06.4 普通世界 C05 入口 | native_directory_boundary_verified_other_routes_pending | **排除**（WORLD，E6） |
+| G07 既有資源與完整世界呈現 | …incomplete… | T056、T057、T058、T047、T049 |
+| G07.1 資源命名空間、雜湊、格式矩陣 | …exhaustive_member_coverage_pending | T057 |
+| G07.2 可見角色、NPC、狀態物件、原始動作 | pending | T047 |
+| G07.3 地形、跨區塊、遮擋、屋頂、附件、名稱、特效排序 | partially_verified | T058 |
+| G07.4 失敗資源診斷與玩家操作完整性 | pending | T057 |
+| G07.5 S_E8 小地圖、世界退役、原生視窗 | …full_observer_gui_pending | T034、T030 |
+| G08 唯一入口的完整玩家操作 | …terminal_scope_qualification_pending | T034、T035、T030、T046 |
+| G08.1 房間建立／修改、踢人、觀戰、模式控件 | …physical_input_pending | T034、T030、T054 |
+| G08.2 租裝服務、NPC 對話、交易數量、貨幣提示 | …other_services_pending | T055、T034、T030 |
+| G08.2a 徽章與市民資格頁 | …physical_input_pending | T034、T030 |
+| G08.2b 商人與容量／重量／到期 | …weapon_bonus_physical_pending | T034、T030、T040（weapon bonus） |
+| G08.2c 旅館租房、鑰匙、退房 | …self_exit_physical_input_pending | T034、T030 |
+| G08.2d 四位傳送 NPC 與跨服務交接 | …client_transfer_pending | T023、T034 |
+| G08.2e 鍵盤走訪與完整 NPC GUI | …physical_input_pending | T034、T030 |
+| G08.3 屬性、狀態、系統訊息、小地圖 | …full_attributes_multidpi_pending | T049、T034 |
+| G08.4 唯一入口完整流程、IME、DPI、焦點、取消 | …ime_dpi_physical_input_pending | T034、T035、T030 |
+| G09 原始音效與裝置生命週期 | …incomplete… | T059、T030 |
+| G10 Release 全流程與可攜交付 | …incomplete… | T031、T042、T036 |
+| G11 效能、長時間、故障恢復 | …incomplete… | T038、T050 |
+| G12 整理與整體完成稽核 | pending_full_G01_G12_current_source_acceptance | T037、T032 |
+
+CLAUDE.md 目標裡的「聊天」在 G01–G12 沒有單獨一項，另外新增 T060。
+
+## 附錄 E2：候選 44 檔（554 個測試宣告）→ 重寫任務
+數字是 #106 報告的「候選新增」欄（候選測試數減掉和 main 同名的測試數），合計 493。這些測試隨候選凍結，不另外執行；重寫時只當設計參考。
+
+| 任務 | 候選檔（#106 表格列號） | 候選新增測試 |
+|---|---|---:|
+| T020 #97 | 2 native_world_scene、29 native_world_view、34 tower_assets、43 native_connection、44 native_static2941 | 39 |
+| T023 G06.3d | 8 native_login、9 native_rental_return_tests、10 native_teleport_controller_tests、11 tests/native_teleport_failure；12–14 是 Java oracle，0 個測試 | 27 |
+| T024 | 26 native_world、38 native_world_animation | 10 |
+| T028 | 1 world_raster、23 light_arrow_effect、25 native_class1、27 native_audio_delivery、28 native_spell_projectiles | 52 |
+| T046 | 4 tests/native_skill_selection、6 native_skill_selection | 3 |
+| T022 | 21 tests/native_shadow107（107 在「未接 91」裡，候選有參考實作） | 6 |
+| T027 | 5 native_skills、7 tests/native_blind、15 native_additional_finite_effects、16 tests/native_slow29、18 tests/native_advance79、19 tests/native_item_spells、20 tests/native_magical73、22 tests/native_object374448、24 native_attack_many、30 native_skill_effects、31 native_eruption45、33 native_eruption45_scene、35 native_blizzard59、36 native_resurrection61、37 native_appearance27、40 native_shape67、41 native_mass69、42 native_fire70 | 356 |
+| 沒有測試 | 3 native_login_window、17 native_selector_effects、32 native_eruption45_assets、39 native_combat_animation（7 個同名、0 個新增） | 0 |
+| **合計** | 44 檔 | **493** |

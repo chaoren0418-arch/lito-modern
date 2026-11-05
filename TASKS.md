@@ -8,7 +8,7 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 - **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 4 項，封頂**（T011-F、T011-B、T012、T013；T011-H 已完成）。T011-F 是 U-M1-1 兌現（#81 首跑失敗），分母因此由 10 變 11。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
 - **分母只因「不確定項」兌現而變動**：主線的不確定項見 `PLAN.md`「盤點：已知範圍」的 U-M1-1、U-V1-1、U-V1-2，最多 +3 張。兌現時 PR 說明要引用當初的編號與估算。
 - **新發現的工作一律進 `## Backlog`**，不算進度。要升級成主線，必須同時砍掉一項主線，或經使用者同意（`needs:user`）。
-- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 46 張、M3 31 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
+- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 53 張、M3 43 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
 
 ## M0 可建置（完成）
 驗收：使用者打開會看到什麼（凍結）：GitHub Actions 的 `build.yml` 在 main 最新一次是綠色；`docs/reports/issue-59.md` 有 clone 到其他路徑後 `啟動現代客戶端.ps1 -BuildOnly` 結束碼 0 的實際輸出。
@@ -79,7 +79,7 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 - 打開 `docs/SKILLS-STATUS.md`（M2 新增），看到 E149 目錄每個技能一列：送包形狀測試（名稱＋通過與否）、資源／特效核對、「以 E149 為準可驗」或「伺服器待定」。凡是標可驗的列，全部顯示通過。
 - 執行 `run-local-test-suite.ps1`，總表多出「技能」與「G06」兩類，結束碼 0。G06 包含當版 5 個 scenario，以及補回的 3 個舊 scenario。
 - #97 暗隱術的 12 個 ready-gate 案在 `src/` 的版本全部通過（8 純案＋4 原資源案）。
-任務清單：見 Backlog「預定 M2」（46 張，開放時原樣升級）。
+任務清單：見 Backlog「預定 M2」（53 張，開放時原樣升級）。
 
 ## M3 GUI 與交付（尚未開放）— 主線 0 項
 驗收：使用者打開會看到什麼（凍結）：
@@ -87,12 +87,12 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 - `docs/GUI-ACCEPTANCE.md`（M3 新增）列出 T030 清單的每一項，各附截圖或錄影，以及「通過／失敗／待伺服器」。
 - `docs/G01-G12.md`（M3 新增）有 G01–G12 每一項的定義、證據連結與狀態。
 - 執行 `run-local-test-suite.ps1 -Full`，Debug 與 Release 的總表結束碼 0；不能執行的項目逐項寫明排除理由。
-任務清單：見 Backlog「預定 M3」（31 張，開放時原樣升級）。
+任務清單：見 Backlog「預定 M3」（43 張，開放時原樣升級）。
 
 ## Backlog（不算進度）
 本區有兩種項目：一種是 M2／M3 已排定的任務，開放時原樣升級；另一種是排除或延後的工作。2026-11-06 依 #92，原本在 M2／M3 的 T020–T024、T030–T032，以及修補提案 T040，都移到這裡。它們和「打開就看得到」（V1）沒有直接因果關係。
 
-### 預定 M2（46 張；開放時原樣升級，總數不變）
+### 預定 M2（53 張；開放時原樣升級，總數不變）
 技能集合以 `docs/PROTOCOL-CONTRACT.md` §6.3 為準：git `2066774`，共 181 項，也就是 180 個 catalog 記錄加上 dispatcher 特例 5 TELEPORT。E149 與 `2066774` 的 `BattleSpellCatalog` 常數 223／223 完全相同，`new *Spell(` 也同為 186 處。逐 ID 去重後的分配如下，合計 38＋48＋4＋91＝181，沒有重複：
 
 | 集合 | 數量 | ID |
@@ -103,7 +103,7 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 | 未接 | 91 | 見 T022 |
 
 - **T025 | backlog(M2) | Claude | `docs/PROTOCOL-CONTRACT.md`**：版本綁定。寫明 M2／M3 都以 E149（e1498871）為準；對齊第 8 節「待對 e1498871 核對」與 T004-1 已完成之間的矛盾。另外把 180／181 的來源寫進契約：180 個 catalog 記錄，加上 TELEPORT 是 dispatcher 特例（`維護工具/generate-spell-request-shapes.py:192`）。再寫一份「伺服器換版時客戶端要重核」的清單：JAR SHA 與血統分支、`Protocol$*` 變動與 opcode／欄位、ClientSession／GameHub 變動 class、技能結果與狀態圖示 ID、房間與結算、移動與傳送、裝備與租賃、GM 指令、登入流程、相容 DLL 與 hook 位址（見報告附錄 D）。（1 張）
-- **T026 | backlog(M2) | Claude | `docs/SKILLS-STATUS.md`（新增）**：技能分類。把 181 個技能逐一對到伺服器缺口組（伺服器 T021 目標／Ctrl、T022 自施、T023 受控 NPC、T024 HP 生產端、T025 材料、T028 顯示），分成「以 E149 為準可驗」與「伺服器待定」兩類。後者只驗送包形狀與畫面，不驗與原版同源。（1 張）
+- **T026 | backlog(M2) | Claude | `docs/SKILLS-STATUS.md`（新增）**：技能分類。把 181 個技能逐一對到伺服器缺口組（伺服器 T021 目標／Ctrl、T022 自施、T023 受控 NPC、T024 HP 生產端、T025 材料、T028 顯示），分成「以 E149 為準可驗」與「伺服器待定」兩類。後者只驗送包形狀與畫面，不驗與原版同源。另外依 G05 的 work，把範圍擴大成**玩法支援矩陣**：所有玩家可達的操作（技能、物品使用／裝卸／丟棄／拾取、遠程與彈藥、耗材／MP、buff／debuff、復活），每一列標明封包、權威狀態、呈現、失敗路徑，以及缺失／拒絕／不適用。G05.4 商人附加屬性要寫明「依伺服器權威值顯示」。（2 張：技能 1、物品與其他操作 1）
 - **T020 | backlog(M2) | Cursor | `src/`：#97 暗隱術**：在 `src/` 重寫 ingress clock、專用 queue、Static2941Bank 與資源就緒 gate（在 enqueue 前，原 4E5C00 先 SPR 再 4D65F0）。範圍包括：
   - 共享 callback、重入繪圖 producer 與 4D6570 固定 sample 的交錯；4E2150 兩個 suffix 的上游 CFG；4857B0 巢狀 drain；方向 6 alias／shadow defaults；
   - native clock 的 import 初始化與 rollover；
@@ -150,10 +150,10 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
   - 操作：alpha 命中、自動追擊、目標圈、拒絕提示、攻擊專用速度、延遲回覆與重試交錯（L753、NATIVE-COMBAT:36、:38、NATIVE-NAVIGATION:23、NATIVE-OUTCOMES:19、:34）。
 
   （2 張）
-- **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06 客戶端可獨立完成的部分**，分 4 張（下面 4 段各 1 張）：
+- **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06.3d 傳送與失敗恢復中，客戶端可以獨立完成的部分**，分 4 張（下面 4 段各 1 張）：
   - 第二次 cancel 的一次性 LOGIN 恢復（同端點、同帳號、同來源）；C8 清單確認；8／30／60 秒與 33／31 秒；在 `src` 重整 13 檔 registry 與 fixture 14 檔。
   - 補回 3 個舊 scenario（repeated_cancellation、failed_handoff_then_repeated_cancel、expired_stage_and_source_handoff）；更多取消／舊世代、畸形或跨世代 wire 回覆（L1155、L1172、L1227）；G06 通用 finite History 四 profile（L45）。
-  - 觀戰（G06.2）：單獨主動離場、原 native 初始鏡頭偏移（L1052–L1062）；TeleportMe 原圖示排版（L1150）。
+  - G06.3d 旅館、傳送與跨端點服務：TeleportMe 原圖示排版（L1150）、同端點以外的 Presentation／音效／其他服務（`docs/G01-G12.md` G06.3d 的 state）；觀戰移到 T054。
 
   - G06 物品接續中可以到達的拒絕與期限案例：StateCopy 拒絕 active ScheduledFuture／EquipmentTimerLease／pending magic-stone expiry、租裝自然到期（`維護工具/native-E149-extended-item-observation.md:15-27`）；T 鍵入口與 cancel-late 案例（`native-E149-integrated-client.md:15`、`native-E149-recovery-case-contract.md:11`）；畸形與跨世代 wire 回覆（NATIVE-WORLD-INTEGRATION:126、:164）。
 
@@ -165,22 +165,42 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
   - 已在途移動、靜默拒絕（Cube: Quake 等）、本地碰撞預判；
   - 動態門與動態物件占位、場地邊界；
   - 城門、全部碰撞模式；
-  - 移動中斷、其他模式物件、持續輸入中斷。
+  - 移動中斷、其他模式物件、持續輸入中斷；
+  - G04.4（in_progress）：加入／離開、死亡復活、換圖及同 ID 替換的同步；
+  - G04.7（pending）：其他模式的城門、任務怪物、限時模式物件與進出場。
 
-  出處：NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40。（2 張）
-- **T045 | backlog(M2) | Cursor | `src/`：物品系統缺口**。需要目標或選項的 use_type、type3 charge、194／197 正式流程、C76 銷毀、生命之泉等耗材（NATIVE-ITEM-ACTIONS:9、:39、NATIVE-GROUND-SKILLS:33）。交易不在範圍內。（2 張）
+  出處：NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40；`docs/G01-G12.md` G04、G04.4、G04.7。（3 張）
+- **T045 | backlog(M2) | Cursor | `src/`：物品系統缺口**。需要目標或選項的 use_type、type3 charge、194／197 正式流程、C76 銷毀、生命之泉等耗材（NATIVE-ITEM-ACTIONS:9、:39、NATIVE-GROUND-SKILLS:33）。玩家之間的交易不在範圍內（理由見「排除或延後」）。（2 張）
 - **T046 | backlog(M2) | Cursor | `src/`：快捷列、技能書與狀態 UI**。CLAUDE.md 目標明列「快捷列」。範圍包括技能圖示與快捷列綁定、完整技能書、buff／AC／冷卻／MP 呈現，以及技能中斷（NATIVE-SKILLS:41、NATIVE-SKILL-SELECTION:27、NATIVE-REAGENT-SKILLS:31、NATIVE-ATTACK-SKILLS:3、:32）。（3 張）
-- **T047 | backlog(M2) | Cursor | `src/`**：影格事件 Effect／Hit 映射到特效（NATIVE-ANIMATION:11、NATIVE-COMBAT:30），以及 gfx1544 action0 在 catalog 缺定義、首幀只畫出 11／12 個物件（NATIVE-WORLD:24、:34）。（1 張）
+- **T047 | backlog(M2) | Cursor | `src/`**：影格事件 Effect／Hit 映射到特效（NATIVE-ANIMATION:11、NATIVE-COMBAT:30），以及 gfx1544 action0 在 catalog 缺定義、首幀只畫出 11／12 個物件（NATIVE-WORLD:24、:34）。另外依 G07.2（pending）：全部玩法可見角色、NPC、狀態型物件的原始動作。（2 張）
 - **T048 | backlog(M2) | Cursor | `src/`**：復活的其他分支，包括 S_RESURRECT 與榮譽模式延遲重生（NATIVE-OUTCOMES:13、NATIVE-CONTINUOUS:22）。（1 張）
 - **T050 | backlog(M2) | Cursor | `src/`**：S_EVENT subtype33 完整性挑戰目前只記錄，沒有送 C_ADDR；要調查並接線，否則不能宣稱長時間戰鬥相容（NATIVE-WORLD:18）。（1 張）
 
-### 預定 M3（31 張；開放時原樣升級，總數不變）
+- **T054 | backlog(M2) | Cursor＋本機 | `src/`：房間分支正式整合（G06.1、G06.2）**。G06 的 work 是「核實建房、密碼房、設定、踢人、觀戰、隊伍及可達模式的正式契約」。
+  - G06.1 目前只到 verified_controller_live_subset：要完成建房、設定、密碼、踢人與房主轉移的正式契約。
+  - G06.2 是 candidate_verified_formal_integration_pending：要把模式切換、隊伍、準備、觀戰整合進 main，並納入觀戰單獨主動離場與原 native 初始鏡頭偏移（L1052–L1062）。
+
+  （2 張）
+- **T055 | backlog(M2) | Cursor＋本機 | `src/`：租裝來源整合（G06.3）**。
+  - G06.3c 是 candidate_defined_return_scope_verified_formal_integration_pending：要完成正常返回、重新入村、服務物品與互動清單生命週期的正式整合。
+  - rental-source 模式：C_CA、S_FB 目錄、租裝村與商店交接，以及 map500 其他入口種類（NATIVE-LOBBY:44、NATIVE-WORLD-INTEGRATION:129）。
+  - G06 的 acceptance 要求「不得以 Tournament 通過代替租裝或其他模式」。伺服器端 quitFight 的缺口列在 U-M3-1。
+
+  （2 張）
+
+### 預定 M3（43 張；開放時原樣升級，總數不變）
 - **T040 | backlog(M3) | Claude | lito-launcher-server Issue**：把修補提案四項（租裝返回、同端點傳送、房間最後離開、商人屬性來源）以 Issue 加證據路徑的形式交給伺服器 repo，不搬 ASM 工具。伺服器接收後，刪除本 repo 的 `修補提案/`。（1 張）
-- **T033 | backlog(M3) | 本機 codex-local | `docs/G01-G12.md`（新增）**：從使用者電腦的 `工作佇列.json` 取回 G01–G12 的正式定義（只讀，不新增或修改該檔），寫成文件。同時判定 map563 是不是 WORLD 地圖（影響 U-M3-6），以及 ARGO、map500 其餘入口、血盟 emblem 與名稱權限是否在範圍內（影響 U-M3-7、U-M3-8）。（1 張）
+- **T033 | done | 本機 codex-local | `docs/G01-G12.md`**：已由 #106 提前完成（`工作佇列.json` SHA256 `0EC8ACBF…830AC`，共 46 項：12 個主項、34 個子項），不計入 M3 張數。map563 與 ARGO 的範圍判定改由 T037 做（U-M3-6、U-M3-8）。
 - **T034 | backlog(M3) | Claude | `docs/GUI-ACCEPTANCE.md`（新增）**：T030 的檢查清單。
   - 流程：普通房、租裝入口與商店、旅館返回（3600／7200 秒自然租期）、商人與市民、Enter 負向、EOF／取消、新技能、owner 退役與傳送恢復、觀戰、雙玩家戰鬥退出、小地圖、NPC caption。
   - 核對面向：實體輸入、像素、IME、多 DPI、聲音（實體裝置、無裝置／拔插）。
-  - 其他清單項：建房、中文密碼往返（NATIVE-ROOM:46）、TeleportMe 原圖示排版（NATIVE-TELEPORT:22）、屋頂進出（NATIVE-WORLD-ROOFS:35）、開門 O 鍵、觀戰切換與鏡頭、G09 音效事件。
+  - 其他清單項：建房、中文密碼往返（NATIVE-ROOM:46）、TeleportMe 原圖示排版（NATIVE-TELEPORT:22）、屋頂進出（NATIVE-WORLD-ROOFS:35）、開門 O 鍵、觀戰切換與鏡頭、G09 音效事件、聊天（T060）。
+  - 依 G08 子項逐條列入：
+    - G08.1 房間建立／修改、踢人、觀戰、模式控件；
+    - G08.2a–e 徽章與市民資格頁、瑪雅／菲佛／克里商人與容量／重量／到期、旅館租房／鑰匙／退房、四位傳送 NPC、鍵盤走訪；
+    - G08.3 屬性、狀態、系統訊息與小地圖；
+    - G08.4 從唯一入口走完整流程，含 IME、DPI、焦點、取消；
+    - G07.5 小地圖的觀戰 GUI。
   - 數值 schema 寫明登入器的啟動方式。
 
   （1 張）
@@ -188,10 +208,11 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
   - Release 長入口提示換行被下方操作列裁切（NATIVE-WORLD-INTEGRATION:156）。
   - FrameArrived 逾時、geometry unavailable 的恢復路徑，以及 Release 的 OS SendInput 輸入探針失敗：擷取逾時、click 缺 geometry、沒有 result.json（HISTORY L1411–L1417、NATIVE-LOGIN:14）。
   - 伺服器名稱含 `(數量)` 時，數量會重複顯示（NATIVE-INVENTORY:44）。
+  - G08 的 acceptance：失焦後不能持續發招；無法操作或布局遮擋都要修好。
 
   （2 張）
 - **T030 | backlog(M3) | 使用者 | 依 T034 清單做原生 GUI 實機驗收**：真機驗收，`needs:user`。（1 張）
-- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`：clean host 可攜交付**。提供可雙擊的啟動入口（`.cmd` 或直接啟動 exe，不依賴 PowerShell 7）；改用正式版 VC runtime，不依賴 VS 預覽 runtime；移除 5 處開發診斷 hardcode（L1569）；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）
+- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`：clean host 可攜交付**。依 G10：可攜包要附來源、EXE 與資源的版本清單，不依賴舊 BIN。提供可雙擊的啟動入口（`.cmd` 或直接啟動 exe，不依賴 PowerShell 7）；改用正式版 VC runtime，不依賴 VS 預覽 runtime；移除 5 處開發診斷 hardcode（L1569）；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）
 - **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：
   - 檔案寫入所有權審查（83 項）1 張；
   - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；
@@ -205,7 +226,12 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
   - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；
   - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；
   - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）
-- **T038 | backlog(M3) | 本機 dot＋Claude | G11 效能驗收**：依 `acceptance-budget-v1.json`，Release 做 60 分鐘／20 週期、warm reload 分布、8 秒移動與 60 秒等待預算（HISTORY L159、L171、L1204）。（1 張）
+- **T038 | backlog(M3) | 本機 dot＋Claude＋Cursor | G11 效能、長時間與故障恢復**，依 G11 的 work 分 3 張：
+  - 先保存雙玩家 Release 的載入、幀時間、記憶體基準與驗收預算（`acceptance-budget-v1.json`），避免事後改標準。
+  - 至少 60 分鐘、20 次完整場次循環，並在登入、房間、戰鬥、返回四個階段注入斷線（HISTORY L159、L171、L1204）。
+  - 量測快取、worker、handle、音效、取消與退出；修復超限或持續增長的項目。
+
+  （3 張）
 - **T037 | backlog(M3) | Claude | `docs/G01-G12.md`**：G01–G12 逐項稽核，每項附證據連結與狀態。（1 張）
 - **T032 | backlog(M3) | Claude | `docs/ARCHITECTURE.zh-TW.md`**：重寫為現況版（現在是流水帳）。（1 張）
 - **T042 | backlog(M3) | 本機 codex-local | `維護工具/run-local-test-suite.ps1`**：加入 `-Full` 模式，涵蓋 Debug 與 Release，以及 T036 放行的全部項目；無法執行的項目逐項輸出排除理由。這是 M3 完成定義要用的腳本。（1 張）
@@ -218,6 +244,31 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 
   （2 張）
 - **T052 | backlog(M3) | Cursor | `src/`**：裝備與彈藥 UI（NATIVE-RANGED:13、:37）；地面物品直接滑鼠拾取與排序；特殊物品選項（NATIVE-REAGENT-SKILLS:31、:33）。（2 張）
+- **T053 | backlog(M3) | 本機＋Claude | G03 舊 54 情境盤點與重驗**。依 G03 的 work：
+  - 逐一把舊 54 情境列為保留、改寫或失效，並說明原因；
+  - 補拒絕、延遲或漏回覆、過期世代、斷線與重新登入；
+  - 做 S_CE／S_D4／S_CD 順序重播，驗證初始化通知的人數、期限與換房隔離。
+
+  每個現行必備情境都要有當前 JAR／EXE 的結果，不得沿用舊版計數。（2 張）
+- **T056 | backlog(M3) | Cursor | `src/`：名稱、徽章與 FA／S69 狀態呈現（G07）**。G07 的 work 明列「全體／地面名稱、徽章位置、FA／S69 状態」。範圍包括：
+  - emblem 請求、快取與繪製（NATIVE-OPTIMIZED-PROFILE:18）；
+  - S2F 稱號、全體名稱權限、特殊 NPC 徽記（NATIVE-WORLD-LABELS:13、:25）；
+  - FA 限制與 S69 戰爭狀態的陣營顏色分支（NATIVE-LABEL-UPDATES:19、NATIVE-SCENE-LOADING:13）。
+
+  盟戰本身的玩法不在範圍內，這裡只做狀態呈現。（2 張）
+- **T057 | backlog(M3) | Cursor＋本機 | 資源支援矩陣與失敗診斷（G07.1、G07.4）**。
+  - G07.1：完成可重跑、綁資源 SHA 的資源命名空間與格式矩陣，做到逐成員覆蓋（目前只到 exhaustive_member_coverage_pending）。
+  - G07.4：缺件與未知格式要「明確失敗並提供來源診斷」，不可靜默缺圖。例如 727 缺 383 附件、262 陰影 bank（NATIVE-ACTOR-LAYERS:11），以及 T011-F 的特效資源資格不符，都要有玩家看得到或報告讀得到的診斷。
+
+  （2 張）
+- **T058 | backlog(M3) | Cursor | `src/`：遮擋、屋頂、附件、透明與特效排序（G07.3）**。G07.3 目前是 partially_verified，要對照當前正式核心核實地形、跨區塊、遮擋、屋頂、附件、名稱與特效排序，包括屋頂進出（NATIVE-WORLD-ROOFS:35）。照明、水下、map303 背景、RGB565 等價沒有列在 G07，仍歸「畫面等價研究」。（2 張）
+- **T059 | backlog(M3) | Cursor＋本機 | 音效裝置生命週期（G09）**。依 G09 的 work：
+  - 原始 WAV 與影格事件；
+  - 無裝置、裝置變更、同時多聲、切換場景與退出回收；
+  - 不能有重複事件、無限聲音，或因裝置失敗而崩潰。
+
+  實際聽覺驗收由 T030 做。（2 張）
+- **T060 | backlog(M3) | Cursor＋本機 | 聊天**。CLAUDE.md 目標明列「聊天」。要驗證聊天視窗收發、過濾視窗、私訊的當版行為；目前 `chat_filtered_window_tests.rs:22`、`direct_chat_window_tests.rs:438` 是 GUI ignored 測試（#54），GUI 部分併入 T034 清單。（1 張）
 
 ### 排除或延後（不在 M0–M3 完成定義內）
 - **WORLD 地圖專屬項目**：伺服器端已確認「LiTo 只有競技場，沒有 WORLD 地圖」（lito-launcher-server `docs/maintenance/combat-continuation-current.zh-TW.md:14`）。因此排除：map303 floor gate、水下 shader／phase／scroll、屋頂 runtime、攻城 P 鍵、經典 C_ENTER_WORLD 分支等。競技場與租裝城鎮仍在範圍內。
@@ -226,17 +277,17 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 - **伺服器缺陷**：商人屬性來源（例如 29047 戒指火抗 0，應為 10）。客戶端只顯示權威封包，GUI 驗收寫「與伺服器送出的一致」。
 - **效能最佳化**：超出 G11 預算之外的優化，例如首次 Debug 載入 28 秒、封存 hash 23.65 秒。
 - **TW 資源** `TW13081901.pak` 缺檔：5 個 TW 項目不能替代。
-- **畫面等價研究**（HISTORY L163–L305、L1298–L1578）：照明／光罩、水下時鐘與後處理、map303 背景／viewport、背景 64ms scheduler、相機非初始更新、Bank viewport、RGB565 framebuffer 等價。這些項目不在 M0–M3 的完成定義內；如果 T037 稽核判定 G01–G12 需要，依 U-M3-5 兌現。
-- **WORLD 專屬（依 HISTORY）**：普通 WORLD C05 入口、技能 131 進 map4、WORLD 主視窗、869／$748 NPC action3、毒咒與寒冷戰慄的 WORLD 分支、攻城 P 鍵（L555、L1078、L1086、L1175–L1199）。
+- **畫面等價研究**（HISTORY L163–L305、L1298–L1578）：照明／光罩、水下時鐘與後處理、map303 背景／viewport、背景 64ms scheduler、相機非初始更新、Bank viewport、RGB565 framebuffer 等價。這些項目沒有列在 G01–G12 的 work 中；G07 明列的遮擋、屋頂、附件、透明、特效排序不在這裡，已歸 T058。這些項目不在 M0–M3 的完成定義內；如果 T037 稽核判定 G01–G12 需要，依 U-M3-5 兌現。
+- **WORLD 專屬（依 HISTORY）**：G06.4 普通世界 C05 入口與後續場景交接（`docs/G01-G12.md` G06.4；伺服器端已確認沒有 WORLD 地圖，見報告 E6）、技能 131 進 map4、WORLD 主視窗、869／$748 NPC action3、毒咒與寒冷戰慄的 WORLD 分支、攻城 P 鍵（L555、L1078、L1086、L1175–L1199）。
 - **建置雜項**：Debug 281／Release 282 個編譯警告（L711 等）、外部 LiTo.bin／Server_Game.jar（L1014；本 repo 不包裝 LiTo.bin）、before-rebuild zip 與 NUL 診斷映像（L919、L93）。
-- **候選 overlay QA 475 案的逐案清單**：HISTORY L1–L65 逐輪記錄了其中 334 案（第 141 案之後）的新增數；前 141 案沒有分項，逐案名稱只在使用者電腦上未追蹤的候選目錄。這些案已延後，不影響主線；若重新評估候選，再由本機任務列出。
+- **候選 overlay 測試（原稱 475 案）**：#106 已逐檔、逐函式列出 44 個候選檔共 554 個測試宣告（545 個直接 `#[test]`＋9 個條件 test），其中 61 個和 main 同名、493 個是候選新增。主控裁定：以 #106 的具名清單（493）取代歷史的 metadata 計數 475；差額 18 沒有歷史具名名冊可以核對，記為「差額未解」。這些測試隨候選一起凍結，不另外執行；各檔對應的重寫任務見報告附錄 E，重寫時只當設計參考。
 - **研究紀錄中確認排除的項目**（NATIVE-*、`維護工具/*.md`）：
-  - 盟戰：S69 戰爭旗標、FA 限制、盟戰結束（NATIVE-ACTOR-RELATIONS:11、:20、NATIVE-LABEL-UPDATES:19）。
+  - 盟戰玩法：盟戰結束清 1F、S36 公告與音樂（NATIVE-ACTOR-RELATIONS:11、:20）。FA／S69 的狀態呈現在 G07 範圍內，已歸 T056。
   - see-invisible／GM 視野（NATIVE-ACTOR-STATES:17）。
   - C0B 末 byte 的 remembered-ID 與 986ms 節流（NATIVE-GROUND-PICKUP:15）。
-  - 資源缺件的附件與陰影 bank（NATIVE-ACTOR-LAYERS:11）。
   - 原版等價研究：動作中斷順序、延遲補償、效果細分座標（NATIVE-COMBAT:26、NATIVE-ANIMATION:17、NATIVE-SKILLS:19）。
-  - 交易；VS-server directory（NATIVE-LOGIN:44）。
+  - 玩家之間的交易：G01–G12 沒有這一項。G08 的「交易控件」指 G08.2 的 NPC／租裝商店交易數量與權威貨幣提示，已歸 T055、T034。
+  - VS-server directory（NATIVE-LOGIN:44）。
   - 多客戶端即時競態與自然搶拾（NATIVE-REAL-PEERS:43、:45、NATIVE-ROOM:46）。
   - connect 階段 Drop 等 timeout（NATIVE-PROTOCOL:36）、舊版名單查詢分支（NATIVE-WORLD-LABELS:15）。
   - 候選資格的「四元件／原版 6 反例／候選 14 案／元件矩陣 28 案」（`維護工具/native-E149-component-*.md`、`native-E149-owned-mysql-README.md:19`），以及 action0 cadence 之外的全域 scheduler 交錯、clock import。
