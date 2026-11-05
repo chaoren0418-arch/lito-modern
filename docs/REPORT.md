@@ -39,3 +39,4 @@
 - 2026-11-05 — #55 T010-B: T010-B: 本機逐一執行白名單內的 ignored 單元測試（test，dot，PR #73 已合併）→ [報告](reports/issue-55.md)
 - 2026-11-05 — #56 T010-C: T010-C: 本機逐一執行白名單內的整合測試（loopback 隔離 harness）（test，dot，PR #75 已合併）→ [報告](reports/issue-56.md)
 - 2026-11-05 — #76 M1-R: M1 範圍改為當版 main；候選資格 gate 延後；G06 以 tests/native_teleport_failure.rs 重新設計（design，claude-chat，PR #79 已合併）→ [報告](reports/issue-76.md)
+- 2026-11-06 — #82 T011-H: 設計當版 G06 owned harness 的最小開發範圍（依 #80 盤點）（design，claude-chat，PR #89 已合併）→ [報告](reports/issue-82.md)
