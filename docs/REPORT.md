@@ -29,3 +29,4 @@
 - 2026-11-05 — #32 主控：同步 TASKS.md 狀態（調度台進度圖的資料來源）（plan，claude-chat，PR #38 已合併）→ [報告](reports/issue-32.md)
 - 2026-11-05 — #33 T003-R: 裁定 44 檔隔離候選的併入策略（整包／分批／不套用）（design，claude-chat，PR #40 已合併）→ [報告](reports/issue-33.md)
 - 2026-11-05 — #41 T003-R1: T003-R1: 44 檔隔離候選依 contract 取檔、SHA256、src/ diff 統計與依賴圖（本機靜態）（resource，codex-local，PR #45 已合併）→ [報告](reports/issue-41.md)
+- 2026-11-05 — #46 T003-R2: 依 #41 結果更新 CANDIDATES.md（SHA256、diff 統計、依賴圖結論）（design，claude-chat，PR #50 已合併）→ [報告](reports/issue-46.md)
