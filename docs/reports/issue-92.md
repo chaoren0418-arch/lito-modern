@@ -455,5 +455,5 @@ CLAUDE.md 目標裡的「聊天」在 G01–G12 沒有單獨一項，另外新�
 | T046 | 4 tests/native_skill_selection、6 native_skill_selection | 3 |
 | T022 | 21 tests/native_shadow107（107 在「未接 91」裡，候選有參考實作） | 6 |
 | T027 | 5 native_skills、7 tests/native_blind、15 native_additional_finite_effects、16 tests/native_slow29、18 tests/native_advance79、19 tests/native_item_spells、20 tests/native_magical73、22 tests/native_object374448、24 native_attack_many、30 native_skill_effects、31 native_eruption45、33 native_eruption45_scene、35 native_blizzard59、36 native_resurrection61、37 native_appearance27、40 native_shape67、41 native_mass69、42 native_fire70 | 356 |
-| 沒有測試 | 3 native_login_window、17 native_selector_effects、32 native_eruption45_assets、39 native_combat_animation（7 個同名、0 個新增） | 0 |
+| 沒有新增測試 | 3 native_login_window、17 native_selector_effects、32 native_eruption45_assets、39 native_combat_animation（4 檔都是 0 個測試）；另外 34 tower_assets 有 7 個測試都和 main 同名，已列在 T020 | 0 |
 | **合計** | 44 檔 | **493** |
