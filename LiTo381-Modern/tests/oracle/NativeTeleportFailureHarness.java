@@ -29,7 +29,10 @@ public final class NativeTeleportFailureHarness {
   boolean refused=scenario.equals("refused");
   boolean wrongService=scenario.equals("wrong-service");
   int expectedSessions=wrongService?10:8;
-  Path root=Path.of(args[0]).toAbsolutePath().normalize();Files.createDirectories(root);
+  Path root=Path.of(args[0]).toAbsolutePath().normalize();
+  if(root.getParent()==null||!Files.isDirectory(root.getParent()))throw new IllegalStateException("runtime parent must already exist");
+  Files.createDirectory(root);
+  if(!root.toRealPath().equals(root))throw new IllegalStateException("runtime must not traverse a reparse point or symlink");
   Path jar=Path.of(ClientSession.class.getProtectionDomain().getCodeSource().getLocation().toURI());
   String sha=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(jar)));
   try(ServerSocket login=new ServerSocket(0,4,InetAddress.getByName("127.0.0.1"));ServerSocket town=new ServerSocket(0,4,InetAddress.getByName("127.0.0.2"));
@@ -73,7 +76,7 @@ public final class NativeTeleportFailureHarness {
      }}catch(Throwable e){failures.add(e);}},"failure-acceptor");acceptors.add(acceptor);acceptor.start();
     }
     try {
-     NativePeerHarness.write(root.resolve("ready.json"),"{\"port\":"+login.getLocalPort()+",\"destination_port\":"+unavailablePort+",\"destination_refused\":"+refused+",\"destination_wrong_service\":"+wrongService+",\"jar_sha256\":\""+sha+"\"}");
+     NativePeerHarness.write(root.resolve("ready.json"),"{\"port\":"+login.getLocalPort()+",\"login_host\":\"127.0.0.1\",\"town_host\":\"127.0.0.2\",\"town_port\":"+town.getLocalPort()+",\"destination_host\":\""+(refused?"127.0.0.1":"127.0.0.3")+"\",\"pid\":"+ProcessHandle.current().pid()+",\"destination_port\":"+unavailablePort+",\"destination_refused\":"+refused+",\"destination_wrong_service\":"+wrongService+",\"jar_sha256\":\""+sha+"\"}");
      // Match the owned runner's 220s lease with 20s reserved for cleanup.
      // The former 110s overall fixture cutoff closed live recovery sockets
      // during original map loading; GAME/S_KEY and player clocks are unchanged.

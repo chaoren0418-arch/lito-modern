@@ -40,3 +40,5 @@
 - 2026-11-05 — #56 T010-C: T010-C: 本機逐一執行白名單內的整合測試（loopback 隔離 harness）（test，dot，PR #75 已合併）→ [報告](reports/issue-56.md)
 - 2026-11-05 — #76 M1-R: M1 範圍改為當版 main；候選資格 gate 延後；G06 以 tests/native_teleport_failure.rs 重新設計（design，claude-chat，PR #79 已合併）→ [報告](reports/issue-76.md)
 - 2026-11-06 — #82 T011-H: 設計當版 G06 owned harness 的最小開發範圍（依 #80 盤點）（design，claude-chat，PR #89 已合併）→ [報告](reports/issue-82.md)
+- 2026-11-06 — #91 T011-H: T011-H: 當版 G06 owned harness 適配（Java ready 契約＋runner 隔離／綁定／所有權／清理／lease＋Rust 守門）（code，codex-local，PR 已合併）→ [報告](reports/issue-91.md)
+- 2026-11-06 — #86 主控：任務切大一點＋排一個「打開就看得到」的里程碑（使用者 2026-11-06 指示）（plan，claude-chat，PR #98 已合併）→ [報告](reports/issue-86.md)
