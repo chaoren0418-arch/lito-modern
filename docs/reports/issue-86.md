@@ -24,6 +24,15 @@
 1. **T013 不能用錯誤紀錄代替截圖**：撤回「三張 PNG（或明確記錄失敗原因）」。改成完成條件是三張對應實際畫面的 PNG、DEMO.md 可以直接顯示圖片，並附重現指令與預期畫面。缺任何一張就算未完成（blocked），要如實記錄錯誤原文與恢復方式，但不能宣告 T013 或 V1 完成。plans、TASKS、PLAN 都已同步。
 2. **T012 的綠燈門檻**：明定 check 結束碼 0；Debug 與 Release 都必須有有效的 libtest 結果，而且 failed=0；白名單每一項都必須 `running 1 test` 而且通過。出現 0 tests、結果缺失或解析失敗、failed>0、命令非 0，腳本最終結束碼都必須非 0，任務也不能驗收通過。測試數的合理變動可以說明，但不能免除門檻。plans、TASKS、PLAN 都已同步。
 
+### 第 3 次嘗試的修正（對應 #93 審查的 6 點）
+
+1. **[P1] 離線場景視窗不可見**：靜態核對屬實。`啟動現代客戶端.ps1:72` 用 `-WindowStyle Hidden` 啟動；`scene_preview.rs:245` 只呼叫一次 `ShowWindow`；`native_login_window.rs:2350-2356` 與 `native_startup_window.rs:325-328` 已有 `IsWindowVisible` 加第二次 show 的修正，離線場景沒有。上一輪讀過啟動腳本第 60–80 行，卻沒有指出這個差異，是我的疏漏。採用 (a)：把 `scene_preview.rs` 的同款修正併入 T013（stage 改為 code），驗收加上「照 DEMO.md 的重現指令啟動時視窗確實可見」。
+2. **[P2] 規則檔第 55 行矛盾**：`CLAUDE.md`、`AGENTS.md`、`.cursor/rules/project.mdc` 三份同步改為「完整原生 GUI 驗收只由使用者執行；不連線畫面截圖的例外見『目前狀態』」。
+3. **[P2] pwsh 前置檢查**：T012、T013 第一步都要記錄 `(Get-Command pwsh).Source` 與版本，7.0 以上才繼續，找不到就 blocked。T012 給使用者的兩行指令要在使用者環境實際可用。
+4. **[P3] PID 取得方式**：T013 寫明先記錄啟動前的 `LiToModern` 清單，啟動後只認 `Path` 等於自建 exe、而且不在啟動前清單內的程序。
+5. **[P3] T012 子程序環境**：TEMP／TMP 指向 `LiTo381-Modern/target/current/scratch`，清除繼承的 `LITO_*`。
+6. **[P3] DEMO 連結**：T012 還沒合併時寫「待 T012 合併」，由後合併的那一張補上連結。
+
 ## 怎麼驗證
 
 - 雲端讀 `啟動現代客戶端.ps1` 第 60–80 行，確認三個模式（`-ConfigureNative`、`-NativeLoginEndpoint`、`-OfflineScene`）都是 `Start-Process` 啟動 exe 後就返回。`docs/NATIVE-LOGIN.zh-TW.md` 記載登入視窗要在使用者按「連線」後才建立連線，所以登入畫面截圖不會連線；T013 另外要求連線目標是一個已關閉、OS 配發的 loopback 埠。
