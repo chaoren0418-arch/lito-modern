@@ -30,12 +30,14 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 
 ## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）
 
-### T010 | todo | 本機 dot／codex-local＋Claude | `docs/TESTING.md`
-跑 12 個 gate 案、四元件 inventory、17 原控制／6 反例；結果與失敗收據記錄。
-拆分（`docs/plans/issue-43.json`）：T010-A 單元測試基線 → T010-S ignored／整合測試的安全分類（靜態） → T010-B 白名單 ignored 測試 → T010-C 白名單整合測試 → T010-E 跑 gate 與 inventory（另需 T010-D 盤點 gate 定義）→ T011-A G06；T010-F 驗證 T005 建置腳本（依賴 A；clone 位置要實際執行 `-BuildOnly`）；T010-G 修正 `build.ps1` 的 i686／`target/` 參數（code）。前置阻塞時不解除後續門檻；首個失敗保存原始收據，另開 bug Issue。
+### T010 | done | 本機 dot／codex-local＋Claude | `docs/TESTING.md`
+當版 main 驗證（2026-11-05，#76 調整範圍）：
+- 已驗證：`cargo check --all-targets`，以及 `cargo test --lib` 的 Debug 與 Release，都是 2464 個測試、1889 通過、0 失敗（#53）；T010-S 靜態安全分類（#54）；白名單 ignored 單元測試 1／1（#55）；白名單整合測試 76／76（#56）；T005 建置腳本（#59），包括 clone 到其他路徑的實際 `-BuildOnly`。
+- 待驗證：白名單以外的 574 個 ignored 單元測試與 481 個整合測試（GUI／DB／缺前置條件），以及 `build.ps1` 的實際執行。
+- 延後（候選資格，不計入 M1）：12 個 gate 案、四元件 inventory、17 原控制＋6 反例（#58 以 not planned 關閉：全是凍結候選的資格檢查）。
 
-### T011 | blocked(T010) | 本機 dot／codex-local＋Claude | G06 兩版 16 案 640 次
-核對 PID／FILETIME／Job／DB 退出、33／31 秒、32＋8 雙 trace。首個失敗停止，不自動重試。
+### T011 | blocked(T011-R) | 本機 dot／codex-local＋Claude | G06（當版）：`tests/native_teleport_failure.rs` 的 5 個 scenario
+舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。先由 T011-R 在本機盤點 owned harness 的產生方式與前置條件，再由 T011-B 執行。首個失敗就停止，不自動重試。
 
 ## M2 #97–#100 與 G06
 
