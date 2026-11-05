@@ -61,11 +61,11 @@ function Get-ModernPlayerVersion([string]$Executable, [ValidateSet('Debug','Rele
     } finally { $process.Dispose() }
 }
 function Get-ModernPlayerPath([string]$Project, [ValidateSet('Debug','Release')][string]$Mode) {
-    foreach($relative in @('target','target/i686-pc-windows-msvc',('target/i686-pc-windows-msvc/' + $Mode.ToLowerInvariant()))) {
+    foreach($relative in @('target','target/current','target/current/x86_64-pc-windows-msvc',('target/current/x86_64-pc-windows-msvc/' + $Mode.ToLowerInvariant()))) {
         $directory = Get-Item -LiteralPath (Join-Path $Project $relative) -ErrorAction SilentlyContinue
         if ($null -ne $directory -and (!$directory.PSIsContainer -or ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint))) { throw 'Unsafe player output directory' }
     }
-    Join-Path $Project ('target/i686-pc-windows-msvc/' + $Mode.ToLowerInvariant() + '/LiToModern.exe')
+    Join-Path $Project ('target/current/x86_64-pc-windows-msvc/' + $Mode.ToLowerInvariant() + '/LiToModern.exe')
 }
 function Write-ModernBuildReceipt([string]$Project, [ValidateSet('Debug','Release')][string]$Mode, [object[]]$Before, [string]$Log) {
     $after = @(Get-ModernBuildInputs $Project)
@@ -77,7 +77,7 @@ function Write-ModernBuildReceipt([string]$Project, [ValidateSet('Debug','Releas
     $version = Get-ModernPlayerVersion $exe.FullName $Mode
     if ($hash -cne (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash -or $digest -cne (Get-ModernInputDigest @(Get-ModernBuildInputs $Project))) { throw 'Build output or inputs changed during diagnostic' }
     $receipt = [pscustomobject]@{
-        Schema=1;Mode=$Mode;Target='i686-pc-windows-msvc';CreatedUtc=[DateTime]::UtcNow.ToString('o');BuildLog=$Log
+        Schema=1;Mode=$Mode;Target='x86_64-pc-windows-msvc';CreatedUtc=[DateTime]::UtcNow.ToString('o');BuildLog=$Log
         Executable=[IO.Path]::GetRelativePath($Project,$exe.FullName);Length=$exe.Length;SHA256=$hash
         InputSHA256=$digest;Inputs=$after;Version=$version
     }
@@ -90,7 +90,7 @@ function Assert-ModernBuildReceipt([string]$Project, [ValidateSet('Debug','Relea
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw 'Missing successful player build receipt; run tools/build.ps1 first' }
     $receipt = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
     $exe = Get-Item -LiteralPath (Get-ModernPlayerPath $Project $Mode)
-    if ($receipt.Schema -ne 1 -or $receipt.Mode -cne $Mode -or $receipt.Target -cne 'i686-pc-windows-msvc' -or
+    if ($receipt.Schema -ne 1 -or $receipt.Mode -cne $Mode -or $receipt.Target -cne 'x86_64-pc-windows-msvc' -or
         $receipt.Executable -cne [IO.Path]::GetRelativePath($Project,$exe.FullName) -or
         ($exe.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $receipt.Length -ne $exe.Length -or
         $receipt.SHA256 -cne (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash) { throw 'Player build receipt does not match executable' }
