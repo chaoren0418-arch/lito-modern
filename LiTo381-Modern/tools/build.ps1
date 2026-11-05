@@ -18,7 +18,7 @@ if(-not [IO.Path]::IsPathFullyQualified($clientRoot) -and $clientRoot -notmatch 
     $env:LITO_CLIENT_ROOT=$clientRoot
 }
 
-$target=Join-Path $project 'target'
+$target=Join-Path $project 'target/current'
 $logs=Join-Path $project 'logs'
 $manifest=Join-Path $project 'Cargo.toml'
 $evidenceScript=Join-Path $PSScriptRoot 'build-evidence.ps1'
@@ -29,7 +29,7 @@ if(!(Test-Path -LiteralPath $clientRoot -PathType Container)){
 }
 
 . $evidenceScript
-$cargoArgs=@('--offline','--locked','--manifest-path',$manifest,'--target-dir',$target,'--target','i686-pc-windows-msvc')
+$cargoArgs=@('--locked','--offline','-j1','--manifest-path',$manifest,'--target-dir',$target,'--target','x86_64-pc-windows-msvc')
 $verb=if($Mode -in @('Test','TestRelease')){'test'}else{'build'}
 if($Mode -in @('Release','TestRelease')){$cargoArgs+='--release'}
 $cargoCommand="cargo $verb "+($cargoArgs -join ' ')
@@ -41,7 +41,7 @@ if(-not $PSCmdlet.ShouldProcess($project,$cargoCommand)){
 $null=New-Item -ItemType Directory -Path $target,$logs -Force
 # Held by this project's build/test/packaging tools only. LHZ has no dependency
 # on this lease, directory or Cargo artifact.
-$lease=[IO.File]::Open((Join-Path $target 'project-lease.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+$lease=[IO.File]::Open((Join-Path $project 'target/project-lease.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
 try {
     $inputs=if($Mode -in @('Debug','Release')){@(Get-ModernBuildInputs $project)}else{@()}
     if($Mode -in @('Debug','Release')){$null=Get-ModernPlayerPath $project $Mode}
