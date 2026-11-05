@@ -36,8 +36,8 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 - 待驗證：白名單以外的 574 個 ignored 單元測試（GUI 5、DB 119、不明副作用 20、缺前置條件 430），以及 481 個整合測試（GUI 1、DB 1、不明副作用 438、缺前置條件 41），分類見 #54。「不明副作用」共 458 項，要先完成副作用與安全邊界核對才能排執行。另外 `build.ps1` 的實際執行也待驗證。
 - 延後（候選資格，不計入 M1）：12 個 gate 案、四元件 inventory、17 原控制＋6 反例（#58 以 not planned 關閉：全是凍結候選的資格檢查）。
 
-### T011 | blocked(T011-R) | 本機 dot／codex-local＋Claude | G06（當版）：`tests/native_teleport_failure.rs` 的 5 個 scenario
-舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。先由 T011-R 在本機盤點 owned harness 的產生方式與前置條件，再由 T011-B 執行。首個失敗就停止，不自動重試。
+### T011 | blocked(T011-H1) | 本機 dot／codex-local＋Claude | G06（當版）：`tests/native_teleport_failure.rs` 的 5 個 scenario
+舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。T011-R（#80）已完成盤點：當版沒有可直接使用的 harness 產生工具。#82 裁定採用 memory 模式的 `維護工具/run-teleport-failure.ps1`（不需要 DB），由 T011-H1 做最小適配：E149 JAR 白名單、repo 根、ready 埠所有權、清理不依賴 CIM、`-WhatIf` 模式，以及 Rust 端拒絕 2000／3306。完成後由 T011-B（#81）每個 scenario 各執行一次。首個失敗就停止，不自動重試。
 
 ## M2 #97–#100 與 G06
 
