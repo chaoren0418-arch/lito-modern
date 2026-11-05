@@ -30,3 +30,4 @@
 - 2026-11-05 — #33 T003-R: 裁定 44 檔隔離候選的併入策略（整包／分批／不套用）（design，claude-chat，PR #40 已合併）→ [報告](reports/issue-33.md)
 - 2026-11-05 — #41 T003-R1: T003-R1: 44 檔隔離候選依 contract 取檔、SHA256、src/ diff 統計與依賴圖（本機靜態）（resource，codex-local，PR #45 已合併）→ [報告](reports/issue-41.md)
 - 2026-11-05 — #46 T003-R2: 依 #41 結果更新 CANDIDATES.md（SHA256、diff 統計、依賴圖結論）（design，claude-chat，PR #50 已合併）→ [報告](reports/issue-46.md)
+- 2026-11-05 — #43 主控：使用者同意恢復測試（解除 T010），請排 M1 測試任務（plan，claude-chat，PR #52 已合併）→ [報告](reports/issue-43.md)
