@@ -102,7 +102,7 @@ fn failure_player(root:&Path,peer:SocketAddr,role:&str,account:&str)->Result<()>
 #[test]
 #[ignore="requires owned formal no-response destination harness"]
 fn destination_timeout_retires_old_authority_and_allows_fresh_login(){
- assert_ne!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("cancel-expiry"));
+ assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("timeout"));
  run_owned_harness();
 }
 #[test]
@@ -129,6 +129,7 @@ fn wrong_service_destination_retires_authority_and_allows_fresh_login(){
 fn run_owned_harness(){
  let root=std::path::PathBuf::from(std::env::var("LITO_TELEPORT_ROOT").expect("owned root"));assert!(root.canonicalize().unwrap().starts_with(Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current").canonicalize().unwrap()));
  let ready:Value=serde_json::from_slice(&std::fs::read(root.join("ready.json")).unwrap()).unwrap();let expected=std::env::var("LITO_TELEPORT_REFERENCE_SHA").unwrap_or_else(|_|"bbc59308c43df89ee5029d3b3c802be8ad55fee65c41faca99a76912dd5dce43".into());assert_eq!(ready["jar_sha256"],expected);
+ for name in ["port","town_port"] {let port=ready[name].as_u64().expect("owned listener port");assert!(!matches!(port,2000|3306),"forbidden {name}: {port}");}
  let peer:SocketAddr=format!("127.0.0.1:{}",ready["port"].as_u64().unwrap()).parse().unwrap();
  thread::scope(|scope|{let a=scope.spawn(||failure_player(&root,peer,"a","PeerFixture"));let b=scope.spawn(||failure_player(&root,peer,"b","PeerFixture2"));let ar=a.join().unwrap();let br=b.join().unwrap();assert!(ar.is_ok()&&br.is_ok(),"a={ar:?}; b={br:?}");});
 }
