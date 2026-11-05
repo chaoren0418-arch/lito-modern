@@ -25,7 +25,8 @@
   | T010-C | test | B | 只執行白名單內的整合測試，每個以 `--test <target> [--features …] -- --include-ignored --exact <全名>` 單獨執行；正式 JAR 唯讀，並先核對 SHA256 |
   | T010-D | resource | — | 盤點 12 gate 案、四元件 inventory、17 原控制＋6 反例、G06 640 次的定義、腳本與指令（只在使用者電腦上），不執行 |
   | T010-E | test | D、C | 依 D 的盤點執行 gate、inventory 與控制／反例 |
-  | T010-F | test | A | 驗證 T005 建置腳本：`-WhatIf`、`-BuildOnly`（只建置不啟動），以及 clone 到 `scratch\clone-test\` 後的路徑解析 |
+  | T010-F | test | A | 驗證 T005 建置腳本：`-WhatIf`、`-BuildOnly`（只建置不啟動）；clone 到 `scratch\clone-test\`、固定 commit 後，**實際執行** `-BuildOnly`，並確認產物位於 clone 之下；`build.ps1` 只跑 `-WhatIf`，實際建置等 T010-G |
+  | T010-G | code | — | `build.ps1`／`build-evidence.ps1` 改成 x86_64-pc-windows-msvc、`target/current`、`-j1`（#3 審查時就已記錄的既有問題） |
   | T011-A | test | E | G06 兩版 16 案 640 次；首個失敗就停止，不自動重試 |
 
   依賴鏈是 A → S → B → C → E → G06，另外 D → E。所以 G06 一定排在 A、B、C、E 全部完成之後，符合 #43「最後是 G06」的要求。每個 test 任務都附共通規則：
@@ -42,7 +43,7 @@
 
 - 第 2 次嘗試實際執行：`python3 -m json.tool docs/plans/issue-43.json > /dev/null; echo "json.tool exit=$?"` 輸出 `json.tool exit=0`。另外檢查 8 筆的 depends_on 都指向存在的 id：`8 items; deps ok: True`。
 - 三份規則檔只改同一行、內容一致，原本就都是 LF，沒有改換行格式。
-- 最終差異（`git diff --stat origin/main...task/43`，在第 2 次嘗試推送後實際執行）：7 個檔案，+160／−10。其中 `docs/plans/issue-43.json` +79、本報告 +70，其餘五檔（三份規則、PLAN、TASKS）共 +11／−10。第 1 次嘗試寫的「5 檔 +11／−10」只是規則、PLAN、TASKS 這五個檔案的小計，不是完整差異。
+- 最終差異（`git diff --stat origin/main...task/43`，在第 3 次嘗試推送後實際執行）：7 個檔案，+175／−10。第 2 次嘗試時是 +160／−10；第 1 次的「5 檔 +11／−10」只是三份規則、PLAN、TASKS 的小計。
 
 ### 第 2 次嘗試的修正（對應 codex-local 審查）
 
