@@ -4,6 +4,84 @@ use lito_modern::modern_lito::{
 };
 use std::time::{Duration, Instant};
 const ID: u32 = 0xfedcba98;
+#[test]
+fn formal_letters_use_mixed_ms950_utf16_and_fence_stale_choices() {
+    let mut s = battle();
+    s.inventory.items.get_mut(&ID).unwrap().use_type = 12;
+    let selection = actions::Selection::capture(&s, Choice::capture(&s, ID).unwrap()).unwrap();
+    let before = serde_json::to_value(&s).unwrap();
+    let expected = packet(include_bytes!("fixtures/native-item-options-e149.json"), "compose_letter");
+    assert_eq!(selection.letter_request(&s, "Receiver", "測試😀", "第一行\r\n第二行").unwrap(), expected);
+    assert_eq!(serde_json::to_value(&s).unwrap(), before);
+    let mut cancelled = selection.clone();
+    cancelled.cancel();
+    assert!(cancelled.letter_request(&s, "Receiver", "", "").is_err());
+    for (receiver, subject, content) in [("", "", ""), (" x", "", ""), ("x;y", "", ""),
+        ("😀", "", ""), ("Receiver", "\0", ""), ("Receiver", "", "\u{1b}")] {
+        assert!(selection.letter_request(&s, receiver, subject, content).is_err());
+    }
+    assert!(selection.letter_request(&s, &"a".repeat(28), "", "").is_err());
+    assert!(selection.letter_request(&s, "Receiver", &"😀".repeat(11), "").is_err());
+    assert!(selection.letter_request(&s, "Receiver", "", &"a".repeat(257)).is_err());
+    assert!(selection.letter_request(&s, "Receiver", &"😀".repeat(10), &"a".repeat(256)).is_ok());
+    let mut stale = s.clone(); stale.world.generation += 1;
+    assert!(selection.letter_request(&stale, "Receiver", "", "").is_err());
+    stale = s.clone(); stale.inventory.items.get_mut(&ID).unwrap().count -= 1;
+    assert!(selection.letter_request(&stale, "Receiver", "", "").is_err());
+    stale = s.clone(); stale.inventory.begin(3, "另一角色").unwrap();
+    assert!(selection.letter_request(&stale, "Receiver", "", "").is_err());
+    stale = s.clone(); stale.phase = LoginPhase::WorldReady;
+    assert!(selection.letter_request(&stale, "Receiver", "", "").is_err());
+    // The controller rejects without an owned transport; composing never sends.
+    let mut c = LoginController::default();
+    assert!(c.item_letter_action(selection, "Receiver", "", "").is_err());
+}
+
+#[test]
+fn read_mail_is_atomic_unsigned_and_cannot_cross_inventory_owner() {
+    let bytes = packet(include_bytes!("fixtures/native-item-options-e149.json"), "read_mail");
+    let mut s = battle(); s.inventory.items.get_mut(&ID).unwrap().use_type = 13;
+    let before = s.inventory.clone();
+    for n in 0..bytes.len() {
+        let mut inv = before.clone(); assert!(inv.accept(2, &bytes[..n]).is_err()); assert_eq!(inv, before);
+    }
+    let mut bad = bytes.clone(); bad.push(0);
+    assert!(s.inventory.accept(2, &bad).is_err()); assert_eq!(s.inventory, before);
+    assert!(s.inventory.accept(3, &bytes).is_err()); assert_eq!(s.inventory, before);
+    let now = Instant::now(); let pending = Pending::new(&s, Choice::capture(&s, ID).unwrap(), now);
+    s.inventory.accept(2, &bytes).unwrap();
+    assert_eq!(pending.observe(&s, now), Feedback::MailReceived);
+    let mail = s.inventory.mail.as_ref().unwrap();
+    assert_eq!((mail.id, mail.icon, mail.subject.as_str(), mail.content.as_str()),
+        (ID, 466, "測試😀", "第一行\r\n第二行"));
+    assert_eq!(s.inventory.items[&ID].icon, 466);
+    assert_eq!(s.inventory.items[&ID].count, before.items[&ID].count);
+    let mut unknown = before.clone(); unknown.items.remove(&ID);
+    unknown.accept(2, &bytes).unwrap(); assert!(unknown.mail.is_none()); assert_eq!(unknown.orphan_updates, 1);
+    s.inventory.suspend(); assert!(s.inventory.mail.is_none());
+    s.inventory.begin(2, "另一角色").unwrap(); assert!(s.inventory.mail.is_none());
+}
+
+#[test]
+fn formal_read_and_instrument_envelopes_and_server_blockers_are_explicit() {
+    let mut s = battle();
+    for (ty, key) in [(13, "read_letter"), (15, "whistle")] {
+        s.inventory.items.get_mut(&ID).unwrap().use_type = ty;
+        let choice = Choice::capture(&s, ID).unwrap();
+        assert_eq!(actions::request(&s, &choice, Action::Use).unwrap(),
+            packet(include_bytes!("fixtures/native-item-options-e149.json"), key));
+        let now = Instant::now(); let pending = Pending::new(&s, choice.clone(), now);
+        assert_eq!(pending.observe(&s, now + Duration::from_secs(3)), Feedback::NoResponse);
+        s.inventory.items.get_mut(&ID).unwrap().charge ^= 1;
+        assert!(actions::request(&s, &choice, Action::Use).is_err());
+    }
+    for ty in [6, 29, 28, 31, 32, 33, 34, 35, 36] {
+        s.inventory.items.get_mut(&ID).unwrap().use_type = ty;
+        let choice = Choice::capture(&s, ID).unwrap();
+        assert!(actions::request(&s, &choice, Action::Use).unwrap_err().to_string().contains("伺服器待定"));
+        assert!(actions::Selection::capture(&s, choice).is_err());
+    }
+}
 fn packet(data: &[u8], key: &str) -> Vec<u8> {
     let f: serde_json::Value = serde_json::from_slice(data).unwrap();
     let s = f["packets"][key].as_str().unwrap();
@@ -83,7 +161,7 @@ fn specialized_or_unknown_use_types_never_fall_through_to_default_packet() {
         let c = Choice::capture(&s, ID).unwrap();
         assert_eq!(
             actions::request(&s, &c, Action::Use).is_ok(),
-            [0, 1, 2, 3, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25,
+            [0, 1, 2, 3, 10, 11, 13, 15, 18, 19, 20, 21, 22, 23, 24, 25,
                 0xf7,0xf8,0xf9,0xfa,0xfc,0xfd,0xfe].contains(&ty)
         );
     }

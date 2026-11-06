@@ -1,1 +1,27 @@
-{"jar_sha256":"e1498871c7be6b287821c57ef5d95933db1740d9b4d4a80f6c3465f21d99d498","scope":"formal parsers and writers; no gameplay execution","packets":{"destroy":"7698badcfe","appraisal":"1c98badcfeffffffff","choice":"1c98badcfeffffffff","light":"1c98badcfeffffffff","home":"1c98badcfeffff00000000","polymorph":"1c98badcfe6f726300","target_location":"1c98badcfeffffffff0080ffff","skill_12":"140103ffffffff","skill_21":"140204ffffffff","skill_73":"140900ffffffff","skill_100":"140c03ffffffff","skill_107":"140d02ffffffff","effect_194":"37ffffffffc200","effect_197":"37ffffffffc500","charge_zero":"1998badcfe00","count_one":"1a98badcfe01000000","remove":"1798badcfe"}}
+{
+  "jar_sha256": "e1498871c7be6b287821c57ef5d95933db1740d9b4d4a80f6c3465f21d99d498",
+  "scope": "formal parsers and writers; no gameplay execution",
+  "packets": {
+    "destroy": "7698badcfe",
+    "appraisal": "1c98badcfeffffffff",
+    "choice": "1c98badcfeffffffff",
+    "light": "1c98badcfeffffffff",
+    "home": "1c98badcfeffff00000000",
+    "polymorph": "1c98badcfe6f726300",
+    "whistle": "1c98badcfe00",
+    "read_letter": "1c98badcfe00",
+    "compose_letter": "1c98badcfe00005265636569766572002c6e668a3dd800de00002c7b004e4c880d000a002c7b8c4e4c880000",
+    "read_mail": "5e98badcfed201000053656e646572005265636569766572002c6e668a3dd800de00002c7b004e4c880d000a002c7b8c4e4c8800000032362f31312f303600",
+    "target_location": "1c98badcfeffffffff0080ffff",
+    "skill_12": "140103ffffffff",
+    "skill_21": "140204ffffffff",
+    "skill_73": "140900ffffffff",
+    "skill_100": "140c03ffffffff",
+    "skill_107": "140d02ffffffff",
+    "effect_194": "37ffffffffc200",
+    "effect_197": "37ffffffffc500",
+    "charge_zero": "1998badcfe00",
+    "count_one": "1a98badcfe01000000",
+    "remove": "1798badcfe"
+  }
+}

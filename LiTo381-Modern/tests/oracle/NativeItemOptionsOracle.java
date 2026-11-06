@@ -36,6 +36,20 @@ public final class NativeItemOptionsOracle {
             b -> { var r=Protocol.homeTeleportInventoryUse(b); require(r.inventoryObjectId()==ITEM && r.currentMapId()==65535); });
         vector("polymorph", new Protocol.Writer().c(0x1c).d(ITEM).s("orc").bytes(),
             b -> { var r=Protocol.defaultInventoryUse(b); require(r.inventoryObjectId()==ITEM && r.argument().equals("orc")); });
+        vector("whistle",new Protocol.Writer().c(0x1c).d(ITEM).s("").bytes(),
+            b -> require(Protocol.defaultInventoryUse(b).inventoryObjectId()==ITEM));
+        vector("read_letter",new Protocol.Writer().c(0x1c).d(ITEM).s("").bytes(),
+            b -> require(Protocol.defaultInventoryUse(b).argument().isEmpty()));
+        vector("compose_letter",new Protocol.Writer().c(0x1c).d(ITEM).h(0).s("Receiver").S("測試😀").S("第一行\r\n第二行").bytes(),
+            b -> {var r=Protocol.letterComposeInventoryUse(b); require(r.inventoryObjectId()==ITEM
+                && r.letterCode()==0 && r.receiver().equals("Receiver") && r.subject().equals("測試😀") && r.content().equals("第一行\r\n第二行"));});
+        vectors.put("read_mail",Protocol.readMail(ITEM,466,0,"Sender","Receiver","測試😀","第一行\r\n第二行",0,"26/11/06"));
+        require(InventoryCatalog.require(40310).useType()==12 && InventoryCatalog.require(49016).useType()==13
+            && InventoryCatalog.require(49017).useType()==13 && InventoryCatalog.require(40315).useType()==15);
+        require(InventoryCatalog.require(40315).effect()==InventoryCatalog.Effect.WHISTLE);
+        require(InventoryCatalog.require(40100).useType()==6 && InventoryCatalog.require(40100).effect()==InventoryCatalog.Effect.NONE);
+        for(int id=40090;id<=40094;id++) require(InventoryCatalog.require(id).useType()==28
+            && InventoryCatalog.require(id).effect()==InventoryCatalog.Effect.NONE);
         vector("target_location",new Protocol.Writer().c(0x1c).d(ITEM).d(TARGET).h(32768).h(65535).bytes(),
             b -> { var r=Protocol.targetLocationInventoryUse(b); require(r.inventoryObjectId()==ITEM && r.targetObjectId()==TARGET && r.x()==32768 && r.y()==65535); });
         for(int id:new int[]{12,21,73,100,107}) {

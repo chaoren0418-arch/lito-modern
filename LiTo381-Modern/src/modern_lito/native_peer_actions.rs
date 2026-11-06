@@ -6,8 +6,8 @@ use serde_json::{json, Value};
 use std::{path::{Path,PathBuf}, time::{Duration, Instant}};
 
 pub fn valid(profile: &str) -> bool {
-    if matches!(profile,"detection-invisibility"|"detection-refused"|"invisibility-refused"|"invisibility-missing") {return true;}
-    matches!(profile, "melee"|"heal"|"heal19"|"heal19-full"|"heal19-refused"|"heal35"|"heal35-full"|"heal35-refused"|"heal57"|"heal57-full"|"heal57-refused"|"bolt"|"bolt-refused"|"fire-arrow"|"fire-arrow-refused"|"wind-cutter"|"wind-cutter-refused"|"ice-arrow"|"ice-arrow-refused"|"holy-weapon"|"holy-weapon-missing"|"holy-weapon-refused"|"poison-cure"|"poison-missing"|"poison-refused"|"cure-refused"|"chill-touch"|"chill-touch-full"|"chill-touch-refused"|"vampiric-touch"|"vampiric-touch-full"|"vampiric-touch-refused"|"stalac"|"stalac-refused"|"lightning"|"lightning-refused"|"lightning-multi"|"turn-undead-quest"|"turn-undead-refused"|"turn-undead-player"|"wall"|"wall-refused"|"ranged"|"item-heal"|"doors"|"movement"|"honor-respawn"|"room-admin"|"classic-entry"|"rental-entry"|"rental-shop"|"rental-citizen"|"rental-hotel"|"rental-hotel-entry"|"rental-hotel-middle-entry"|"rental-hotel-expiry"|"rental-hotel-middle-expiry"|"rental-hotel-share"|"rental-merchants"|"rental-weight"|"rental-item-expiry"|"rental-equipped-expiry"|"rental-return")
+    if matches!(profile,"item-stream"|"item-stream-no-reagent"|"item-stream-no-mana"|"detection-invisibility"|"detection-refused"|"invisibility-refused"|"invisibility-missing") {return true;}
+    matches!(profile, "melee"|"heal"|"heal19"|"heal19-full"|"heal19-refused"|"heal35"|"heal35-full"|"heal35-refused"|"heal57"|"heal57-full"|"heal57-refused"|"bolt"|"bolt-refused"|"fire-arrow"|"fire-arrow-refused"|"wind-cutter"|"wind-cutter-refused"|"ice-arrow"|"ice-arrow-refused"|"holy-weapon"|"holy-weapon-missing"|"holy-weapon-refused"|"poison-cure"|"poison-missing"|"poison-refused"|"cure-refused"|"chill-touch"|"chill-touch-full"|"chill-touch-refused"|"vampiric-touch"|"vampiric-touch-full"|"vampiric-touch-refused"|"stalac"|"stalac-refused"|"lightning"|"lightning-refused"|"lightning-multi"|"turn-undead-quest"|"turn-undead-refused"|"turn-undead-player"|"wall"|"wall-refused"|"ranged"|"item-heal"|"item-heal-194"|"item-heal-197"|"doors"|"movement"|"honor-respawn"|"room-admin"|"classic-entry"|"rental-entry"|"rental-shop"|"rental-citizen"|"rental-hotel"|"rental-hotel-entry"|"rental-hotel-middle-entry"|"rental-hotel-expiry"|"rental-hotel-middle-expiry"|"rental-hotel-share"|"rental-merchants"|"rental-weight"|"rental-item-expiry"|"rental-equipped-expiry"|"rental-return")
 }
 
 fn higher_heal(profile: &str) -> Option<(u16, u64)> {
@@ -38,6 +38,71 @@ pub struct Probe {
     pub moves: usize,
 }
 impl Probe {
+    fn stream_tick(&mut self, c: &mut LoginController, frame: &Frame, root: &Path, role: &str, profile: &str) -> Result<bool> {
+        let fx = &frame.receipt["reagent_effects"];
+        self.frames.push(json!({"effect":fx,"mp":c.snapshot().world.mp}));
+        ensure!(self.frames.len() < 2048, "stream observation bound");
+        if fx["effects"].as_array().is_some_and(|rows| rows.iter().any(|r|r["drawn"]==true)) {
+            self.seen_drawn = true;
+        }
+        if root.join("action-finished").exists() {
+            let since = self.done.get_or_insert_with(Instant::now);
+            if since.elapsed() > Duration::from_millis(500) && self.endpoint.is_null() {
+                self.endpoint = Self::state(c);
+                std::fs::write(root.join(format!("{role}-action-endpoint")), b"received")?;
+            }
+            return Ok(!self.endpoint.is_null() && root.join(if role=="a" {"b-action-endpoint"} else {"a-action-endpoint"}).exists());
+        }
+        if role != "a" { return Ok(false); }
+        let success = profile == "item-stream";
+        if let Some(sent) = self.sent {
+            if sent.elapsed() < Duration::from_millis(3600) { return Ok(false); }
+            let accepted = success && self.actions.len() < 2;
+            let casts = if success {(self.actions.len()+1).min(2) as u64} else {0};
+            let w = &c.snapshot().world;
+            let max_mp = if profile.ends_with("no-mana") {2} else {80};
+            ensure!(w.mp == Some([max_mp-20*casts as u16,max_mp]) && w.own_cast_packets == casts
+                && w.own_attack_packets == 0, "stream authority mismatch: mp={:?}, casts={}", w.mp, w.own_cast_packets);
+            let feedback = if accepted { Feedback::CastAction }
+                else if profile.ends_with("no-mana") { Feedback::NoResponse }
+                else { Feedback::Rejected(299) }; // E149 NativeCastMaterial.reject
+            ensure!(c.snapshot().skill_feedback == feedback,
+                "stream refusal/success feedback differs: {:?}", c.snapshot().skill_feedback);
+            if !super::native_combat_probe::reagent_completion_ready(fx, casts, frame.movement_ready(w), sent.elapsed())? {
+                return Ok(false);
+            }
+            let items = &c.snapshot().inventory.items;
+            if let Some(choice) = &self.choice {
+                ensure!(items.get(&choice.item.id).map_or(0,|i|i.count) == 2-casts as u32,
+                    "stream reagent delta mismatch: expected={}, inventory={:?}", 2-casts as u32, items);
+            } else { ensure!(items.is_empty(), "missing reagent appeared"); }
+            if accepted { ensure!(self.seen_drawn, "stream effect never drawn"); }
+            self.actions.push(json!({"before":self.before,"after":Self::state(c),"accepted":accepted,
+                "effect":fx,"no_prediction":true,"duplicate_pending_rejected":true}));
+            self.sent = None;
+            if self.actions.len() == if success {3} else {2} {
+                std::fs::write(root.join("action-finished"),b"verified")?;
+                return Ok(false);
+            }
+        }
+        let w = &c.snapshot().world;
+        if !frame.movement_ready(w) { return Ok(false); }
+        if self.actions.is_empty() && !profile.ends_with("no-reagent") {
+            let rows: Vec<_> = c.snapshot().inventory.items.values().collect();
+            ensure!(rows.len()==1 && rows[0].count==2, "initial stream fixture stock");
+            self.choice = Some(Choice::capture(c.snapshot(),rows[0].id)?);
+        }
+        self.before = Self::state(c);
+        self.seen_drawn = false;
+        let own = w.own_actor().context("stream caster absent")?;
+        let position = [own.x, own.y];
+        c.cast_ground(63, position, frame)?;
+        ensure!(c.cast_ground(63,position,frame).is_err(), "duplicate stream request admitted");
+        ensure!(self.before["world"] == serde_json::to_value(&c.snapshot().world)?
+            && self.before["inventory"] == serde_json::to_value(&c.snapshot().inventory)?, "stream predicted authority");
+        self.sent = Some(Instant::now());
+        Ok(false)
+    }
     fn capture(&mut self,root:&Path,role:&str,label:&str,frame:&Frame)->Result<()> {
         ensure!(self.images.len()<32,"action image memory bound");let path=root.join(format!("{role}-round1-{label}.png"));
         self.images.push(json!({"png":path,"frame":frame.receipt}));self.pending_images.push((path,frame.canvas.rgba().to_vec()));Ok(())
@@ -58,6 +123,7 @@ impl Probe {
             "lowest_target_ratio":self.lowest_target_ratio})
     }
     pub fn tick(&mut self, c: &mut LoginController, frame: &Frame, root: &Path, role: &str, profile: &str) -> Result<bool> {
+        if profile.starts_with("item-stream") { return self.stream_tick(c, frame, root, role, profile); }
         let other=if role=="a" {"b"} else {"a"};
         let target=if role=="a" {3} else {1};
         let w=&c.snapshot().world;
@@ -67,10 +133,10 @@ impl Probe {
         let ratio=if profile=="lightning-multi"&&role=="c" {w.actors.get(&target).map_or(100,|a|a.hp_ratio)}else{w.actors[&target].hp_ratio};
         self.lowest_target_ratio=Some(self.lowest_target_ratio.map_or(ratio,|v|v.min(ratio)));
         let higher=higher_heal(profile);
-        let restoring=(higher.is_some() && !profile.ends_with("-full") && !profile.ends_with("-refused")) || matches!(profile,"heal"|"item-heal"|"chill-touch"|"vampiric-touch");
+        let restoring=(higher.is_some() && !profile.ends_with("-full") && !profile.ends_with("-refused")) || matches!(profile,"heal"|"item-heal"|"item-heal-194"|"item-heal-197"|"chill-touch"|"vampiric-touch");
         let active=if higher.is_some() || restoring || profile.starts_with("holy-weapon") || (profile.starts_with("chill-touch") || profile.starts_with("vampiric-touch")) {"b"} else {"a"};
         let fx_name=match profile {"ranged"=>"projectiles","lightning"|"lightning-refused"|"lightning-multi"=>"many_effects","bolt"|"bolt-refused"|"fire-arrow"|"fire-arrow-refused"|"wind-cutter"|"wind-cutter-refused"|"ice-arrow"|"ice-arrow-refused"=>"spell_projectiles",
-            "chill-touch"|"chill-touch-full"|"chill-touch-refused"|"vampiric-touch"|"vampiric-touch-full"|"vampiric-touch-refused"|"stalac"|"stalac-refused"=>"class1_effects","wall"|"wall-refused"=>"ground_effects","item-heal"=>"item_effects",_=>"skill_effects"};
+            "chill-touch"|"chill-touch-full"|"chill-touch-refused"|"vampiric-touch"|"vampiric-touch-full"|"vampiric-touch-refused"|"stalac"|"stalac-refused"=>"class1_effects","wall"|"wall-refused"=>"ground_effects","item-heal"|"item-heal-194"|"item-heal-197"=>"item_effects",_=>"skill_effects"};
         let fx=&frame.receipt[fx_name];
         if higher.is_some() && !profile.ends_with("-refused") {
             ensure!(fx["effects"].as_array().is_none_or(|rows|rows.iter().all(|row|
@@ -186,7 +252,9 @@ impl Probe {
             if sent.elapsed()<Duration::from_millis(3500) {return Ok(false);}
             // Keep observing original playback until it settles, within the
             // existing12s deadline above even when callbacks arrive late.
-            if higher.is_some() && !profile.ends_with("-refused") && fx["active"].as_u64().is_some_and(|n|n>0) {return Ok(false);}
+            if ((higher.is_some() && !profile.ends_with("-refused"))
+                || matches!(profile,"item-heal"|"item-heal-194"|"item-heal-197"))
+                && fx["active"].as_u64().is_some_and(|n|n>0) {return Ok(false);}
             let w=&c.snapshot().world;
             let before=&self.before["world"];
             let refused=profile.ends_with("refused");
@@ -195,7 +263,7 @@ impl Probe {
                 ensure!(w.own_attack_packets==self.attacks as u64,"arrow acknowledgement missing");
                 ensure!(fx["launched"]==self.attacks && fx["arrivals"]==self.attacks && fx["active"]==0,"arrow flight incomplete: {fx}");
                 ensure!(w.own_actor().unwrap().walk_action==20,"bow stance absent");
-            } else if profile=="item-heal" {
+            } else if matches!(profile,"item-heal"|"item-heal-194"|"item-heal-197") {
                 let choice=self.choice.as_ref().unwrap();
                 ensure!(c.snapshot().item_feedback==super::native_item_actions::Feedback::InventoryChanged,
                     "potion inventory acknowledgement absent");
@@ -205,7 +273,11 @@ impl Probe {
                 ensure!(w.hp.unwrap()[0] as u64>=before["hp"][0].as_u64().unwrap()
                     && (self.actions.len()>0 || w.hp.unwrap()[0] as u64>before["hp"][0].as_u64().unwrap()),"potion did not heal");
                 ensure!(w.own_cast_packets==0 && w.own_attack_packets==0,"potion invented attack/cast");
-                ensure!(fx["started"]==self.actions.len()+1 && fx["active"]==0 && self.seen_drawn,"potion effect incomplete");
+                ensure!(fx["started"]==self.actions.len()+1 && fx["active"]==0 && self.seen_drawn,
+                    "potion effect incomplete: round={}, drawn={}, receipt={fx}", self.actions.len()+1, self.seen_drawn);
+                let expected_gfx = match profile { "item-heal-194" => 194, "item-heal-197" => 197, _ => 189 };
+                ensure!(w.effects.iter().filter(|e| e.graphics == expected_gfx).count() == self.actions.len()+1,
+                    "potion formal graphics mismatch");
             } else if refused {
                 ensure!(w.mp==Some([2,2]) && w.own_cast_packets==0 && w.effects.is_empty(),"refusal changed authority");
                 let feedback=if higher.is_some() || matches!(profile,"wall-refused"|"holy-weapon-refused"|"turn-undead-refused") {Feedback::NoResponse} else {Feedback::Rejected(278)};
@@ -253,7 +325,7 @@ impl Probe {
                 let failed=self.actions.iter().any(|a|a["after"]["skill_feedback"]==serde_json::json!({"Rejected":280}));
                 ensure!(self.actions.len()<12||(success&&failed),"TU player both natural outcomes not observed");success&&failed
             }else if profile=="ranged" {self.lowest_target_ratio.is_some_and(|v|v<100)}
-                else {self.actions.len()==if matches!(profile,"bolt"|"fire-arrow"|"wind-cutter"|"ice-arrow"|"item-heal"|"chill-touch"|"stalac"|"lightning"|"lightning-multi") {2} else {1}};
+                else {self.actions.len()==if matches!(profile,"bolt"|"fire-arrow"|"wind-cutter"|"ice-arrow"|"item-heal"|"item-heal-194"|"item-heal-197"|"chill-touch"|"stalac"|"lightning"|"lightning-multi") {2} else {1}};
             if finished {
                 std::fs::write(root.join("action-finished"),b"verified")?;return Ok(false);
             }
@@ -266,7 +338,8 @@ impl Probe {
             self.held.press(target,c.transport().snapshot().epoch,w);
             ensure!(c.continue_attack(&mut self.held,frame)?,"arrow not sent");self.attacks+=1;self.held.clear();
             ensure!(c.attack(target).is_err(),"duplicate pending arrow admitted");
-        } else if profile=="item-heal" {
+        } else if matches!(profile,"item-heal"|"item-heal-194"|"item-heal-197") {
+            self.seen_drawn=false;
             let id=if let Some(choice)=&self.choice {choice.item.id} else {
                 let ids:Vec<_>=c.snapshot().inventory.items.values().filter(|i|i.use_type==0 && i.count==2).map(|i|i.id).collect();
                 ensure!(ids.len()==1,"unique fixture potion");ids[0]
