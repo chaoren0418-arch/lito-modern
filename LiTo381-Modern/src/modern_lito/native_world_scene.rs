@@ -93,6 +93,7 @@ impl HurtCallback {
     }
 }
 pub struct Frame {
+    status4183_leases: Vec<std::sync::Arc<AtomicBool>>,
     pub ground_items: Vec<super::native_world::Actor>,
     pub hits: Vec<(u32, [i32; 4])>,
     pub visibility: Vec<(u32, super::world_raster::DrawVisibility)>,
@@ -118,6 +119,9 @@ pub struct Frame {
     pub receipt: serde_json::Value,
 }
 impl Frame {
+    pub(crate) fn status4183_current(&self)->bool {
+        self.status4183_leases.iter().all(|lease|lease.load(Ordering::Acquire))
+    }
     pub fn environment_key(&self) -> Option<super::native_render_environment::Key> { self.environment_key }
     pub fn death_ready(&self, world: &World) -> bool {
         self.death_arrived && world.death_confirmation_pending && self.matches_world(world)
@@ -354,6 +358,7 @@ impl FiniteHistory {
     pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();}
 }
 pub struct Model {
+    status4183: super::native_status4183::Stage,
     world_generation:u64,
     lighting: super::native_world_lighting::Runtime,
     names: super::native_inventory_names::Catalog,
@@ -708,6 +713,7 @@ impl Model {
             class1_effects: Default::default(),
             disintegrate_effects:Default::default(),
             call_lightning_effects:Default::default(),
+            status4183:Default::default(),
             cone_cold_effects:Default::default(),
             effect_source_owner:std::sync::Arc::new(()),
             many_effects:Default::default(),
@@ -767,6 +773,7 @@ impl Model {
             }
         }
         let render_start = std::time::Instant::now();
+        self.status4183.prepare(&self.root,world,cancel,&mut self.effect_catalog);
         self.projectiles.prepare(&self.root, cancel, world);
         self.skill_effects.prepare_with_catalog(&self.root,world,cancel,&mut self.effect_catalog);
         self.item_effects.prepare(&self.root, world, cancel);
@@ -811,6 +818,7 @@ impl Model {
             .begin(elapsed_ns, world.actors.keys().copied())?;
         let mut poses = std::collections::BTreeMap::new();
         for actor in world.actors.values() {
+            if super::native_status4183::is_object(world,actor) {continue;}
             poses.insert(
                 actor.id,
                 self.animator.pose(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(), actor, elapsed_ns),
@@ -962,6 +970,7 @@ impl Model {
         };
         for actor in actors {
             check(cancel)?;
+            if super::native_status4183::is_object(world,actor) {continue;}
             let style = actor.draw_state.style(!observer && actor.id == local_id, green_counter.unwrap_or(0));
             if style == super::native_actor_states::Style::Hidden {
                 audible_actors.push(actor.id);
@@ -1205,6 +1214,9 @@ impl Model {
             },
             elapsed_ns,
         );
+        let (status4183_receipt,status4183_audio)=self.status4183.draw_to(world,&mut effect_target,
+            super::world_map::ViewProjection{anchor_cell:anchor,
+                anchor_pixel:super::world_map::PixelPoint{x:24-camera.x,y:768-camera.y}})?;
         let effect_submissions = effect_queue.len();
         let terrain_start = std::time::Instant::now();
         let layers = super::native_world_layers::compose_with_presentations(
@@ -1263,7 +1275,7 @@ impl Model {
         let hash_start = std::time::Instant::now();
         let mut sounds = Vec::new();
         let mut legacy_audio = Vec::new();
-        let mut native_audio = Vec::new();
+        let mut native_audio = status4183_audio;
         let mut audio_receipts = Vec::new();
         let wire_audio = self.wire_audio.take(world);
         let audible = || {
@@ -1287,8 +1299,9 @@ impl Model {
                     (e.sound.is_some() || e.prepared_audio.is_some()) && (e.actor == 0 || audible_actors.contains(&e.actor))
                 })
         };
-        let audio_dropped = audible().count().saturating_sub(32);
-        for event in audible().take(32) {
+        let audio_budget = 32usize.saturating_sub(native_audio.len());
+        let audio_dropped = audible().count().saturating_sub(audio_budget);
+        for event in audible().take(audio_budget) {
             if let Some(cue)=&event.prepared_audio {
                 let mut row=serde_json::json!({"event":event,"prepared":true,"native_group":true,
                     "mode":format!("{:?}",cue.group().mode),"candidates":cue.group().candidates()});
@@ -1348,6 +1361,7 @@ impl Model {
         let bgra_us = bgra_start.elapsed().as_micros();
         receipt["minimap"] = minimap_receipt;
         receipt["world_labels"] = label_receipt;
+        receipt["status4183"] = status4183_receipt;
         receipt["emblems"] = emblem_receipt;
         receipt["clan_markers"] = marker_receipt;
         receipt["roofs"] = roofs.receipt().clone();
@@ -1387,6 +1401,7 @@ impl Model {
             None => serde_json::json!({"bound":false,"scope":"resource-only unbound draw"}),
         };
         Ok(Frame {
+            status4183_leases:world.status4183.leases(),
             ground_items,
             hits,
             visibility: layers.visibility,

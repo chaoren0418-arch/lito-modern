@@ -70,6 +70,8 @@ pub struct Actor {
 }
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct World {
+    #[serde(skip)]
+    pub(crate) status4183: super::native_status4183::Runtime,
     /// GAME-owned clan context survives scene replacement, not reconnection.
     pub relations: super::native_actor_relations::Context,
     /// Role comes from S_E5, never inferred from the bounds sent to all peers.
@@ -472,6 +474,29 @@ impl World {
     /// False means another subsystem owns the opcode. Unknown world opcodes
     /// are listed explicitly; receipt does not imply their behavior is implemented.
     pub fn accept(&mut self, b: &[u8]) -> Result<bool> {
+        let now = super::native_status4183::now_ms();
+        self.accept_at(b, now, now)
+    }
+    pub(crate) fn accept_at(&mut self, b: &[u8], received_ms: u64, dispatched_ms: u64) -> Result<bool> {
+        ensure!(received_ms <= dispatched_ms, "packet dispatch precedes receipt");
+        // Keep the previous scheduler across world resets long enough to retire
+        // its leases. Failed parsing must not consume any scheduler state.
+        let mut status = std::mem::take(&mut self.status4183);
+        let accepted = match self.accept_inner(b) {
+            Ok(accepted)=>accepted,
+            Err(error)=>{self.status4183=status;return Err(error);}
+        };
+        if accepted {
+            let put = (b.first() == Some(&0x0b)).then(||u32::from_le_bytes(b[5..9].try_into().unwrap()));
+            status.synchronize(self, put, received_ms, dispatched_ms);
+        }
+        self.status4183 = status;
+        Ok(accepted)
+    }
+    pub(crate) fn poll_status4183(&mut self, now_ms: u64) -> Result<()> {
+        self.status4183.poll(now_ms, &mut self.visual_revision)
+    }
+    fn accept_inner(&mut self, b: &[u8]) -> Result<bool> {
         let op = *b.first().context("empty world packet")?;
         let mut r = Reader { b, at: 1 };
         if op==0x5a{

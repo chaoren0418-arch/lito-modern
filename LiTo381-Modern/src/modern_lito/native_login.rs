@@ -1480,6 +1480,9 @@ impl LoginController {
         Ok(true)
     }
     fn accept_game(&mut self, body: &[u8]) -> Result<()> {
+        self.accept_game_received(body, super::native_status4183::now_ms())
+    }
+    fn accept_game_received(&mut self, body: &[u8], received_ms: u64) -> Result<()> {
         if self.state.phase==LoginPhase::TeleportQuitPending {
             if body.first()==Some(&0xf0) {
                 ensure!(body==[0xf0,0],"malformed teleport quit acknowledgement");
@@ -1597,7 +1600,7 @@ impl LoginController {
             );
         }
         let previous_world_generation=self.state.world.generation;
-        if self.state.world.accept(body)? {
+        if self.state.world.accept_at(body, received_ms, super::native_status4183::now_ms())? {
             if matches!(body.first(), Some(0x28 | 0x5a)) {
                 self.state.environment.map_changed(self.transport.snapshot().epoch,
                     self.state.world.map_id.context("accepted environment map")?,
@@ -1955,10 +1958,10 @@ impl LoginController {
                         Ok(())
                     }
                 }
-                Event::Packet { epoch, body, .. } => {
+                Event::Packet { epoch, body, received_ms, .. } => {
                     if epoch != self.transport.snapshot().epoch { continue; }
                     if self.game {
-                        self.accept_game(&body)
+                        self.accept_game_received(&body, received_ms)
                     } else {
                         parse(&body).and_then(|packet| self.accept(packet))
                     }
@@ -1977,6 +1980,9 @@ impl LoginController {
             if let Err(error) = result {
                 self.fail(format!("{error:#}"));
             }
+        }
+        if let Err(error)=self.state.world.poll_status4183(super::native_status4183::now_ms()) {
+            self.fail(format!("4183 visual clock: {error:#}"));
         }
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);

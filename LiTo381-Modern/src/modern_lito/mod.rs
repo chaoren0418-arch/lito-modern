@@ -364,6 +364,7 @@ pub mod native_world_layers;
 pub mod native_actor_layers;
 pub mod native_world_view;
 pub mod native_world_animation;
+pub(crate) mod native_status4183;
 pub mod native_navigation;
 pub mod native_speed;
 

@@ -39,6 +39,7 @@ struct Payload {
     finite_event:Option<FiniteEventKey>,
     scope:OnceLock<Scope>,
     consumed:AtomicBool,
+    status_lease:OnceLock<Arc<AtomicBool>>,
 }
 #[derive(Clone,Debug)]
 pub struct PreparedCue(Arc<Payload>);
@@ -61,6 +62,15 @@ pub enum DeliveryOutcome {
     Played(PlayOutcome),
 }
 impl PreparedCue {
+    pub(crate) fn from_status_event(bank:Arc<SoundBank>,group:NativeAudioGroup,event:FiniteEventKey,lease:Arc<AtomicBool>)->Result<Self> {
+        let cue=Self::from_finite_event(bank,group,0,event)?;
+        let _=cue.0.status_lease.set(lease);
+        Ok(cue)
+    }
+    pub(crate) fn status_current(&self)->bool {
+        self.0.status_lease.get().is_none_or(|lease|lease.load(Ordering::Acquire))
+    }
+    pub(crate) fn consumed(&self)->bool {self.0.consumed.load(Ordering::Acquire)}
     /// No files, device, RNG, or world authority are accessed here. Every
     /// alternative must already exist in the immutable qualified bank.
     pub fn new(bank:Arc<SoundBank>,group:NativeAudioGroup,selection:u32)->Result<Self> {
@@ -76,7 +86,7 @@ impl PreparedCue {
         ensure!(group.candidates().iter().all(|id|*id<10_000),"native shared audio namespace");
         ensure!(group.candidates().iter().all(|id|*id==0 || bank.get(*id).is_some()),"incomplete native audio group bank");
         ensure!(bank.file_bytes()<=MAX_BANK_BYTES && bank.pcm_bytes()<=MAX_BANK_BYTES,"native prepared audio budget");
-        Ok(Self(Arc::new(Payload{bank,group,selection,finite_event,scope:OnceLock::new(),consumed:AtomicBool::new(false)})))
+        Ok(Self(Arc::new(Payload{bank,group,selection,finite_event,scope:OnceLock::new(),consumed:AtomicBool::new(false),status_lease:OnceLock::new()})))
     }
     pub(crate) fn finite_event(&self)->Option<FiniteEventKey> {self.0.finite_event}
     pub fn group(&self)->&NativeAudioGroup {&self.0.group}
@@ -104,6 +114,7 @@ impl PreparedCue {
         ->std::result::Result<DeliveryOutcome,PoolError> {
         let Some(bound)=self.0.scope.get() else {return Ok(DeliveryOutcome::Unbound)};
         if !self.discard(){return Ok(DeliveryOutcome::AlreadyConsumed)}
+        if !self.status_current(){return Ok(DeliveryOutcome::Stale)}
         if !bound.same_context(current){return Ok(DeliveryOutcome::Stale)}
         player.play(&self.0.bank,&self.0.group,self.0.selection).map(DeliveryOutcome::Played)
     }
@@ -138,7 +149,12 @@ impl FiniteDeliveryHistory {
         let incoming=std::mem::take(cues);let mut kept=Vec::with_capacity(incoming.len());let mut report=FiniteHistoryReport::default();
         for (cue,key) in incoming.into_iter().zip(keys) {
             if self.seen.insert(key) {report.kept+=1;kept.push(cue);}
-            else {report.duplicates+=1;cue.discard();}
+            else {
+                report.duplicates+=1;
+                // Status snapshots share the original payload with an already
+                // deferred frame. Dropping a duplicate must not consume it.
+                if cue.0.status_lease.get().is_none(){cue.discard();}
+            }
         }
         *cues=kept;report.retained_keys=self.seen.len();Ok(report)
     }

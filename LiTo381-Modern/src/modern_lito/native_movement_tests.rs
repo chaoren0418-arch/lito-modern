@@ -50,6 +50,7 @@ fn navigation(map_id: u32, closed: bool) -> Arc<Navigation> {
 pub(crate) fn frame(world: &World, arrived: bool) -> Frame {
     let a = world.own_actor().unwrap();
     Frame {
+        status4183_leases: Vec::new(),
         ground_items: vec![],
         hits: vec![],
         visibility: vec![],

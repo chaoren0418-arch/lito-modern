@@ -347,6 +347,7 @@ pub enum Event {
         epoch: u64,
         body: Vec<u8>,
         rx_counter: u64,
+        received_ms: u64,
     },
 }
 pub struct Controller {
@@ -552,6 +553,7 @@ impl Controller {
                                     epoch,
                                     body,
                                     rx_counter: session.rx.counter(),
+                                    received_ms: super::native_status4183::now_ms(),
                                 },
                                 &mut session,
                                 &command_rx,
