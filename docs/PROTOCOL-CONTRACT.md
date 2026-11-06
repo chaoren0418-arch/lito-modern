@@ -1,6 +1,6 @@
 # PROTOCOL-CONTRACT — lito-modern 客戶端 ↔ lito-launcher-server 0.6.71
 
-更新：2026-11-04（Issue #4 / T004）。本檔取代「只靠 JAR SHA pin」的作法，讓 client 端可以**不看 JAR**就實作 LOGIN → GAME → 大廳 → 房間 → 戰鬥 → 退出。
+更新：2026-11-04（Issue #4 / T004）；2026-11-06 加版本綁定、§8 對齊與 §9 換版重核清單（T025）。本檔取代「只靠 JAR SHA pin」的作法，讓 client 端可以**不看 JAR**就實作 LOGIN → GAME → 大廳 → 房間 → 戰鬥 → 退出。
 
 ## 0. 適用範圍與證據等級
 
@@ -9,6 +9,8 @@
 | 伺服器正式版 | 0.6.71；正式 JAR `LiTo381-SharedResources-candidate.jar` SHA256 `e1498871c7be6b28…d99d498`（`lito登入器/LiTo381-Launcher/docs/maintenance/release-0.6.71.json` 的 `build.candidate_sha256`） |
 | 本文讀的來源 | `chaoren0418-arch/lito-launcher-server` main @ `2066774`，`lito伺服器/LiTo381-Server/src/main/java/local/lito381/server/**` |
 | 重建版已有 oracle 的 JAR | `205DC1BA…B542`（2026-10-12 快照，見 `docs/NATIVE-PROTOCOL.zh-TW.md`／`NATIVE-LOGIN`／`NATIVE-GAME`） |
+| **版本綁定（T025）** | **M2、M3 的所有客戶端開發與驗收，都以 E149（`e1498871c7be6b287821c57ef5d95933db1740d9b4d4a80f6c3465f21d99d498`）為唯一伺服器對象。** 伺服器端的隔離候選（例如 `50635f7e…`、`046c58c5…`）與 Maven 產物都不是驗收對象。伺服器換版時，依 §9 的清單重核，通過後才能改這一列 |
+| E149 的血統 | 登入器 repo `docs/maintenance/release-0.6.71.json` 的 `build`：base `daedec7c…c807`（0.6.70）→ candidate `e1498871…d498`；變動 4 個 entry：`ClientSession`、`GmTravel`、`GmPolyMe`、`GmPolyMe$Forms`（.polyme）。0.6.70 與 0.6.71 的相容 DLL `litoddraw.dll` 都是 `e47bd6c6…` |
 
 **重要邊界**：伺服器 CLAUDE.md 寫明正式 JAR **不是**由 `src/main` 直接建出來的，而是 `tools/*/build.py` 對 `base-0.6.70.jar`（`daedec7c…`）逐層 patch 出來。所以 `src/main` 和 `e1498871` 在個別類別上可能不同。0.6.71 的增量是 GM `.polyme`，從描述看不涉及握手和登入，但這只是推測。
 
@@ -301,6 +303,8 @@ python3 -I 維護工具/generate-spell-request-shapes.py <lito-launcher-server c
 - 表中的形狀只是**格式**契約；技能是否可用（學會與否、MP、冷卻、射程、狀態）仍由伺服器判定，失敗時多半靜默或回 `S_MESSAGE_CODE`。
 - 判定依據欄的 `CS:` 行號是 handler 方法的開始行；wrapper 列另附外層檔案的 dispatch、長度檢查、parser 呼叫與截短轉交的行號，以及內層 handler。
 
+**181 與 180**：表中 181 項＝`BattleSpellCatalog` 的 180 個 catalog 記錄（產生器 `維護工具/generate-spell-request-shapes.py:85` 從 `new (\w+Spell)\(` 收列）＋TELEPORT（skill 5），它是 dispatcher 特例，不在 catalog 裡（同檔 `:192` 另外補一列）。歷史紀錄說的「180 項目錄」就是指 catalog 記錄數，不是缺了一項。E149 與 `2066774` 的 catalog 常數 223／223 相同（#92 證據 E2）。
+
 產生結果摘要（原樣輸出）：
 
 ```
@@ -521,7 +525,37 @@ source=git:2066774; mode check per skill: BATTLE／WORLD 不同 handler、逐筆
 
 ## 8. 未涵蓋與待驗證
 
-- **待驗證**：§1–§7 的常數和版型都還沒有對正式 JAR `e1498871` 核對過，見 `docs/plans/issue-4.json` 的 T004-1。§2、§4 的版型已經對 `205DC1BA` 驗證過。
-- **已釐清**：schema 由伺服器啟動時的環境變數決定，正式登入器帶 4。client 依 body 長度判斷，見 §6.2「數值 schema」。**待驗證**：正式 JAR 的 `NumericBreakthrough` 與來源是否一致（T004-1）。
+- **已驗證（靜態，T004-1，`docs/reports/issue-13.md`）**：對正式 JAR `e1498871` 用 javap 核對，結果如下：
+  - §1–§6 以名稱搭配十六進位數值列出的 71 個 opcode，加上 §2 的 S_KEY，共 72 個全部一致。
+  - KEY_HIGH、版本常數、versionAccepted 的全部欄位常數、5 個 LoginCheckResult、2 個 LitoVsServerAvailability、max.frame、兩層 login.bootstrap.sequence 都一致。
+  - 唯一不一致的是一處文字敘述：NumericBreakthrough 的讀取時機，已在 §6.2 更正為「每次呼叫都重新讀取」。
+- **仍待驗證**：T004-1 只是**靜態**核對，以下都沒有對 `e1498871` 動態驗證：parser 與 builder 的完整欄位、handler 的執行時順序、端到端流程。「已驗證」標記的 oracle 仍是對 `205DC1BA` 做的。§6.3 的尾段形狀讀的是 `src/main @2066774`，不是 E149 本身；但 E149 與 `2066774` 的 `BattleSpellCatalog` 常數 223／223 相同、`new *Spell(` 都是 186 處（#92 證據 E2）。
+- **已釐清**：數值 schema 的 `NumericBreakthrough.schemaVersion()` 每次呼叫都先讀系統屬性 `-Dlito.numeric.breakthrough`，沒有才讀環境變數，有效值 1..4，其他值回退 0（T004-1）。正式登入器帶 4。client 依 body 長度判斷，見 §6.2「數值 schema」。
 - **未涵蓋**：交易、血盟、好友、商店（`C_LITO_BUY_LIST`／`C_LITO_SELL_LIST` 等）、觀戰、配對、經典 WORLD 的 `C_ENTER_WORLD`、GM 指令，以及 `S_ATTACK` 的各個變體。每個技能（row,column）對應哪種 `C_USE_SPELL` 尾段，見 §6.3（BATTLE 路徑）。以上依 TASKS 的優先順序另開任務補充。
-- **規則**：伺服器版本變更時，先重跑 T004-1 的靜態核對並更新本文；不可以只改 SHA。
+- **規則**：伺服器版本變更時，依 §9 的清單重核並更新本文；不可以只改 SHA。
+
+## 9. 伺服器換版時客戶端要重核的清單（T025）
+
+觸發條件：伺服器正式 JAR 不再是 `e1498871`。登入器 repo 的 `app/server/LiTo381-SharedResources-candidate.jar` 或 `docs/maintenance/release-*.json` 有新版，就算換版。
+
+**重核原則**：
+- 新 JAR 的血統要用**發布紀錄與 manifest pin**追溯。同一個 builder 腳本 SHA 可能搭配不同的輸入 Java，產出不同的 JAR（#120 新 N3）。所以只比 builder SHA 不夠，要比 base 與 candidate 的完整 SHA，並確認走的是哪一條分支。例如 `df9464f0` 底下有兩條 magical-weapon 後繼，正式鏈只走其中一條，不能混為同一條鏈（#92 報告附錄 D、#120）。
+- 伺服器 `lito伺服器/LiTo381-Server/docs/maintenance/` 最新的正式 JAR 紀錄只到 0.6.68 `c02aaae8`；0.6.69 之後的正式版要看登入器 repo 的 `docs/maintenance/release-*.json`。
+- 每一項的結果寫進該次換版的報告，分「已驗證／推測／待驗證」。未通過前，§0 的版本綁定不改。
+
+| # | 項目 | 怎麼核對 | 對應的客戶端位置 |
+|---:|---|---|---|
+| 1 | JAR SHA 與血統分支 | 新 release 紀錄的 `build.base_sha256`、`candidate_sha256`、`changed_entries`；沿 manifest 回溯到上一個正式版（E149），確認經過哪些層 | §0、`docs/reports/issue-92.md` 附錄 D |
+| 2 | `Protocol` 與 `Protocol$*` 的變動 | `changed_entries` 或逐 class 雜湊比對；有變動時重跑 T004-1 的 javap 核對（opcode、常數、版本、schema） | §1–§6、`native_opcodes.rs` |
+| 3 | `ClientSession`／`GameHub` 的變動 class 與新增 `Native*` class | 列出變動與新增的 class，對照客戶端的 handler 與 controller | 各 `native_*.rs` |
+| 4 | 技能結果與狀態圖示 ID | `BattleSpellCatalog` 常數與 `new *Spell(` 計數（#92 E2 的方法）、§6.3 重新產生（`維護工具/generate-spell-request-shapes.py`）、狀態圖示 ID（例如龍之護鎧 3080、職業圖示） | §6.3、`docs/SKILLS-STATUS.md`（T026） |
+| 5 | 房間與結算 | 房間列表、人數（含 ArenaBot）、准入、模式規則、結算與斷線結算、回大廳 | §5、§6.1、§7 |
+| 6 | 移動與傳送 | S_BLINK／C_BLINK 與 S_PARALYSE 模式 17 解鎖、權威移動、portal 完成、沒有 S_PORTAL 的解鎖（奪命之雷、技能 69 失敗）、`.loc`／`.move` | G06 測試（`tests/native_teleport_failure.rs`） |
+| 7 | 裝備與租賃 | 穿脫只送一份最終描述、NativeArmorStatus、租賃交接（RentalBattleHandoff）與租賃城鎮移動 | 背包與租裝相關模組 |
+| 8 | GM 指令 | `.polyme`（7200 秒、到期還原、離房清除）、Ctrl 強制目標、指令權限 | 聊天（T060）、外型（T047） |
+| 9 | 登入流程與來源伺服器 | 來源登入、選服後重新登入；來源伺服器清單（原生限制 8 格，目前只啟用 380_ac_1、380_ac_2） | §4 |
+| 10 | 相容 DLL 與 hook 位址 | `litoddraw.dll` 通常和 JAR 成對換版（目前是 `e47bd6c6…`）；原生 hook 位址（例如 forced_combat_send_hook）要一起核對。Rust 客戶端不依賴這個 DLL，但 LFC1（T061）等擴充格式要以它為準 | T061 |
+| 11 | 候選協定變更是否被新正式版採用 | 下列目前只在隔離候選、E149 沒有的變更，換版時逐項確認：ICONS1（36 種狀態）、ICON_I2H、OwnCharStatus、1016／1017 修正、娃娃 29 的 buffDuration `writeH`、S_HPMeter 104 的 hide255、施法時間窗與 SprTable 截斷、裝備只送一份最終描述、舊角色封包抑制、173／174 的 opcode 修正、portal 在落點前改 showId | T046、T047、T023 |
+| 12 | Maven 產物與正式 JAR 的差異 | 若伺服器改發 Maven 產物：E149 有、`src/main` 沒有的 `NativeDeVisibilitySwitch`；只在 Maven 產物的 1320 個 `Modern*` 類與 49 個非 Modern 類（lito-launcher-server `docs/server-source-gap.md:37-1454`）。客戶端不以 `Modern*` 協定為目標 | §0 |
+| 13 | 資源 pin | 共用客戶端資源 `TW13081901.txt`（SHA `7ebe2b46…`）；特效資源資格（例如 `disintegrate_assets.rs` 的 `CURRENT_PACK`／`CURRENT_TEXT`） | T057、T011-F |
+| 14 | 回歸 | 跑 `維護工具/run-local-test-suite.ps1`（完整版）與 G06 5 個 scenario（`維護工具/run-teleport-failure.ps1`），全部結束碼 0 才算通過 | M1、T041 |
