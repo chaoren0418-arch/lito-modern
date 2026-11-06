@@ -17,7 +17,7 @@
 本文每一列都會標出證據等級：
 
 - **已驗證**：重建版已經有 Rust 測試或 Java oracle，直接呼叫 `205DC1BA` JAR 的 `Protocol`／`ClientSession` 核對過（證據見對應的 `docs/NATIVE-*.md`）。注意：這是對 `205DC1BA` 驗證，**還沒有**對 `e1498871` 重跑。
-- **來源**：從上述 `src/main` 原始碼直接讀出，附 `檔案:行號`。還沒有用 `e1498871` 對照。
+- **來源**：從上述 `src/main` 原始碼直接讀出，附 `檔案:行號`。其中 §8 列出的 opcode 與常數已對 `e1498871` 做過靜態核對（T004-1）；其餘「來源」列仍未對 `e1498871` 對照。
 - **推測**：從命名、註解或呼叫關係推論出來，沒有直接讀到完整的 builder 或 parser。
 
 行號是 `src/main` 檔案**含空行**的實際行號。這些來源檔每行之間都夾一行空行，閱讀時可以用 `grep -v '^\s*$'` 去掉。
@@ -303,7 +303,7 @@ python3 -I 維護工具/generate-spell-request-shapes.py <lito-launcher-server c
 - 表中的形狀只是**格式**契約；技能是否可用（學會與否、MP、冷卻、射程、狀態）仍由伺服器判定，失敗時多半靜默或回 `S_MESSAGE_CODE`。
 - 判定依據欄的 `CS:` 行號是 handler 方法的開始行；wrapper 列另附外層檔案的 dispatch、長度檢查、parser 呼叫與截短轉交的行號，以及內層 handler。
 
-**181 與 180**：表中 181 項＝`BattleSpellCatalog` 的 180 個 catalog 記錄（產生器 `維護工具/generate-spell-request-shapes.py:85` 從 `new (\w+Spell)\(` 收列）＋TELEPORT（skill 5），它是 dispatcher 特例，不在 catalog 裡（同檔 `:192` 另外補一列）。歷史紀錄說的「180 項目錄」就是指 catalog 記錄數，不是缺了一項。E149 與 `2066774` 的 catalog 常數 223／223 相同（#92 證據 E2）。
+**181 與 180**：表中 181 項＝`BattleSpellCatalog` 的 180 個 catalog 記錄。原始碼裡 `new *Spell(` 共 186 處，其中 6 處是包裝記錄的外層（例如 `new ConfusionSpell(new AttackSpell(...), ...)`），產生器 `:90-92` 會略過外層、只計入內層，所以 186－6＝180（產生器 `維護工具/generate-spell-request-shapes.py:85` 從 `new (\w+Spell)\(` 收列）＋TELEPORT（skill 5），它是 dispatcher 特例，不在 catalog 裡（同檔 `:192` 另外補一列）。歷史紀錄說的「180 項目錄」就是指 catalog 記錄數，不是缺了一項。E149 與 `2066774` 的 catalog 常數 223／223 相同（#92 證據 E2）。
 
 產生結果摘要（原樣輸出）：
 
@@ -557,5 +557,5 @@ source=git:2066774; mode check per skill: BATTLE／WORLD 不同 handler、逐筆
 | 10 | 相容 DLL 與 hook 位址 | `litoddraw.dll` 通常和 JAR 成對換版（目前是 `e47bd6c6…`）；原生 hook 位址（例如 forced_combat_send_hook）要一起核對。Rust 客戶端不依賴這個 DLL，但 LFC1（T061）等擴充格式要以它為準 | T061 |
 | 11 | 候選協定變更是否被新正式版採用 | 下列目前只在隔離候選、E149 沒有的變更，換版時逐項確認：ICONS1（36 種狀態）、ICON_I2H、OwnCharStatus、1016／1017 修正、娃娃 29 的 buffDuration `writeH`、S_HPMeter 104 的 hide255、施法時間窗與 SprTable 截斷、裝備只送一份最終描述、舊角色封包抑制、173／174 的 opcode 修正、portal 在落點前改 showId | T046、T047、T023 |
 | 12 | Maven 產物與正式 JAR 的差異 | 若伺服器改發 Maven 產物：E149 有、`src/main` 沒有的 `NativeDeVisibilitySwitch`；只在 Maven 產物的 1320 個 `Modern*` 類與 49 個非 Modern 類（lito-launcher-server `docs/server-source-gap.md:37-1454`）。客戶端不以 `Modern*` 協定為目標 | §0 |
-| 13 | 資源 pin | 共用客戶端資源 `TW13081901.txt`（SHA `7ebe2b46…`）；特效資源資格（例如 `disintegrate_assets.rs` 的 `CURRENT_PACK`／`CURRENT_TEXT`） | T057、T011-F |
+| 13 | 資源 pin | **發布 pin**：`TW13081901.txt` 是 `7EBE2B46…94008`（登入器 repo `app/runtime-pins.json:18`），與特效資源資格 `CURRENT_TEXT` 相同；pack 要求 `B3788DF4…`、decoded 5,974,928 bytes（`disintegrate_assets.rs` 等的 `CURRENT_PACK`／`CURRENT_TEXT`）。**現況已不符，和換版無關**：#111 記錄使用者電腦上的實際檔案是 text `28C4FC60…`、pack `92B512A3…`、decoded 5,990,880 bytes（`docs/reports/issue-111.md` 第 18–22 行），不符的來源還沒判定。重核時要把「pin 是否改變」和「實際檔案是否符合 pin」分開看，不能把現有的不符算成換版造成的 | T057、T011-F |
 | 14 | 回歸 | 跑 `維護工具/run-local-test-suite.ps1`（完整版）與 G06 5 個 scenario（`維護工具/run-teleport-failure.ps1`），全部結束碼 0 才算通過 | M1、T041 |

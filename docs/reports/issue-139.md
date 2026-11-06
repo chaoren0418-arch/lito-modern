@@ -27,6 +27,20 @@ source HEAD 2066774824b314b2c65834f9afe72b68f7391f06; 184/184 citations OK; spel
 - 產生器 `:85`（`for m in re.finditer(r"new (\w+Spell)\(", cat)`）與 `:192`（`rows.append((5, "TELEPORT", …`）的內容已核對。
 - §8 的 T004-1 結論引自 `docs/reports/issue-13.md` 第 7–9 行。
 
+### 第 2 次修正（審查退回）
+- **§0 證據等級「來源」**：改為「§8 列出的 opcode 與常數已對 `e1498871` 靜態核對（T004-1），其餘仍未對照」，消除和 §8 的矛盾。
+- **§9 第 13 項**：寫明 `7EBE2B46…` 是發布 pin，並寫出現況不符（#111）。查證來源：
+  - 發布 pin：lito-launcher-server `2066774` 的 `lito登入器/LiTo381-Launcher/app/runtime-pins.json:18`，值為 `D:\lineage開發\0-客戶端\TW13081901.txt` → `7EBE2B464C8B1EA9…CA94008`。
+  - 現況：`docs/reports/issue-111.md` 第 18–22 行。要求 pack `B3788DF4…`、text `7EBE2B46…`、decoded 5,974,928；實際是 pack `92B512A3…`、text `28C4FC60…`、decoded 5,990,880。審查者也在本機重新雜湊，確認實際值。
+- **186 與 180 的關係**（建議項）：補一句「6 處是包裝記錄外層，產生器 `:90-92` 略過」。雲端核對結果：
+
+```
+$ git show 2066774:…/BattleSpellCatalog.java | python3 -c '…計算 new *Spell( 總數與「緊接 new 的包裝外層」數…'
+186 6 180
+```
+
+- 引用檢查重跑：`184/184 citations OK`，結束碼 0。
+
 ## 推測
 - 「歷史紀錄的 180 項目錄＝catalog 記錄數」：依 HISTORY L49 的用語與產生器邏輯推得。
 
