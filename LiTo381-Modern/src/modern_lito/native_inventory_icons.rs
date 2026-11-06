@@ -119,6 +119,7 @@ pub struct Reader {
     root: PathBuf,
     ordinary: u32,
     lito: u32,
+    spell_index: Option<Vec<u16>>,
 }
 fn list_count(b: &[u8]) -> Result<u32> {
     ensure!(b.len() <= 16, "icon list budget");
@@ -154,6 +155,7 @@ impl Reader {
             root: root.into(),
             ordinary: 0,
             lito: 0,
+            spell_index: None,
         };
         r.ordinary = list_count(&r.member("list.ico", true, 16, cancel)?.1)?;
         r.lito = list_count(&r.member("LTlist.ico", false, 16, cancel)?.1)?;
@@ -201,6 +203,27 @@ impl Reader {
         let (archive, bytes) = self.member(&name, sharded, MAX_TBT_BYTES, cancel)?;
         Icon::decode(id, &archive, &name, &bytes, cancel)
     }
+    /// Spell IDs and graphic IDs are different namespaces. Consult the native
+    /// archive override first, then the shared one-based SpellIcon.idx.
+    pub fn load_spell(&mut self, skill: u16, cancel: &AtomicBool) -> Result<Icon> {
+        if self.spell_index.is_none() {
+            let (_, bytes) = self.member("spellicon.idx", false, 440, cancel)?;
+            self.spell_index = Some(decode_spell_index(&bytes)?);
+        }
+        let graphic = spell_graphic(self.spell_index.as_ref().unwrap(), skill)?;
+        self.load(graphic, cancel)
+    }
+}
+
+fn decode_spell_index(bytes: &[u8]) -> Result<Vec<u16>> {
+    ensure!(!bytes.is_empty() && bytes.len() <= 440 && bytes.len() % 2 == 0,
+        "技能圖示索引長度錯誤");
+    Ok(bytes.chunks_exact(2).map(|p| u16::from_le_bytes([p[0], p[1]])).collect())
+}
+fn spell_graphic(index: &[u16], skill: u16) -> Result<u16> {
+    let graphic = skill.checked_sub(1).and_then(|i| index.get(usize::from(i)))
+        .copied().filter(|&id| id != 0).context("原始資源未提供此技能圖示")?;
+    Ok(graphic)
 }
 type Entry = std::result::Result<Icon, String>;
 struct Completion {
@@ -214,7 +237,7 @@ struct Job {
     cancel: Arc<AtomicBool>,
 }
 impl Job {
-    fn start(root: PathBuf, mut reader: Option<Reader>, ids: Vec<u16>) -> Result<Self> {
+    fn start(root: PathBuf, mut reader: Option<Reader>, ids: Vec<u16>, spells: bool) -> Result<Self> {
         let (send, receiver) = mpsc::sync_channel(1);
         let cancel = Arc::new(AtomicBool::new(false));
         let token = cancel.clone();
@@ -240,10 +263,8 @@ impl Job {
                     let value = if let Some(error) = &error {
                         Err(error.clone())
                     } else {
-                        reader
-                            .as_mut()
-                            .unwrap()
-                            .load(id, &token)
+                        let reader = reader.as_mut().unwrap();
+                        (if spells { reader.load_spell(id, &token) } else { reader.load(id, &token) })
                             .map_err(|e| format!("{e:#}"))
                     };
                     if token.load(Ordering::Acquire) {
@@ -292,6 +313,7 @@ pub struct Service {
     wanted: BTreeSet<u16>,
     cache: BTreeMap<u16, Entry>,
     stopped: bool,
+    spells: bool,
 }
 impl Service {
     pub fn new(root: PathBuf) -> Self {
@@ -302,7 +324,13 @@ impl Service {
             wanted: BTreeSet::new(),
             cache: BTreeMap::new(),
             stopped: false,
+            spells: false,
         }
+    }
+    pub fn spells(root: PathBuf) -> Self {
+        let mut service = Self::new(root);
+        service.spells = true;
+        service
     }
     pub fn tick(&mut self, ids: &[u16]) -> bool {
         let wanted = if self.stopped {
@@ -344,7 +372,7 @@ impl Service {
                 .copied()
                 .collect();
             if !missing.is_empty() {
-                match Job::start(self.root.clone(), self.reader.take(), missing.clone()) {
+                match Job::start(self.root.clone(), self.reader.take(), missing.clone(), self.spells) {
                     Ok(job) => self.job = Some(job),
                     Err(e) => {
                         for id in missing {
@@ -385,5 +413,70 @@ impl Service {
 impl Drop for Service {
     fn drop(&mut self) {
         self.cancel();
+    }
+}
+
+#[cfg(test)]
+mod skill_ui_tests {
+    use super::*;
+    #[test]
+    fn index_is_bounded_one_based_and_never_fabricates_an_icon() {
+        let index = decode_spell_index(&[0x7f, 1, 0, 0, 0x81, 1]).unwrap();
+        assert_eq!(spell_graphic(&index, 1).unwrap(), 383);
+        assert_eq!(spell_graphic(&index, 3).unwrap(), 385);
+        for id in [0, 2, 4, 206, u16::MAX] { assert!(spell_graphic(&index, id).is_err()); }
+        for bytes in [vec![], vec![1], vec![0; 442]] { assert!(decode_spell_index(&bytes).is_err()); }
+        let mut extended = vec![0; 440];
+        extended[438..].copy_from_slice(&20001u16.to_le_bytes());
+        assert_eq!(spell_graphic(&decode_spell_index(&extended).unwrap(), 220).unwrap(), 20001);
+    }
+    #[test]
+    fn skill_cache_is_keyed_by_skill_and_shutdown_retires_assets() {
+        let mut service = Service::spells(PathBuf::from("unused"));
+        service.wanted.insert(1);
+        let icon = Icon::decode(383, "test", "383.tbt", &[0, 0, 1, 1, 1, 0, 1, 0, 0], &AtomicBool::new(false)).unwrap();
+        service.cache.insert(1, Ok(icon));
+        assert_eq!(service.icon(1).unwrap().id, 383);
+        assert!(service.icon(383).is_none());
+        service.cancel();
+        assert!(service.icon(1).is_none());
+        assert!(service.quiescent());
+        service.tick(&[1]);
+        assert_eq!(service.cached(), 0);
+    }
+    #[test]
+    #[ignore = "explicit read-only LITO_CLIENT_ROOT asset verification; no GUI or service"]
+    fn real_skill_icons_and_async_service_preserve_mapping_and_missing_assets() {
+        let root = PathBuf::from(std::env::var_os("LITO_CLIENT_ROOT").expect("LITO_CLIENT_ROOT"));
+        let cancel = AtomicBool::new(false);
+        let mut reader = Reader::open(&root, &cancel).unwrap();
+        for id in [1, 2, 3, 4, 58, 63] {
+            let icon = reader.load_spell(id, &cancel).unwrap();
+            assert!(icon.covered_pixels > 0);
+            let graphic = spell_graphic(reader.spell_index.as_ref().unwrap(), id).unwrap();
+            assert_eq!(icon.id, graphic);
+            println!("skill={id} graphic={graphic} source={}/{} sha256={}", icon.source.archive, icon.source.member, icon.source.sha256);
+        }
+        let mut available = 0;
+        let mut missing = Vec::new();
+        for &(id, _) in crate::modern_lito::native_skill_selection::catalog::CATALOG {
+            if reader.load_spell(id, &cancel).is_ok() { available += 1; } else { missing.push(id); }
+        }
+        println!("catalog icons available={available} missing={missing:?}");
+        assert_eq!(available + missing.len(), 181);
+        let mut service = Service::spells(root);
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        loop {
+            service.tick(&[1, 3, 206]);
+            if service.quiescent() { break; }
+            assert!(std::time::Instant::now() < deadline);
+            std::thread::sleep(std::time::Duration::from_millis(2));
+        }
+        assert!(service.icon(1).is_some() && service.icon(3).is_some());
+        assert!(service.icon(206).is_some() || service.error(206).is_some());
+        service.tick(&[]);
+        assert_eq!(service.cached(), 0);
+        service.cancel();
+        assert!(service.quiescent());
     }
 }

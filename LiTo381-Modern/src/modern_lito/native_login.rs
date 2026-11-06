@@ -20,6 +20,9 @@ mod return_server_negative_tests;
 #[path = "native_login_movement_tests.rs"]
 mod movement_tests;
 #[cfg(test)]
+#[path = "native_skill_controller_tests.rs"]
+mod skill_ui_tests;
+#[cfg(test)]
 #[path = "native_room_admin_tests.rs"]
 mod room_admin_tests;
 
@@ -348,6 +351,7 @@ pub struct LoginController {
     item_pending: Option<super::native_item_actions::Pending>,
     skill_pending: Option<super::native_skills::Pending>,
     skill_ready: Option<Instant>,
+    skill_context: Option<super::native_skills::CastContext>,
     world_tree_request: Option<(super::native_navigation::InputStamp,Instant)>,
     attack_pending: Option<super::native_combat::Pending>,
     transport: Controller,
@@ -388,6 +392,7 @@ impl Default for LoginController {
             attack_pending: None,
             skill_pending: None,
             skill_ready: None,
+            skill_context: None,
             world_tree_request: None,
             transport: Controller::default(),
             state: Snapshot {
@@ -593,6 +598,31 @@ impl LoginController {
         held.sent(&self.state.world);
         Ok(true)
     }
+    fn observe_skill(&mut self, now: Instant) {
+        if let Some(pending) = &self.skill_pending {
+            let feedback = if self.state.phase.active_world() && self.skill_context.as_ref().is_none_or(|c|
+                !c.interrupted(self.transport.snapshot().epoch, &self.state.world)) {
+                pending.observe(&self.state.world, now)
+            } else {
+                super::native_skills::Feedback::Interrupted
+            };
+            self.state.skill_feedback = feedback;
+            if feedback != super::native_skills::Feedback::Pending {
+                self.skill_pending = None;
+                self.skill_context = None;
+                if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;}
+            }
+        }
+    }
+    /// Shared by native UI enablement and the final send preflight. Reuse is
+    /// independent of the resource-clock body animation (including 1480ms clips).
+    pub fn skill_action_ready(&self, frame: &super::native_world_scene::Frame, now: Instant) -> bool {
+        self.state.phase.active_world() && !self.state.observer
+            && self.world_tree_request.is_none() && self.attack_pending.is_none()
+            && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none()
+            && self.skill_ready.is_none_or(|deadline| now >= deadline)
+            && frame.movement_ready(&self.state.world)
+    }
     pub fn cast(
         &mut self,
         skill: u16,
@@ -622,6 +652,11 @@ impl LoginController {
         ground: Option<[u16; 2]>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
+        self.cast_request_at(skill, target, ground, frame, Instant::now())
+    }
+    fn cast_request_at(&mut self, skill: u16, target: Option<u32>, ground: Option<[u16; 2]>,
+        frame: &super::native_world_scene::Frame, now: Instant) -> Result<()> {
+        self.observe_skill(now);
         ensure!(self.world_tree_request.is_none(),"等待世界樹傳送回覆");
         ensure!(!self.state.observer,"observer cannot cast");
         ensure!(
@@ -630,10 +665,8 @@ impl LoginController {
                 && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
             "等待目前動作回覆"
         );
-        let now = Instant::now();
         ensure!(
-            self.skill_ready.is_none_or(|deadline| now >= deadline)
-                && frame.movement_ready(&self.state.world),
+            self.skill_action_ready(frame, now),
             "等待施法動作完成"
         );
         let body = match ground {
@@ -644,6 +677,8 @@ impl LoginController {
         };
         self.transport
             .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+        self.skill_context = Some(super::native_skills::CastContext::capture(
+            self.transport.snapshot().epoch, &self.state.world, skill, target));
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
@@ -824,6 +859,7 @@ impl LoginController {
         self.pending_roster_forces.clear();self.early_roster.clear();
         self.attack_pending = None;
         self.skill_pending = None;
+        self.skill_context = None;
         self.world_tree_request=None;
         self.skill_ready = None;
         self.readiness_acked = false;
@@ -979,6 +1015,7 @@ impl LoginController {
             self.state.selected_character.as_deref().unwrap(),
         )?;
         self.skill_pending = None;
+        self.skill_context = None;
         self.world_tree_request=None;
         self.skill_ready = None;
         self.state.skill_feedback = Default::default();
@@ -1619,7 +1656,7 @@ impl LoginController {
                     .map(|p|p.observe(&self.state,Instant::now()))
                     .filter(|f|*f==super::native_item_actions::Feedback::SceneUpdated)
                     .unwrap_or(super::native_item_actions::Feedback::Interrupted);
-                self.state.merchant.clear();self.attack_pending=None;self.skill_pending=None;self.item_pending=None;self.pickup_pending=None;self.door_pending=None;self.skill_ready=None;
+                self.state.merchant.clear();self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.item_pending=None;self.pickup_pending=None;self.door_pending=None;self.skill_ready=None;
                 self.state.attack_feedback=super::native_combat::Feedback::Interrupted;self.state.skill_feedback=super::native_skills::Feedback::Interrupted;
                 self.transport.send(self.transport.snapshot().epoch,Zeroizing::new(super::native_portal::ACK.to_vec()))?;
                 self.deadline=Some(Instant::now()+Duration::from_secs(8));
@@ -1652,7 +1689,8 @@ impl LoginController {
                         // keeping that deadline disconnects a live honor player.
                         self.deadline = None;
                         self.skill_pending = None;
-        self.world_tree_request=None;
+                        self.skill_context = None;
+                        self.world_tree_request=None;
                         self.state.skill_feedback = super::native_skills::Feedback::Interrupted;
                         self.door_pending = None;
                         self.door_feedback = super::native_doors::Feedback::Interrupted;
@@ -2017,18 +2055,7 @@ impl LoginController {
                 self.item_pending = None;
             }
         }
-        if let Some(pending) = &self.skill_pending {
-            let feedback = if self.state.phase.active_world() {
-                pending.observe(&self.state.world, Instant::now())
-            } else {
-                super::native_skills::Feedback::Interrupted
-            };
-            self.state.skill_feedback = feedback;
-            if feedback != super::native_skills::Feedback::Pending {
-                self.skill_pending = None;
-                if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;}
-            }
-        }
+        self.observe_skill(Instant::now());
         if let Some(pending) = &self.attack_pending {
             let feedback = if self.state.phase.active_world() {
                 pending.observe(&self.state.world, Instant::now())
@@ -2204,7 +2231,7 @@ impl LoginController {
         self.transport.cancel();
     }
     fn interrupt_world_actions(&mut self) {
-        self.attack_pending=None;self.skill_pending=None;self.skill_ready=None;self.world_tree_request=None;
+        self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;
         self.state.skill_feedback=super::native_skills::Feedback::Interrupted;
