@@ -9,7 +9,7 @@ use std::{io::{Read, Write}, net::TcpListener, path::Path,
 const FIXTURE: &str = include_str!("../../tests/fixtures/native-teleport-controller-current.json");
 const NPC: u32 = 1812987996;
 fn fixture() -> serde_json::Value { serde_json::from_str(FIXTURE).unwrap() }
-fn bytes(name: &str) -> Vec<u8> {
+pub(super) fn bytes(name: &str) -> Vec<u8> {
     let f = fixture(); let text = f["vectors"][name]["hex"].as_str().unwrap();
     (0..text.len()).step_by(2).map(|i| u8::from_str_radix(&text[i..i+2], 16).unwrap()).collect()
 }
@@ -18,12 +18,12 @@ fn endpoint(peer: SocketAddr) -> Vec<u8> {
     let mut b=vec![0xf4,1]; b.extend(ip.octets()); b.extend(peer.port().to_le_bytes()); b
 }
 struct Emission { bodies: Vec<Vec<u8>>, raw: Option<Vec<u8>>, close: bool, done: mpsc::Sender<()> }
-struct FaultPeer {
-    peer: SocketAddr, commands: Arc<Mutex<Vec<Vec<u8>>>>, accepted: Arc<AtomicUsize>,
+pub(super) struct FaultPeer {
+    pub(super) peer: SocketAddr, commands: Arc<Mutex<Vec<Vec<u8>>>>, accepted: Arc<AtomicUsize>,
     stop: Arc<AtomicBool>, tx: mpsc::Sender<Emission>, worker: Option<thread::JoinHandle<anyhow::Result<()>>>,
 }
 impl FaultPeer {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         let listener=TcpListener::bind("127.0.0.1:0").unwrap(); listener.set_nonblocking(true).unwrap();
         let peer=listener.local_addr().unwrap(); let (tx, rx)=mpsc::channel::<Emission>();
         let commands=Arc::new(Mutex::new(Vec::new())); let log=commands.clone();
@@ -83,22 +83,23 @@ impl FaultPeer {
         });
         Self { peer, commands, accepted, stop, tx, worker:Some(worker) }
     }
-    fn emit(&self, bodies:Vec<Vec<u8>>) { self.write(bodies,None,false) }
+    pub(super) fn emit(&self, bodies:Vec<Vec<u8>>) { self.write(bodies,None,false) }
+    pub(super) fn commands(&self)->Vec<Vec<u8>> { self.commands.lock().unwrap().clone() }
     fn write(&self,bodies:Vec<Vec<u8>>,raw:Option<Vec<u8>>,close:bool) {
         let (done,rx)=mpsc::channel(); self.tx.send(Emission{bodies,raw,close,done}).unwrap();
         rx.recv_timeout(Duration::from_secs(2)).unwrap();
     }
     fn opcodes(&self)->Vec<u8> { self.commands.lock().unwrap().iter().map(|b|b[0]).collect() }
-    fn close(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){h.join().unwrap().unwrap();} }
+    pub(super) fn close(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){h.join().unwrap().unwrap();} }
 }
 impl Drop for FaultPeer {
     fn drop(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){if let Ok(Err(error))=h.join(){eprintln!("synthetic peer {} failed: {error:#}",self.peer);}} }
 }
-fn pump(c:&mut LoginController, ok:impl Fn(&LoginController)->bool) {
+pub(super) fn pump(c:&mut LoginController, ok:impl Fn(&LoginController)->bool) {
     let until=Instant::now()+Duration::from_secs(3);
     loop { c.poll(); if ok(c){return} assert!(Instant::now()<until,"controller {:?}: {:?}, epoch={}, game={}",c.state.phase,c.state.error,c.transport.snapshot().epoch,c.game); thread::sleep(Duration::from_millis(2)); }
 }
-fn seeded(peer:&FaultPeer)->LoginController {
+pub(super) fn seeded_rental(peer:&FaultPeer)->LoginController {
     let mut c=LoginController::default();
     c.start(peer.peer,Limits{io_slice:Duration::from_millis(5),write_chunk:3,..Limits::default()}).unwrap();
     pump(&mut c,|c|c.state.phase==LoginPhase::ReadyForLogin);
@@ -114,6 +115,10 @@ fn seeded(peer:&FaultPeer)->LoginController {
     c.state.inventory.accept(c.transport.snapshot().epoch,&bytes("inventory")).unwrap();
     let owner=c.merchant_owner().unwrap(); c.state.merchant.begin(owner,NPC,Instant::now()).unwrap();
     c.state.merchant.accept(crate::modern_lito::native_merchant::parse(&bytes("dialog")).unwrap(),Instant::now()).unwrap();
+    c
+}
+fn seeded(peer:&FaultPeer)->LoginController {
+    let mut c=seeded_rental(peer);
     c.rental_npc_action(NPC,"LT_TELEPORT_B").unwrap();
     pump(&mut c,|_|peer.opcodes().contains(&0x27)); c
 }
