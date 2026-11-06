@@ -98,7 +98,12 @@ fn formal_movement_release_does_not_cure_controls_or_predict_actor_state() {
     let mp = w.mp;
     let actors = serde_json::to_value(&w.actors).unwrap();
     let interruptions = w.control_interruptions;
+    assert!(w.acknowledge_movement_lock(|body| {
+        assert_eq!(body, [0x5a]);
+        Ok(())
+    }).unwrap());
     w.accept(&[0x25, 17]).unwrap();
+    assert_eq!(w.movement_lock, lito_modern::modern_lito::native_world::MovementLock::Open);
     assert_eq!(w.movement_blocks.iter().copied().collect::<Vec<_>>(), [2, 6, 22]);
     assert_eq!(w.control_interruptions, interruptions);
     assert_eq!((w.hp, w.mp), (hp, mp));
@@ -111,6 +116,7 @@ fn formal_movement_release_does_not_cure_controls_or_predict_actor_state() {
     }
     for mode in [3, 7, 23] {w.accept(&[0x25, mode]).unwrap();}
     assert!(w.movement_blocks.is_empty());
+    assert!(w.move_request(0).is_ok());
 }
 #[test]
 fn attack_feedback_distinguishes_reply_timeout_and_interrupted_authority() {

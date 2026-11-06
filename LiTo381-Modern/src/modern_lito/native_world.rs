@@ -127,6 +127,8 @@ pub struct World {
     pub predicted_moves: u64,
     pub local_corrections: u64,
     pub movement_locks: u64,
+    /// S_BLINK is independent of timed paralysis. Queueing C_BLINK does not unlock.
+    pub movement_lock: MovementLock,
     pub orphan_updates: u64,
     pub actors: BTreeMap<u32, Actor>,
     pub status: Option<status_receipt::Status>,
@@ -137,6 +139,13 @@ pub struct World {
     pub integrity_challenge: Option<[u32; 3]>,
     pub minimap: super::native_minimap::State,
     pub unhandled_opcodes: BTreeSet<u8>,
+}
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub enum MovementLock {
+    #[default]
+    Open,
+    AckPending,
+    AwaitRelease,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
 pub struct Resurrection {
@@ -390,7 +399,7 @@ impl World {
             "local actor cannot move"
         );
         ensure!(
-            self.movement_blocks.is_empty(),
+            self.movement_blocks.is_empty() && self.movement_lock == MovementLock::Open,
             "movement restricted by server state"
         );
         let a = self.own_actor().context("local actor missing")?;
@@ -402,6 +411,31 @@ impl World {
         b.extend(a.y.to_le_bytes());
         b.push(heading);
         Ok(b)
+    }
+    /// Shared terrain preflight. No packet or prediction is produced for an
+    /// unloaded sector, blocked edge, wrong map, or restricted local actor.
+    pub fn checked_move_request(
+        &self,
+        heading: u8,
+        navigation: &super::native_navigation::Navigation,
+    ) -> Result<Vec<u8>> {
+        ensure!(self.map_id.map(u32::from) == Some(navigation.map_id), "movement map mismatch");
+        let body = self.move_request(heading)?;
+        let own = self.own_actor().context("local actor absent")?;
+        ensure!(navigation.can_step(i32::from(own.x), i32::from(own.y), heading),
+            "map edge blocks movement");
+        Ok(body)
+    }
+    /// The single TCP owner must accept the exact opcode-only acknowledgement
+    /// before a mode-17 release can be consumed. Duplicate S_BLINKs coalesce.
+    pub fn acknowledge_movement_lock(
+        &mut self,
+        send: impl FnOnce(&[u8]) -> Result<()>,
+    ) -> Result<bool> {
+        if self.movement_lock != MovementLock::AckPending { return Ok(false); }
+        send(&[0x5a])?;
+        self.movement_lock = MovementLock::AwaitRelease;
+        Ok(true)
     }
     /// Accepted Tournament movement has no self echo. Keep prediction explicit
     /// until an authoritative object/position packet replaces it.
@@ -956,6 +990,9 @@ impl World {
             0x63 => {
                 r.end()?;
                 self.movement_locks += 1;
+                if self.movement_lock == MovementLock::Open {
+                    self.movement_lock = MovementLock::AckPending;
+                }
             }
             0x25 => {
                 let mode = r.c()?;
@@ -965,9 +1002,15 @@ impl World {
                     "unverified paralysis mode"
                 );
                 if mode == 17 {
-                    // Formal 6928A147 C35 acknowledgement: movement-lock
-                    // release is not a cure for independently timed controls.
+                    // Unsolicited/duplicate releases cannot acknowledge a new
+                    // lock or cure independently timed movement restrictions.
+                    if self.movement_lock == MovementLock::AwaitRelease {
+                        self.movement_lock = MovementLock::Open;
+                    }
                 } else if mode % 2 == 0 {
+                    // Restrictions (including Quake mode24) can race a queued
+                    // C_MOVE. They carry no coordinates or per-step acceptance:
+                    // keep prediction explicit, never guess a rollback or ACK.
                     if self.movement_blocks.insert(mode) {
                         self.control_interruptions += 1;
                     }
