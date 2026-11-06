@@ -19,6 +19,9 @@ mod return_server_negative_tests;
 #[cfg(test)]
 #[path = "native_login_movement_tests.rs"]
 mod movement_tests;
+#[cfg(test)]
+#[path = "native_room_admin_tests.rs"]
+mod room_admin_tests;
 
 pub fn decode_text(bytes: &[u8]) -> Result<String> {
     decode_message(bytes, false)
@@ -1132,6 +1135,8 @@ impl LoginController {
             }
             R::KickStatus(accepted) => {
                 ensure!(self.state.phase==LoginPhase::KickPending,"unsolicited kick result");
+                let (room, _, acknowledged) = self.kick_pending.as_ref().context("kick result without request")?;
+                ensure!(!acknowledged && self.state.joined_room.as_ref().is_some_and(|r|r.id==*room),"stale or duplicate kick result");
                 self.state.room_kick_result=Some(accepted);
                 if accepted {self.kick_pending.as_mut().context("kick result without request")?.2=true;}
                 else {self.kick_pending=None;self.state.phase=LoginPhase::RoomReady;self.deadline=None;}
@@ -1161,6 +1166,8 @@ impl LoginController {
                 );
                 let early=self.early_roster.take(self.transport.snapshot().epoch,room.id)?;
                 self.state.room_result = Some(0);
+                self.state.room_kick_result = None;
+                self.state.last_room_kick = None;
                 self.requested_room=Some(room.id);
                 self.retired_departures.clear();
                 self.pending_roster_forces.clear();self.early_roster.clear();
@@ -1410,27 +1417,31 @@ impl LoginController {
                     _ => anyhow::bail!("unsolicited channel info"),
                 }
             }
-            L::Room(room) => match self.state.phase {
-                LoginPhase::LoadingRooms => native_lobby::upsert(
-                    self.pending_rooms.as_mut().context("missing room buffer")?,
-                    room,
-                )?,
-                LoginPhase::LobbyReady
-                | LoginPhase::RoomJoining
-                | LoginPhase::RoomCreating
-                | LoginPhase::RoomEditing
-                | LoginPhase::KickPending
-                | LoginPhase::ObserverPending
-                | LoginPhase::ModePending
-                                | LoginPhase::MapPending
-                | LoginPhase::RoomAwaitSelf
-                | LoginPhase::RoomReady
-                | LoginPhase::ReadyPending
-                | LoginPhase::ForcePending
-                | LoginPhase::RoomLeaving => native_lobby::upsert(&mut self.state.rooms, room)?,
-                LoginPhase::ReturningCharacters => {}
-                _ => anyhow::bail!("room row outside lobby"),
-            },
+            packet @ (L::Room(_) | L::RoomUpdate { .. }) => {
+                let rows = match self.state.phase {
+                    LoginPhase::LoadingRooms => self.pending_rooms.as_mut().context("missing room buffer")?,
+                    LoginPhase::LobbyReady
+                    | LoginPhase::RoomJoining
+                    | LoginPhase::RoomCreating
+                    | LoginPhase::RoomEditing
+                    | LoginPhase::KickPending
+                    | LoginPhase::ObserverPending
+                    | LoginPhase::ModePending
+                    | LoginPhase::MapPending
+                    | LoginPhase::RoomAwaitSelf
+                    | LoginPhase::RoomReady
+                    | LoginPhase::ReadyPending
+                    | LoginPhase::ForcePending
+                    | LoginPhase::RoomLeaving => &mut self.state.rooms,
+                    LoginPhase::ReturningCharacters => return Ok(true),
+                    _ => anyhow::bail!("room row outside lobby"),
+                };
+                match packet {
+                    L::Room(room) => native_lobby::upsert(rows, room)?,
+                    L::RoomUpdate { id, update } => native_lobby::apply_update(rows, id, update),
+                    _ => unreachable!(),
+                }
+            }
             L::SourceRefresh => {
                 ensure!(!self.rental_restart_quit_pending,"source refresh preceded rental quit acknowledgement");
                 ensure!(self.state.rental_restart_acks==0 || self.state.rental_set.is_none()
