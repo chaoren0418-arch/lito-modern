@@ -8,6 +8,7 @@ use std::{
 use zeroize::Zeroizing;
 #[path = "native_login_callbacks.rs"]
 mod player_callbacks;
+use super::native_forced_combat::{self, Input as CombatInput};
 
 #[cfg(test)]
 #[path = "native_rental_return_tests.rs"]
@@ -24,6 +25,9 @@ mod movement_tests;
 #[cfg(test)]
 #[path = "native_room_admin_tests.rs"]
 mod room_admin_tests;
+#[cfg(test)]
+#[path = "native_forced_combat_controller_tests.rs"]
+mod forced_combat_tests;
 
 pub fn decode_text(bytes: &[u8]) -> Result<String> {
     decode_message(bytes, false)
@@ -594,6 +598,14 @@ impl LoginController {
         held: &mut super::native_combat::HeldAttack,
         frame: &super::native_world_scene::Frame,
     ) -> Result<bool> {
+        self.continue_attack_with_input(held, frame, CombatInput::default())
+    }
+    pub fn continue_attack_with_input(
+        &mut self,
+        held: &mut super::native_combat::HeldAttack,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+    ) -> Result<bool> {
         let Some(target) = held.ready(
             self.transport.snapshot().epoch,
             &self.state.world,
@@ -603,7 +615,7 @@ impl LoginController {
         ) else {
             return Ok(false);
         };
-        if let Err(error) = self.attack(target) {
+        if let Err(error) = self.attack_with_input(target, input) {
             held.clear();
             return Err(error);
         }
@@ -616,7 +628,16 @@ impl LoginController {
         target: Option<u32>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, None, None, frame)
+        self.cast_with_input(skill, target, frame, CombatInput::default())
+    }
+    pub fn cast_with_input(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+    ) -> Result<()> {
+        self.cast_request(skill, target, None, None, None, frame, input)
     }
     pub fn cast_ground(
         &mut self,
@@ -630,12 +651,12 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), None, None, frame)
+        self.cast_request(skill, None, Some(position), None, None, frame, CombatInput::default())
     }
     pub fn cast_item(&mut self, skill: u16, item: &super::native_skills::ItemTarget,
         frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "等待目前物品操作回覆");
-        self.cast_request(skill, None, None, Some(item), None, frame)
+        self.cast_request(skill, None, None, Some(item), None, frame, CombatInput::default())
     }
     pub fn teleport_labels(&self)->Vec<String> {
         self.teleport_bookmarks.labels(&self.state,self.transport.snapshot().epoch)
@@ -647,7 +668,7 @@ impl LoginController {
         choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks).is_ok()
     }
     pub fn cast_teleport(&mut self,choice:&super::native_teleport_spell::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
-        self.cast_request(5,None,None,None,Some(choice),frame)
+        self.cast_request(5,None,None,None,Some(choice),frame,CombatInput::default())
     }
     fn cast_request(
         &mut self,
@@ -657,6 +678,7 @@ impl LoginController {
         item: Option<&super::native_skills::ItemTarget>,
         teleport: Option<&super::native_teleport_spell::Choice>,
         frame: &super::native_world_scene::Frame,
+        input: CombatInput,
     ) -> Result<()> {
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot cast");
@@ -677,7 +699,7 @@ impl LoginController {
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
         ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
-        let body = if let Some(choice)=teleport {
+        let mut body = if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
         } else {match ground {
             Some(position) => {
@@ -687,6 +709,7 @@ impl LoginController {
                 super::native_skills::item_request(&self.state, self.transport.snapshot().epoch, skill, item)?
             } else { super::native_skills::request(&self.state.world, skill, target)? },
         }};
+        native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
@@ -705,6 +728,9 @@ impl LoginController {
         Ok(())
     }
     pub fn attack(&mut self, target: u32) -> Result<()> {
+        self.attack_with_input(target, CombatInput::default())
+    }
+    pub fn attack_with_input(&mut self, target: u32, input: CombatInput) -> Result<()> {
         ensure!(!self.player_callbacks.moving(),"等待目前步伐完成");
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot attack");
@@ -714,7 +740,8 @@ impl LoginController {
                 && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
             "attack unavailable or awaiting server"
         );
-        let body = self.state.world.attack_request(target)?;
+        let mut body = self.state.world.attack_request(target)?;
+        native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
         self.attack_pending = Some(super::native_combat::Pending {
             since: Instant::now(),
@@ -727,16 +754,17 @@ impl LoginController {
     }
     pub fn confirm_death(&mut self, frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(
-            self.state.phase == LoginPhase::BattlePending && frame.death_ready(&self.state.world),
+            self.state.phase == LoginPhase::BattlePending && !self.state.observer
+                && frame.death_ready(&self.state.world),
             "death animation/authority not ready"
         );
-        self.transport
-            .send(self.transport.snapshot().epoch, Zeroizing::new(vec![0xe0]))?;
-        self.state.world.death_confirmation_pending = false;
-        self.state.world.death_confirmations_sent += 1;
-        self.state.world.last_death_confirmed_action =
-            self.state.world.own_actor().map(|a| a.action_sequence);
-        self.deadline = Some(Instant::now() + Duration::from_secs(8));
+        let epoch = self.transport.snapshot().epoch;
+        self.state.world.acknowledge_death(|body|
+            self.transport.send(epoch, Zeroizing::new(body.to_vec())))?;
+        // CE0 has no correlated response or client-owned respawn deadline.
+        // E149 schedules Honor at 5000ms, but delivery can be delayed and other
+        // resolutions can leave the player dead. Keep waiting for authority;
+        // preserve any independent withdrawal deadline already in progress.
         Ok(())
     }
     pub fn request_battle_withdrawal(&mut self) -> Result<()> {
@@ -1665,6 +1693,7 @@ impl LoginController {
             );
         }
         let previous_world_generation=self.state.world.generation;
+        let previous_resurrections = self.state.world.resurrection_packets;
         let world_accepted = match ingress {
             Some(receipt) => self.state.world.accept_received(body, receipt)?,
             None => self.state.world.accept(body)?,
@@ -1718,22 +1747,19 @@ impl LoginController {
                 if let Some(room)=self.state.joined_room.as_mut(){room.map_id=self.state.world.map_id.context("portal map")?;}
                 self.deadline=None;
             }
-            if body.first() == Some(&0x11) {
-                if let Some(event) = self.state.world.last_resurrection {
+            if body.first() == Some(&0x11) && self.state.world.resurrection_packets != previous_resurrections {
+                if let Some(event) = self.state.world.last_resurrection
+                    .filter(|event| self.state.world.actors.contains_key(&event.target)) {
                     let own = self.state.world.own_actor().is_some_and(|a| a.id == event.target);
                     if own || self.attack_pending.as_ref().is_some_and(|p| p.target == event.target) {
                         self.attack_pending = None;
                         self.state.attack_feedback = super::native_combat::Feedback::Interrupted;
                     }
                     if own {
-                        // S_RESURRECT completes C_CONFIRM_DEATH's response wait;
-                        // keeping that deadline disconnects a live honor player.
-                        self.deadline = None;
-                        self.skill_pending = None;
-        self.world_tree_request=None;self.teleport_spell=None;
-                        self.state.skill_feedback = super::native_skills::Feedback::Interrupted;
-                        self.door_pending = None;
-                        self.door_feedback = super::native_doors::Feedback::Interrupted;
+                        // Retire every old-life request, even when death and
+                        // resurrection arrive in the same poll. An unrelated
+                        // withdrawal/return deadline still belongs to its request.
+                        self.interrupt_world_actions();
                     }
                 }
             }
@@ -3072,3 +3098,7 @@ fn probe_flow(
 #[cfg(test)]
 #[path = "native_pending_join_departure_tests.rs"]
 mod pending_join_departure_tests;
+
+#[cfg(test)]
+#[path = "native_resurrection_tests.rs"]
+mod resurrection_tests;

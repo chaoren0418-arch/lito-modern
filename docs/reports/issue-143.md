@@ -1,6 +1,8 @@
 # Issue #143：T020-2 暗隱術（第三次嘗試）
 
-本次在既有 `task/143`、基底 `77f30e1` 上補正式玩家 callback 與 S37/169 巢狀 drain 接線，完成本張本機驗證，提交 Claude 審查。沒有切換／另建分支，也沒有修改 `docs/REPORT.md` 或 T020 的整體狀態；#142 與完整 M2 驗收另行裁定。
+本次在既有 `task/143`、基底 `77f30e1` 上補正式玩家 callback 與 S37/169 巢狀 drain 接線，完成本張本機驗證，提交 Claude 審查。沒有切換／另建分支，沒有人工編輯 `docs/REPORT.md` 或修改 T020 的整體狀態；#142 與完整 M2 驗收另行裁定。
+
+首次提交 `ac9ea21` 後，PR #252 顯示與主線 `683b603` 衝突，已在同一分支整合並重跑下列所有檢查。四處衝突均在 `native_login.rs`：保留主線 `CombatInput`／LFC1 append，再經本張 `send_player_action`，並將移動中的 attack gate 放在新 `attack_with_input` 入口。其他主線內容原樣保留；`docs/REPORT.md` 與該主線版本完全一致，沒有人工編輯索引。
 
 ## 做了什麼
 
@@ -40,28 +42,28 @@ gate=PASS
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib
 exit=0
 gate=PASS
-test result: ok. 1981 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 3.36s
+test result: ok. 2005 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 9.42s
 ```
 
 ```text
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_player_callbacks::tests:: -- --test-threads=1
 exit=0
 gate=PASS
-test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 2551 filtered out; finished in 0.01s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 2575 filtered out; finished in 0.01s
 ```
 
 ```text
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_login::player_callbacks::tests:: -- --include-ignored --test-threads=1
 exit=0
 gate=PASS
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 2563 filtered out; finished in 11.22s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 2587 filtered out; finished in 12.13s
 ```
 
 ```text
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_static2941::tests:: -- --include-ignored --test-threads=1
 exit=0
 gate=PASS
-test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 2535 filtered out; finished in 6.98s
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 2559 filtered out; finished in 7.79s
 ```
 
 全 library 的 ignored 不算通過。另行 opt-in 執行的31個 static 案包含全部12 ready gates；兩個真實資源 controller 案也有獨立非零執行結果。日誌為本 worktree `scratch/third-*.log` 與 `third-*-result.txt`。既有 warnings 仍存在，沒有宣稱零警告。
@@ -99,7 +101,7 @@ debug object374448 exit=0
 debug shadow107 exit=0
 debug slow29 exit=0
 release library-test=False exit=0 fresh=False
-release library-test=True exit=0 fresh=True
+release library-test=True exit=0 fresh=False
 release advance79 exit=0
 release blind20 exit=0
 release item_spells exit=0
@@ -128,4 +130,4 @@ release slow29 exit=0
 - 接線：同目錄 `native_static2941.rs`、`native_login.rs`、`native_login_window.rs`、`native_world.rs`、`native_world_animation.rs`、`native_world_scene.rs`、`native_world_view.rs`、`native_movement_tests.rs`、`mod.rs`。
 - 最新報告：`docs/reports/issue-143.md`。一次性腳本與日誌在本 worktree `scratch/`；建置產物在 `LiTo381-Modern/target/current/`，均不提交。
 - Claude 接手 code review，重點核對正式呼叫鏈、兩 suffix 優先順序、169 旗標 authority、同步 composition 與外層固定 cutoff 的交錯，以及上述支援範圍。調度器依審查結果處理 PR／佇列；使用者依專案規則保留合併與後續 GUI 驗收。
-- 本次沒有修改 `docs/REPORT.md`、原始專案、機密設定、封存或硬連結；修改檔案的 link count 均核對為1。沒有發送 GitHub 留言或合併。
+- 本次沒有人工編輯 `docs/REPORT.md`，沒有修改原始專案、機密設定、封存或硬連結；修改檔案的 link count 均核對為1。沒有發送 GitHub 留言，也沒有合併 PR 到 main。
