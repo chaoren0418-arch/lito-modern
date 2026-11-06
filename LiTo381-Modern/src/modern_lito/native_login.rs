@@ -370,6 +370,9 @@ pub struct LoginController {
 }
 impl Default for LoginController {
     fn default() -> Self {
+        // Native 480A60 calls 4D6360 during startup, before queue activity.
+        // This process-wide result (including an error) survives controller reset.
+        super::native_clock::initialize();
         Self {
             static2941: Default::default(),
             teleport: None,

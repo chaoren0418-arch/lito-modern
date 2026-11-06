@@ -5,6 +5,8 @@
 //! 4D65F0/4D6570 compare the resulting deadlines as *unsigned* dwords.
 //! The retained PE has no reconstructed imports: the Windows adapter below is
 //! our explicit host binding, not proof of the old executable's thunk names.
+//! Its startup path does prove 482537 -> 480A60 -> 480A92 -> 4D6360;
+//! initialization belongs before controller activity, never in `sample()`.
 use anyhow::{ensure, Result};
 use std::sync::OnceLock;
 
@@ -60,19 +62,52 @@ mod imports {
     }
 }
 
-/// One initialized clock shared by controllers. Never initialized by paint or
-/// asset loading; no retry with a new epoch after an import failure.
-pub(crate) fn sample() -> Result<u32> {
+/// The process keeps both successful initialization and errors. An uninitialized
+/// clock is distinct from an initialized clock whose frequency query failed.
+#[derive(Default)]
+struct ProcessClock {
+    initialized: OnceLock<std::result::Result<Clock, String>>,
+}
+impl ProcessClock {
+    fn initialize(&self, frequency: impl FnOnce() -> Option<i64>) {
+        self.initialized
+            .get_or_init(|| Clock::initialize(frequency()).map_err(|e| e.to_string()));
+    }
+
+    fn clock(&self) -> Result<&Clock> {
+        self.initialized
+            .get()
+            .ok_or_else(|| anyhow::anyhow!("native clock not initialized"))?
+            .as_ref()
+            .map_err(|e| anyhow::anyhow!("{e}"))
+    }
+}
+
+#[cfg(windows)]
+static PROCESS_CLOCK: ProcessClock = ProcessClock {
+    initialized: OnceLock::new(),
+};
+
+/// Called when creating the controller, before receiving or painting. Errors
+/// remain latched and are returned when timing is needed, not silently retried.
+/// Multiple controllers/reconnects share the original process clock source.
+pub(crate) fn initialize() {
     #[cfg(windows)]
     {
-        static CLOCK: OnceLock<std::result::Result<Clock, String>> = OnceLock::new();
-        let clock = CLOCK.get_or_init(|| {
+        PROCESS_CLOCK.initialize(|| {
             let mut frequency = 0;
             // SAFETY: a writable, correctly sized LARGE_INTEGER; no retained pointer.
             let ok = unsafe { imports::QueryPerformanceFrequency(&mut frequency) } != 0;
-            Clock::initialize(ok.then_some(frequency)).map_err(|e| e.to_string())
+            ok.then_some(frequency)
         });
-        let clock = clock.as_ref().map_err(|e| anyhow::anyhow!("{e}"))?;
+    }
+}
+
+/// Reading the clock must never initialize it or change its source/epoch.
+pub(crate) fn sample() -> Result<u32> {
+    #[cfg(windows)]
+    {
+        let clock = PROCESS_CLOCK.clock()?;
         clock.sample(
             || {
                 let mut count = 0;
@@ -171,7 +206,123 @@ mod tests {
 
     #[test]
     fn host_import_initialization_and_sampling_succeed() {
+        initialize();
         sample().context("first host sample").unwrap();
         sample().context("second host sample").unwrap();
+    }
+
+    #[test]
+    fn startup_is_explicit_and_latches_success_fallback_and_invalid_frequency() {
+        for frequency in [Some(10_000_000), None, Some(0), Some(-1)] {
+            let process = ProcessClock::default();
+            assert!(process
+                .clock()
+                .unwrap_err()
+                .to_string()
+                .contains("not initialized"));
+            let queries = std::cell::Cell::new(0);
+            process.initialize(|| {
+                queries.set(queries.get() + 1);
+                frequency
+            });
+            process.initialize(|| panic!("controller recreation must not query again"));
+            assert_eq!(queries.get(), 1);
+            match frequency {
+                Some(10_000_000) => {
+                    let clock = process.clock().unwrap();
+                    assert_eq!(
+                        clock.sample(|| Ok(20_000), || panic!("fallback")).unwrap(),
+                        2
+                    );
+                    assert!(clock
+                        .sample(
+                            || Err(anyhow::anyhow!("counter failed")),
+                            || panic!("fallback")
+                        )
+                        .is_err());
+                    // A sample failure cannot reset initialization or rebase time.
+                    process.initialize(|| panic!("counter failure must not reinitialize"));
+                    assert_eq!(
+                        clock.sample(|| Ok(40_000), || panic!("fallback")).unwrap(),
+                        4
+                    );
+                }
+                None => {
+                    let clock = process.clock().unwrap();
+                    for ticks in [u32::MAX, 0, 1] {
+                        assert_eq!(clock.sample(|| panic!("counter"), || ticks).unwrap(), ticks);
+                    }
+                }
+                _ => assert!(process
+                    .clock()
+                    .unwrap_err()
+                    .to_string()
+                    .contains("invalid imported frequency")),
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn controller_initializes_clock_before_any_queue_sample() {
+        // A separate process-clock instance above tests the empty state without
+        // depending on parallel tests' access to the shared Windows clock.
+        let controller = super::super::native_login::LoginController::default();
+        let first = PROCESS_CLOCK.clock().unwrap();
+        drop(controller);
+        let _next_controller = super::super::native_login::LoginController::default();
+        assert!(std::ptr::eq(first, PROCESS_CLOCK.clock().unwrap()));
+    }
+
+    /// Static source evidence only. Does not execute the PE, resolve its missing
+    /// external pages, or qualify the original import names/pre-startup state.
+    #[test]
+    #[ignore = "requires LITO_NATIVE_CLOCK_PE pointing to the pinned read-only PE"]
+    fn original_pe_clock_startup_sites_and_snapshot_match() {
+        use sha2::{Digest, Sha256};
+        let path = std::env::var_os("LITO_NATIVE_CLOCK_PE").expect("LITO_NATIVE_CLOCK_PE");
+        let bytes = std::fs::read(path).expect("read original PE without executing it");
+        assert_eq!(
+            format!("{:X}", Sha256::digest(&bytes)),
+            "4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9"
+        );
+        // The exact hash pins this rebuilt image's RVA == raw offset mapping.
+        let at = |va: usize, len: usize| &bytes[va - 0x400000..va - 0x400000 + len];
+        let u32_at =
+            |offset: usize| u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap());
+        let header = u32_at(0x3c) as usize;
+        assert_eq!(&bytes[header..header + 4], b"PE\0\0");
+        assert_eq!(u32_at(header + 24 + 28), 0x400000); // PE32 ImageBase
+        assert_eq!(u32_at(header + 24 + 16), 0xf162a); // reconstructed entry RVA
+        for (site, target) in [
+            (0x4f1759, 0x4823a0), // entry -> wrapper
+            (0x482537, 0x480a60), // wrapper -> application startup
+            (0x480a88, 0x4d39f0), // ordered startup calls before clock init
+            (0x480a8d, 0x48e470),
+            (0x480a92, 0x4d6360),
+            (0x4d636a, 0x5010a68), // unresolved frequency-like external thunk
+            (0x4d6a04, 0x5010863), // unresolved counter-like external thunk
+            (0x4d6a37, 0x501095f), // unresolved fallback external thunk
+        ] {
+            let call = at(site, 5);
+            assert_eq!(call[0], 0xe8, "call at {site:08X}");
+            let displacement = i32::from_le_bytes(call[1..5].try_into().unwrap());
+            assert_eq!((site as u32 + 5).wrapping_add(displacement as u32), target);
+        }
+        // The initializer retains EAX and the two output dwords, in this order.
+        assert_eq!(at(0x4d6376, 5), [0xa3, 0xf0, 0x4b, 0x83, 0]);
+        assert_eq!(at(0x4d637b, 6), [0x89, 0x0d, 0xe8, 0x4b, 0x83, 0]);
+        assert_eq!(at(0x4d6381, 6), [0x89, 0x15, 0xec, 0x4b, 0x83, 0]);
+        // sample: read retained flag, test it, jump to fallback on zero.
+        assert_eq!(
+            at(0x4d69f6, 9),
+            [0xa1, 0xf0, 0x4b, 0x83, 0, 0x85, 0xc0, 0x74, 0x37]
+        );
+        assert_eq!(at(0x834be8, 12), [0; 12]); // snapshot, NOT a pre-init oracle
+        let image_end = 0x400000 + u32_at(header + 24 + 56);
+        assert_eq!(image_end, 0xac4000);
+        assert!([0x5010a68, 0x5010863, 0x501095f]
+            .iter()
+            .all(|&va| va >= image_end));
     }
 }
