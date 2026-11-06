@@ -25,6 +25,8 @@ mod movement_tests;
 #[cfg(test)]
 #[path = "native_room_admin_tests.rs"]
 mod room_admin_tests;
+#[path = "native_companion_controller.rs"]
+mod companion_controller;
 #[cfg(test)]
 #[path = "native_forced_combat_controller_tests.rs"]
 mod forced_combat_tests;
@@ -322,6 +324,7 @@ pub struct Snapshot {
     pub world: super::native_world::World,
     pub environment: super::native_environment::State,
     pub inventory: super::native_inventory::Inventory,
+    pub companions: super::native_companions::Session,
     pub room_result: Option<u8>,
     pub observer: bool,
     pub room_kick_result: Option<bool>,
@@ -442,6 +445,7 @@ impl Default for LoginController {
                 world: Default::default(),
                 environment: Default::default(),
                 inventory: Default::default(),
+                companions: Default::default(),
                 room_result: None,
                 observer: false,
                 room_kick_result: None,
@@ -1630,6 +1634,7 @@ impl LoginController {
             self.rental_restart_quit_pending=false;
             self.deadline=Some(Instant::now()+Duration::from_secs(8));return Ok(());
         }
+        if self.receive_companion(body)? { return Ok(()); }
         if body.first()==Some(&0x5b){
             let owner=self.merchant_owner();self.state.merchant.tick(owner.as_ref(),Instant::now());
             self.state.merchant.accept_input(super::native_merchant::parse_input(body)?,Instant::now())?;return Ok(());
@@ -1702,6 +1707,7 @@ impl LoginController {
         if world_accepted {
             self.player_callbacks.synchronize(&mut self.static2941,&mut self.state.world,self.transport.snapshot().epoch);
             self.player_callbacks.accepted(body,&self.state.world);
+            self.tick_companions();
             if let Some(receipt) = ingress {
                 self.static2941.admit_received(&mut self.state.world, self.transport.snapshot().epoch, receipt, dispatched_at)?;
             }
@@ -2030,6 +2036,7 @@ impl LoginController {
         self.poll_inner(Some((root,presentation)));
     }
     fn poll_inner(&mut self, mut presentation: Option<(&std::path::Path,&mut super::native_world_view::Presentation)>) {
+        self.tick_companions();
         for event in self.transport.poll() {
             if matches!(
                 self.state.phase,
@@ -2350,6 +2357,7 @@ impl LoginController {
     }
     fn interrupt_world_actions(&mut self) {
         self.player_callbacks.cancel_pending();self.player_callbacks.cancel();
+        self.state.companions.clear();
         self.teleport_spell = None;
         self.skill_item_pending = false;
         self.attack_pending=None;self.skill_pending=None;self.skill_ready=None;self.world_tree_request=None;

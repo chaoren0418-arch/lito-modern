@@ -384,6 +384,7 @@ pub mod native_teleport;
 pub mod native_peer_rental_probe;
 pub mod native_points;
 pub mod native_merchant;
+pub mod native_companions;
 pub mod native_npc_document;
 pub mod native_npc_images;
 mod native_peer_citizen_probe;
