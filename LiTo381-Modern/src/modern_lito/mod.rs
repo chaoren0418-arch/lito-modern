@@ -401,6 +401,7 @@ pub mod native_peer_world_probe;
 pub mod native_peer_lifecycle_probe;
 pub mod native_projectiles;
 pub mod native_skills;
+pub mod native_teleport_spell;
 pub mod native_skill_selection;
 pub mod native_ground_effects;
 pub mod native_effect_timing;
