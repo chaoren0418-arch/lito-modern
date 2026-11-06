@@ -8,7 +8,7 @@ pub(super) fn origin(
     attack: &Attack,
     actors: &BTreeMap<u32, super::super::native_world::Actor>,
 ) -> Option<[i32; 2]> {
-    if !matches!(attack.graphics, 1804 | 171) {
+    if !matches!(attack.graphics, 1804 | 1805 | 171) {
         return None;
     }
     if let Some(actor) = attack.targets.first().and_then(|t| actors.get(&t.id)) {
@@ -344,7 +344,7 @@ mod tests {
         };
         assert_eq!(origin(&attack, &BTreeMap::new()), Some([99, 99]));
         let mut unsupported = attack;
-        unsupported.graphics = 1805;
+        unsupported.graphics = 1808;
         assert_eq!(origin(&unsupported, &BTreeMap::new()), None);
     }
 }
