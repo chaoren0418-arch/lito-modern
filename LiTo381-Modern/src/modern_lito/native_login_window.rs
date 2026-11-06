@@ -23,6 +23,7 @@ use windows::{
     },
 };
 use zeroize::Zeroizing;
+use super::native_game::pages::{Pages, Turn};
 #[path="native_rental_window.rs"]
 mod rental;
 const CREATE_ROOM:u16=119;
@@ -72,7 +73,10 @@ const PASSWORD: u16 = 202;
 const SOURCES: u16 = 203;
 const STATUS: u16 = 204;
 const SCORES: u16 = 207;
+const CHARACTER_PREV: u16 = 138;
+const CHARACTER_NEXT: u16 = 139;
 struct Ui {
+    character_pages: Pages,
     rental:rental::View,
     parent: HWND,
     room_tools_view: bool,
@@ -136,6 +140,11 @@ fn wide(text: &str) -> Vec<u16> {
     text.encode_utf16().chain(Some(0)).collect()
 }
 impl Ui {
+    fn character_paging_enabled(&self) -> bool {
+        !self.closing && !self.world_view && !self.inventory_view && !self.room_tools_view
+            && Pages::enabled(self.controller.snapshot())
+    }
+
     fn control(&self, id: u16) -> HWND {
         self.controls
             .iter()
@@ -172,6 +181,8 @@ impl Ui {
             (CONNECT, w!("BUTTON"), "連線".into(), 0),
             (LOGIN, w!("BUTTON"), "登入".into(), 0),
             (304, w!("STATIC"), "來源伺服器".into(), 0),
+            (CHARACTER_PREV, w!("BUTTON"), "上一頁".into(), 0),
+            (CHARACTER_NEXT, w!("BUTTON"), "下一頁".into(), 0),
             (
                 SOURCES,
                 w!("COMBOBOX"),
@@ -360,7 +371,9 @@ impl Ui {
             (CONNECT, 90, 142, px(110), 32),
             (LOGIN, 220, 142, px(110), 32),
             (INVENTORY_TOGGLE, 350, 142, px(120), 32),
-            (304, 20, 198, width, 25),
+            (304, 20, 198, px(290), 25),
+            (CHARACTER_PREV, 320, 192, px(80), 30),
+            (CHARACTER_NEXT, 410, 192, px(80), 30),
             (SOURCES, 20, 228, width, 150),
             (SELECT, 20, 274, px(130), 32),
             (CANCEL, 170, 274, px(130), 32),
@@ -420,6 +433,9 @@ impl Ui {
         }
         for (id, hwnd) in &self.controls {
             let visible = match *id {
+                CHARACTER_PREV | CHARACTER_NEXT => matches!(self.controller.snapshot().phase,
+                    LoginPhase::CharactersReady | LoginPhase::CharacterPending)
+                    && !self.world_view && !self.inventory_view && !self.room_tools_view,
                 MAP_PREV|MAP_NEXT => self.room_tools_view && self.room_editor.is_none() && !self.inventory_view,
                 CREATE_ROOM|EDIT_ROOM|OBSERVER|KICK_MEMBER|MODE_PREV|MODE_NEXT => self.room_tools_view && !self.inventory_view,
                 ROOM_NAME|ROOM_CAPACITY|ROOM_SECRET|ROOM_LOCK|SAVE_ROOM|DISCARD_ROOM|314|315|316 => self.room_tools_view && self.room_editor.is_some() && !self.inventory_view,
@@ -1412,6 +1428,13 @@ impl Ui {
             phase,
             LoginPhase::CharactersReady | LoginPhase::CharacterPending
         );
+        self.character_pages.sync(epoch, snapshot);
+        for (id, turn) in [(CHARACTER_PREV, Turn::Previous), (CHARACTER_NEXT, Turn::Next)] {
+            let _ = ShowWindow(self.control(id), if is_character && !self.inventory_view
+                && !self.room_tools_view && !self.world_view { SW_SHOW } else { SW_HIDE });
+            let _ = EnableWindow(self.control(id), !self.closing && Pages::enabled(snapshot)
+                && self.character_pages.can_turn(turn));
+        }
         let is_channel = matches!(
             phase,
             LoginPhase::CharacterSelected
@@ -1430,10 +1453,13 @@ impl Ui {
             snapshot
                 .characters
                 .iter()
+                .skip(self.character_pages.range().start)
+                .take(self.character_pages.range().len())
                 .map(|c| {
                     format!(
-                        "{}  Lv.{}  HP {} / MP {}",
-                        c.name, c.fields.level, c.fields.max_hp, c.fields.max_mp
+                        "{}  Lv.{}  HP {} / MP {}　血盟：{}",
+                        c.name, c.fields.level, c.fields.max_hp, c.fields.max_mp,
+                        if c.clan.is_empty() { "無" } else { &c.clan }
                     )
                 })
                 .collect::<Vec<_>>()
@@ -1444,12 +1470,13 @@ impl Ui {
                 .map(|s| s.name.clone())
                 .collect::<Vec<_>>()
         };
+        let character_label = self.character_pages.label();
         self.text(
             304,
             if is_channel {
                 "頻道"
             } else if is_character {
-                "角色"
+                &character_label
             } else {
                 "來源伺服器"
             },
@@ -1603,7 +1630,13 @@ impl Ui {
                     if snapshot.characters.is_empty() {
                         "此來源目前沒有角色。".into()
                     } else {
-                        "請選擇角色。".into()
+                        let refusal = match snapshot.character_result {
+                            Some(1) => "伺服器未接受角色選取，請重試。",
+                            Some(7) => "此角色目前不能參與，請選擇其他角色。",
+                            Some(8) => "伺服器未接受角色名稱，請重新選取。",
+                            _ => "請選擇角色。",
+                        };
+                        format!("{refusal}\r\n每頁 4 筆；PgUp／PgDn、滾輪或上一頁／下一頁翻頁。")
                     }
                 }
                 LoginPhase::CharacterPending => "正在選擇角色…".into(),
@@ -2002,9 +2035,16 @@ impl Ui {
                 ) {
                     self.controller.enter_channel(index as u8)?;
                 } else if self.controller.snapshot().phase == LoginPhase::CharactersReady {
-                    self.controller.select_character(index as usize)?;
+                    let index = self.character_pages.index(self.controller.transport().snapshot().epoch,
+                        self.controller.snapshot(), index as usize)?;
+                    self.controller.select_character(index)?;
                 } else {
                     self.controller.select_source(index as usize)?;
+                }
+            }
+            CHARACTER_PREV | CHARACTER_NEXT => {
+                if self.character_paging_enabled() {
+                    self.character_pages.turn(if id == CHARACTER_PREV { Turn::Previous } else { Turn::Next });
                 }
             }
             GAME => self.controller.begin_game()?,
@@ -2353,6 +2393,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 ..Default::default()
             });
             let state = Box::new(State(RefCell::new(Ui {
+                character_pages: Pages::default(),
                 rental:rental::View::new(resource_root.clone())?,
                 parent: HWND::default(),
                 room_tools_view:false,
@@ -2440,6 +2481,30 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                     break;
                 }
                 ensure!(read != -1, "native login message loop");
+                // Handle child controls before their default combo-box key/wheel
+                // behavior, so these inputs change pages rather than local rows.
+                if message.hwnd == hwnd || IsChild(hwnd, message.hwnd).as_bool() {
+                    let mut ui = state.0.borrow_mut();
+                    if ui.character_paging_enabled() {
+                        let turn = match (message.message, message.wParam.0) {
+                            (WM_KEYDOWN, 0x21) => Some(Turn::Previous),
+                            (WM_KEYDOWN, 0x22) => Some(Turn::Next),
+                            _ => None,
+                        };
+                        if turn.is_some() || message.message == WM_MOUSEWHEEL {
+                            let changed = if let Some(turn) = turn {
+                                message.lParam.0 & (1 << 30) == 0 && ui.character_pages.turn(turn)
+                            } else {
+                                ui.character_pages.wheel((message.wParam.0 >> 16) as i16)
+                            };
+                            if changed {
+                                send(ui.control(SOURCES), CB_SHOWDROPDOWN, WPARAM(0), LPARAM(0));
+                                ui.refresh();
+                            }
+                            continue;
+                        }
+                    }
+                }
                 let world_focus = GetFocus() == hwnd;
                 if !world_focus && matches!(message.message, WM_KEYDOWN | WM_KEYUP | WM_LBUTTONDOWN)
                 {
