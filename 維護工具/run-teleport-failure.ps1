@@ -90,7 +90,59 @@ function Save-Receipt {
  [IO.File]::WriteAllText((Join-Path $root 'receipt.json'),$json,[Text.UTF8Encoding]::new($false))
  if(Test-Path -LiteralPath $output -PathType Container){[IO.File]::WriteAllText((Join-Path $output 'receipt.json'),$json,[Text.UTF8Encoding]::new($false))}
 }
+function Initialize-ProcessImageApi {
+ if($null -eq ('TeleportProcessImage' -as [type])){
+  Add-Type -TypeDefinition @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
+using Microsoft.Win32.SafeHandles;
+public static class TeleportProcessImage {
+ [DllImport("kernel32.dll", EntryPoint = "QueryFullProcessImageNameW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+ [return: MarshalAs(UnmanagedType.Bool)]
+ private static extern bool QueryFullProcessImageName(SafeProcessHandle process, uint flags, StringBuilder name, ref uint size);
+ public static string Read(SafeProcessHandle process) {
+  var name = new StringBuilder(32768);
+  uint size = (uint)name.Capacity;
+  if (!QueryFullProcessImageName(process, 0, name, ref size))
+   throw new Win32Exception(Marshal.GetLastWin32Error());
+  return name.ToString();
+ }
+}
+'@
+ }
+}
+function Read-ProcessImage([Microsoft.Win32.SafeHandles.SafeProcessHandle]$Handle){
+ return [TeleportProcessImage]::Read($Handle)
+}
+function Get-OwnedProcessImage($Owned,[int]$TimeoutMilliseconds=5000){
+ $watch=[Diagnostics.Stopwatch]::StartNew()
+ $lastError='No image returned'
+ try {
+  do {
+   $Owned.entry.image_query_attempts++
+   try {
+    $image=Read-ProcessImage $Owned.handle
+    if(![string]::IsNullOrWhiteSpace($image)){return $image}
+    $lastError='Empty image returned'
+   } catch {$lastError=$_.Exception.Message}
+   $remaining=$TimeoutMilliseconds-$watch.ElapsedMilliseconds
+   if($remaining -le 0){break}
+   Start-Sleep -Milliseconds ([int][Math]::Min(100,$remaining))
+  } while($watch.ElapsedMilliseconds -lt $TimeoutMilliseconds)
+  throw "Blocked: process image unavailable within ${TimeoutMilliseconds}ms: $lastError"
+ } finally {$Owned.entry.image_query_elapsed_ms=$watch.ElapsedMilliseconds}
+}
+function Assert-BoundIdentity($Owned){
+ $entry=$Owned.entry
+ if(!$entry.identity_bound -or $null -eq $entry.pid -or [string]::IsNullOrWhiteSpace($entry.start_utc) -or [string]::IsNullOrWhiteSpace($entry.image) -or ![string]::Equals($entry.image,$entry.executable,[StringComparison]::OrdinalIgnoreCase)){
+  throw "Blocked: $($entry.kind) PID/start time/image identity is not bound"
+ }
+}
 function Start-OwnedProcess([string]$Kind,[string]$Executable,[string[]]$Arguments,[hashtable]$ExtraEnvironment=@{}){
+ # Compile interop before Start(): cold Add-Type must not consume the image deadline.
+ Initialize-ProcessImageApi
  $info=[Diagnostics.ProcessStartInfo]::new($Executable)
  $info.UseShellExecute=$false;$info.CreateNoWindow=$true;$info.WorkingDirectory=$root
  $info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true
@@ -100,35 +152,64 @@ function Start-OwnedProcess([string]$Kind,[string]$Executable,[string[]]$Argumen
  foreach($name in $removedEnvironment){$null=$info.Environment.Remove($name)}
  foreach($name in $ExtraEnvironment.Keys){$info.Environment[$name]=$ExtraEnvironment[$name]}
  # All actual names, only controlled values: do not serialize inherited secrets.
- $entry=@{kind=$Kind;executable=$Executable;arguments=$Arguments;command=(Format-Command $Executable $Arguments);working_directory=$root;environment_names=@($info.Environment.Keys|Sort-Object);environment_overrides=(@{TEMP=$tmp;TMP=$tmp}+$ExtraEnvironment);environment_removed=$removedEnvironment;pid=$null;start_utc=$null;image=$null;identity_bound=$false;exit_code=$null;killed=$false;wait_for_exit=$false;cleanup_errors=@()}
+ $entry=@{kind=$Kind;executable=$Executable;arguments=$Arguments;command=(Format-Command $Executable $Arguments);working_directory=$root;environment_names=@($info.Environment.Keys|Sort-Object);environment_overrides=(@{TEMP=$tmp;TMP=$tmp}+$ExtraEnvironment);environment_removed=$removedEnvironment;pid=$null;start_utc=$null;image=$null;identity_bound=$false;image_query_attempts=0;image_query_elapsed_ms=$null;identity_error=$null;cleanup_method=$null;exit_code=$null;killed=$false;wait_for_exit=$false;cleanup_errors=@()}
  $receipt.processes+=@($entry)
  $process=[Diagnostics.Process]::new();$process.StartInfo=$info
  if(!$process.Start()){throw "Could not start $Kind"}
  # Register before reading identity, so any later failure still reaches finally.
- $owned=@{process=$process;entry=$entry;stdout=$null;stderr=$null}
+ $owned=@{process=$process;handle=$null;entry=$entry;stdout=$null;stderr=$null;log_files=@{}}
  $processes.Add($owned)
- $null=$process.Handle
+ $owned.handle=$process.SafeHandle
  $entry.pid=$process.Id
- $owned.stdout=$process.StandardOutput.ReadToEndAsync();$owned.stderr=$process.StandardError.ReadToEndAsync()
- $entry.start_utc=$process.StartTime.ToUniversalTime().ToString('o')
- $entry.image=$process.MainModule.FileName
- if(![string]::Equals($entry.image,$Executable,[StringComparison]::OrdinalIgnoreCase)){throw "$Kind image mismatch"}
- $entry.identity_bound=$true
+ foreach($stream in @('stdout','stderr')){
+  # Disable FileStream buffering so partial output survives cleanup failures.
+  $file=[IO.FileStream]::new((Join-Path $root ($Kind+'.'+$stream+'.txt')),[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::Read,1,$true)
+  $owned.log_files[$stream]=$file
+  $reader=if($stream -eq 'stdout'){$process.StandardOutput}else{$process.StandardError}
+  $owned[$stream]=$reader.BaseStream.CopyToAsync($file)
+ }
+ try {
+  $entry.start_utc=$process.StartTime.ToUniversalTime().ToString('o')
+  $entry.image=Get-OwnedProcessImage $owned
+  if(![string]::Equals($entry.image,$Executable,[StringComparison]::OrdinalIgnoreCase)){throw "Blocked: $Kind image mismatch"}
+  $entry.identity_bound=$true
+  Assert-BoundIdentity $owned
+ } catch {$entry.identity_error=$_.Exception.Message;throw}
  return $owned
+}
+function Complete-OwnedLog($Owned,[string]$Stream){
+ if($null -ne $Owned[$Stream]){
+  if(!$Owned[$Stream].Wait(5000)){throw "$Stream drain timed out"}
+  $null=$Owned[$Stream].GetAwaiter().GetResult()
+ }
+ if($null -ne $Owned.log_files[$Stream]){
+  # CopyToAsync does not close its destination. Close the writer before any
+  # ReadAllText (FileShare.Read); finally may safely call this again.
+  $Owned.log_files[$Stream].Dispose()
+  $Owned.log_files[$Stream]=$null
+ }
 }
 function Stop-OwnedProcess($Owned){
  $process=$Owned.process;$entry=$Owned.entry
  try {
   if(!$process.HasExited){
-   if(!$entry.identity_bound){throw 'Unbound process identity: kill refused'}
-   $live=[Diagnostics.Process]::GetProcessById($entry.pid)
-   try {
-    if(!$live.HasExited){
-     if($live.Id -ne $entry.pid -or $live.StartTime.ToUniversalTime().ToString('o') -ne $entry.start_utc -or ![string]::Equals($live.MainModule.FileName,$entry.image,[StringComparison]::OrdinalIgnoreCase)){throw 'PID/start time/image mismatch: kill refused'}
-     # Kill via the retained original handle, never by a bare PID.
-     $process.Kill();$entry.killed=$true
-    }
-   } finally {$live.Dispose()}
+   if(!$entry.identity_bound){
+    # Only the Process returned by our Start(), with its retained handle.
+    # Never re-open a PID to clean up an unbound identity.
+    if($null -eq $Owned.handle -or $Owned.handle.IsInvalid -or $Owned.handle.IsClosed){throw 'Original process handle unavailable: kill refused'}
+    $entry.cleanup_method=if([string]::IsNullOrWhiteSpace($entry.image)){'original_handle_unbound_image'}else{'original_handle_unbound_identity'}
+    $process.Kill();$entry.killed=$true
+   } else {
+    $entry.cleanup_method='original_handle_verified_identity'
+    $live=[Diagnostics.Process]::GetProcessById($entry.pid)
+    try {
+     if(!$live.HasExited){
+      if($live.Id -ne $entry.pid -or $live.StartTime.ToUniversalTime().ToString('o') -ne $entry.start_utc -or ![string]::Equals($live.MainModule.FileName,$entry.image,[StringComparison]::OrdinalIgnoreCase)){throw 'PID/start time/image mismatch: kill refused'}
+      # Kill via the retained original handle, never by a bare PID.
+      $process.Kill();$entry.killed=$true
+     }
+    } finally {$live.Dispose()}
+   }
   }
   $entry.wait_for_exit=$process.WaitForExit(5000)
   if(!$entry.wait_for_exit){throw 'WaitForExit timed out after cleanup'}
@@ -138,17 +219,17 @@ function Stop-OwnedProcess($Owned){
   if($process.HasExited -and $process.WaitForExit(5000)){$entry.wait_for_exit=$true;$entry.exit_code=$process.ExitCode}
   else {$entry.cleanup_errors+=@($_.Exception.Message);throw}
  } finally {
-  if($entry.wait_for_exit){
-   foreach($stream in @('stdout','stderr')){
-    try {
-     if($null -ne $Owned[$stream]){
-      if(!$Owned[$stream].Wait(5000)){throw "$stream drain timed out"}
-      [IO.File]::WriteAllText((Join-Path $output ($entry.kind+'.'+$stream+'.txt')),$Owned[$stream].GetAwaiter().GetResult(),[Text.UTF8Encoding]::new($false))
-     }
-    } catch {$entry.cleanup_errors+=@($_.Exception.Message)}
-   }
-   $process.Dispose()
+  foreach($stream in @('stdout','stderr')){
+   try {
+    Complete-OwnedLog $Owned $stream
+   } catch {$entry.cleanup_errors+=@($_.Exception.Message)}
+   # Copy independently even after a drain error; the run retains partial logs.
+   try {
+    $logPath=Join-Path $root ($entry.kind+'.'+$stream+'.txt')
+    if(Test-Path -LiteralPath $logPath){Copy-Item -LiteralPath $logPath -Destination (Join-Path $output ($entry.kind+'.'+$stream+'.txt'))}
+   } catch {$entry.cleanup_errors+=@($_.Exception.Message)}
   }
+  if($entry.wait_for_exit){$process.Dispose()}
  }
 }
 function Assert-Ready($Ready,$Server){
@@ -231,18 +312,21 @@ try {
  $receipt.ready=$ready
  if((Get-Pin $ReferenceJar) -ne $jarSha){throw 'JAR changed before Rust startup'}
  Save-Receipt
+ # Startup may proceed only after javac and Java each bind all three fields.
+ foreach($owned in @($compiler,$server)){Assert-BoundIdentity $owned}
  $client=Start-OwnedProcess 'rust' $immutable $testArgs @{LITO_TELEPORT_SCENARIO=$Scenario;LITO_TELEPORT_ROOT=$runtime;LITO_TELEPORT_REFERENCE_SHA=$jarSha.ToLowerInvariant()}
  $receipt.lease_deadline_utc=[DateTime]::UtcNow.AddSeconds($leaseSeconds).ToString('o');Save-Receipt
  if(!$client.process.WaitForExit($leaseSeconds*1000)){throw 'Teleport handoff test timeout'}
  if(!$server.process.WaitForExit(8000)){throw 'Server cleanup did not complete'}
  if($client.process.ExitCode -ne 0 -or $server.process.ExitCode -ne 0){throw 'Teleport handoff test or cleanup failed'}
- $testText=$client.stdout.GetAwaiter().GetResult()
+ Complete-OwnedLog $client 'stdout'
+ $testText=[IO.File]::ReadAllText((Join-Path $root 'rust.stdout.txt'),[Text.Encoding]::UTF8)
  if($testText -notmatch 'running 1 test\b' -or $testText -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;'){throw 'Expected exactly one executed passing Rust test'}
  $resultPath=Join-Path $runtime 'result.json';Assert-OwnedPath $resultPath
  $result=Get-Content -LiteralPath $resultPath -Raw -Encoding utf8|ConvertFrom-Json
  if($result.status -ne 'sessions_closed' -or $result.memberships_empty -ne $true -or $result.actual_client_sessions -ne $(if($Scenario -eq 'wrong-service'){10}else{8}) -or $result.authority_mutations -ne 0 -or $result.staged_loadouts_after_reentry -ne 0 -or $result.sql_access -ne $false -or $result.state_persistent -ne $false -or $result.full_game_reentry_verified -ne $true -or $result.jar_sha256 -ne $jarSha){throw 'Isolation/cleanup result mismatch'}
  $receipt.server=$result;$receipt.status='verified_'+$Scenario
-} catch {$failure=$_.Exception.Message;$receipt.status='failed';$receipt.error=$failure}
+} catch {$failure=$_.Exception.Message;$receipt.status=if(@($receipt.processes|Where-Object {$null -ne $_.identity_error}).Count){'blocked'}else{'failed'};$receipt.error=$failure}
 finally {
  # Attempt each owned process independently, including failed compilation.
  foreach($kind in @('rust','java','javac')){
