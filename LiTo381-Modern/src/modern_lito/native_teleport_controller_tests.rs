@@ -27,13 +27,16 @@ impl FaultPeer {
         Self::at("127.0.0.1:0".parse().unwrap())
     }
     fn at(address: SocketAddr) -> Self {
+        Self::waiting_at(address, Duration::from_secs(5))
+    }
+    fn waiting_at(address: SocketAddr, accept_timeout: Duration) -> Self {
         let listener=TcpListener::bind(address).unwrap(); listener.set_nonblocking(true).unwrap();
         let peer=listener.local_addr().unwrap(); let (tx, rx)=mpsc::channel::<Emission>();
         let commands=Arc::new(Mutex::new(Vec::new())); let log=commands.clone();
         let accepted=Arc::new(AtomicUsize::new(0)); let count=accepted.clone();
         let stop=Arc::new(AtomicBool::new(false)); let ending=stop.clone();
         let worker=thread::spawn(move || -> anyhow::Result<()> {
-            let deadline=Instant::now()+Duration::from_secs(5);
+            let deadline=Instant::now()+accept_timeout;
             let mut socket=loop {
                 if ending.load(Ordering::Acquire) { return Ok(()) }
                 match listener.accept() {
@@ -233,8 +236,7 @@ pub fn recovery_natural_eight_second_waits_do_not_publish_or_retry() {
     assert_eq!(peer.opcodes(), vec![0xc8]);
 }
 
-#[cfg_attr(test, test)]
-pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
+fn authenticated_recovery_redirect(accept_timeout: Duration) -> (LoginController, FaultPeer, FaultPeer) {
     let mut old = FaultPeer::new(); let mut target = FaultPeer::new();
     let mut c = seeded(&old);
     c.teleport.as_mut().unwrap().character = "重建角色".into();
@@ -243,8 +245,8 @@ pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
     stop(&mut c); c.cancel(); c.poll(); retired(&c);
     old.close(); target.close();
     assert!(c.teleport_recovery.is_some());
-    let mut login = FaultPeer::at(old.peer);
-    let mut game = FaultPeer::new();
+    let login = FaultPeer::at(old.peer);
+    let game = FaultPeer::waiting_at("127.0.0.1:0".parse().unwrap(), accept_timeout);
     c.start(login.peer, Limits::default()).unwrap();
     pump(&mut c, |c| c.state.phase == LoginPhase::ReadyForLogin);
     assert!(login.opcodes().is_empty(), "cancel must not auto-login");
@@ -258,6 +260,12 @@ pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
     assert!(c.teleport_recovery.is_none());
     login.emit(vec![endpoint(game.peer)]);
     pump(&mut c, |c| c.state.phase == LoginPhase::RedirectReady);
+    (c, login, game)
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
+    let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(5));
     c.begin_game().unwrap();
     pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
     game.emit(vec![game_packet("ready"), vec![3, 1], game_packet("row"), vec![0xc8, 0], bytes("inventory")]);
@@ -268,6 +276,49 @@ pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
     assert_eq!(login.opcodes(), vec![1, 0xc8]);
     assert!(!game.opcodes().contains(&0xc8) && !game.opcodes().contains(&0xc9));
     assert!(c.teleport_recovery.is_none());
+}
+
+// Integration supplies the same natural 31s observer used by the owned E149
+// entry. The peer provides only synthetic packets, never a claimed server TTL.
+pub fn recovery_after_source_wait_confirms_directory(
+    observe: impl FnOnce(&mut LoginController) -> anyhow::Result<u128>,
+) {
+    let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(40));
+    let epoch = c.transport.snapshot().epoch;
+    let start = Instant::now();
+    let observed = observe(&mut c).unwrap();
+    assert!(start.elapsed() >= Duration::from_secs(31) && observed >= 31000);
+    assert_eq!(c.transport.snapshot().epoch, epoch);
+    assert_eq!(game.accepted.load(Ordering::Acquire), 0, "GAME opened during source wait");
+    c.begin_game().unwrap();
+    pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+    // Simulate a complete empty default-source directory after source expiry.
+    game.emit(vec![game_packet("ready"), vec![3, 0]]);
+    pump(&mut c, |_| game.opcodes().contains(&0xc8));
+    assert_eq!(c.state.phase, LoginPhase::LoadingCharacters);
+    assert!(c.state.characters.is_empty() && c.recovery_character.is_none());
+    assert_eq!(c.state.directory_generation, 0);
+    retired(&c);
+    assert!(c.select_character(0).is_err());
+    let rx = c.transport.snapshot().negotiated.as_ref().unwrap().rx_counter;
+    game.emit(vec![vec![3, 1]]);
+    pump(&mut c, |c| c.transport.snapshot().negotiated.as_ref().unwrap().rx_counter > rx);
+    assert_eq!(c.state.phase, LoginPhase::LoadingCharacters);
+    assert!(c.select_character(0).is_err());
+    game.emit(vec![game_packet("row")]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::CharactersReady);
+    assert_eq!(c.state.directory_generation, 1);
+    assert!(c.state.selected_character.is_none() && c.state.inventory.owner.is_none());
+    assert!(!game.opcodes().contains(&0xc9), "C9 sent before explicit choice");
+    let c8 = source_request("測試乙").unwrap().to_vec();
+    assert_eq!(game.commands.lock().unwrap().iter().filter(|b| b[0] == 0xc8).collect::<Vec<_>>(), vec![&c8]);
+    c.select_character(0).unwrap();
+    pump(&mut c, |_| game.opcodes().contains(&0xc9));
+    assert_eq!(c.state.selected_character.as_deref(), Some("重建角色"));
+    stop(&mut c); login.close(); game.close();
+    assert!(c.teleport_recovery.is_none() && c.recovery_character.is_none());
+    assert_eq!(c.transport.snapshot().epoch, epoch + 1);
+    assert_eq!(game.opcodes().iter().filter(|&&op| op == 0xc9).count(), 1);
 }
 impl Drop for FaultPeer {
     fn drop(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){if let Ok(Err(error))=h.join(){eprintln!("synthetic peer {} failed: {error:#}",self.peer);}} }

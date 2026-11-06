@@ -3,6 +3,8 @@ use lito_modern::modern_lito::{native_login::{LoginController,LoginPhase as P,Sn
 use anyhow::{ensure,Context,Result};
 use serde_json::{json,Value};
 use std::{net::SocketAddr,path::Path,sync::atomic::AtomicBool,thread,time::{Duration,Instant}};
+#[path = "../src/modern_lito/native_teleport_registry.rs"]
+mod recovery_registry;
 // Server-owned stage/source TTL is 30s. These are observation waits, never
 // replacements for a server clock or the client's 8s response deadline.
 const STAGED_EXPIRY_OBSERVATION: Duration = Duration::from_secs(33);
@@ -22,7 +24,9 @@ fn observe_source_expiry(c: &mut LoginController) -> Result<u128> {
   c.poll();let s=c.snapshot();
   ensure!(s.phase==P::RedirectReady && s.selected_source.as_deref()==Some(REQUESTED_SOURCE)
    && s.selected_character.is_none() && s.inventory.owner.is_none()
-   && s.world.actors.is_empty() && c.transport().snapshot().epoch==epoch,
+   && s.inventory.items.is_empty() && s.world.actors.is_empty() && !s.world.ready()
+   && s.joined_room.is_none() && s.merchant.owner.is_none() && s.services.is_none()
+   && c.transport().snapshot().epoch==epoch,
    "source expiry wait changed connection or published authority");
   thread::sleep(Duration::from_millis(20));
  }
@@ -49,8 +53,8 @@ fn walk(c:&mut LoginController,model:&mut Model,npc:u32,cancel:&AtomicBool,start
 
 fn failure_player(root:&Path,peer:SocketAddr,role:&str,account:&str)->Result<()>{
  let scenario=std::env::var("LITO_TELEPORT_SCENARIO").unwrap_or_else(|_|"timeout".into());
- // The second T023 slice wires the dual-expiry scenario into the owned runner.
- // Keep the existing stage-only scenario intact while sharing the 31s observer.
+ // This entry exercises the source TTL in addition to the staged TTL. The
+ // other historical repeated-cancel scenarios remain a separate T023 slice.
  let source_expiry=scenario=="cancel-expiry-source";
  let wrong_service=scenario=="wrong-service";let refused=scenario=="refused";let cancel_expiry=scenario=="cancel-expiry"||source_expiry;let cancel_retry=scenario=="cancel-retry";
  let mut manual_selection=false;let mut closed_samples=0u32;let mut expiry_wait_ms=0u128;let mut source_wait_ms=0u128;
@@ -144,6 +148,12 @@ fn cancellation_retires_destination_and_expired_handoff_requires_fresh_selection
  run_owned_harness();
 }
 #[test]
+#[ignore="requires owned E149 harness and natural 33s staged plus 31s source expiry"]
+fn source_handoff_expiry_confirms_c8_before_manual_selection(){
+ assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("cancel-expiry-source"));
+ run_owned_harness();
+}
+#[test]
 #[ignore="requires owned harness and immediate authenticated retry"]
 fn cancellation_then_immediate_retry_consumes_staged_character_once(){
  assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("cancel-retry"));run_owned_harness();
@@ -159,10 +169,17 @@ fn wrong_service_destination_retires_authority_and_allows_fresh_login(){
  assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("wrong-service"));run_owned_harness();
 }
 fn run_owned_harness(){
+ recovery_registry::checkout_binding().expect("current source/fixture binding");
  let root=std::path::PathBuf::from(std::env::var("LITO_TELEPORT_ROOT").expect("owned root"));assert!(root.canonicalize().unwrap().starts_with(Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current").canonicalize().unwrap()));
- let ready:Value=serde_json::from_slice(&std::fs::read(root.join("ready.json")).unwrap()).unwrap();let expected=std::env::var("LITO_TELEPORT_REFERENCE_SHA").unwrap_or_else(|_|"bbc59308c43df89ee5029d3b3c802be8ad55fee65c41faca99a76912dd5dce43".into());assert_eq!(ready["jar_sha256"],expected);
+ let ready:Value=serde_json::from_slice(&std::fs::read(root.join("ready.json")).unwrap()).unwrap();
+ let expected="e1498871c7be6b287821c57ef5d95933db1740d9b4d4a80f6c3465f21d99d498";
+ if let Ok(declared)=std::env::var("LITO_TELEPORT_REFERENCE_SHA"){assert_eq!(declared.to_ascii_lowercase(),expected);}
+ assert_eq!(ready["jar_sha256"],expected);
  for name in ["port","town_port"] {let port=ready[name].as_u64().expect("owned listener port");assert!(!matches!(port,2000|3306),"forbidden {name}: {port}");}
  let peer:SocketAddr=format!("127.0.0.1:{}",ready["port"].as_u64().unwrap()).parse().unwrap();
+ assert_eq!(ready["scenario"],std::env::var("LITO_TELEPORT_SCENARIO").unwrap());
+ assert_eq!(ready["requested_source"],REQUESTED_SOURCE);
+ assert_eq!(ready["default_source"],"測試甲");
  thread::scope(|scope|{let a=scope.spawn(||failure_player(&root,peer,"a","PeerFixture"));let b=scope.spawn(||failure_player(&root,peer,"b","PeerFixture2"));let ar=a.join().unwrap();let br=b.join().unwrap();assert!(ar.is_ok()&&br.is_ok(),"a={ar:?}; b={br:?}");});
 }
 
@@ -185,4 +202,8 @@ mod recovery_wire {
  fn natural_eight_second_deadlines() { cases::recovery_natural_eight_second_waits_do_not_publish_or_retry(); }
  #[test]
  fn direct_teleport_cannot_refresh_source() { cases::recovery_refresh_is_not_available_to_a_direct_teleport(); }
+ #[test]
+ fn natural_source_wait_then_complete_c8_and_manual_selection() {
+  cases::recovery_after_source_wait_confirms_directory(super::observe_source_expiry);
+ }
 }
