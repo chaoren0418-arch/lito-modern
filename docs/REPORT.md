@@ -51,3 +51,4 @@
 - 2026-11-06 — #92 範圍凍結：完成定義、主線封頂、backlog 分流（plan，claude-chat，PR #99 已合併）→ [報告](reports/issue-92.md)
 - 2026-11-06 — #122 T011-H 修正: run-teleport-failure.ps1 程序身分取得（MainModule 失敗）與未綁定時的安全清理、日誌保存（code，codex-local，PR 已合併）→ [報告](reports/issue-122.md)
 - 2026-11-06 — #118 T011-B（重跑）: T011-F 修正後，本機重新執行當版 G06.3d 5 個 scenario（test，codex-local，PR #129 已合併）→ [報告](reports/issue-118.md)
+- 2026-11-06 — #131 主控：M1 完成——同步 TASKS／PLAN 狀態，並依凍結規則申請開放 M2（57 張）（plan，claude-chat，PR #134 已合併）→ [報告](reports/issue-131.md)
