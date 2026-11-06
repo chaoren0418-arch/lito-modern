@@ -11,6 +11,9 @@ use zeroize::Zeroizing;
 #[path = "native_rental_return_tests.rs"]
 mod rental_return_tests;
 #[cfg(test)]
+#[path = "native_rental_lifecycle_tests.rs"]
+mod rental_lifecycle_tests;
+#[cfg(test)]
 #[path = "native_battle_withdrawal_tests.rs"]
 mod battle_withdrawal_tests;
 #[cfg(test)]
@@ -301,6 +304,7 @@ pub struct Snapshot {
     pub services: Option<super::native_services::Directory>,
     pub rental_set: Option<u8>,
     pub rental_restart_acks: u64,
+    pub rental_return_outcome: Option<RentalReturnOutcome>,
     pub battle_withdrawal_pending: bool,
     pub shop_points: Option<u32>,
     pub merchant: super::native_merchant::Session,
@@ -325,6 +329,13 @@ struct TeleportRecovery {
     source: String,
     character: String,
 }
+/// A fresh authenticated directory after timeout is recovery, not a normal return.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
+pub enum RentalReturnOutcome {
+    Normal,
+    Reconnected,
+}
+
 struct RentalReturnReconnect {
     login_peer: SocketAddr,
     source: String,
@@ -406,6 +417,7 @@ impl Default for LoginController {
                 services: None,
                 rental_set: None,
                 rental_restart_acks: 0,
+                rental_return_outcome: None,
                 battle_withdrawal_pending: false,
                 shop_points: None,
                 merchant: Default::default(),
@@ -969,6 +981,9 @@ impl LoginController {
         );
         self.state.character_result = None;
         self.state.classic_entry_result = None;
+        // A new explicit selection ends the previous rental return's packet fence.
+        self.state.rental_restart_acks = 0;
+        self.state.merchant.clear();
         self.state.rental_set=None;self.rental_set_pending=None;self.state.shop_points=None;
         self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
         self.state.inventory.begin(
@@ -1024,7 +1039,11 @@ impl LoginController {
     pub fn return_from_rental(&mut self)->Result<()> {
         ensure!(self.merchant_owner().is_some(),"目前不是可返回的租裝村角色");
         ensure!(!self.state.merchant.waiting,"請等待 NPC 回覆後返回");
+        ensure!(self.portal_entry.is_none(),"請等待地圖入口回覆後返回");
         self.transport.send(self.transport.snapshot().epoch,Zeroizing::new(vec![0x10]))?;
+        self.teleport=None;
+        self.interrupt_world_actions();
+        self.state.rental_return_outcome=None;
         self.state.merchant.clear();self.state.rental_restart_acks=0;self.rental_restart_quit_pending=false;
         self.state.phase=LoginPhase::RentalRestartPending;self.deadline=Some(Instant::now()+Duration::from_secs(8));Ok(())
     }
@@ -1253,6 +1272,13 @@ impl LoginController {
                     self.kick_pending=None;self.observer_return=None;
                     self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
                     if self.state.phase==LoginPhase::ReturningCharacters {
+                        if self.state.rental_restart_acks>0 {
+                            // Keep authority updates hidden until explicit reselection:
+                            // rental removals may follow S_D0 on this same connection.
+                            self.state.inventory.suspend();
+                            self.state.merchant.clear();
+                            self.interrupt_world_actions();
+                        }
                         return Ok(true);
                     }
                     self.state.phase = LoginPhase::LobbyReady;
@@ -1433,8 +1459,8 @@ impl LoginController {
             },
             L::SourceRefresh => {
                 ensure!(!self.rental_restart_quit_pending,"source refresh preceded rental quit acknowledgement");
-                ensure!(self.state.rental_restart_acks==0 || self.state.rental_set.is_none()
-                    || self.state.joined_room.is_none(),"source refresh preceded rental departure");
+                ensure!(self.state.rental_restart_acks==0 || self.state.joined_room.is_none(),
+                    "source refresh preceded rental departure");
                 ensure!(
                     self.state.phase == LoginPhase::ReturningCharacters,
                     "unsolicited source refresh permission"
@@ -1469,6 +1495,27 @@ impl LoginController {
         Ok(true)
     }
     fn accept_game(&mut self, body: &[u8]) -> Result<()> {
+        if self.state.phase==LoginPhase::RentalRestartPending
+            || (self.state.rental_restart_acks>0 && matches!(self.state.phase,
+                LoginPhase::ReturningCharacters|LoginPhase::LoadingCharacters|LoginPhase::CharactersReady)) {
+            // Only return controls, the refreshed directory and authoritative
+            // inventory deltas survive this fence. Queued scene/NPC replies
+            // cannot revive battle, restore a consumed list or renew a deadline.
+            if !body.first().is_some_and(|op|matches!(op,0x65|0xf0|0xd0|0xf5|0x03|0xcb|0xfb)) {
+                self.state.inventory.accept(self.transport.snapshot().epoch,body)?;
+                return Ok(());
+            }
+            // Validate control order before World::accept can record an unknown
+            // opcode. Rejected return controls must leave the entire scope intact.
+            if body.first()==Some(&0xd0) {
+                self.accept_room(body)?;
+                return Ok(());
+            }
+            if body.first()==Some(&0xf5) {
+                self.accept_lobby(body)?;
+                return Ok(());
+            }
+        }
         if self.state.phase==LoginPhase::TeleportQuitPending {
             if body.first()==Some(&0xf0) {
                 ensure!(body==[0xf0,0],"malformed teleport quit acknowledgement");
@@ -1517,8 +1564,8 @@ impl LoginController {
             self.deadline=Some(Instant::now()+Duration::from_secs(8));return Ok(());
         }
         if body.first()==Some(&0xf0) && (self.state.phase==LoginPhase::RentalRestartPending
-            || (self.state.phase==LoginPhase::ReturningCharacters
-                && self.state.rental_restart_acks>0 && self.state.rental_set.is_some())) {
+            || (self.state.rental_restart_acks>0 && matches!(self.state.phase,
+                LoginPhase::ReturningCharacters|LoginPhase::LoadingCharacters|LoginPhase::CharactersReady))) {
             ensure!(body==[0xf0,0] && self.rental_restart_quit_pending
                 && self.state.phase==LoginPhase::ReturningCharacters,
                 "unsolicited, duplicate or malformed rental quit acknowledgement");
@@ -1810,6 +1857,9 @@ impl LoginController {
                 self.state.phase=LoginPhase::CharacterPending;
                 self.deadline=Some(Instant::now()+Duration::from_secs(8));
             } else {
+                if self.state.rental_restart_acks>0 {
+                    self.state.rental_return_outcome=Some(RentalReturnOutcome::Normal);
+                }
                 self.state.phase = LoginPhase::CharactersReady;
                 self.deadline = None;
             }
@@ -2151,6 +2201,7 @@ impl LoginController {
                     && self.state.inventory.items.is_empty() && !self.state.world.ready(),
                     "return source directory retained retired rental authority");
                 self.rental_return_reconnect=None;
+                self.state.rental_return_outcome=Some(RentalReturnOutcome::Reconnected);
             }
             _=>{}
         }
