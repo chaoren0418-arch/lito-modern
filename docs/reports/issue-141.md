@@ -1,6 +1,6 @@
 # #141 T026（M2 2/2）：玩法支援矩陣
 
-基準：分支 `task/141`，從 `main` 的 `dd4fabb4` 分出。第一版是 `0949a69`，本版依 codex-review 退回的 5 點修正。
+基準：分支 `task/141`，從 `main` 的 `dd4fabb4` 分出。第一版是 `0949a69`，之後依 codex-review 三輪退回修正（5 點、2 點、1 點）。
 
 ## 做了什麼
 - 在 `docs/SKILLS-STATUS.md` 新增一節「玩法支援矩陣：技能以外的玩家可達操作」，共 28 列，8 欄：操作、封包、伺服器權威、呈現、失敗路徑、客戶端現況、狀態、後續。
@@ -25,7 +25,7 @@
      - 「S_RESURRECT 接收與生命週期」標**部分**：`native_world.rs:567-596` 解析 0x11，`native_login.rs:1632-1649` 處理 honor player 的死亡確認 deadline。拒絕與 orphan 路徑都附了出處。
      - 「榮譽模式延遲重生的完整流程」標**待核對**，交 T048。
      - 我之前根據 NATIVE-OUTCOMES:13 的舊敘述，把這項判成「缺失」，這是誤判。這兩段程式碼在 `0949a69` 就已經存在。
-  2. 修正 C76 搜尋的結果摘要（見「已驗證」）。
+  2. 修正 C76 搜尋的結果摘要（見「已驗證」）。第三輪審查（9bca6e6）指出檔案數與分類仍有誤，已改為逐行對照 `git grep` 的輸出。
 - 狀態統計：支援 8、部分 8、缺失 5、拒絕 1、待核對 4、不適用 2，共 28。
 - 武器 Proc 列改寫，各欄都寫成明確的值（待核對，交 T047）。Storm_Walk 併入 use_type 5 那一列。寵物控制改標「不適用（不在本張，見 T063）」。
 
@@ -38,10 +38,20 @@
 - 拾取：`native_ground_pickup.rs:98` 建 `C0B`。
 - 遠程姿態：`native_world.rs:345` `matches!(own.walk_action, 20 | 62)`。
 - 屬性封包：`native_world.rs:555` 處理 0x50／0x51／0x52／0x56。
-- 銷毀：`src/modern_lito` 裡沒有 C76 的建構。`grep -rn "C76\|0x76"` 在 10 個檔案命中 14 處，分成三類，都不是封包建構：
-  - **按鍵碼**：`world_window.rs:979` 的 `(0x70..=0x76).contains(&key)`，是 F1～F7 的虛擬鍵碼範圍。
-  - **雜湊**：十六進位 SHA-256 字串，共 8 處，分布在 7 個檔案：`actor_assets.rs`、`tile.rs`、`native_external_fixture.rs`（2）、`native_npc_images.rs`、`native_pet_race_wire_boundary.rs`、`timed_effect_reference_tests.rs`（2），以及 `siege_wire_golden.rs` 的 1 處。
-  - **編碼 fixture**：base64／gzip 的封包 fixture 資料，共 4 處：`siege_wire_golden.rs` 3 處、`disintegrate_wire_golden.rs` 1 處。
+- 銷毀：`src/modern_lito` 裡沒有 C76 的建構。`git grep -n -E 'C76|0x76' 9bca6e6 -- LiTo381-Modern/src/modern_lito` 共 **14 行命中，分布在 9 個檔案**（以命中行數計）。分成三類：
+  - **SHA-256 雜湊**：10 行，7 個檔案。
+    - `actor_assets.rs:968`
+    - `native_external_fixture.rs:47`、`:118`
+    - `native_npc_images.rs:16`
+    - `native_pet_race_wire_boundary.rs:23`
+    - `siege_wire_golden.rs:18`、`:38`
+    - `tile.rs:2014`
+    - `timed_effect_reference_tests.rs:62`、`:97`
+  - **base64／gzip 編碼 fixture**：3 行，2 個檔案。
+    - `siege_wire_golden.rs:10`、`:30`
+    - `disintegrate_wire_golden.rs:6`
+  - **按鍵碼**：1 行。`world_window.rs:979`，`(0x70..=0x76).contains(&key)`，是 F1～F7 的虛擬鍵碼範圍。
+  - 合計 10＋3＋1＝14 行。
   - 排除理由：三類都只是字串或數字的子字串，沒有任何一處把 0x76 當作 opcode 寫進 `Vec<u8>`，也沒有對應的 `*_request` 函式。
   - 結論維持：銷毀是「缺失」。
 - 復活：`native_world.rs:567-596` 解析 0x11；`native_login.rs:1632-1649` 接收這個事件。測試 `tests/native_lifecycle.rs` 有三個，不在 `維護工具/test-whitelist/tests.tsv` 裡，所以**未執行**。
@@ -53,8 +63,7 @@
 grep -n "fn " LiTo381-Modern/src/modern_lito/native_item_actions.rs
 grep -n "walk_action, 20" LiTo381-Modern/src/modern_lito/native_world.rs
 grep -n "0x0b\|0x0B" LiTo381-Modern/src/modern_lito/native_ground_pickup.rs
-grep -rn "C76\|0x76" LiTo381-Modern/src/modern_lito
-grep -c "C76\|0x76" LiTo381-Modern/src/modern_lito/*.rs
+git grep -n -E 'C76|0x76' 9bca6e6 -- LiTo381-Modern/src/modern_lito
 sed -n 567,596p LiTo381-Modern/src/modern_lito/native_world.rs
 sed -n 1632,1649p LiTo381-Modern/src/modern_lito/native_login.rs
 grep -n "^native_lifecycle" 維護工具/test-whitelist/tests.tsv
@@ -63,7 +72,7 @@ grep -c "| — |" docs/SKILLS-STATUS.md
 
 結果：
 - 引用的位置全部吻合。
-- C76 的 14 處命中分類如上。
+- C76 搜尋共 14 行命中、9 個檔案：雜湊 10、fixture 3、按鍵碼 1。
 - 白名單裡沒有 `native_lifecycle`。
 - 最後一條（`grep -c "| — |"`）是 0。
 
