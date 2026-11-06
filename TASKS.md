@@ -5,10 +5,10 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 
 ## 範圍凍結規則（2026-11-06，#92）
 - **完成定義凍結**：每個里程碑的「驗收：使用者打開會看到什麼」寫完後不再改寫；要改需開新 Issue 說明理由並標 `needs:user`。
-- **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線 11／11 全部完成**（2026-11-06）：M0、M1、V1 都已完成。#118（PR #129）的 G06.3d 5 個 scenario 全部實跑通過。M2 開放需要使用者同意（見下一點）。
-- **分母只因「不確定項」兌現而變動**：主線的不確定項 U-M1-1 已兌現為 T011-F；U-V1-1、U-V1-2 沒有兌現，已關閉。主線分母固定為 11，只有在 M2 開放（需要 `needs:user`）時才會變動。兌現時 PR 說明要引用當初的編號與估算。
+- **主線封頂**：M0、M1、V1 已全部完成（11 項）。2026-11-06 使用者同意開放 M2（#132），M2 的 23 項（57 張）原樣升級成主線。主線分母由 11 變成 34 項（調度台以 `## M*` 下的 `###` 項目計數），封頂。
+- **分母只因「不確定項」兌現而變動**：U-M1-1 已兌現為 T011-F；U-V1-1、U-V1-2 沒有兌現，已關閉。M2 的不確定項 U-M2-1～3 兌現時，最多 +8 張（見 PLAN），兌現時 PR 要引用編號與估算。
 - **新發現的工作一律進 `## Backlog`**，不算進度。要升級成主線，必須同時砍掉一項主線，或經使用者同意（`needs:user`）。
-- **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 57 張、M3 44 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
+- **M2 已開放（2026-11-06，#132）；M3 尚未開放**：完成定義都已凍結。M3（44 張）放在 Backlog，等 M2 完成後再開 Issue 經使用者同意，原樣升級；不得在升級時加項目。
 
 ## M0 可建置（完成）
 驗收：使用者打開會看到什麼（凍結）：GitHub Actions 的 `build.yml` 在 main 最新一次是綠色；`docs/reports/issue-59.md` 有 clone 到其他路徑後 `啟動現代客戶端.ps1 -BuildOnly` 結束碼 0 的實際輸出。
@@ -75,12 +75,156 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 先修 `scene_preview.rs`：比照登入與設定視窗，在第一次 ShowWindow 之後補 `IsWindowVisible` 檢查與第二次 ShowWindow，讓腳本用 Hidden 啟動 `-OfflineScene` 時視窗仍可見。然後截圖客戶端的三個不連線畫面：`-ConfigureNative` 設定畫面、`-NativeLoginEndpoint` 登入畫面（不按連線）、`-OfflineScene` 離線場景，並寫 `docs/DEMO.md`。
 驗收：修正通過 cargo check；照 DEMO.md 的重現指令啟動時三個視窗都確實可見；repo 內有三張對應實際畫面的 PNG，DEMO.md 可以直接顯示圖片，並寫明每張的重現指令與預期畫面。缺任何一張就是未完成（blocked），要如實記錄錯誤與恢復方式，但不能用錯誤紀錄代替截圖。
 
-## M2 技能與 G06 收尾（尚未開放）— 主線 0 項
+## M2 技能與 G06 收尾（2026-11-06 使用者同意開放，#132）— 主線 23 項（57 張），封頂
 驗收：使用者打開會看到什麼（凍結）：
 - 打開 `docs/SKILLS-STATUS.md`（M2 新增），看到 E149 目錄每個技能一列：送包形狀測試（名稱＋通過與否）、資源／特效核對、「以 E149 為準可驗」或「伺服器待定」。凡是標可驗的列，全部顯示通過。
 - 執行 `run-local-test-suite.ps1`，總表多出「技能」與「G06」兩類，結束碼 0。G06 包含當版 5 個 scenario，以及補回的 3 個舊 scenario。
 - #97 暗隱術的 12 個 ready-gate 案在 `src/` 的版本全部通過（8 純案＋4 原資源案）。
-任務清單：見 Backlog「預定 M2」（57 張，開放時原樣升級）。
+任務清單：下列 23 項共 57 張，由 #132 原樣從 Backlog 升級，依 `docs/plans/issue-132.json` 建立 Issue。只有 U-M2-1～3 兌現時可以增加張數，上限 +8。
+技能集合以 `docs/PROTOCOL-CONTRACT.md` §6.3 為準：git `2066774`，共 181 項，也就是 180 個 catalog 記錄加上 dispatcher 特例 5 TELEPORT。E149 與 `2066774` 的 `BattleSpellCatalog` 常數 223／223 完全相同，`new *Spell(` 也同為 186 處。逐 ID 去重後的分配如下，合計 38＋48＋4＋91＝181，沒有重複：
+
+| 集合 | 數量 | ID |
+|---|---|---|
+| main 已接 | 38 | 1–4、6–11、13–19、26、28、31、32、34、35、38、42、43、49、52、54、57、58、60、63、72、77、78、131、206 |
+| 候選獨有 | 48 | 見 T027 |
+| #97–#100 | 4 | 97–100 |
+| 未接 | 91 | 見 T022 |
+
+### T025 | todo | Claude | `docs/PROTOCOL-CONTRACT.md`（1 張）
+：版本綁定。寫明 M2／M3 都以 E149（e1498871）為準；對齊第 8 節「待對 e1498871 核對」與 T004-1 已完成之間的矛盾。另外把 180／181 的來源寫進契約：180 個 catalog 記錄，加上 TELEPORT 是 dispatcher 特例（`維護工具/generate-spell-request-shapes.py:192`）。再寫一份「伺服器換版時客戶端要重核」的清單：JAR SHA 與血統分支、`Protocol$*` 變動與 opcode／欄位、ClientSession／GameHub 變動 class、技能結果與狀態圖示 ID、房間與結算、移動與傳送、裝備與租賃、GM 指令、登入流程、相容 DLL 與 hook 位址（見報告附錄 D）。另外依伺服器 maintenance 全讀結果，重核清單還要加上：候選協定變更（ICONS1、ICON_I2H、OwnCharStatus、1016／1017、娃娃 29 的 buffDuration `writeH`、S_HPMeter 104 的 hide255、施法時間窗與 SprTable 截斷、裝備只送一份最終描述、舊角色封包抑制、173／174 的 opcode 修正、portal 在落點前改 showId）；Maven 產物和 E149 的差異（`NativeDeVisibilitySwitch` 缺失、1320 個 Modern* 類、49 個非 Modern 類，`docs/server-source-gap.md:37-1454`）；來源伺服器清單（8 格原生限制，目前只啟用 380_ac_1／2）；`TW13081901.txt` 的 pin。注意：maintenance 目錄最新的正式 JAR 紀錄是 0.6.68 `c02aaae8`，0.6.69–0.6.71 要從登入器 repo 的 release 紀錄取得。依 #120 新 N3：同一個 builder SHA 可能對應不同的輸入 Java 與不同的候選 JAR，所以重核清單要用 branch／manifest pin 追溯血統，不能只比 builder SHA；`df9464f0` 底下的兩條 magical-weapon 後繼不能混為同一條鏈。（1 張）
+
+### T026 | todo | Claude | `docs/SKILLS-STATUS.md`（新增）（2 張）
+：技能分類。把 181 個技能逐一對到伺服器缺口組（伺服器 T021 目標／Ctrl、T022 自施、T023 受控 NPC、T024 HP 生產端、T025 材料、T028 顯示），分成「以 E149 為準可驗」與「伺服器待定」兩類。後者只驗送包形狀與畫面，不驗與原版同源。另外依 G05 的 work，把範圍擴大成**玩法支援矩陣**：所有玩家可達的操作（技能、物品使用／裝卸／丟棄／拾取、遠程與彈藥、耗材／MP、buff／debuff、復活），每一列標明封包、權威狀態、呈現、失敗路徑，以及缺失／拒絕／不適用。G05.4 商人附加屬性要寫明「依伺服器權威值顯示」。另外要納入：每個技能的目標類型與是否需要 Ctrl（與 T061 對齊）；訊息 ID 278、279、299、1339、1412；處理器待查的 192、202、203、207、208、213；131 停用、39 個保留槽（`combat-coverage-current.json` 的 explicit_reserved_slots：SQL 保留 38＋catalog 保留 1；舊文件 `resource-database-0.6.62.md:27` 記 34 個）、208 暈眩 2／3 秒、4016、49011–49017 別名；技能 90 的裝備模式、BUFF 3／151 衝突、武器 Proc 未接、材料 25／58；卡瑞／莎爾 NPC 與 map1005 的範圍判定。資料來源：伺服器 `combat-coverage-current.json`（808 列，其中 180＋1 列對應本目錄 181）。依 #120 補：技能 68 的目標生命週期（新 N1，與 T061 對齊）；隱身重施時，指定隱身裝備 20077／120077／20062 的 toggle 例外（新 N2，與 T045、T047 對齊；先由 T025 確認正式版是否承襲）。（2 張：技能 1、物品與其他操作 1）
+
+### T020 | todo | Cursor | `src/`：#97 暗隱術（2 張）
+：在 `src/` 重寫 ingress clock、專用 queue、Static2941Bank 與資源就緒 gate（在 enqueue 前，原 4E5C00 先 SPR 再 4D65F0）。範圍包括：
+  - 共享 callback、重入繪圖 producer 與 4D6570 固定 sample 的交錯；4E2150 兩個 suffix 的上游 CFG；4857B0 巢狀 drain；方向 6 alias／shadow defaults；
+  - native clock 的 import 初始化與 rollover；
+  - 把 12 個 ready-gate 案移植到 main；重編 library-test 與七個整合 metadata（HISTORY L1–L13）。
+
+  候選第 29–30 列只當設計參考。（2 張）
+
+### T021 | todo | Cursor | `src/`：#98 附加劇毒、#99 影之防護、#100 提煉魔石（1 張）
+（技能目錄 ID，不是 Issue 編號）。97／98 要驗權威 S34／S08 現身、材料／低 MP／HP 邊界、原資源／音效／History、自然期限（L13）。（1 張）
+
+### T027 | todo | Cursor | `src/`：候選獨有的 48 個技能重做進 `src`（6 張）
+，逐 ID 分 6 批，每批 8 個：
+  - 批 1：5、12、20–23、25、27
+  - 批 2：29、30、33、36、37、39–41
+  - 批 3：44–48、50、51、53
+  - 批 4：55、56、59、61、62、64–66
+  - 批 5：67–71、73–75
+  - 批 6：76、79、80、87–91
+
+  5 TELEPORT 和 G06 有關，要跟 T023 對齊。各技能的歷史待測條件見 HISTORY L17–L65，例如 #69 的 S55-C4E-S5A-C08、EOF 取消與八秒失敗、#88／#89 的 HP 成本邊界 279／278。每批都要有送包形狀與收包測試，並通過 `run-local-test-suite.ps1`。分批可以依候選依賴邊在 6 批之間調換，但總數不變。（6 張）
+
+### T022 | todo | Cursor | `src/`：未接的 91 個技能（10 張）
+，分 10 批：
+  - 批 1：101–109；批 2：110–118（107 在候選有參考實作 `tests/native_shadow107.rs`，見 #106 與報告附錄 E2；只當設計參考）
+  - 批 3：129、130、132–134、137、138
+  - 批 4：145–155；批 5：156–166；批 6：167–176
+  - 批 7：181–188；批 8：189–195
+  - 批 9：201–205、207–210；批 10：211–220
+
+  21 個 wrapper 技能一律走 11-byte 的 ⑩ 形狀；113 TRUE_TARGET 帶 MS950 文字。共用 `native_skills::selector_only` helper，coverage parser 也要涵蓋（L11、L13、L17）。（10 張）
+
+### T024 | todo | Cursor | `src/`（2 張）
+：時序與 hurt，分 2 張：
+  - #87 持續 4183：wire→model 時間、S0B 重送交錯、idle 標籤守衛（L1–L25）。
+  - LT hurt／base：原 hurt guard、LT 相對 gfx 與初始化（不得猜 base）、action0 速度倍率、uint32 長 uptime rollover、#45 class7 child hurt 排除（L49–L65）；hurt queue threshold（L1109）；特殊變身與動作中斷分支（L713、L751）。
+
+  （2 張）
+
+### T028 | todo | Cursor＋本機 | `src/`、`tests/`：main 已接 38 技能的當版補驗（4 張）
+。這 38 個只有舊來源的限定資格（HISTORY L93–L135「只保留原版本資格」）。已知缺口：
+  - 13 偵測術、60 隱身術：Release 真實施法揭露；SELF_TICK 原生呼叫者時鐘（L93–L149）。
+  - 19／35／57 較高治癒：其他目標（L327、L1265）。
+  - 2 日光術：夜間亮度、3600 秒自然到期（L1282–L1304）。
+  - 72：3934 空影格的專屬 SHA／slots policy（L1580、L1584）。
+  - 77 Disintegrate：舊來源路徑（L1425）。
+  - 6 冰箭：全 caster golden（L1026）。
+  - 8、9、11、10、28、18：各自的其他目標、clock 邊界、自然到期（L1070–L1131）。
+  - 63：320 秒（L635）。
+
+  另外要在 `src` 重寫候選裡對 main 既有技能的修正：S23 class4 與冰箭的 NativeSpellClock 時序、全域整數毫秒起點、class1 啟動位置、火球 class5 時序（`維護工具/native-E149-S23-clock*.md`、`native-E149-class1-origin.md`、`native-E149-fireball-*.md`）；處理 ignored 的全 caster golden 測試，以及 list.spr 全量嚴格 parser 的 614 行錯誤（NATIVE-ATTACK-SKILLS:42）。
+  分 4 張：攻擊與目標類、狀態與自身類、地面、特效與資源類、候選修正重寫。（4 張）
+
+### T029 | todo | Cursor | `src/`：非技能的戰鬥基礎（2 張）
+，分 2 張：
+  - 遠程：D722 起新增的 ResourceDatabase.arrow／flightType 映射，舊弓箭收據不能當現版驗收（L1106、L1109）；弓／投擲 stance20／62；S23 其他 type；特殊投射物（NATIVE-COMBAT:20、:22、NATIVE-RANGED:21）。
+  - 操作：alpha 命中、自動追擊、目標圈、拒絕提示、攻擊專用速度、延遲回覆與重試交錯（L753、NATIVE-COMBAT:36、:38、NATIVE-NAVIGATION:23、NATIVE-OUTCOMES:19、:34）。
+
+  另外包括空揮封包 `17 00 00 00 00 DE 7F 1D 80`（target 0、damage 0），以及它的拒絕條件：死亡、觀戰、隱身、麻痺、超重、座標不合法（`empty-melee-0.6.49.json` L34–42）。（2 張）
+
+### T023 | todo | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06.3d 傳送與失敗恢復中，客戶端可以獨立完成的部分（4 張）
+，分 4 張（下面 4 段各 1 張）：
+  - 第二次 cancel 的一次性 LOGIN 恢復（同端點、同帳號、同來源）；C8 清單確認；8／30／60 秒與 33／31 秒；在 `src` 重整 13 檔 registry 與 fixture 14 檔。
+  - 補回 3 個舊 scenario（repeated_cancellation、failed_handoff_then_repeated_cancel、expired_stage_and_source_handoff）；更多取消／舊世代、畸形或跨世代 wire 回覆（L1155、L1172、L1227）；G06 通用 finite History 四 profile（L45）。
+  - G06.3d 旅館、傳送與跨端點服務：TeleportMe 原圖示排版（L1150）、同端點以外的 Presentation／音效／其他服務（`docs/G01-G12.md` G06.3d 的 state）；觀戰移到 T054。
+
+  - G06 物品接續中可以到達的拒絕與期限案例：StateCopy 拒絕 active ScheduledFuture／EquipmentTimerLease／pending magic-stone expiry、租裝自然到期（`維護工具/native-E149-extended-item-observation.md:15-27`）；T 鍵入口與 cancel-late 案例（`native-E149-integrated-client.md:15`、`native-E149-recovery-case-contract.md:11`）；畸形與跨世代 wire 回覆（NATIVE-WORLD-INTEGRATION:126、:164）。
+
+  同端點 C02（selection=0 的 rental-item-set，L1230）依賴伺服器，列在 U-M3-1。沒有正常 GAME 產生路徑的非預設值（元素、鑲卡、魔石、覺醒、dark-item payload）歸「G06 正向前提」排除。另外要涵蓋沒有 S_PORTAL 的解鎖與恢復：奪命之雷開啟時技能 5／131 不建立 portal（`native-thunder-teleport-policy-progress.zh-TW.md:5`）、技能 69 失敗時補送 4-byte 解鎖（`source-mass-teleport-exit.zh-TW.md:15`）；以伺服器權威座標與 showId 為準（`combat-integration-lifecycle.zh-TW.md:86`）。（4 張）
+
+### T041 | todo | 本機 codex-local | `維護工具/run-local-test-suite.ps1`（1 張）
+：擴充 T012 的腳本，加入「技能」與「G06」兩類。技能類跑 T026 狀態表列出的測試，G06 類跑 8 個 scenario；成功門檻和 T012 相同。這是 M2 完成定義要用的腳本。（1 張）
+
+### T043 | todo | Cursor＋本機 | `tests/`、fixture（2 張）
+：雙真實玩家戰鬥 fixture。NATIVE-EMBLEMS:29–31 記載：正式 JAR `EBF5EE66` 起，startBattle 會強制關閉舊訓練 bot。EBF5EE66 是 E149 的祖先（0.6.59，見報告附錄 D），E149 是否仍是如此，要在本任務第一步用 javap 核對；所以 schema37 的 54 個情境不能標成新版通過。要用兩個真實玩家連線，重新核對攻擊、HP／MP、死亡、結算、重入（NATIVE-EMBLEMS:29–31）。T028、T029、T048 的戰鬥驗證以它為前提。（2 張）
+
+### T044 | todo | Cursor | `src/`：移動正確性與 G04 剩餘項（3 張）
+。範圍包括：
+  - 已在途移動、靜默拒絕（Cube: Quake 等）、本地碰撞預判；
+  - 動態門與動態物件占位、場地邊界；
+  - 城門、全部碰撞模式；
+  - 移動中斷、其他模式物件、持續輸入中斷；
+  - G04.4（in_progress）：加入／離開、死亡復活、換圖及同 ID 替換的同步；
+  - G04.7（pending）：其他模式的城門、任務怪物、限時模式物件與進出場。
+
+  出處：NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40；`docs/G01-G12.md` G04、G04.4、G04.7。另外要實作移動鎖握手：伺服器拒絕移動時送 S_BLINK，客戶端回 C_BLINK，伺服器再送 S_PARALYSE 模式 17（`25 11`）解鎖；重複、未請求或格式錯誤的確認不會解鎖（`movement-lock-0.6.66.md:5`、`:11`）。（3 張）
+
+### T045 | todo | Cursor | `src/`：物品系統缺口（2 張）
+。需要目標或選項的 use_type、type3 charge、194／197 正式流程、C76 銷毀、生命之泉等耗材（NATIVE-ITEM-ACTIONS:9、:39、NATIVE-GROUND-SKILLS:33）。玩家之間的交易不在範圍內（理由見「排除或延後」）。另外包括：擂台 NPC 商店 16 列買價與賣價（`data-sources-0.6.60.json` L402–439）、S_SHOW_MAP 地圖道具 18 筆、Storm_Walk 42501 的 useType 5、三重矢扣箭、12／107 依已裝備武器決定目標、5 個技能（73、100、21、12、107）要送物品 objid、物件 ID 以 unsigned dword 處理（`native-de-inventory-root-current.zh-TW.md:7`、`:13`）。伺服器沒有地面物品與陷阱鏈，那部分標「伺服器待定」。（2 張）
+
+### T046 | todo | Cursor | `src/`：快捷列、技能書與狀態 UI（3 張）
+。CLAUDE.md 目標明列「快捷列」。範圍包括技能圖示與快捷列綁定、完整技能書、buff／AC／冷卻／MP 呈現，以及技能中斷（NATIVE-SKILLS:41、NATIVE-SKILL-SELECTION:27、NATIVE-REAGENT-SKILLS:31、NATIVE-ATTACK-SKILLS:3、:32）。另外包括：ICONS1 36 種狀態、ICON_I2H、OwnCharStatus、HPBAR（只給任務／限時怪物，0xFF 隱藏）、S_SPEED 與娃娃緩速的 `writeH` 期限、龍之護鎧圖示 3080（不是 3079）與 `6D h c(181)`、9 個幻術 buff 圖示 lease、1480ms 動畫窗內的第二次施法會被拒絕（快捷列連按）、MP 只在真的改變時才通知。（3 張）
+
+### T047 | todo | Cursor | `src/`（2 張）
+：影格事件 Effect／Hit 映射到特效（NATIVE-ANIMATION:11、NATIVE-COMBAT:30），以及 gfx1544 action0 在 catalog 缺定義、首幀只畫出 11／12 個物件（NATIVE-WORLD:24、:34）。另外依 G07.2（pending）：全部玩法可見角色、NPC、狀態型物件的原始動作。另外包括：Source169 移除特效、奇古獸 SPR、proc_spr、凍結 palette、立方體 GFX、傷害數字與 miss／critical、動畫先於 HP、光術的封包順序（隱身解除→motion→effect→sound→light→MP）、隱身重施不顯形、變身 7200 秒到期還原、武器族退回 spear24。驗收要看攻擊影格，不能只看封包（0.6.49 的前例：封包通過，但玩家只看到轉向）。（2 張）
+
+### T048 | todo | Cursor | `src/`（1 張）
+：復活的其他分支，包括 S_RESURRECT 與榮譽模式延遲重生（NATIVE-OUTCOMES:13、NATIVE-CONTINUOUS:22）。（1 張）
+
+### T050 | todo | Cursor | `src/`（1 張）
+：S_EVENT subtype33 完整性挑戰目前只記錄，沒有送 C_ADDR；要調查並接線，否則不能宣稱長時間戰鬥相容（NATIVE-WORLD:18）。（1 張）
+
+### T054 | todo | Cursor＋本機 | `src/`：房間分支正式整合（G06.1、G06.2）（2 張）
+。G06 的 work 是「核實建房、密碼房、設定、踢人、觀戰、隊伍及可達模式的正式契約」。
+  - G06.1 目前只到 verified_controller_live_subset：要完成建房、設定、密碼、踢人與房主轉移的正式契約。
+  - G06.2 是 candidate_verified_formal_integration_pending：要把模式切換、隊伍、準備、觀戰整合進 main，並納入觀戰單獨主動離場與原 native 初始鏡頭偏移（L1052–L1062）。
+
+  另外依伺服器規則補驗：大廳人數會算入 ArenaBot、測試房不保存勝敗但仍顯示結算、隊伍模式人數規則、全員準備才能開始、拒絕時的中文系統訊息（`room-rules-0.6.61.md:21-25`、`bot-room-count-0.6.64.md:5-12`）；跨來源同頻道建房、預設房重用與改名（`room-directory-0.6.54.json` L21–29）。（2 張）
+
+### T055 | todo | Cursor＋本機 | `src/`：租裝來源整合（G06.3）（2 張）
+。
+  - G06.3c 是 candidate_defined_return_scope_verified_formal_integration_pending：要完成正常返回、重新入村、服務物品與互動清單生命週期的正式整合。
+  - rental-source 模式：C_CA、S_FB 目錄、租裝村與商店交接，以及 map500 其他入口種類（NATIVE-LOBBY:44、NATIVE-WORLD-INTEGRATION:129）。
+  - G06 的 acceptance 要求「不得以 Tournament 通過代替租裝或其他模式」。伺服器端 quitFight 的缺口列在 U-M3-1。
+
+  （2 張）
+
+### T061 | todo | Cursor | `src/`：Ctrl 強制目標與目標選取政策（2 張）
+。Rust 客戶端目前沒有 LFC1 擴充（`grep LFC1 src` 為 0 筆）；原本是登入器 DLL 在原生送出點附加。依伺服器文件，範圍包括：
+  - 前景視窗、戰鬥狀態、按住 Ctrl 時，在攻擊與技能封包後面附加 `4C 46 43 31 <opcode> 01 67 A5`，並更新長度。無目標、座標型或非物件格式的技能不附加；Pet Race 不套用。出處：`forced-combat-0.6.67.md:5`、`:11-13`，`source-material-control-ingress.zh-TW.md:5`、`:10`。
+  - 目標政策：自身與友方的合法輔助不需要 Ctrl；對敵方玩家要有明確意圖；Ctrl 不能繞過死亡、旁觀、距離、LOS、免疫與血盟限制。26／42／68 用自身 object ID 走 7-byte 物件分派。出處：`combat-continuation-current.zh-TW.md:21`、`:52`、`:76-77`，`combat-integration-lifecycle.zh-TW.md:282-302`、`:757-763`，`native-pair-material-progress.zh-TW.md:5-7`。伺服器端記錄「26 不按 Ctrl 無法自施」仍未修（`source-completion-work-current.zh-TW.md:41`）。
+
+  以上路徑都在 lito-launcher-server `lito伺服器/LiTo381-Server/docs/maintenance/`。另外依 #120 補一個目標生命週期案例：技能 68 在扣料或安裝前目標已退役、或延後輸出時 receiver 已換世代，要拒絕或丟棄，而且不能扣到錯的世代的材料（#120 新 N1；`build-native-pair-material.py:35`）。（2 張）
+
+### T062 | todo | Cursor | `src/`：選角 8 角色分頁與選服流程（1 張）
+。伺服器會送 8 筆角色，並以選定的角色名稱進場；原生角色區只有 4 格，相容層的作法是每頁 4 筆，用 PgUp／PgDn／滾輪翻頁（`buff-schema-and-character-pages-20261018.zh-TW.md:15-25`、`:39`）。Rust 客戶端要先核實是否已支援，缺了就補；血盟名稱上限 16 bytes 加 NUL（同檔 `:35`）；選服流程要能驗收（`combat-closeout-current.zh-TW.md:74`、`release-verification-20261018.zh-TW.md:16`）。（1 張）
+
+### T063 | todo | Cursor | `src/`：寵物與召喚物控制介面（1 張）
+。依 G05「所有玩家可達操作」：寵物 69 項控制、CHA、容量、項圈（`combat-continuation-current.zh-TW.md:64`），召喚物期限與解放（`:65`）。T026 矩陣判定為「伺服器待定」的控制，只做送包與顯示。（1 張）
 
 ## M3 GUI 與交付（尚未開放）— 主線 0 項
 驗收：使用者打開會看到什麼（凍結）：
@@ -93,109 +237,7 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 ## Backlog（不算進度）
 本區有兩種項目：一種是 M2／M3 已排定的任務，開放時原樣升級；另一種是排除或延後的工作。2026-11-06 依 #92，原本在 M2／M3 的 T020–T024、T030–T032，以及修補提案 T040，都移到這裡。它們和「打開就看得到」（V1）沒有直接因果關係。
 
-### 預定 M2（57 張；開放時原樣升級，總數不變）
-技能集合以 `docs/PROTOCOL-CONTRACT.md` §6.3 為準：git `2066774`，共 181 項，也就是 180 個 catalog 記錄加上 dispatcher 特例 5 TELEPORT。E149 與 `2066774` 的 `BattleSpellCatalog` 常數 223／223 完全相同，`new *Spell(` 也同為 186 處。逐 ID 去重後的分配如下，合計 38＋48＋4＋91＝181，沒有重複：
-
-| 集合 | 數量 | ID |
-|---|---|---|
-| main 已接 | 38 | 1–4、6–11、13–19、26、28、31、32、34、35、38、42、43、49、52、54、57、58、60、63、72、77、78、131、206 |
-| 候選獨有 | 48 | 見 T027 |
-| #97–#100 | 4 | 97–100 |
-| 未接 | 91 | 見 T022 |
-
-- **T025 | backlog(M2) | Claude | `docs/PROTOCOL-CONTRACT.md`**：版本綁定。寫明 M2／M3 都以 E149（e1498871）為準；對齊第 8 節「待對 e1498871 核對」與 T004-1 已完成之間的矛盾。另外把 180／181 的來源寫進契約：180 個 catalog 記錄，加上 TELEPORT 是 dispatcher 特例（`維護工具/generate-spell-request-shapes.py:192`）。再寫一份「伺服器換版時客戶端要重核」的清單：JAR SHA 與血統分支、`Protocol$*` 變動與 opcode／欄位、ClientSession／GameHub 變動 class、技能結果與狀態圖示 ID、房間與結算、移動與傳送、裝備與租賃、GM 指令、登入流程、相容 DLL 與 hook 位址（見報告附錄 D）。另外依伺服器 maintenance 全讀結果，重核清單還要加上：候選協定變更（ICONS1、ICON_I2H、OwnCharStatus、1016／1017、娃娃 29 的 buffDuration `writeH`、S_HPMeter 104 的 hide255、施法時間窗與 SprTable 截斷、裝備只送一份最終描述、舊角色封包抑制、173／174 的 opcode 修正、portal 在落點前改 showId）；Maven 產物和 E149 的差異（`NativeDeVisibilitySwitch` 缺失、1320 個 Modern* 類、49 個非 Modern 類，`docs/server-source-gap.md:37-1454`）；來源伺服器清單（8 格原生限制，目前只啟用 380_ac_1／2）；`TW13081901.txt` 的 pin。注意：maintenance 目錄最新的正式 JAR 紀錄是 0.6.68 `c02aaae8`，0.6.69–0.6.71 要從登入器 repo 的 release 紀錄取得。依 #120 新 N3：同一個 builder SHA 可能對應不同的輸入 Java 與不同的候選 JAR，所以重核清單要用 branch／manifest pin 追溯血統，不能只比 builder SHA；`df9464f0` 底下的兩條 magical-weapon 後繼不能混為同一條鏈。（1 張）
-- **T026 | backlog(M2) | Claude | `docs/SKILLS-STATUS.md`（新增）**：技能分類。把 181 個技能逐一對到伺服器缺口組（伺服器 T021 目標／Ctrl、T022 自施、T023 受控 NPC、T024 HP 生產端、T025 材料、T028 顯示），分成「以 E149 為準可驗」與「伺服器待定」兩類。後者只驗送包形狀與畫面，不驗與原版同源。另外依 G05 的 work，把範圍擴大成**玩法支援矩陣**：所有玩家可達的操作（技能、物品使用／裝卸／丟棄／拾取、遠程與彈藥、耗材／MP、buff／debuff、復活），每一列標明封包、權威狀態、呈現、失敗路徑，以及缺失／拒絕／不適用。G05.4 商人附加屬性要寫明「依伺服器權威值顯示」。另外要納入：每個技能的目標類型與是否需要 Ctrl（與 T061 對齊）；訊息 ID 278、279、299、1339、1412；處理器待查的 192、202、203、207、208、213；131 停用、39 個保留槽（`combat-coverage-current.json` 的 explicit_reserved_slots：SQL 保留 38＋catalog 保留 1；舊文件 `resource-database-0.6.62.md:27` 記 34 個）、208 暈眩 2／3 秒、4016、49011–49017 別名；技能 90 的裝備模式、BUFF 3／151 衝突、武器 Proc 未接、材料 25／58；卡瑞／莎爾 NPC 與 map1005 的範圍判定。資料來源：伺服器 `combat-coverage-current.json`（808 列，其中 180＋1 列對應本目錄 181）。依 #120 補：技能 68 的目標生命週期（新 N1，與 T061 對齊）；隱身重施時，指定隱身裝備 20077／120077／20062 的 toggle 例外（新 N2，與 T045、T047 對齊；先由 T025 確認正式版是否承襲）。（2 張：技能 1、物品與其他操作 1）
-- **T020 | backlog(M2) | Cursor | `src/`：#97 暗隱術**：在 `src/` 重寫 ingress clock、專用 queue、Static2941Bank 與資源就緒 gate（在 enqueue 前，原 4E5C00 先 SPR 再 4D65F0）。範圍包括：
-  - 共享 callback、重入繪圖 producer 與 4D6570 固定 sample 的交錯；4E2150 兩個 suffix 的上游 CFG；4857B0 巢狀 drain；方向 6 alias／shadow defaults；
-  - native clock 的 import 初始化與 rollover；
-  - 把 12 個 ready-gate 案移植到 main；重編 library-test 與七個整合 metadata（HISTORY L1–L13）。
-
-  候選第 29–30 列只當設計參考。（2 張）
-- **T021 | backlog(M2) | Cursor | `src/`：#98 附加劇毒、#99 影之防護、#100 提煉魔石**（技能目錄 ID，不是 Issue 編號）。97／98 要驗權威 S34／S08 現身、材料／低 MP／HP 邊界、原資源／音效／History、自然期限（L13）。（1 張）
-- **T027 | backlog(M2) | Cursor | `src/`：候選獨有的 48 個技能重做進 `src`**，逐 ID 分 6 批，每批 8 個：
-  - 批 1：5、12、20–23、25、27
-  - 批 2：29、30、33、36、37、39–41
-  - 批 3：44–48、50、51、53
-  - 批 4：55、56、59、61、62、64–66
-  - 批 5：67–71、73–75
-  - 批 6：76、79、80、87–91
-
-  5 TELEPORT 和 G06 有關，要跟 T023 對齊。各技能的歷史待測條件見 HISTORY L17–L65，例如 #69 的 S55-C4E-S5A-C08、EOF 取消與八秒失敗、#88／#89 的 HP 成本邊界 279／278。每批都要有送包形狀與收包測試，並通過 `run-local-test-suite.ps1`。分批可以依候選依賴邊在 6 批之間調換，但總數不變。（6 張）
-- **T022 | backlog(M2) | Cursor | `src/`：未接的 91 個技能**，分 10 批：
-  - 批 1：101–109；批 2：110–118（107 在候選有參考實作 `tests/native_shadow107.rs`，見 #106 與報告附錄 E2；只當設計參考）
-  - 批 3：129、130、132–134、137、138
-  - 批 4：145–155；批 5：156–166；批 6：167–176
-  - 批 7：181–188；批 8：189–195
-  - 批 9：201–205、207–210；批 10：211–220
-
-  21 個 wrapper 技能一律走 11-byte 的 ⑩ 形狀；113 TRUE_TARGET 帶 MS950 文字。共用 `native_skills::selector_only` helper，coverage parser 也要涵蓋（L11、L13、L17）。（10 張）
-- **T024 | backlog(M2) | Cursor | `src/`**：時序與 hurt，分 2 張：
-  - #87 持續 4183：wire→model 時間、S0B 重送交錯、idle 標籤守衛（L1–L25）。
-  - LT hurt／base：原 hurt guard、LT 相對 gfx 與初始化（不得猜 base）、action0 速度倍率、uint32 長 uptime rollover、#45 class7 child hurt 排除（L49–L65）；hurt queue threshold（L1109）；特殊變身與動作中斷分支（L713、L751）。
-
-  （2 張）
-- **T028 | backlog(M2) | Cursor＋本機 | `src/`、`tests/`：main 已接 38 技能的當版補驗**。這 38 個只有舊來源的限定資格（HISTORY L93–L135「只保留原版本資格」）。已知缺口：
-  - 13 偵測術、60 隱身術：Release 真實施法揭露；SELF_TICK 原生呼叫者時鐘（L93–L149）。
-  - 19／35／57 較高治癒：其他目標（L327、L1265）。
-  - 2 日光術：夜間亮度、3600 秒自然到期（L1282–L1304）。
-  - 72：3934 空影格的專屬 SHA／slots policy（L1580、L1584）。
-  - 77 Disintegrate：舊來源路徑（L1425）。
-  - 6 冰箭：全 caster golden（L1026）。
-  - 8、9、11、10、28、18：各自的其他目標、clock 邊界、自然到期（L1070–L1131）。
-  - 63：320 秒（L635）。
-
-  另外要在 `src` 重寫候選裡對 main 既有技能的修正：S23 class4 與冰箭的 NativeSpellClock 時序、全域整數毫秒起點、class1 啟動位置、火球 class5 時序（`維護工具/native-E149-S23-clock*.md`、`native-E149-class1-origin.md`、`native-E149-fireball-*.md`）；處理 ignored 的全 caster golden 測試，以及 list.spr 全量嚴格 parser 的 614 行錯誤（NATIVE-ATTACK-SKILLS:42）。
-  分 4 張：攻擊與目標類、狀態與自身類、地面、特效與資源類、候選修正重寫。（4 張）
-- **T029 | backlog(M2) | Cursor | `src/`：非技能的戰鬥基礎**，分 2 張：
-  - 遠程：D722 起新增的 ResourceDatabase.arrow／flightType 映射，舊弓箭收據不能當現版驗收（L1106、L1109）；弓／投擲 stance20／62；S23 其他 type；特殊投射物（NATIVE-COMBAT:20、:22、NATIVE-RANGED:21）。
-  - 操作：alpha 命中、自動追擊、目標圈、拒絕提示、攻擊專用速度、延遲回覆與重試交錯（L753、NATIVE-COMBAT:36、:38、NATIVE-NAVIGATION:23、NATIVE-OUTCOMES:19、:34）。
-
-  另外包括空揮封包 `17 00 00 00 00 DE 7F 1D 80`（target 0、damage 0），以及它的拒絕條件：死亡、觀戰、隱身、麻痺、超重、座標不合法（`empty-melee-0.6.49.json` L34–42）。（2 張）
-- **T023 | backlog(M2) | Cursor | `src/`、`tests/native_teleport_failure.rs`：G06.3d 傳送與失敗恢復中，客戶端可以獨立完成的部分**，分 4 張（下面 4 段各 1 張）：
-  - 第二次 cancel 的一次性 LOGIN 恢復（同端點、同帳號、同來源）；C8 清單確認；8／30／60 秒與 33／31 秒；在 `src` 重整 13 檔 registry 與 fixture 14 檔。
-  - 補回 3 個舊 scenario（repeated_cancellation、failed_handoff_then_repeated_cancel、expired_stage_and_source_handoff）；更多取消／舊世代、畸形或跨世代 wire 回覆（L1155、L1172、L1227）；G06 通用 finite History 四 profile（L45）。
-  - G06.3d 旅館、傳送與跨端點服務：TeleportMe 原圖示排版（L1150）、同端點以外的 Presentation／音效／其他服務（`docs/G01-G12.md` G06.3d 的 state）；觀戰移到 T054。
-
-  - G06 物品接續中可以到達的拒絕與期限案例：StateCopy 拒絕 active ScheduledFuture／EquipmentTimerLease／pending magic-stone expiry、租裝自然到期（`維護工具/native-E149-extended-item-observation.md:15-27`）；T 鍵入口與 cancel-late 案例（`native-E149-integrated-client.md:15`、`native-E149-recovery-case-contract.md:11`）；畸形與跨世代 wire 回覆（NATIVE-WORLD-INTEGRATION:126、:164）。
-
-  同端點 C02（selection=0 的 rental-item-set，L1230）依賴伺服器，列在 U-M3-1。沒有正常 GAME 產生路徑的非預設值（元素、鑲卡、魔石、覺醒、dark-item payload）歸「G06 正向前提」排除。另外要涵蓋沒有 S_PORTAL 的解鎖與恢復：奪命之雷開啟時技能 5／131 不建立 portal（`native-thunder-teleport-policy-progress.zh-TW.md:5`）、技能 69 失敗時補送 4-byte 解鎖（`source-mass-teleport-exit.zh-TW.md:15`）；以伺服器權威座標與 showId 為準（`combat-integration-lifecycle.zh-TW.md:86`）。（4 張）
-
-- **T041 | backlog(M2) | 本機 codex-local | `維護工具/run-local-test-suite.ps1`**：擴充 T012 的腳本，加入「技能」與「G06」兩類。技能類跑 T026 狀態表列出的測試，G06 類跑 8 個 scenario；成功門檻和 T012 相同。這是 M2 完成定義要用的腳本。（1 張）
-- **T043 | backlog(M2) | Cursor＋本機 | `tests/`、fixture**：雙真實玩家戰鬥 fixture。NATIVE-EMBLEMS:29–31 記載：正式 JAR `EBF5EE66` 起，startBattle 會強制關閉舊訓練 bot。EBF5EE66 是 E149 的祖先（0.6.59，見報告附錄 D），E149 是否仍是如此，要在本任務第一步用 javap 核對；所以 schema37 的 54 個情境不能標成新版通過。要用兩個真實玩家連線，重新核對攻擊、HP／MP、死亡、結算、重入（NATIVE-EMBLEMS:29–31）。T028、T029、T048 的戰鬥驗證以它為前提。（2 張）
-- **T044 | backlog(M2) | Cursor | `src/`：移動正確性與 G04 剩餘項**。範圍包括：
-  - 已在途移動、靜默拒絕（Cube: Quake 等）、本地碰撞預判；
-  - 動態門與動態物件占位、場地邊界；
-  - 城門、全部碰撞模式；
-  - 移動中斷、其他模式物件、持續輸入中斷；
-  - G04.4（in_progress）：加入／離開、死亡復活、換圖及同 ID 替換的同步；
-  - G04.7（pending）：其他模式的城門、任務怪物、限時模式物件與進出場。
-
-  出處：NATIVE-ANIMATION:27、NATIVE-MOTION:17、NATIVE-NAVIGATION:15、NATIVE-WORLD-INTEGRATION:16、:40；`docs/G01-G12.md` G04、G04.4、G04.7。另外要實作移動鎖握手：伺服器拒絕移動時送 S_BLINK，客戶端回 C_BLINK，伺服器再送 S_PARALYSE 模式 17（`25 11`）解鎖；重複、未請求或格式錯誤的確認不會解鎖（`movement-lock-0.6.66.md:5`、`:11`）。（3 張）
-- **T045 | backlog(M2) | Cursor | `src/`：物品系統缺口**。需要目標或選項的 use_type、type3 charge、194／197 正式流程、C76 銷毀、生命之泉等耗材（NATIVE-ITEM-ACTIONS:9、:39、NATIVE-GROUND-SKILLS:33）。玩家之間的交易不在範圍內（理由見「排除或延後」）。另外包括：擂台 NPC 商店 16 列買價與賣價（`data-sources-0.6.60.json` L402–439）、S_SHOW_MAP 地圖道具 18 筆、Storm_Walk 42501 的 useType 5、三重矢扣箭、12／107 依已裝備武器決定目標、5 個技能（73、100、21、12、107）要送物品 objid、物件 ID 以 unsigned dword 處理（`native-de-inventory-root-current.zh-TW.md:7`、`:13`）。伺服器沒有地面物品與陷阱鏈，那部分標「伺服器待定」。（2 張）
-- **T046 | backlog(M2) | Cursor | `src/`：快捷列、技能書與狀態 UI**。CLAUDE.md 目標明列「快捷列」。範圍包括技能圖示與快捷列綁定、完整技能書、buff／AC／冷卻／MP 呈現，以及技能中斷（NATIVE-SKILLS:41、NATIVE-SKILL-SELECTION:27、NATIVE-REAGENT-SKILLS:31、NATIVE-ATTACK-SKILLS:3、:32）。另外包括：ICONS1 36 種狀態、ICON_I2H、OwnCharStatus、HPBAR（只給任務／限時怪物，0xFF 隱藏）、S_SPEED 與娃娃緩速的 `writeH` 期限、龍之護鎧圖示 3080（不是 3079）與 `6D h c(181)`、9 個幻術 buff 圖示 lease、1480ms 動畫窗內的第二次施法會被拒絕（快捷列連按）、MP 只在真的改變時才通知。（3 張）
-- **T047 | backlog(M2) | Cursor | `src/`**：影格事件 Effect／Hit 映射到特效（NATIVE-ANIMATION:11、NATIVE-COMBAT:30），以及 gfx1544 action0 在 catalog 缺定義、首幀只畫出 11／12 個物件（NATIVE-WORLD:24、:34）。另外依 G07.2（pending）：全部玩法可見角色、NPC、狀態型物件的原始動作。另外包括：Source169 移除特效、奇古獸 SPR、proc_spr、凍結 palette、立方體 GFX、傷害數字與 miss／critical、動畫先於 HP、光術的封包順序（隱身解除→motion→effect→sound→light→MP）、隱身重施不顯形、變身 7200 秒到期還原、武器族退回 spear24。驗收要看攻擊影格，不能只看封包（0.6.49 的前例：封包通過，但玩家只看到轉向）。（2 張）
-- **T048 | backlog(M2) | Cursor | `src/`**：復活的其他分支，包括 S_RESURRECT 與榮譽模式延遲重生（NATIVE-OUTCOMES:13、NATIVE-CONTINUOUS:22）。（1 張）
-- **T050 | backlog(M2) | Cursor | `src/`**：S_EVENT subtype33 完整性挑戰目前只記錄，沒有送 C_ADDR；要調查並接線，否則不能宣稱長時間戰鬥相容（NATIVE-WORLD:18）。（1 張）
-
-- **T054 | backlog(M2) | Cursor＋本機 | `src/`：房間分支正式整合（G06.1、G06.2）**。G06 的 work 是「核實建房、密碼房、設定、踢人、觀戰、隊伍及可達模式的正式契約」。
-  - G06.1 目前只到 verified_controller_live_subset：要完成建房、設定、密碼、踢人與房主轉移的正式契約。
-  - G06.2 是 candidate_verified_formal_integration_pending：要把模式切換、隊伍、準備、觀戰整合進 main，並納入觀戰單獨主動離場與原 native 初始鏡頭偏移（L1052–L1062）。
-
-  另外依伺服器規則補驗：大廳人數會算入 ArenaBot、測試房不保存勝敗但仍顯示結算、隊伍模式人數規則、全員準備才能開始、拒絕時的中文系統訊息（`room-rules-0.6.61.md:21-25`、`bot-room-count-0.6.64.md:5-12`）；跨來源同頻道建房、預設房重用與改名（`room-directory-0.6.54.json` L21–29）。（2 張）
-- **T055 | backlog(M2) | Cursor＋本機 | `src/`：租裝來源整合（G06.3）**。
-  - G06.3c 是 candidate_defined_return_scope_verified_formal_integration_pending：要完成正常返回、重新入村、服務物品與互動清單生命週期的正式整合。
-  - rental-source 模式：C_CA、S_FB 目錄、租裝村與商店交接，以及 map500 其他入口種類（NATIVE-LOBBY:44、NATIVE-WORLD-INTEGRATION:129）。
-  - G06 的 acceptance 要求「不得以 Tournament 通過代替租裝或其他模式」。伺服器端 quitFight 的缺口列在 U-M3-1。
-
-  （2 張）
-
-- **T061 | backlog(M2) | Cursor | `src/`：Ctrl 強制目標與目標選取政策**。Rust 客戶端目前沒有 LFC1 擴充（`grep LFC1 src` 為 0 筆）；原本是登入器 DLL 在原生送出點附加。依伺服器文件，範圍包括：
-  - 前景視窗、戰鬥狀態、按住 Ctrl 時，在攻擊與技能封包後面附加 `4C 46 43 31 <opcode> 01 67 A5`，並更新長度。無目標、座標型或非物件格式的技能不附加；Pet Race 不套用。出處：`forced-combat-0.6.67.md:5`、`:11-13`，`source-material-control-ingress.zh-TW.md:5`、`:10`。
-  - 目標政策：自身與友方的合法輔助不需要 Ctrl；對敵方玩家要有明確意圖；Ctrl 不能繞過死亡、旁觀、距離、LOS、免疫與血盟限制。26／42／68 用自身 object ID 走 7-byte 物件分派。出處：`combat-continuation-current.zh-TW.md:21`、`:52`、`:76-77`，`combat-integration-lifecycle.zh-TW.md:282-302`、`:757-763`，`native-pair-material-progress.zh-TW.md:5-7`。伺服器端記錄「26 不按 Ctrl 無法自施」仍未修（`source-completion-work-current.zh-TW.md:41`）。
-
-  以上路徑都在 lito-launcher-server `lito伺服器/LiTo381-Server/docs/maintenance/`。另外依 #120 補一個目標生命週期案例：技能 68 在扣料或安裝前目標已退役、或延後輸出時 receiver 已換世代，要拒絕或丟棄，而且不能扣到錯的世代的材料（#120 新 N1；`build-native-pair-material.py:35`）。（2 張）
-- **T062 | backlog(M2) | Cursor | `src/`：選角 8 角色分頁與選服流程**。伺服器會送 8 筆角色，並以選定的角色名稱進場；原生角色區只有 4 格，相容層的作法是每頁 4 筆，用 PgUp／PgDn／滾輪翻頁（`buff-schema-and-character-pages-20261018.zh-TW.md:15-25`、`:39`）。Rust 客戶端要先核實是否已支援，缺了就補；血盟名稱上限 16 bytes 加 NUL（同檔 `:35`）；選服流程要能驗收（`combat-closeout-current.zh-TW.md:74`、`release-verification-20261018.zh-TW.md:16`）。（1 張）
-- **T063 | backlog(M2) | Cursor | `src/`：寵物與召喚物控制介面**。依 G05「所有玩家可達操作」：寵物 69 項控制、CHA、容量、項圈（`combat-continuation-current.zh-TW.md:64`），召喚物期限與解放（`:65`）。T026 矩陣判定為「伺服器待定」的控制，只做送包與顯示。（1 張）
+### 預定 M2：已於 2026-11-06 經使用者同意升級為主線（#132），見 `## M2`。
 
 ### 預定 M3（44 張；開放時原樣升級，總數不變）
 - **T040 | backlog(M3) | Claude | lito-launcher-server Issue**：把修補提案四項（租裝返回、同端點傳送、房間最後離開、商人屬性來源）以 Issue 加證據路徑的形式交給伺服器 repo，不搬 ASM 工具。伺服器接收後，刪除本 repo 的 `修補提案/`。（1 張）
