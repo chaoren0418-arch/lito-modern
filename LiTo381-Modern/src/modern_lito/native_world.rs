@@ -87,6 +87,8 @@ pub struct World {
     pub emblems: super::native_emblems::Cache,
     pub learned_skills: BTreeSet<u16>,
     pub effects: Vec<super::native_skills::Effect>,
+    /// S37 direction at receipt, retained even after its source actor retires.
+    pub effect_headings: BTreeMap<u64, u8>,
     pub effects_dropped: u64,
     /// Direct S4A cues, scoped to this world. No inferred spell or expiry.
     pub wire_sounds: Vec<WireSound>,
@@ -723,9 +725,12 @@ impl World {
                     .map(|id| [self.actors[&id].x, self.actors[&id].y])
                     .unwrap_or(position);
                 if self.effects.len() == 128 {
-                    self.effects.remove(0);
+                    let retired = self.effects.remove(0);
+                    self.effect_headings.remove(&retired.sequence);
                     self.effects_dropped += 1;
                 }
+                self.effect_headings.insert(self.visual_revision + 1,
+                    id.map_or(0, |id| self.actors[&id].heading));
                 self.effects.push(super::native_skills::Effect {
                     sequence: self.visual_revision + 1,
                     graphics,

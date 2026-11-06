@@ -50,6 +50,7 @@ fn navigation(map_id: u32, closed: bool) -> Arc<Navigation> {
 pub(crate) fn frame(world: &World, arrived: bool) -> Frame {
     let a = world.own_actor().unwrap();
     Frame {
+        vitals: crate::modern_lito::native_combat::FrameVitals::capture(world),
         ground_items: vec![],
         hits: vec![],
         visibility: vec![],

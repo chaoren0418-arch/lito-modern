@@ -123,6 +123,35 @@ pub fn target_label(actor: &super::native_world::Actor) -> String {
         format!("{}（HP 未知）", actor.name)
     }
 }
+
+/// HUD values captured with the rendered animation/effect frame. Network
+/// authority can advance while the resource worker still draws an older frame.
+#[derive(Clone, Debug)]
+pub struct FrameVitals {
+    pub hp: Option<[u16; 2]>,
+    pub mp: Option<[u16; 2]>,
+    generation: u64,
+    targets: std::collections::BTreeMap<u32, (u64, String)>,
+}
+impl FrameVitals {
+    pub fn capture(world: &super::native_world::World) -> Self {
+        Self {
+            hp: world.hp,
+            mp: world.mp,
+            generation: world.generation,
+            targets: world.actors.values()
+                .map(|actor| (actor.id, (actor.incarnation, target_label(actor))))
+                .collect(),
+        }
+    }
+
+    pub fn target_label(&self, world: &super::native_world::World, id: u32) -> Option<&str> {
+        let actor = world.actors.get(&id)?;
+        let (incarnation, label) = self.targets.get(&id)?;
+        (self.generation == world.generation && *incarnation == actor.incarnation)
+            .then_some(label.as_str())
+    }
+}
 pub fn score_label(score: &super::native_world::Score) -> String {
     format!(
         "{}　分數 {}　擊殺 {}　死亡 {}　助攻 {}　隊伍 {}",

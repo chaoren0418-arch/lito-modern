@@ -66,7 +66,10 @@ impl Plan {
             .context("body layer catalog absent")?;
         ensure!(row.header_issue.is_none(), "unqualified body layer header");
         let body_flags = scalar(row, 104)?.unwrap_or(0);
-        ensure!(matches!(body_flags, 0 | 1), "unsupported body flags {body_flags}");
+        let cube = super::native_cube::is_graphics(logical);
+        if cube { super::native_cube::qualify(c, logical)?; }
+        ensure!(matches!(body_flags, 0 | 1) || cube && body_flags == 128,
+            "unsupported body flags {body_flags}");
         let spec = |id: u32, shadow: bool| -> Result<Spec> {
             let s = c.sprites.get(&id).context("layer catalog absent")?;
             ensure!(s.header_issue.is_none(), "unqualified layer header");

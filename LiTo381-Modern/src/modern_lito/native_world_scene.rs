@@ -93,6 +93,7 @@ impl HurtCallback {
     }
 }
 pub struct Frame {
+    pub vitals: super::native_combat::FrameVitals,
     pub ground_items: Vec<super::native_world::Actor>,
     pub hits: Vec<(u32, [i32; 4])>,
     pub visibility: Vec<(u32, super::world_raster::DrawVisibility)>,
@@ -1387,6 +1388,7 @@ impl Model {
             None => serde_json::json!({"bound":false,"scope":"resource-only unbound draw"}),
         };
         Ok(Frame {
+            vitals: super::native_combat::FrameVitals::capture(world),
             ground_items,
             hits,
             visibility: layers.visibility,

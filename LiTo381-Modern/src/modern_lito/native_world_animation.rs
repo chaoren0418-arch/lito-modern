@@ -4,7 +4,7 @@ use super::{
     sprite_actions::{ActionDefinition, ActionKey, Animation, Directionality, SpriteActionCatalog},
 };
 use anyhow::{ensure, Context, Result};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, hash::BuildHasher};
 pub struct Clip {
     pub graphics: u32,
     pub animation: Animation,
@@ -218,6 +218,8 @@ impl Animator {
             });
         }
         let guardian = super::native_obstacles::guardian(actor);
+        let cube = super::native_cube::is_graphics(id);
+        if cube { super::native_cube::qualify(catalog, id)?; }
         let signature = (
             actor.incarnation,
             actor.motion_revision,
@@ -306,6 +308,8 @@ impl Animator {
             (combat.action, combat.phase, combat.elapsed_ns, false)
         } else if moving && elapsed < walk_duration {
             (stance, "walk", elapsed, false)
+        } else if cube {
+            (3, "cube", elapsed, true)
         } else if guardian {
             (stance, "object_action", elapsed, false)
         } else if matches!(
@@ -332,13 +336,29 @@ impl Animator {
         }
         let source_frame = clip.sample(time, repeat);
         let frame = &clip.animation.frames[source_frame];
-        if guardian {
-            for index in object_emitted..=source_frame {
-                for event in &clip.animation.frames[index].events {
+        let cube_loop = cube && phase == "cube";
+        let object_end = if cube_loop {
+            let cycles = u128::from(time) * u128::from(clip.animation.frames_per_second)
+                / 1_000_000_000 / u128::from(clip.total);
+            usize::try_from(cycles)?.checked_mul(clip.animation.frames.len())
+                .and_then(|count| count.checked_add(source_frame + 1))
+                .context("cube frame counter overflow")?
+        } else { source_frame + 1 };
+        if guardian || cube_loop {
+            // A delayed render emits at most the latest cube cycle. The
+            // source events remain presentation-only, including its Hit marks.
+            let first = if cube_loop { object_emitted.max(object_end.saturating_sub(clip.animation.frames.len())) }
+                else { object_emitted };
+            for ordinal in first..object_end {
+                let index = ordinal % clip.animation.frames.len();
+                let frame_events = &clip.animation.frames[index].events;
+                let selection = std::collections::hash_map::RandomState::new()
+                    .hash_one((actor.id, actor.motion_revision, ordinal)) as u32;
+                for (event_index, event) in frame_events.iter().enumerate() {
                     ensure!(entered_events.len()<256,"object frame event budget");
                     entered_events.push(super::native_combat_animation::EnteredEvent { prepared_audio:None,
                         actor:actor.id,sequence:actor.motion_revision,action,frame:index,
-                        event:format!("{event:?}"),sound:if let super::sprite_actions::FrameEvent::Sound(id)=event {Some(*id)} else {None},
+                        event:format!("{event:?}"),sound:super::native_combat_animation::frame_sound(frame_events,event_index,selection),
                     });
                 }
             }
@@ -375,7 +395,7 @@ impl Animator {
             static_prop: false,
             entered_events,
         };
-        if guardian {self.tracks.get_mut(&actor.id).unwrap().object_emitted=source_frame+1;}
+        if guardian || cube_loop {self.tracks.get_mut(&actor.id).unwrap().object_emitted=object_end;}
         Ok(pose)
     }
 }
