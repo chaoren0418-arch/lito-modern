@@ -347,6 +347,7 @@ pub struct LoginController {
     pickup_pending: Option<super::native_ground_pickup::Pending>,
     item_pending: Option<super::native_item_actions::Pending>,
     skill_pending: Option<super::native_skills::Pending>,
+    skill_item_pending: bool,
     skill_ready: Option<Instant>,
     world_tree_request: Option<(super::native_navigation::InputStamp,Instant)>,
     attack_pending: Option<super::native_combat::Pending>,
@@ -387,6 +388,7 @@ impl Default for LoginController {
             item_pending: None,
             attack_pending: None,
             skill_pending: None,
+            skill_item_pending: false,
             skill_ready: None,
             world_tree_request: None,
             transport: Controller::default(),
@@ -599,7 +601,7 @@ impl LoginController {
         target: Option<u32>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, frame)
+        self.cast_request(skill, target, None, None, frame)
     }
     pub fn cast_ground(
         &mut self,
@@ -613,13 +615,25 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), frame)
+        self.cast_request(skill, None, Some(position), None, frame)
     }
+    pub fn cast_item(
+        &mut self,
+        skill: u16,
+        target: &super::native_skills::ItemTarget,
+        frame: &super::native_world_scene::Frame,
+    ) -> Result<()> {
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),
+            "等待目前物品操作回覆");
+        self.cast_request(skill, None, None, Some(target), frame)
+    }
+
     fn cast_request(
         &mut self,
         skill: u16,
         target: Option<u32>,
         ground: Option<[u16; 2]>,
+        item: Option<&super::native_skills::ItemTarget>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
         ensure!(self.world_tree_request.is_none(),"等待世界樹傳送回覆");
@@ -640,11 +654,16 @@ impl LoginController {
             Some(position) => {
                 super::native_skills::ground_request(&self.state.world, skill, position)?
             }
-            None => super::native_skills::request(&self.state.world, skill, target)?,
+            None => match item {
+                Some(item) => super::native_skills::item_request(
+                    &self.state, self.transport.snapshot().epoch, skill, item)?,
+                None => super::native_skills::request(&self.state.world, skill, target)?,
+            },
         };
         self.transport
             .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
+        self.skill_item_pending = item.is_some();
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
             casts: self.state.world.own_cast_packets,
@@ -2019,7 +2038,11 @@ impl LoginController {
         }
         if let Some(pending) = &self.skill_pending {
             let feedback = if self.state.phase.active_world() {
-                pending.observe(&self.state.world, Instant::now())
+                if self.skill_item_pending {
+                    pending.observe_item(&self.state.world, Instant::now())
+                } else {
+                    pending.observe(&self.state.world, Instant::now())
+                }
             } else {
                 super::native_skills::Feedback::Interrupted
             };
