@@ -37,7 +37,7 @@ Rust 原生 Windows x64 客戶端（G01–G12），沿用既有資源與 UI，�
 - **新發現的工作**：一律進 TASKS.md 的 `## Backlog`。
 
 ## 盤點：已知範圍（2026-11-06，#92 步驟 0；第 6 版）
-### 來源與閱讀範圍（雲端來源逐檔讀完；本機的 G01–G12 與候選測試由 #106 取回後讀完；伺服器 `de-native-*` 建置腳本由 #120 讀取中）
+### 來源與閱讀範圍（雲端來源逐檔讀完；本機的 G01–G12 與候選測試由 #106、伺服器 `de-native-*` 建置腳本由 #120 唯讀取回後讀完）
 | 來源 | 版本 | 閱讀方式 |
 |---|---|---|
 | `docs/HISTORY.md` | git blob `7dd82ba`（1589 行，其中 849 行空白、2 行逐字重複，實際 738 行） | 分 4 段逐行讀完。對照表見 `docs/reports/issue-92.md` 附錄 A |
@@ -49,7 +49,7 @@ Rust 原生 Windows x64 客戶端（G01–G12），沿用既有資源與 UI，�
 | 候選 overlay 測試 | `docs/reports/issue-106.md`（44 檔、554 個測試宣告的具名清單） | 逐檔對到任務，見報告附錄 E；另附 HISTORY L1–L65 的逐輪計數 |
 | 候選 overlay QA 475 案（歷史計數） | HISTORY L1–L65 逐輪計數 | 逐輪列出，見附錄 B。以 #106 的具名清單（554 個宣告、493 個候選新增）取代，差額 18 記為未解，見上一列與事實 3 |
 | 技能目錄 | `docs/PROTOCOL-CONTRACT.md` §6.3（`2066774`，181 項）；E149 `BattleSpellCatalog.class` | 逐 ID 比對 |
-| 伺服器建置鏈 | lito-launcher-server `lito伺服器/LiTo381-Server/tools/` 的 398 個 `build*.py`，另加不在 build*.py 裡的 3 段（`integrate_buff.py`、登入器 repo 的 `tools/world-resource-compat/build_*.py`、沒進 git 的 `resource-database/build/de-native-*`） | 已追蹤的 398 個 `build*.py`（`2066774`）逐組重建 0.6.35→0.6.71 的鏈，見附錄 D。另外 3 段：`integrate_buff.py` 與登入器 repo 的 `world-resource-compat/build_*.py` 已讀；**`resource-database/build/de-native-*`（本機 18 個目錄、62 個 `build*.py`，被 `.gitignore` 排除）雲端讀不到，交 #120 唯讀全讀，未讀完前列為待驗證**。其餘 11,285 個未追蹤 `build*.py` 只有 #106 的路徑分類，沒有讀內容；#106 推測它們是建置產物或輸入快照 |
+| 伺服器建置鏈 | lito-launcher-server `lito伺服器/LiTo381-Server/tools/` 的 398 個 `build*.py`，另加不在 build*.py 裡的 3 段（`integrate_buff.py`、登入器 repo 的 `tools/world-resource-compat/build_*.py`、沒進 git 的 `resource-database/build/de-native-*`） | 已追蹤的 398 個 `build*.py`（`2066774`）逐組重建 0.6.35→0.6.71 的鏈，見附錄 D。另外 3 段：`integrate_buff.py` 與登入器 repo 的 `world-resource-compat/build_*.py` 已讀；`resource-database/build/de-native-*`（本機 18 個目錄、62 個 `build*.py`，被 `.gitignore` 排除）由 **#120 逐檔全讀**（62／62，17 種不同腳本全文逐行審查，62 份 manifest 各自核對；`docs/reports/issue-120.md`）。其餘 11,285 個未追蹤 `build*.py` 只有 #106 的路徑分類，沒有讀內容；#106 推測它們是建置產物或輸入快照 |
 | 伺服器文件 | `PLAN.md`、`TASKS.md`、`docs/server-source-gap.md`、`lito伺服器/LiTo381-Server/docs/maintenance/` 86 檔（70 份 md／txt＋16 份 JSON）；本 repo `修補提案/` | **逐檔全讀**：md 全文；JSON 用 python 走訪全部元素。對照見報告附錄 F |
 | 伺服器隔離候選 | 398 個 `build*.py` 與收據串成的鏈（附錄 D），加上 E149 class 清單（E8） | 讀到「建置鏈、收據與 class 清單」層級。候選 JAR 的位元組碼沒有反編譯，因為客戶端只以 E149 為對象，候選都在 8d26 之後、沒有部署 |
 

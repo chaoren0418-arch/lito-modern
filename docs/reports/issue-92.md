@@ -1,19 +1,24 @@
 # #92 範圍凍結：完成定義、主線封頂、backlog 分流
 
-結論（第 6 版）：
-- **步驟 0 還差最後一段**：
-  - 已讀完：
-    - 雲端的 HISTORY、51 份 NATIVE 文件、75 份研究紀錄；
-    - 伺服器已追蹤的 398 個 build*.py，以及 `integrate_buff.py` 與登入器 repo 的 `world-resource-compat/build_*.py`；
-    - `docs/maintenance/` 86 檔、`server-source-gap.md`；
-    - 本機的 G01–G12 共 46 項、候選 554 個測試宣告（#106）。
-  - **還沒讀**：伺服器 `resource-database/build/de-native-*`（本機 18 個目錄、62 個 `build*.py`），被 `.gitignore` 排除，雲端讀不到。已開 **#120** 由本機唯讀全讀，回來後補完；在那之前列為待驗證。
-  - 另外 11,285 個未追蹤的 `build*.py` 只有 #106 的路徑分類，沒有讀內容；#106 推測是建置產物或輸入快照。
+結論（第 7 版）：
+- **步驟 0 已完成**：
+  - 雲端：HISTORY、51 份 NATIVE 文件、75 份研究紀錄；伺服器已追蹤的 398 個 build*.py、`integrate_buff.py`、登入器 repo 的 `world-resource-compat/build_*.py`；`docs/maintenance/` 86 檔、`server-source-gap.md`。
+  - 本機：G01–G12 共 46 項、候選 554 個測試宣告（#106）；伺服器 `de-native-*` 的 62 個 `build*.py`（#120，62／62 全讀，manifest 各自核對）。
+  - 其餘 11,285 個未追蹤 `build*.py` 只有 #106 的路徑分類，沒有讀內容；#106 推測是建置產物或輸入快照。
   - 伺服器隔離候選讀到「建置鏈、收據與 class 清單」層級；候選 JAR 沒有反編譯，理由見 PLAN 的來源表。
-- **對照**：G01–G12 的 46 項（附錄 E1）、候選 44 檔（附錄 E2）、伺服器 maintenance 86 檔（附錄 F）都已歸到任務、不確定項或有理由的排除。
-- **主線**（M1＋V1）剩 **2 項，封頂**：T011-H 修正（#122；#118 發現 runner 缺陷，改回 doing，不加項）、T011-B（重跑 #118）。T011-F、T012、T013 已完成；分母 11。
-- **M2、M3** 的完成定義已凍結，任務各 **57 張、44 張**（#120 若有新發現再調整），都已一次列完並放在 Backlog。
+- **對照**：G01–G12 的 46 項（附錄 E1）、候選 44 檔（附錄 E2）、伺服器 maintenance 86 檔（附錄 F）、de-native 62 檔（#120，0 項新任務，3 個驗收細節已補進 T061、T026、T025）都已歸位。
+- **主線**（M1＋V1）剩 **2 項，封頂**：T011-H 修正 #122、T011-B 重跑 #118。T011-F、T012、T013 已完成；分母 11。
+- **M2、M3** 的完成定義已凍結，任務各 **57 張、44 張**，都已一次列完並放在 Backlog，等開放時原樣升級。
 - **證據**：「已驗證」的說法都可以用 `維護工具/check-issue-92-evidence.sh` 重跑，原始輸出附在「證據」一節。
+
+## 第 7 次嘗試的修正（#120 回來後補完）
+- **步驟 0 的最後一段**：#120 逐檔讀完 `de-native-*` 的 62 個 `build*.py`。結果是沒有需要新增的客戶端任務；3 個驗收細節已補進既有任務，張數不變：
+  - N1：技能 68 的目標生命週期，補進 T061、T026。
+  - N2：隱身裝備的 toggle 例外，補進 T026。
+  - N3：血統要用 branch／manifest pin 追溯，補進 T025。
+- **附錄 D 更正**：原本寫 `de-native-*` → `df9464f0`，太籠統。`df9464f0` 是正式後續入口選用的基底；另有一條 magical-weapon → … → pair-material 的分支，最後指向 `17502220…`，那條不是 combat-continuation 的 parent。
+- 報告「未驗證」一節與 PLAN 來源表都已改成「已由 #120 讀完」。
+- 主線同步：#118 發現 T011-H 的 runner 缺陷（MainModule 取得失敗），已開 #122 修正；T011-H 改回 doing，不加項，分母維持 11。
 
 ## 第 6 次嘗試的修正（對應第 5 輪 claude-local 審查，進行中）
 1. **[P1] `de-native-*` 沒讀**：同意。結論、PLAN 來源表、PR 描述都已改成符合實際的說法；開 **#120**（本機 codex-local，唯讀）讀完這 62 個腳本，回來後把新發現歸到任務或排除項。未讀的 11,285 個未追蹤 build 檔也已寫明。
@@ -257,7 +262,7 @@ lines 1589 nonempty 740 unique 738 dup 2
 - `grep -n "^## \|^### " TASKS.md`：`## M*` 區段下只有主線項目，M2／M3 下沒有 `###` 項目。
 
 ## 未驗證
-- 伺服器 `de-native-*` 建置鏈：62 個 `build*.py` 的內容由 #120 讀取中；另外 11,285 個未追蹤的 `build*.py` 沒有讀內容。
+- 伺服器 `de-native-*` 建置鏈：#120 讀完 62 個 builder 與 manifest，但沒有重跑建置，也沒有重算 df9464f0 以外的歷史 JAR SHA；另外 11,285 個未追蹤的 `build*.py` 沒有讀內容。
 - 同端點守衛是否等價、商人屬性來源（E4）。
 - 伺服器文件之間的候選 SHA 不一致（E5）。
 - 475 案前 141 案的逐案名稱。
@@ -399,7 +404,7 @@ NATIVE 文件 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完，總數�
 接著分成兩支：
 - **0.6.69 這支沒接上正式版**：buff-schema（`75da69b0`），已被 0.6.70 取代。
 - **0.6.70 這支是正式版的路**：
-  1. `de-native-*`（沒進 git）→ `df9464f0`
+  1. `resource-database/build/de-native-*`（沒進 git，#120 全讀）：從 `218d54c4…` 一路疊到 item-weapon `df9464f0`。`df9464f0` 是正式後續入口選用的基底，#120 重算實體 JAR SHA 相符。另有一條 magical-weapon → solid-carriage → thunder-teleport → triple-arrow → invisibility → retired-reuse → pair-material 的分支，最後指向 `17502220…`，那條不是 combat-continuation 的 parent。
   2. → combat-continuation 根目錄（magical-weapon）
   3. → `integrate_buff.py`（`97b1318a`）
   4. → 約 65 層 → cancellation-battle-runtime（`8d26c9d7`）
@@ -420,7 +425,7 @@ NATIVE 文件 51 檔、`維護工具/*.md` 75 檔，逐檔全文讀完，總數�
 **要回報給伺服器端雲端對話**（不在本 repo 處理）：
 - `combat-continuation-current.zh-TW.md:9-10`「本戰鬥候選未部署」應改為「8d26 之後未部署」。
 - 伺服器 `PLAN.md` 寫的最新候選（`50635f7e`）與收尾頁（`046c58c5`）不一致。
-- `de-native-*` 那段鏈沒進 git。
+- `de-native-*` 那段鏈沒進 git（內容已由 #120 讀完，但伺服器端仍無法從 git 重建）。
 
 ## 附錄 E1：G01–G12（46 項）→ 歸屬
 來源是 `docs/G01-G12.md`（#106），「state」是來源記載的原值，不是重新驗收的結論。
