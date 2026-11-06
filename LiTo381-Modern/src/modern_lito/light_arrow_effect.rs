@@ -539,7 +539,7 @@ pub struct LightArrowAssets {
     casters: BTreeMap<BaseAppearance, BoundSequence>,
     sprites: BTreeMap<SpriteKey, LoadedSprite>,
     sound: Arc<SoundBank>,
-    group: NativeAudioGroup,
+    group: Option<NativeAudioGroup>,
     catalog_sha256: [u8; 32],
     encoded: usize,
     rgba: usize,
@@ -553,7 +553,7 @@ impl LightArrowAssets {
     }
     /// Three individually qualified class4 chains; this is not a generic fallback.
     pub fn load_class4_effect_only(root:&Path, graphics:u32, cancel:&AtomicBool)->Result<Self> {
-        if !matches!(graphics,167|1583|1799) {return Err(LightArrowError::Unsupported("unqualified class4 graphic"));}
+        if !matches!(graphics,167|1583|1799|756) {return Err(LightArrowError::Unsupported("unqualified class4 graphic"));}
         active(cancel)?;
         let catalog=SharedActionCatalog::load(root,cancel)?;
         Self::load_selected_profile(&catalog,BTreeSet::new(),graphics,cancel)
@@ -635,6 +635,7 @@ impl LightArrowAssets {
         let catalog_sha256 = context.sha256();
         let catalog = context.catalog();
         let (effect,impact)=match graphics {
+            756=>(qualify_lance_effect(&catalog)?,qualify_impact(&catalog)?),
             167=>(qualify_effect(&catalog)?,qualify_impact(&catalog)?),
             1583=>(qualify_fire_effect(&catalog)?,qualify_fire_impact(&catalog)?),
             1799=>(qualify_wind_effect(&catalog)?,qualify_wind_impact(&catalog)?),
@@ -646,12 +647,12 @@ impl LightArrowAssets {
             active(cancel)?;
             casters.insert(appearance, qualify_caster(&catalog, appearance)?);
         }
-        let (launch_sound,impact_sound)=match graphics {167=>(97,None),1583=>(97,Some(99)),1799=>(719,Some(711)),1797=>(719,Some(713)),_=>unreachable!()};
-        let group = classify_native_cues(&[FrameEvent::Sound(launch_sound)])
+        let (launch_sound,impact_sound)=match graphics {756=>(None,None),167=>(Some(97),None),1583=>(Some(97),Some(99)),1799=>(Some(719),Some(711)),1797=>(Some(719),Some(713)),_=>unreachable!()};
+        let group = if let Some(sound)=launch_sound {classify_native_cues(&[FrameEvent::Sound(sound)])
             .map_err(|_| LightArrowError::Unsupported("sound cue classification"))?
             .audio
-            .ok_or(LightArrowError::Unsupported("missing sound cue group"))?;
-        let mut groups=vec![group.clone()];
+        } else {None};
+        let mut groups:Vec<_>=group.iter().cloned().collect();
         if let Some(sound)=impact_sound {
             groups.push(classify_native_cues(&[FrameEvent::Sound(sound)])
                 .map_err(|_|LightArrowError::Unsupported("impact sound cue classification"))?
@@ -788,8 +789,8 @@ impl LightArrowAssets {
     pub fn sound_bank(&self) -> Arc<SoundBank> {
         Arc::clone(&self.sound)
     }
-    pub fn sound_group(&self) -> &NativeAudioGroup {
-        &self.group
+    pub fn sound_group(&self) -> Option<&NativeAudioGroup> {
+        self.group.as_ref()
     }
     pub fn effect_duration(&self, path: &LightArrowPath) -> Duration {
         path.impact_at() + self.impact.sequence.duration()
@@ -1639,4 +1640,9 @@ mod tests {
         assert!(matches!(LightArrowAssets::load_effect_profile_with_reader(&context,167,&cancel,&mut slot),Err(LightArrowError::Resource(ResourceError::UnsafePath(_)))));assert!(slot.is_none());
     }
 
+}
+
+fn qualify_lance_effect(c:&SpriteActionCatalog)->Result<BoundSequence> {
+    qualify_fixed(c,756,Directionality::EightWay,8,&[(104,b"8"),(109,b"4 219")],
+        &[(3,2),(0,2),(1,2),(2,2)],None,None)
 }

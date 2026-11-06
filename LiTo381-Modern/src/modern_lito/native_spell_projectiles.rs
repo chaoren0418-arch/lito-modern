@@ -13,8 +13,11 @@ use super::{
 };
 use std::{collections::{BTreeMap,BTreeSet}, path::Path, sync::atomic::AtomicBool, time::Duration};
 
-pub fn supports_graphics(graphics:u16)->bool {matches!(graphics,167|1583|1799|1797)}
+#[path="native_eruption.rs"]
+mod eruption;
+pub fn supports_graphics(graphics:u16)->bool {matches!(graphics,167|1583|1799|1797|756|129)}
 
+#[derive(Clone)]
 struct Flight {
     cue: ProjectileCue,
     start: u64,
@@ -37,6 +40,7 @@ fn valid(world: &World, cue: &ProjectileCue) -> bool {
 }
 #[derive(Default)]
 pub struct Projectiles {
+    eruption:eruption::Effects,
     generation: Option<u64>,
     assets: BTreeMap<u16,LightArrowAssets>,
     errors: BTreeMap<u16,String>,
@@ -52,11 +56,12 @@ impl Projectiles {
     }
     pub(crate) fn prepare_with_catalog(&mut self,root:&Path,world:&World,cancel:&AtomicBool,
         shared:&mut Option<super::shared_action_catalog::SharedActionCatalog>) {
+        self.eruption.prepare(root,world,cancel,shared);
         let mut sprite_reader=None;
-        for (skill,graphics) in [(4,167),(6,1797),(7,1799),(15,1583)] {
+        for (skill,graphics) in [(4,167),(6,1797),(7,1799),(15,1583),(50,756)] {
             if !self.assets.contains_key(&graphics) && !self.errors.contains_key(&graphics)
                 && (world.learned_skills.contains(&skill)||world.projectiles.iter().any(|c|
-                    c.projectile.flight_type==0 && c.projectile.graphics==graphics)) {
+                    c.projectile.flight_type==0 && c.projectile.graphics==graphics)||self.flights.iter().any(|f|f.cue.projectile.graphics==graphics)) {
                 let loaded=(|| {
                     let context=super::shared_action_catalog::SharedActionCatalog::reuse_for_model(root,cancel,shared)?;
                     LightArrowAssets::load_effect_profile_with_reader(context,u32::from(graphics),cancel,&mut sprite_reader)
@@ -74,6 +79,7 @@ impl Projectiles {
         events: impl Iterator<Item = &'a EnteredEvent>,
         now: u64,
     ) -> Vec<Impact> {
+        let events:Vec<_>=events.collect();
         if self.generation != Some(world.generation) {
             self.generation = Some(world.generation);
             self.seen.clear();
@@ -82,19 +88,22 @@ impl Projectiles {
             self.arrived = 0;
             self.omitted = 0;
         }
+        self.eruption.update(world,&events,now,self.flights.len());
         let live: BTreeSet<_> = world
             .projectiles
             .iter()
             .map(|c| (c.attacker, c.action_sequence))
             .collect();
-        self.seen.retain(|key| live.contains(key));
-        self.flights.retain(|f| valid(world, &f.cue));
-        for event in events.filter(|e| e.event == "Hit") {
+        self.seen.retain(|key| live.contains(key)||self.flights.iter().any(|f|(f.cue.attacker,f.cue.action_sequence)==*key));
+        let before=self.flights.len();
+        self.flights.retain(|f|valid(world,&f.cue)&&!self.errors.contains_key(&f.cue.projectile.graphics));
+        self.omitted+=(before-self.flights.len()) as u64;
+        for event in events.into_iter().filter(|e| e.event == "Hit") {
             let key = (event.actor, event.sequence);
             let Some(cue) = world
                 .projectiles
                 .iter()
-                .find(|c| (c.attacker, c.action_sequence) == key && c.projectile.flight_type == 0)
+                .find(|c| (c.attacker, c.action_sequence) == key && c.projectile.flight_type == 0 && c.projectile.graphics!=129)
             else {
                 continue;
             };
@@ -102,7 +111,7 @@ impl Projectiles {
                 continue;
             }
             if !supports_graphics(cue.projectile.graphics)
-                || self.flights.len() >= 64
+                || self.flights.len()+self.eruption.active_count() >= 64
                 || !valid(world, cue)
                 || world.actors.get(&cue.attacker).is_none_or(|a| a.dead)
             {
@@ -154,7 +163,7 @@ impl Projectiles {
                     flight.impact_position=world.actors.get(&flight.cue.target)
                         .map(|a|WorldCell{x:i32::from(a.x),y:i32::from(a.y)});
                 }
-                if flight.cue.damage_marker > 0
+                if flight.cue.projectile.graphics!=756 && flight.cue.damage_marker > 0
                     && world
                         .actors
                         .get(&flight.cue.target)
@@ -188,8 +197,9 @@ impl Projectiles {
         projection: ViewProjection,
         now: u64,
     ) -> (serde_json::Value, Vec<EnteredEvent>) {
+        let (eruption_receipt,eruption_events)=self.eruption.draw(target,projection);
         let mut rows = Vec::new();
-        let mut events = Vec::new();
+        let mut events = eruption_events;
         let mut finished = BTreeSet::new();
         let mut non_audio_cues = Vec::new();
         for f in &mut self.flights {
@@ -245,11 +255,23 @@ impl Projectiles {
             .retain(|f| !finished.contains(&(f.cue.attacker, f.cue.action_sequence)));
         (
             serde_json::json!({"generation":self.generation,"launched":self.launched,"arrivals":self.arrived,
-            "omitted":self.omitted,"active":self.flights.len(),"non_audio_cues":non_audio_cues,"load_error":if self.errors.is_empty(){None}else{Some(&self.errors)},"flights":rows,
+            "eruption":eruption_receipt,"omitted":self.omitted,"active":self.flights.len(),"non_audio_cues":non_audio_cues,"load_error":if self.errors.is_empty(){None}else{Some(&self.errors)},"flights":rows,
             "entered_events":events,"sources":self.assets.values().flat_map(|a|a.sprite_sources()).map(|s|
                 serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})
             ).collect::<Vec<_>>(),"complete":false}),
             events,
         )
     }
+}
+
+#[derive(Clone)]
+pub(crate) struct History {generation:Option<u64>,seen:BTreeSet<(u32,u64)>,flights:Vec<Flight>,launched:u64,arrived:u64,omitted:u64,eruption:eruption::History}
+impl History {
+    pub(crate) fn retire(&mut self){self.flights.clear();self.eruption.retire();}
+    pub(crate) fn merge(&mut self,other:&Self){if self.generation==other.generation{self.seen.extend(other.seen.iter().copied());}self.eruption.merge(&other.eruption);}
+    pub(crate) fn oldest(&self)->Option<u64>{self.flights.iter().map(|f|f.cue.action_sequence).chain(self.eruption.oldest()).min()}
+}
+impl Projectiles {
+    pub(crate) fn history(&self)->History{History{generation:self.generation,seen:self.seen.clone(),flights:self.flights.clone(),launched:self.launched,arrived:self.arrived,omitted:self.omitted,eruption:self.eruption.history()}}
+    pub(crate) fn restore(&mut self,h:History){self.generation=h.generation;self.seen=h.seen;self.flights=h.flights;self.launched=h.launched;self.arrived=h.arrived;self.omitted=h.omitted;self.eruption.restore(h.eruption);}
 }

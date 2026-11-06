@@ -346,14 +346,15 @@ pub(crate) fn read_pin(path: &Path, limit: u64, cancel: &AtomicBool) -> Result<n
 #[derive(Clone)]
 pub(crate) struct FiniteHistory {
     animation:super::native_world_animation::History,
+    spells:super::native_spell_projectiles::History,class1:super::native_class1::History,
     skills:[super::native_skill_effects::History;4],many:super::native_attack_many::History,
     disintegrate:super::native_disintegrate::History,call_lightning:super::native_call_lightning::History,cone_cold:super::native_cone_cold::History,restore_other_effects:bool,
 }
 impl FiniteHistory {
     pub(crate) fn for_source(&self,same_source:bool)->Self {
-        let mut history=self.clone();history.restore_other_effects &= same_source;history
+        let mut history=self.clone();history.restore_other_effects &= same_source;if !history.restore_other_effects {history.spells.retire();history.class1.retire();}history
     }
-    pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();}
+    pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){self.spells.merge(&other.spells);self.class1.merge(&other.class1);self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();}
 }
 pub struct Model {
     static2941: super::native_static2941::Stage,
@@ -423,10 +424,11 @@ struct NativeTerrainSources {
 }
 impl Model {
     pub(crate) fn finite_history(&self)->FiniteHistory {
-        FiniteHistory{animation:self.animator.history(),skills:[self.skill_effects.history(),self.item_effects.history(),self.reagent_effects.history(),self.travel_effects.history()],many:self.many_effects.history(),disintegrate:self.disintegrate_effects.history(),call_lightning:self.call_lightning_effects.history(),cone_cold:self.cone_cold_effects.history(),restore_other_effects:true}
+        FiniteHistory{spells:self.spell_projectiles.history(),class1:self.class1_effects.history(),animation:self.animator.history(),skills:[self.skill_effects.history(),self.item_effects.history(),self.reagent_effects.history(),self.travel_effects.history()],many:self.many_effects.history(),disintegrate:self.disintegrate_effects.history(),call_lightning:self.call_lightning_effects.history(),cone_cold:self.cone_cold_effects.history(),restore_other_effects:true}
     }
     fn restore_finite_history(&mut self,history:FiniteHistory) {
         self.animator.restore(history.animation);
+        self.spell_projectiles.restore(history.spells);self.class1_effects.restore(history.class1);
         if history.restore_other_effects {
             for (effect,h) in [&mut self.skill_effects,&mut self.item_effects,&mut self.reagent_effects,&mut self.travel_effects].into_iter().zip(history.skills) {effect.restore_history(h);}
             self.many_effects.restore_history(history.many);
@@ -436,7 +438,7 @@ impl Model {
         self.cone_cold_effects.restore_history(history.cone_cold);
     }
     pub(crate) fn ambient_source_floor(&self,world:&World)->u64 {
-        world.projectiles.iter().map(|cue|cue.action_sequence).chain(self.call_lightning_effects.oldest_active_sequence()).chain(self.cone_cold_effects.oldest_active_sequence()).min().unwrap_or_else(||world.visual_revision.saturating_add(1)).max(1)
+        world.projectiles.iter().map(|cue|cue.action_sequence).chain(self.spell_projectiles.history().oldest()).chain(self.class1_effects.history().oldest()).chain(self.call_lightning_effects.oldest_active_sequence()).chain(self.cone_cold_effects.oldest_active_sequence()).min().unwrap_or_else(||world.visual_revision.saturating_add(1)).max(1)
     }
     pub fn light_remap(&self) -> super::native_light_color::Remap {self.lighting.remap()}
     pub fn water_history_for(&self,owner:u64)->Option<super::native_water_clock::History> {self.lighting.water_history_for(owner)}

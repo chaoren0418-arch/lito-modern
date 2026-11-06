@@ -40,6 +40,7 @@ const ROOM_CAPACITY:u16=214;
 const ROOM_SECRET:u16=215;
 const ROOM_LOCK:u16=216;
 const TELEPORT_DEST:u16=217;
+const SUMMON_OPTIONS:u16=218;
 const ROOM_HELP:u16=313;
 const CONNECT: u16 = 101;
 const LOGIN: u16 = 102;
@@ -90,6 +91,7 @@ struct Ui {
     inventory_icon_rows: Vec<(u32, u16)>,
     inventory_choice: Option<super::native_item_actions::Choice>,
     skill_item_target: Option<super::native_skills::ItemTarget>,
+    summon_choice: Option<super::native_skills::SummonTarget>,
     teleport_rows: Vec<String>,
     teleport_choice: Option<super::native_teleport_spell::Choice>,
     item_cursor: Option<super::native_item_actions::TargetChoice>,
@@ -229,6 +231,7 @@ impl Ui {
                 CBS_DROPDOWNLIST as u32 | WS_VSCROLL.0,
             ),
             (CAST_SKILL, w!("BUTTON"), "施放技能".into(), 0),
+            (SUMMON_OPTIONS,w!("COMBOBOX"),String::new(),CBS_DROPDOWNLIST as u32 | WS_VSCROLL.0),
             (TELEPORT_DEST, w!("COMBOBOX"), String::new(), CBS_DROPDOWNLIST as u32 | WS_VSCROLL.0),
             (INVENTORY_TOGGLE, w!("BUTTON"), "背包".into(), 0),
             (GROUND_TOGGLE, w!("BUTTON"), "附近物品".into(), 0),
@@ -437,6 +440,7 @@ impl Ui {
                 ROOMS => !self.world_view && !self.inventory_view,
                 SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !self.rental.open,
                 SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.ground_view,
+                SUMMON_OPTIONS => self.world_view && !self.result_view && !self.inventory_view && !self.rental.open && self.skills.selected()==Some(51),
                 TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected()==Some(5),
                 SCORES => self.result_view && !self.inventory_view,
                 _ => !self.world_view || matches!(*id, CANCEL | STATUS | RETURN),
@@ -529,6 +533,7 @@ impl Ui {
                 px(32),
                 true,
             );
+            let _ = MoveWindow(self.control(SUMMON_OPTIONS),px(16),area.bottom-px(130),area.right-px(32),px(300),true);
             let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),area.bottom-px(130),area.right-px(32),px(220),true);
             let _ = MoveWindow(
                 self.control(SCORES),
@@ -829,6 +834,13 @@ impl Ui {
         let input = self.combat_input();
         self.held.clear();
         self.held_attack.clear();
+        if skill==51 {
+            ensure!(!self.inventory_view && !self.rental.open && !self.closing,"召喚畫面已失效");
+            ensure!(self.skills.selected_skill(self.controller.transport().snapshot().epoch,&self.controller.snapshot().world)?==51,"召喚選擇已失效");
+            let choice=self.summon_choice.as_ref().context("請先選擇召喚種類")?;
+            let frame=self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+            return self.controller.cast_summon(choice,frame);
+        }
         if super::native_skills::item_targeted(skill) {
             let epoch = self.controller.transport().snapshot().epoch;
             ensure!(self.skills.selected_skill(epoch, &self.controller.snapshot().world)? == skill, "技能已變更");
@@ -1068,7 +1080,20 @@ impl Ui {
             || self.skill_item_target.as_ref().is_some_and(|item| item.validate(snapshot, epoch).is_err()) {
             self.skill_item_target = None;
         }
-        let choice_valid = if self.skills.selected().is_some_and(super::native_skills::item_targeted) {
+        if send(self.control(SUMMON_OPTIONS),CB_GETCOUNT,WPARAM(0),LPARAM(0)).0==0 {
+            for label in std::iter::once("請選擇召喚種類；無控制能力時依伺服器等級規則".to_string())
+                .chain(super::native_skills::SUMMON_SELECTIONS.iter().map(|r|format!("Lv{} {}",r.required_level,r.label))) {
+                let label=wide(&label);send(self.control(SUMMON_OPTIONS),CB_ADDSTRING,WPARAM(0),LPARAM(label.as_ptr() as isize));
+            }
+            send(self.control(SUMMON_OPTIONS),CB_SETCURSEL,WPARAM(0),LPARAM(0));
+        }
+        if self.skills.selected()!=Some(51) || self.inventory_view || self.rental.open || self.closing
+            || self.summon_choice.as_ref().is_some_and(|c|c.validate(snapshot,epoch).is_err()) {
+            self.summon_choice=None;send(self.control(SUMMON_OPTIONS),CB_SETCURSEL,WPARAM(0),LPARAM(0));
+        }
+        let choice_valid = if self.skills.selected()==Some(51) {
+            self.summon_choice.as_ref().is_some_and(|c|super::native_skills::summon_request(snapshot,epoch,c).is_ok())
+        } else if self.skills.selected().is_some_and(super::native_skills::item_targeted) {
             self.skills.selected_skill(epoch, &snapshot.world).and_then(|skill| {
                 let item = self.skill_item_target.as_ref().context("請選取背包物品")?;
                 super::native_skills::item_request(snapshot, epoch, skill, item)
@@ -1089,6 +1114,7 @@ impl Ui {
                 .as_ref()
                 .is_some_and(|f| f.movement_ready(&snapshot.world));
         let _ = EnableWindow(self.control(CAST_SKILL), enabled);
+        let _ = EnableWindow(self.control(SUMMON_OPTIONS), active && self.skills.selected()==Some(51));
         let _ = EnableWindow(self.control(TELEPORT_DEST), active && self.skills.selected()==Some(5));
         let _ = EnableWindow(
             self.control(SKILLS),
@@ -2216,10 +2242,21 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     if let Err(error) = ui.skills.select(id) {
                         ui.text(STATUS, &format!("{error:#}"));
                     }
+                    ui.summon_choice=None;send(ui.control(SUMMON_OPTIONS),CB_SETCURSEL,WPARAM(0),LPARAM(0));
                     ui.teleport_choice=None;
                     ui.refresh();
                     ui.layout(hwnd,false);
                     return LRESULT(0);
+                }
+                WM_COMMAND if (wparam.0 & 0xffff)==SUMMON_OPTIONS as usize && (wparam.0>>16)==CBN_SELCHANGE as usize => {
+                    ui.held.clear();ui.held_attack.clear();ui.summon_choice=None;
+                    let index=send(ui.control(SUMMON_OPTIONS),CB_GETCURSEL,WPARAM(0),LPARAM(0)).0;
+                    if ui.skills.selected()==Some(51) && !ui.inventory_view && !ui.rental.open && !ui.closing {
+                        ui.summon_choice=index.checked_sub(1).and_then(|i|usize::try_from(i).ok())
+                            .and_then(|i|super::native_skills::SUMMON_SELECTIONS.get(i))
+                            .and_then(|r|super::native_skills::SummonTarget::capture(ui.controller.snapshot(),ui.controller.transport().snapshot().epoch,r.selection).ok());
+                    }
+                    ui.refresh();return LRESULT(0);
                 }
                 WM_COMMAND if (wparam.0 & 0xffff)==TELEPORT_DEST as usize && (wparam.0>>16)==CBN_SELCHANGE as usize => {
                     ui.held.clear();ui.held_attack.clear();
@@ -2372,6 +2409,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 inventory_icon_rows: vec![],
                 inventory_choice: None,
                 skill_item_target: None,
+                summon_choice:None,
                 teleport_rows:vec![],
                 teleport_choice:None,
                 item_cursor: None,
