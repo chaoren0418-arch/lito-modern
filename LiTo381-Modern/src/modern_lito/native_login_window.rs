@@ -908,7 +908,7 @@ impl Ui {
                 && self.controller.snapshot().attack_feedback
                     != super::native_combat::Feedback::Pending
             {
-                match self.controller.move_checked(heading, &frame.navigation) {
+                match self.controller.move_presented(heading, frame) {
                     Ok(()) => self.held.sent(),
                     Err(error) => {
                         self.held.clear();

@@ -16,6 +16,9 @@ mod battle_withdrawal_tests;
 #[cfg(test)]
 #[path = "native_return_server_negative_tests.rs"]
 mod return_server_negative_tests;
+#[cfg(test)]
+#[path = "native_login_movement_tests.rs"]
+mod movement_tests;
 
 pub fn decode_text(bytes: &[u8]) -> Result<String> {
     decode_message(bytes, false)
@@ -711,20 +714,24 @@ impl LoginController {
         self.deadline = Some(Instant::now() + Duration::from_secs(8));
         Ok(())
     }
+    /// Interactive movement requires the latest arrived presentation. A previous
+    /// frame cannot authorize a second step after predict_step changes its key.
+    pub fn move_presented(
+        &mut self,
+        heading: u8,
+        frame: &super::native_world_scene::Frame,
+    ) -> Result<()> {
+        ensure!(frame.movement_ready(&self.state.world), "等待目前步伐抵達或更新畫面");
+        self.move_checked(heading, &frame.navigation)
+    }
+    /// Low-level protocol probes own their animation clock; interactive callers
+    /// must use move_presented so an in-flight step cannot be skipped.
     pub fn move_checked(
         &mut self,
         heading: u8,
         navigation: &super::native_navigation::Navigation,
     ) -> Result<()> {
-        ensure!(
-            self.state.world.map_id.map(u32::from) == Some(navigation.map_id),
-            "movement map mismatch"
-        );
-        let own = self.state.world.own_actor().context("local actor absent")?;
-        ensure!(
-            navigation.can_step(i32::from(own.x), i32::from(own.y), heading),
-            "map edge blocks movement"
-        );
+        self.state.world.checked_move_request(heading, navigation)?;
         self.move_step(heading)
     }
     pub fn move_step(&mut self, heading: u8) -> Result<()> {
@@ -1646,8 +1653,10 @@ impl LoginController {
                 self.state.attack_feedback = super::native_combat::Feedback::Idle;
             }
             if body.first() == Some(&0x63) {
-                self.transport
-                    .send(self.transport.snapshot().epoch, Zeroizing::new(vec![0x5a]))?;
+                let epoch = self.transport.snapshot().epoch;
+                self.state.world.acknowledge_movement_lock(|ack| {
+                    self.transport.send(epoch, Zeroizing::new(ack.to_vec()))
+                })?;
             }
             if body.first() == Some(&0xd2) {
                 self.state.battle_withdrawal_pending=false;

@@ -15,6 +15,9 @@ use std::{
     path::Path,
     sync::atomic::{AtomicBool, Ordering},
 };
+#[cfg(test)]
+#[path = "native_movement_tests.rs"]
+pub(crate) mod movement_tests;
 /// Lightweight hit/camera data for the frame actually presented by the host.
 /// Raster owner planes are immutable Arc-backed data; no canvas/DIB is copied.
 #[derive(Clone)]
@@ -102,6 +105,7 @@ pub struct Frame {
     pub navigation: std::sync::Arc<super::native_navigation::Navigation>,
     movement_key: (u32, u64, u16, u16, u8, u8, u64),
     movement_arrived: bool,
+    movement_stamp: super::native_navigation::InputStamp,
     death_arrived: bool,
     movement_generation: u64,
     observer_key: Option<(u32,[u16;2])>,
@@ -130,6 +134,11 @@ impl Frame {
     }
     pub fn movement_ready(&self, world: &World) -> bool {
         self.movement_arrived && self.matches_world(world)
+            && self.movement_stamp == super::native_navigation::InputStamp::capture(0, world)
+            && world.ready() && world.hp.is_some_and(|hp| hp[0] > 0)
+            && world.battle_result.is_none() && world.movement_blocks.is_empty()
+            && world.movement_lock == super::native_world::MovementLock::Open
+            && world.own_actor().is_some_and(|a| !a.dead)
     }
     /// Input can only resolve objects in this rendered authority revision.
     pub fn input_ready(&self, world: &World) -> bool {
@@ -1390,6 +1399,7 @@ impl Model {
             navigation: self.navigation.clone(),
             movement_key: if observer {(local_id,0,view_position[0],view_position[1],0,0,0)} else {let own=world.own_actor().unwrap();(own.id,own.motion_revision,own.x,own.y,own.speed,own.brave,own.action_sequence)},
             movement_arrived: own_pose.is_some_and(|p|p.phase=="idle"),
+            movement_stamp: super::native_navigation::InputStamp::capture(0, world),
             death_arrived: own_pose.is_some_and(|p|p.phase=="death"&&p.action_complete),
             movement_generation: world.generation,
             observer_key: observer.then_some((local_id,view_position)),
