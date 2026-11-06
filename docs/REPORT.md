@@ -63,3 +63,4 @@
 - 2026-11-06 — #141 T026-2: T026（M2 2/2）: docs/SKILLS-STATUS.md（新增）（design，claude-chat，PR #232 已合併）→ [報告](reports/issue-141.md)
 - 2026-11-06 — #145 T027-1: T027（M2 1/6）: src/：候選獨有的 48 個技能重做進 src（code，codex-local，PR #233 已合併）→ [報告](reports/issue-145.md)
 - 2026-11-06 — #142 T020-1: T020（M2 1/2）: src/：#97 暗隱術（code，codex-local，PR #222 已合併）→ [報告](reports/issue-142.md)
+- 2026-11-06 — #146 T027-2: T027（M2 2/6）: src/：候選獨有的 48 個技能重做進 src（code，codex-local，PR 已合併）→ [報告](reports/issue-146.md)
