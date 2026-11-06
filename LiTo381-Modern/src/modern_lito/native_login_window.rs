@@ -864,7 +864,7 @@ impl Ui {
             .context("等待世界畫面")?;
         match choice.ground {
             Some(position) => self.controller.cast_ground(choice.skill, position, frame),
-            None => self.controller.cast_with_input(choice.skill, choice.target, frame, input),
+            None => self.controller.cast_selected_with_input(choice.skill, self.target, frame, input),
         }
     }
     fn enter_nearby_portal(&mut self)->Result<()> {
