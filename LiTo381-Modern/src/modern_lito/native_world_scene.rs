@@ -120,7 +120,7 @@ pub struct Frame {
 impl Frame {
     pub fn environment_key(&self) -> Option<super::native_render_environment::Key> { self.environment_key }
     pub fn death_ready(&self, world: &World) -> bool {
-        self.death_arrived && world.death_confirmation_pending && self.matches_world(world)
+        self.death_arrived && world.death_confirmation_ready() && self.matches_world(world)
     }
     pub fn overlay_contains(&self, x: i32, y: i32) -> bool {
         self.receipt["minimap"]["visible"] == true && super::native_minimap::contains(x,y)
@@ -1423,5 +1423,66 @@ impl Model {
             bgra,
             receipt,
         })
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod resurrection_tests {
+    use super::*;
+
+    pub(crate) fn completed_frame(world: &World) -> Frame {
+        let mut frame = movement_tests::frame(world, true);
+        frame.death_arrived = true;
+        frame
+    }
+
+    fn dead_world() -> World {
+        let mut world = movement_tests::world();
+        let mut body = vec![0x20];
+        body.extend(world.own_actor().unwrap().id.to_le_bytes());
+        body.push(8);
+        world.accept(&[0x0d, 0, 0, 200, 0]).unwrap();
+        world.accept(&body).unwrap();
+        world.accept(&[0xe3]).unwrap();
+        world
+    }
+
+    #[test]
+    fn completed_death_frame_rechecks_authority_before_acknowledging() {
+        let world = dead_world();
+        let mut frame = movement_tests::frame(&world, true);
+        assert!(!frame.death_ready(&world), "movement completion is not death completion");
+        frame.death_arrived = true;
+        assert!(frame.death_ready(&world));
+        for case in 0..4 {
+            let mut changed = world.clone();
+            match case {
+                0 => { changed.accept(&[0x0d, 1, 0, 200, 0]).unwrap(); }
+                1 => { changed.set_observer_mode(true); }
+                2 => { changed.accept(&[0xd3, 0, 0, 0, 0]).unwrap(); }
+                _ => { changed.acknowledge_death(|_| Ok(())).unwrap(); }
+            }
+            assert!(!frame.death_ready(&changed), "case {case}");
+        }
+    }
+
+    #[test]
+    fn old_death_frame_cannot_acknowledge_the_next_life_even_at_the_same_cell() {
+        let mut world = dead_world();
+        let mut frame = movement_tests::frame(&world, true);
+        frame.death_arrived = true;
+        let id = world.own_actor().unwrap().id;
+        let mut body = vec![0x11];
+        body.extend(id.to_le_bytes()); body.push(0);
+        body.extend(id.to_le_bytes()); body.extend(0u16.to_le_bytes());
+        world.accept(&body).unwrap();
+        assert!(!frame.death_ready(&world));
+        let mut death = vec![0x20]; death.extend(id.to_le_bytes()); death.push(8);
+        world.accept(&death).unwrap(); world.accept(&[0xe3]).unwrap();
+        assert!(world.death_confirmation_ready());
+        assert!(!frame.death_ready(&world));
+        let mut fresh = movement_tests::frame(&world, true);
+        fresh.death_arrived = true;
+        assert!(fresh.death_ready(&world));
     }
 }

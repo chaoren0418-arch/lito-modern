@@ -719,16 +719,17 @@ impl LoginController {
     }
     pub fn confirm_death(&mut self, frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(
-            self.state.phase == LoginPhase::BattlePending && frame.death_ready(&self.state.world),
+            self.state.phase == LoginPhase::BattlePending && !self.state.observer
+                && frame.death_ready(&self.state.world),
             "death animation/authority not ready"
         );
-        self.transport
-            .send(self.transport.snapshot().epoch, Zeroizing::new(vec![0xe0]))?;
-        self.state.world.death_confirmation_pending = false;
-        self.state.world.death_confirmations_sent += 1;
-        self.state.world.last_death_confirmed_action =
-            self.state.world.own_actor().map(|a| a.action_sequence);
-        self.deadline = Some(Instant::now() + Duration::from_secs(8));
+        let epoch = self.transport.snapshot().epoch;
+        self.state.world.acknowledge_death(|body|
+            self.transport.send(epoch, Zeroizing::new(body.to_vec())))?;
+        // CE0 has no correlated response or client-owned respawn deadline.
+        // E149 schedules Honor at 5000ms, but delivery can be delayed and other
+        // resolutions can leave the player dead. Keep waiting for authority;
+        // preserve any independent withdrawal deadline already in progress.
         Ok(())
     }
     pub fn request_battle_withdrawal(&mut self) -> Result<()> {
@@ -1650,6 +1651,7 @@ impl LoginController {
             );
         }
         let previous_world_generation=self.state.world.generation;
+        let previous_resurrections = self.state.world.resurrection_packets;
         let world_accepted = match ingress {
             Some(receipt) => self.state.world.accept_received(body, receipt)?,
             None => self.state.world.accept(body)?,
@@ -1701,22 +1703,19 @@ impl LoginController {
                 if let Some(room)=self.state.joined_room.as_mut(){room.map_id=self.state.world.map_id.context("portal map")?;}
                 self.deadline=None;
             }
-            if body.first() == Some(&0x11) {
-                if let Some(event) = self.state.world.last_resurrection {
+            if body.first() == Some(&0x11) && self.state.world.resurrection_packets != previous_resurrections {
+                if let Some(event) = self.state.world.last_resurrection
+                    .filter(|event| self.state.world.actors.contains_key(&event.target)) {
                     let own = self.state.world.own_actor().is_some_and(|a| a.id == event.target);
                     if own || self.attack_pending.as_ref().is_some_and(|p| p.target == event.target) {
                         self.attack_pending = None;
                         self.state.attack_feedback = super::native_combat::Feedback::Interrupted;
                     }
                     if own {
-                        // S_RESURRECT completes C_CONFIRM_DEATH's response wait;
-                        // keeping that deadline disconnects a live honor player.
-                        self.deadline = None;
-                        self.skill_pending = None;
-        self.world_tree_request=None;self.teleport_spell=None;
-                        self.state.skill_feedback = super::native_skills::Feedback::Interrupted;
-                        self.door_pending = None;
-                        self.door_feedback = super::native_doors::Feedback::Interrupted;
+                        // Retire every old-life request, even when death and
+                        // resurrection arrive in the same poll. An unrelated
+                        // withdrawal/return deadline still belongs to its request.
+                        self.interrupt_world_actions();
                     }
                 }
             }
@@ -3037,3 +3036,7 @@ fn probe_flow(
 #[cfg(test)]
 #[path = "native_pending_join_departure_tests.rs"]
 mod pending_join_departure_tests;
+
+#[cfg(test)]
+#[path = "native_resurrection_tests.rs"]
+mod resurrection_tests;
