@@ -177,6 +177,18 @@ function Start-OwnedProcess([string]$Kind,[string]$Executable,[string[]]$Argumen
  } catch {$entry.identity_error=$_.Exception.Message;throw}
  return $owned
 }
+function Complete-OwnedLog($Owned,[string]$Stream){
+ if($null -ne $Owned[$Stream]){
+  if(!$Owned[$Stream].Wait(5000)){throw "$Stream drain timed out"}
+  $null=$Owned[$Stream].GetAwaiter().GetResult()
+ }
+ if($null -ne $Owned.log_files[$Stream]){
+  # CopyToAsync does not close its destination. Close the writer before any
+  # ReadAllText (FileShare.Read); finally may safely call this again.
+  $Owned.log_files[$Stream].Dispose()
+  $Owned.log_files[$Stream]=$null
+ }
+}
 function Stop-OwnedProcess($Owned){
  $process=$Owned.process;$entry=$Owned.entry
  try {
@@ -209,11 +221,7 @@ function Stop-OwnedProcess($Owned){
  } finally {
   foreach($stream in @('stdout','stderr')){
    try {
-    if($null -ne $Owned[$stream]){
-     if(!$Owned[$stream].Wait(5000)){throw "$stream drain timed out"}
-     $null=$Owned[$stream].GetAwaiter().GetResult()
-     $Owned.log_files[$stream].Dispose()
-    }
+    Complete-OwnedLog $Owned $stream
    } catch {$entry.cleanup_errors+=@($_.Exception.Message)}
    # Copy independently even after a drain error; the run retains partial logs.
    try {
@@ -311,8 +319,7 @@ try {
  if(!$client.process.WaitForExit($leaseSeconds*1000)){throw 'Teleport handoff test timeout'}
  if(!$server.process.WaitForExit(8000)){throw 'Server cleanup did not complete'}
  if($client.process.ExitCode -ne 0 -or $server.process.ExitCode -ne 0){throw 'Teleport handoff test or cleanup failed'}
- if(!$client.stdout.Wait(5000)){throw 'Rust stdout drain timed out'}
- $null=$client.stdout.GetAwaiter().GetResult();$client.log_files.stdout.Flush()
+ Complete-OwnedLog $client 'stdout'
  $testText=[IO.File]::ReadAllText((Join-Path $root 'rust.stdout.txt'),[Text.Encoding]::UTF8)
  if($testText -notmatch 'running 1 test\b' -or $testText -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;'){throw 'Expected exactly one executed passing Rust test'}
  $resultPath=Join-Path $runtime 'result.json';Assert-OwnedPath $resultPath
