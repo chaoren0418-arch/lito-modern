@@ -54,3 +54,4 @@
 - 2026-11-06 — #131 主控：M1 完成——同步 TASKS／PLAN 狀態，並依凍結規則申請開放 M2（57 張）（plan，claude-chat，PR #134 已合併）→ [報告](reports/issue-131.md)
 - 2026-11-06 — #132 需要使用者裁定：是否開放 M2（技能與 G06 收尾，57 張）（plan，claude-chat，PR #138 已合併）→ [報告](reports/issue-132.md)
 - 2026-11-06 — #139 T025-1: T025（M2 1/1）: docs/PROTOCOL-CONTRACT.md（design，claude-chat，PR #198 已合併）→ [報告](reports/issue-139.md)
+- 2026-11-06 — #80 T011-R: T011-R: 盤點當版 tests/native_teleport_failure.rs 的 owned harness（產生方式、前置條件、隔離性）（resource，dot，PR #90 已合併）→ [報告](reports/issue-80.md)
