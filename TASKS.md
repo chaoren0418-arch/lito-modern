@@ -5,7 +5,7 @@ Cursor 接任務時只改「範圍」列出的路徑；PR 標題用 `ID: 摘要`
 
 ## 範圍凍結規則（2026-11-06，#92）
 - **完成定義凍結**：每個里程碑的「驗收：使用者打開會看到什麼」寫完後不再改寫；要改需開新 Issue 說明理由並標 `needs:user`。
-- **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 1 項，封頂**（T011-B；T011-H、T011-F、T012、T013 已完成）。T011-F 是 U-M1-1 兌現（#81 首跑失敗），分母因此由 10 變 11。V1 已完成，U-V1-1、U-V1-2 沒有兌現，已關閉。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
+- **主線封頂**：主線＝最近未完成的里程碑 M1 與 V1，**主線剩 2 項，封頂**（T011-H 修正 #122、T011-B；T011-F、T012、T013 已完成）。#118 發現 T011-H 交付的 runner 有缺陷，T011-H 改回 doing，不另外加主線項目。T011-F 是 U-M1-1 兌現（#81 首跑失敗），分母因此由 10 變 11。V1 已完成，U-V1-1、U-V1-2 沒有兌現，已關閉。進度條只算 `## M*` 區段（V1 的標題是 `## M1-V1`）。
 - **分母只因「不確定項」兌現而變動**：主線的不確定項 U-M1-1 已兌現為 T011-F；U-V1-1、U-V1-2 沒有兌現，已關閉。主線分母固定為 11，只有在 M2 開放（需要 `needs:user`）時才會變動。兌現時 PR 說明要引用當初的編號與估算。
 - **新發現的工作一律進 `## Backlog`**，不算進度。要升級成主線，必須同時砍掉一項主線，或經使用者同意（`needs:user`）。
 - **M2、M3 尚未開放**：它們的完成定義已凍結，任務清單已在盤點中一次列完（M2 57 張、M3 44 張），目前放在 Backlog。等 M1 與 V1 完成後，開新 Issue（`needs:user`），把盤點列好的那一批原樣升級成主線；不得在升級時另外加項目。
@@ -37,7 +37,7 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 驗收：clone 到任意路徑可建置。
 現況（2026-11-05）：已完成（Issue #3，PR #5）；Windows 原機實際建置與 clone 到其他路徑的腳本行為仍待驗證，交給 T010-F：只有在 clone 位置實際 `-BuildOnly` 成功才算驗證，T010-A 不算 T005 驗收。`build.ps1` 仍是 i686／`target/`，修正交給 T010-G。
 
-## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）— 主線剩 1 項，封頂
+## M1 驗證（使用者已於 2026-11-05 同意恢復測試，Issue #43；由本機 dot／codex-local 執行）— 主線剩 2 項，封頂
 驗收：使用者打開會看到什麼（凍結）：
 - `docs/reports/issue-53.md`、`issue-55.md`、`issue-56.md` 有當版 main 的 check、lib Debug／Release、白名單的實際數字（已有）。
 - T011-B 的報告有 G06 當版 5 個 scenario（timeout、refused、wrong-service、cancel-retry、cancel-expiry）各自的實際輸出：`running 1 test`、`1 passed`，以及 result.json 的 sessions／memberships 檢查結果。
@@ -52,13 +52,14 @@ CI：windows-latest `cargo check --locked --all-targets` + `cargo test --lib`（
 **T011 G06（當版）**（已拆為下面的 T011-H、T011-B，本身不計項）：對象是 `tests/native_teleport_failure.rs` 的 5 個 scenario。
 舊版的「兩版 16 案 640 次」依賴候選建置，已延後（#61 以 not planned 關閉）。改以當版的 5 個 scenario 為對象：timeout、refused、wrong-service、cancel-retry、cancel-expiry。T011-R（#80）已完成盤點；#82 裁定採用 memory 模式（不需要 DB）。
 
-### T011-H | done | 本機 codex-local | Java harness、`維護工具/run-teleport-failure.ps1`、Rust 守門（#91，PR #95）
+### T011-H | doing | 本機 codex-local | Java harness、`維護工具/run-teleport-failure.ps1`、Rust 守門（#91，PR #95；修正 #122）
+#118 首案在 Rust 啟動前阻塞：`run-teleport-failure.ps1:114` 在 Java 剛啟動時讀 `MainModule.FileName` 失敗，身分沒綁定，清理守門就拒絕 kill。修正 #122：改用 `QueryFullProcessImageNameW` 在期限內重試；未綁定時用原始 handle 清理；保存日誌。安全契約不放寬。
 Java harness 的 ready 契約補上 town／pid，並做 fresh root 檢查；runner：白名單、repo 根、隔離的 temp／JVM options、來源 SHA 綁定、三個 listener 的所有權、java 與 Rust 分開清理、原子 lease；Rust 端拒絕 2000／3306。範圍與驗收見 `docs/plans/issue-82.json`。
 
 ### T011-F | done | 本機 codex-local（PR #115） | `native_disintegrate.rs`、`native_cone_cold.rs`、`native_call_lightning.rs`（#111）
 U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載 77 Disintegrate 的特效資源，資格檢查不符（`disintegrate_assets.rs:207`），錯誤一路往上丟，中止了整個連線。修正方向：特效資源資格不符時，改標「呈現不可用」並記錄原因，不中止連線或流程；不放寬資格檢查，也不替換資源。範圍與驗收見 #111。
 
-### T011-B | todo | 本機 codex-local | 執行當版 G06.3d 5 個 scenario（重跑 #118；首跑 #81 的結果是 timeout 失敗、其餘 4 案未執行）
+### T011-B | blocked(#122) | 本機 codex-local | 執行當版 G06.3d 5 個 scenario（重跑 #118，第一次在 Rust 前被 runner 阻塞；首跑 #81 的結果是 timeout 失敗）
 **可排程條件**：T011-H 與 T011-F 都已合併並通過審查（PR #95、PR #115），重跑 #118 已排入佇列。**每案啟動 Rust 前的檢查**：lease、目錄契約、javac、來源綁定、三個 listener 的所有權，任何一項失敗都中止，回報為阻塞。**實跑後的驗收**：`running 1 test` 而且 1 passed；result.json 的 sessions／memberships 檢查通過；退出鏈完整；E149 資源在 memory 模式下的初始化有實際證據。沒有實跑，不能宣稱通過。首個失敗就停止，不自動重試。
 
 ## M1-V1 打開就看得到（V1；2026-11-06，#86；兩張平行）— 主線 0 項（完成）
