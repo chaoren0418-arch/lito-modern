@@ -2930,3 +2930,44 @@ fn probe_flow(
 #[cfg(test)]
 #[path = "native_pending_join_departure_tests.rs"]
 mod pending_join_departure_tests;
+
+#[cfg(test)]
+mod native_integrity_tests {
+    use super::*;
+    use crate::modern_lito::native_integrity::Status;
+
+    const CHALLENGE: [u8; 14] = [0x7b, 33, 0x98, 0xba, 0xdc, 0xfe, 0x40, 0xd8, 0x4e, 0, 5, 0, 0, 0];
+
+    fn active_controller() -> LoginController {
+        let mut controller = LoginController::default();
+        assert!(controller.state.world.accept(&[0x28, 5, 0, 0]).unwrap());
+        assert!(controller.state.world.accept(&[0xd2]).unwrap());
+        controller.state.phase = LoginPhase::BattlePending;
+        controller
+    }
+
+    #[test]
+    fn game_ingress_records_unsupported_proof_without_sending_or_extending_deadline() {
+        let mut controller = active_controller();
+        controller.deadline = Some(Instant::now() + Duration::from_secs(8));
+        let deadline = controller.deadline;
+        // There is deliberately no transport: attempting to send would fail.
+        for _ in 0..2 {
+            controller.accept_game(&CHALLENGE).unwrap();
+            assert_eq!(controller.state.world.integrity_status, Status::UnsupportedLegacyImage);
+            assert_eq!(controller.state.world.integrity_challenge, Some([0xfedcba98, 5167168, 5]));
+            assert_eq!(controller.state.phase, LoginPhase::BattlePending);
+            assert_eq!(controller.deadline, deadline);
+            assert!(controller.state.acknowledgement_opcodes.is_empty());
+        }
+    }
+
+    #[test]
+    fn game_ingress_rejects_bad_challenge_without_changing_snapshot() {
+        let mut controller = active_controller();
+        controller.accept_game(&CHALLENGE).unwrap();
+        let before = serde_json::to_value(controller.snapshot()).unwrap();
+        assert!(controller.accept_game(&CHALLENGE[..13]).is_err());
+        assert_eq!(serde_json::to_value(controller.snapshot()).unwrap(), before);
+    }
+}

@@ -135,6 +135,7 @@ pub struct World {
     pub hp: Option<[u16; 2]>,
     pub mp: Option<[u16; 2]>,
     pub integrity_challenge: Option<[u32; 3]>,
+    pub integrity_status: super::native_integrity::Status,
     pub minimap: super::native_minimap::State,
     pub unhandled_opcodes: BTreeSet<u8>,
 }
@@ -1023,15 +1024,10 @@ impl World {
                 r.end()?;
                 self.game_time = Some(time);
             }
-            0x7b if b.get(1) == Some(&33) => {
-                r.c()?;
-                let challenge = [r.d()?, r.d()?, r.d()?];
-                r.end()?;
-                ensure!(
-                    challenge.iter().all(|v| *v != 0),
-                    "invalid integrity challenge"
-                );
-                self.integrity_challenge = Some(challenge);
+            super::native_opcodes::S_EVENT if b.get(1) == Some(&33) => {
+                let challenge = super::native_integrity::Challenge::parse(b)?;
+                self.integrity_challenge = Some(challenge.fields());
+                self.integrity_status = super::native_integrity::Status::UnsupportedLegacyImage;
             }
             0x4d | 0x0d => {
                 let value = [r.h()?, r.h()?];
