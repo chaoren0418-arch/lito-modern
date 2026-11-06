@@ -6,6 +6,58 @@
 
 本次只寫 task/187 worktree；相鄰伺服器與 JAR 只讀，沒有修改 `docs/REPORT.md`、TASKS、正式設定或封存，沒有啟動遊戲、伺服器或連線 DB。
 
+## 第 2 次嘗試：審查退回後的重核與阻擋
+
+**本輪結果：仍受契約阻擋，未修復 PR #209 的 P1，不應送成「實作完成」或關閉 #187。** 本輪只更新本報告；沒有新增正式 producer／sender，也沒有把前次部分成果改稱全部完成。
+
+### 已驗證
+
+- 起始分支為 `task/187`，工作目錄乾淨；HEAD 為前次審查的 `383fc61d00ae21603689fa198a26df1a5dff6039`。本輪沒有 checkout、重建分支或合併 main。
+- 以 `git -c http.sslBackend=openssl fetch origin main` 取得 main `987982e9a30cf83eb57c24ae81c3567d5978a201`，唯讀檢查其 TASKS 與 docs：T050 仍為 todo；`NATIVE-WORLD.zh-TW.md:18` 仍明列未發 C_ADDR，未找到 Rust 有效證明來源或 protectedState 的新裁定。fetch 只更新共用 Git 中繼資料，沒有修改原始專案工作檔。
+- 重新計算正式 JAR SHA256，仍為 `E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498`。既有反組譯顯示 checksum 驗證是與固定 `359258456` 比較；protectedState 只在成功後記錄。這些條件沒有定義 Rust 程式應量測什麼。
+- 重讀正式程式：`address_proof()` 仍只有測試呼叫，GAME ingress 沒有合法 proof producer 或 sender；前次審查的兩項 P1 均成立。
+- 本輪重新執行下列三個命令，全部 exit 0，使用既有 `run-validation.ps1` 載入套件原版 `Measure-TestResult`，結果均 PASS。沒有新增測試，0 tests／failed／解析失敗的門檻未放寬。
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+exit 0; Measure-TestResult(Check)=PASS; 無 test result（編譯檢查）
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib native_integrity
+exit 0; Measure-TestResult(Lib)=PASS
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 2476 filtered out; finished in 0.38s
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_world
+exit 0; Measure-TestResult(Lib)=PASS
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+```
+
+原始輸出與結束碼仍在 `scratch/issue-187/{check,integrity,world}-validation.log` 及對應 `.exit`，本輪已覆寫為上述結果。驗證的程式 SHA 為 `383fc61d00ae21603689fa198a26df1a5dff6039`，`LiTo381-Modern/src` tree 為 `5af213cd51dab8ff5480492f6c5410eab0429a4a`；本輪提交只改報告，程式 tree 不變。14 個通過測試不是 C_ADDR 完整收發或伺服器接受證據。
+
+### 推測
+
+若要保留真正量測的語意，Rust 可能需要不同的證明契約及伺服器配套；是否採用、量測範圍與驗收版本均須由 Claude／調度器裁定。本機執行器不能從固定 checksum 反推一個虛構的 Rust 量測來源。
+
+### 待驗證／未完成
+
+| 審查要求 | 本輪狀態 | 解除條件 |
+|---|---|---|
+| P1：有效 producer 與正式 transport 接線 | 未完成 | 提供已裁定的 Rust 量測來源、protectedState 語意及伺服器接受契約 |
+| P1：成功／失敗接線及隔離伺服器 fixture | 未完成 | 上述契約到位後，完成 ingress → queue，驗證過期、重複、舊 epoch／房間、換世界、斷線、排隊失敗及接受／拒絕 |
+| 最終程式檢查與測試證據 | 既有程式重跑完成；功能仍未完成 | producer／sender 實作後，對新程式 SHA 重跑全 target check 與相關測試 |
+
+遠端留言查閱受環境限制：GitHub connector 回報 unavailable／Unknown tool；`gh issue view`、`gh pr view` 與搜尋回傳 HTTP 401；匿名 API 及網頁讀取亦失敗。因此只能確認上述 main 文件與使用者附上的退回意見，**不能斷言遠端留言絕無新增裁定**。Git 傳輸可用單次 `http.sslBackend=openssl` 排除 Schannel `SEC_E_NO_CREDENTIALS`，未修改永久 Git 設定或關閉憑證驗證。
+
+### 給下一棒的提示（本輪交接）
+
+請 **Claude 雲端／調度器先接手契約裁定**，維持 #187 未完成，不要原樣重派 code 或把本報告當作 P1 修復。需給出可引用的裁定文件／SHA，包含：
+
+1. Rust 客戶端實際量測的物件、範圍、演算法與有效證明的判定；E149 的原版地址挑戰如何適用 Rust。
+2. protectedState 的 0／1 各代表哪個 Rust 執行狀態，以及如何取得真實值。
+3. 若改動伺服器契約，交由伺服器 repo 承接，並依 PROTOCOL-CONTRACT §9 完成版本重核；本任務不能改寫相鄰 repo 或自行更換 E149 驗收基準。
+4. 可隔離執行的接受／拒絕 oracle 與預期結果。不要把 sender 排隊成功等同伺服器接受。
+
+契約到位後再交本機 code runner，在同一任務範圍完成 producer／sender、epoch／room／challenge／deadline 綁定與退役處理。此阻擋不需要使用者啟動遊戲或操作正式環境。
+
 ## 做了什麼／產出路徑
 
 - `LiTo381-Modern/src/modern_lito/native_integrity.rs`：精確解析 14-byte `S_EVENT/33`，拒絕截斷、尾碼、錯誤 opcode/subtype 與零欄位；加入 13-byte C_ADDR 純編碼函式（不產生／不送出證明），及可序列化診斷狀態。
@@ -41,7 +93,9 @@ E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498
 
 **重要界線**：30 秒是 `submitAddressProof` 收到回覆時的過期判定。本次 `ClientSession` 反組譯中的 `clientIntegrityVerified` 只有宣告／寫入，沒有讀取；不能把它說成已證實的 30 秒踢人機制，也不能從這點保證長時間相容。沒有發送回覆就沒有取得伺服器的完整性驗證成功。
 
-## 已驗證：本機編譯與測試
+## 已驗證：前次本機編譯與測試（歷史結果）
+
+以下保留第 1 次嘗試的結果與失敗修正經過；同名 validation 日誌已由第 2 次嘗試覆寫，本輪結果以上方重核區段為準。
 
 以下命令工作目錄為此 worktree 的 `LiTo381-Modern/`；新測試使用現有 `維護工具/run-local-test-suite.ps1` 的 `Measure-TestResult` 原函式判定，透過 PowerShell AST 只載入該函式，沒有執行整套或 ignored 測試。測試 runner 為不入 git 的 `scratch/issue-187/run-validation.ps1`，TEMP／TMP 均指向此 worktree 的 scratch。
 
