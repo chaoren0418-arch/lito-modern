@@ -1,5 +1,12 @@
 use super::*;
 
+#[path = "native_static2941_ready_tests.rs"]
+mod ready_gate;
+#[path = "native_static2941_callback_tests.rs"]
+mod callbacks;
+#[path = "native_static2941_source_tests.rs"]
+mod source;
+
 fn world() -> World {
     super::super::native_world_scene::movement_tests::world()
 }

@@ -787,6 +787,14 @@ impl Ui {
         if let Err(error) = self.controller.enqueue_static2941(&self.resource_root, prepared) {
             self.world_presentation.error = Some(format!("static2941: {error:#}"));
         }
+        if self.world_presentation.prune_static_frame(&self.controller.snapshot().world, epoch) {
+            let _ = InvalidateRect(Some(parent), None, true);
+        }
+        if let Some(frame)=&self.world_presentation.frame {
+            if let Err(error)=self.controller.observe_player_frame(frame) {
+                self.world_presentation.error=Some(format!("player draw clock: {error:#}"));
+            }
+        }
         if let Err(e)=self.voices.poll() {self.audio_error=Some(e.to_string());}
         let native_scope=self.world_presentation.audio_scope(self.controller.transport().snapshot().epoch,
             self.controller.snapshot().world.generation);
@@ -822,6 +830,15 @@ impl Ui {
                 }
             }
         }
+    }
+    unsafe fn poll_presented(&mut self,parent:HWND) {
+        let input_active=!self.closing && self.world_view && !self.inventory_view && !self.rental.open
+            && GetForegroundWindow()==parent;
+        let before=self.world_presentation.frame.as_ref().and_then(|f|f.receipt["elapsed_ns"].as_u64());
+        self.controller.player_input(if input_active {self.held.direction()} else {None},!input_active);
+        self.controller.poll_presented(&self.resource_root,&mut self.world_presentation);
+        let after=self.world_presentation.frame.as_ref().and_then(|f|f.receipt["elapsed_ns"].as_u64());
+        if before!=after {let _=InvalidateRect(Some(parent),None,true);}
     }
     unsafe fn combat_input(&self) -> super::native_forced_combat::Input {
         super::native_forced_combat::Input {
@@ -969,7 +986,8 @@ impl Ui {
             let _=EndPaint(parent,&paint);self.painted=None;self.painted_input=None;return;
         }
         FillRect(dc, &area, HBRUSH(GetStockObject(BLACK_BRUSH).0));
-        if let Some(frame) = &self.world_presentation.frame {
+        if let Some(frame) = self.world_presentation.frame.as_ref().filter(|frame|
+            frame.static_current(&self.controller.snapshot().world, self.controller.transport().snapshot().epoch)) {
             let dpi = GetDpiForWindow(parent).max(96) as i32;
             if let Some(view) = super::compositor::Viewport::fit(
                 area.right,
@@ -2247,7 +2265,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     return LRESULT(0);
                 }
                 WM_TIMER => {
-                    ui.controller.poll();
+                    ui.poll_presented(hwnd);
                     ui.world_tick(hwnd);
                     ui.input_tick();
                     ui.refresh();
