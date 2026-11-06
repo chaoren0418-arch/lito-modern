@@ -1,4 +1,4 @@
-//! Current S23 cues -> original arrow66 resources at the actor's Hit entry.
+//! Current physical S23 cues -> arrow66 / sting2989 at the actor's Hit entry.
 //! Flight is presentation only; it never mutates HP, hit ratios or authority.
 use super::{
     compositor::Canvas,
@@ -7,8 +7,23 @@ use super::{
     ranged_effect::{RangedAssets, RangedPath},
     world_map::{ViewProjection, WorldCell},
 };
-use std::{collections::BTreeSet, path::Path, sync::atomic::AtomicBool, time::Duration};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    path::Path,
+    sync::atomic::AtomicBool,
+    time::Duration,
+};
+
+pub fn supports_graphics(graphics: u16) -> bool {
+    // Native S23 dispatches by list.spr effect class, independently of the
+    // wire type byte stored in the effect object. Both qualified profiles
+    // have class 3 and use the same path/frame callback.
+    super::ranged_effect::PHYSICAL_GRAPHICS.contains(&u32::from(graphics))
+}
+
 struct Flight {
+    graphics: u16,
+    flight_type: u8,
     attacker: u32,
     attacker_incarnation: u64,
     target: u32,
@@ -58,25 +73,36 @@ pub struct Projectiles {
     generation: Option<u64>,
     seen: BTreeSet<(u32, u64)>,
     flights: Vec<Flight>,
-    assets: Option<RangedAssets>,
-    load_error: Option<String>,
+    assets: BTreeMap<u16, RangedAssets>,
+    load_errors: BTreeMap<u16, String>,
     launched: u64,
     omitted: u64,
     arrivals: u64,
 }
 impl Projectiles {
     pub fn prepare(&mut self, root: &Path, cancel: &AtomicBool, world: &World) {
-        if self.assets.is_none()
-            && self.load_error.is_none()
-            && (world.actors.values().any(|a| a.walk_action == 20)
+        for (stance, graphics) in [(20, 66), (62, 2989)] {
+            if world.actors.values().any(|a| a.walk_action == stance)
                 || world
                     .projectiles
                     .iter()
-                    .any(|c| c.projectile.graphics == 66))
-        {
-            match RangedAssets::load(root, cancel) {
-                Ok(a) => self.assets = Some(a),
-                Err(e) => self.load_error = Some(e.to_string()),
+                    .any(|c| c.projectile.graphics == graphics && supports_graphics(graphics))
+            {
+                self.load(root, cancel, graphics);
+            }
+        }
+    }
+
+    fn load(&mut self, root: &Path, cancel: &AtomicBool, graphics: u16) {
+        if self.assets.contains_key(&graphics) || self.load_errors.contains_key(&graphics) {
+            return;
+        }
+        match RangedAssets::load_graphics(root, u32::from(graphics), cancel) {
+            Ok(assets) => {
+                self.assets.insert(graphics, assets);
+            }
+            Err(error) => {
+                self.load_errors.insert(graphics, error.to_string());
             }
         }
     }
@@ -123,10 +149,11 @@ impl Projectiles {
             if !self.seen.insert(key) {
                 continue;
             }
-            if cue.projectile.flight_type != 0x7f {
+            if cue.projectile.flight_type == 0 && !supports_graphics(cue.projectile.graphics) {
+                // Existing spell presenters own type 0.
                 continue;
             }
-            if cue.projectile.graphics != 66
+            if !supports_graphics(cue.projectile.graphics)
                 || self.flights.len() >= 64
                 || !world
                     .actors
@@ -158,6 +185,8 @@ impl Projectiles {
                 Ok(path) => {
                     self.launched += 1;
                     let flight = Flight {
+                        graphics: cue.projectile.graphics,
+                        flight_type: cue.projectile.flight_type,
                         attacker: cue.attacker,
                         attacker_incarnation: cue.attacker_incarnation,
                         target: cue.target,
@@ -206,15 +235,13 @@ impl Projectiles {
         projection: ViewProjection,
         now: u64,
     ) -> serde_json::Value {
-        if !self.flights.is_empty() && self.assets.is_none() && self.load_error.is_none() {
-            match RangedAssets::load(root, cancel) {
-                Ok(a) => self.assets = Some(a),
-                Err(e) => self.load_error = Some(e.to_string()),
-            }
+        let needed: BTreeSet<_> = self.flights.iter().map(|flight| flight.graphics).collect();
+        for graphics in needed {
+            self.load(root, cancel, graphics);
         }
         let mut rows = Vec::new();
-        if let Some(assets) = &self.assets {
-            for f in &self.flights {
+        for f in &self.flights {
+            if let Some(assets) = self.assets.get(&f.graphics) {
                 let elapsed = Duration::from_nanos(now.saturating_sub(f.start));
                 let result = (|| -> anyhow::Result<serde_json::Value> {
                     let sample = assets.effect_frame(&f.path, elapsed)?;
@@ -228,7 +255,7 @@ impl Projectiles {
                         )?;
                     }
                     Ok(
-                        serde_json::json!({"id":f.id,"attacker":f.attacker,"target":f.target,"graphics":sample.graphics_id,"from":[f.path.from().x,f.path.from().y],"to":[f.path.target().x,f.path.target().y],"position":[sample.position.x,sample.position.y],"heading":f.path.heading(),"sprite":sample.sprite_name,"subframe":sample.subframe,"source_frame":sample.source_frame,"drawn":drawn,"elapsed_ns":elapsed.as_nanos()}),
+                        serde_json::json!({"id":f.id,"attacker":f.attacker,"target":f.target,"graphics":sample.graphics_id,"flight_type":f.flight_type,"from":[f.path.from().x,f.path.from().y],"to":[f.path.target().x,f.path.target().y],"position":[sample.position.x,sample.position.y],"heading":f.path.heading(),"sprite":sample.sprite_name,"subframe":sample.subframe,"source_frame":sample.source_frame,"drawn":drawn,"elapsed_ns":elapsed.as_nanos()}),
                     )
                 })();
                 rows.push(match result {
@@ -237,8 +264,8 @@ impl Projectiles {
                 });
             }
         }
-        serde_json::json!({"generation":self.generation,"launched":self.launched,"omitted":self.omitted,"arrivals":self.arrivals,"active":self.flights.len(),"flights":rows,"load_error":self.load_error,
-            "sources":self.assets.as_ref().map(|a|a.sprite_sources().map(|s|serde_json::json!({"archive":format!("{:?}",s.archive),"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),
-            "graphics_supported":[66],"native_effects_complete":false})
+        serde_json::json!({"generation":self.generation,"launched":self.launched,"omitted":self.omitted,"arrivals":self.arrivals,"active":self.flights.len(),"flights":rows,"load_error":self.load_errors.values().next(),"load_errors":self.load_errors,
+            "sources":(!self.assets.is_empty()).then(||self.assets.values().flat_map(|a|a.sprite_sources()).map(|s|serde_json::json!({"archive":format!("{:?}",s.archive),"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),
+            "graphics_supported":super::ranged_effect::PHYSICAL_GRAPHICS,"native_effects_complete":false})
     }
 }

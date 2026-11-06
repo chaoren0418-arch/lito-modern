@@ -188,10 +188,9 @@ pub fn decode_attack(b: &[u8]) -> Result<Option<Attack>> {
     let projectile_id = u32::from_le_bytes(b[12..16].try_into()?);
     if projectile_id != 0 {
         ensure!(b.len() >= 19, "truncated attack effect header");
-        // Other native effect branches remain explicitly unhandled.
-        if !matches!(b[18], 0 | 0x7f) {
-            return Ok(None);
-        }
+        // Native 4A5ED0 reads hchhhhcs for every nonzero projectile ID.
+        // The byte is passed to the effect constructor, while list.spr's
+        // attribute 109 selects its class. It is not a packet discriminator.
         ensure!(
             b.len() == 29 && b[27..29] == [0, 0],
             "invalid ranged attack tail"

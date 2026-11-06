@@ -1,4 +1,4 @@
-//! Shared ordinary-arrow66, native projectile class3. No actor, damage or audio.
+//! Shared arrow66 and throwing sting2989, native projectile class3.
 //!
 //! Evidence: ida-client-oep-v2/full-disassembly.asm sub_40E8F0 (29604)
 //! snapshots the live target ON LAUNCH for a hit; a miss keeps packet coords.
@@ -40,6 +40,7 @@ use super::{
 };
 
 const GRAPHICS_ID: u32 = 66;
+pub const PHYSICAL_GRAPHICS: [u32; 2] = [66, 2989];
 const STEP_NANOS: u64 = 30_000_000;
 /// Presentation limit, NOT the authority's attack range. A target can move
 /// between shot acceptance and visual launch. Omit an over-bound presentation;
@@ -336,6 +337,7 @@ pub struct VisualSample<'a> {
 }
 
 pub struct RangedAssets {
+    graphics_id: u32,
     animation: Animation,
     sprites: Vec<LoadedSprite>,
     catalog_sha256: [u8; 32],
@@ -343,18 +345,30 @@ pub struct RangedAssets {
     rgba: usize,
 }
 impl RangedAssets {
-    /// Worker-only. Fixed shared Text/list.spr and the qualified66's8 banks;
+    /// Worker-only. Fixed shared Text/list.spr and the qualified projectile's 8 banks;
     /// every referenced SPR subframe is decoded before publishing any assets.
     /// This does NOT load bow bodies or their audio (existing actor assets own
-    /// those), and #66 must contain no cue. Cancel/failure drops all handles.
+    /// those), and each profile must contain no cue. Cancel/failure drops all handles.
     pub fn load(root: &Path, cancel: &AtomicBool) -> Result<Self> {
+        Self::load_graphics(root, GRAPHICS_ID, cancel)
+    }
+
+    pub fn load_graphics(root: &Path, graphics_id: u32, cancel: &AtomicBool) -> Result<Self> {
         active(cancel)?;
         let catalog = SharedActionCatalog::load(root, cancel)?;
-        Self::load_with_catalog(&catalog, cancel)
+        Self::load_graphics_with_catalog(&catalog, graphics_id, cancel)
     }
 
     pub(crate) fn load_with_catalog(
         context: &SharedActionCatalog,
+        cancel: &AtomicBool,
+    ) -> Result<Self> {
+        Self::load_graphics_with_catalog(context, GRAPHICS_ID, cancel)
+    }
+
+    pub(crate) fn load_graphics_with_catalog(
+        context: &SharedActionCatalog,
+        graphics_id: u32,
         cancel: &AtomicBool,
     ) -> Result<Self> {
         active(cancel)?;
@@ -366,14 +380,14 @@ impl RangedAssets {
         active(cancel)?;
         let catalog_sha256 = context.sha256();
         let catalog = context.catalog();
-        let animation = qualify(&catalog)?;
+        let animation = qualify_graphics(&catalog, graphics_id)?;
         let mut reader = SpriteReader::open(root, cancel)?;
         let mut sprites = reserve(8)?;
         let mut encoded = 0usize;
         let mut rgba = 0usize;
         for heading in 0..8 {
             active(cancel)?;
-            let asset = animation.frame_asset(GRAPHICS_ID, 1, heading)?;
+            let asset = animation.frame_asset(graphics_id, 1, heading)?;
             let name = format!("{}-{}.spr", asset.graphics_id, asset.image_id);
             let archive = reader.archive_for(&name, cancel)?;
             let size = archive.entry(&name)?.size as usize;
@@ -413,7 +427,7 @@ impl RangedAssets {
                 return Err(RangedError::Bound("decoded sprites"));
             }
             for source_frame in 0..3 {
-                let bound = animation.frame_asset(GRAPHICS_ID, source_frame, heading)?;
+                let bound = animation.frame_asset(graphics_id, source_frame, heading)?;
                 if bound.image_id != u32::from(heading)
                     || bound.subframe as usize >= decoded.frames.len()
                 {
@@ -435,6 +449,7 @@ impl RangedAssets {
         drop(reader);
         active(cancel)?;
         Ok(Self {
+            graphics_id,
             animation,
             sprites,
             catalog_sha256,
@@ -473,9 +488,9 @@ impl RangedAssets {
     /// draw_effect enforces this, including duration0 adjacent/overlapping shots.
     pub fn effect_frame(&self, path: &RangedPath, elapsed: Duration) -> Result<VisualSample<'_>> {
         let sample = path.sample(elapsed);
-        let asset = self
-            .animation
-            .frame_asset(GRAPHICS_ID, sample.source_frame, sample.heading)?;
+        let asset =
+            self.animation
+                .frame_asset(self.graphics_id, sample.source_frame, sample.heading)?;
         let sprite = self.sprite(sample.heading)?;
         let frame = sprite
             .decoded
@@ -529,15 +544,27 @@ impl RangedAssets {
     }
 }
 
+#[cfg(test)]
 fn qualify(catalog: &SpriteActionCatalog) -> Result<Animation> {
+    qualify_graphics(catalog, GRAPHICS_ID)
+}
+
+fn qualify_graphics(catalog: &SpriteActionCatalog, graphics_id: u32) -> Result<Animation> {
+    if !PHYSICAL_GRAPHICS.contains(&graphics_id) {
+        return Err(RangedError::Unsupported(
+            "unqualified physical projectile graphics",
+        ));
+    }
     let sprite = catalog
         .sprites
-        .get(&GRAPHICS_ID)
-        .ok_or(RangedError::Unsupported("missing shared arrow66"))?;
-    let resolved = catalog.resolve_action(GRAPHICS_ID, ActionKey::new(0))?;
+        .get(&graphics_id)
+        .ok_or(RangedError::Unsupported(
+            "missing shared physical projectile",
+        ))?;
+    let resolved = catalog.resolve_action(graphics_id, ActionKey::new(0))?;
     let animation = resolved.animation;
-    if sprite.graphics_id != GRAPHICS_ID
-        || resolved.definition_sprite_id != GRAPHICS_ID
+    if sprite.graphics_id != graphics_id
+        || resolved.definition_sprite_id != graphics_id
         || sprite.image_count != Some(8)
         || sprite.actions.len() != 1
         || animation.directionality != Directionality::EightWay
@@ -545,7 +572,9 @@ fn qualify(catalog: &SpriteActionCatalog) -> Result<Animation> {
         || animation.frames.len() != 3
         || sprite.attributes.len() != 2
     {
-        return Err(RangedError::Unsupported("unverified arrow66 definition"));
+        return Err(RangedError::Unsupported(
+            "unverified physical projectile definition",
+        ));
     }
     for (attribute, (key, body)) in sprite
         .attributes
@@ -554,7 +583,7 @@ fn qualify(catalog: &SpriteActionCatalog) -> Result<Animation> {
     {
         if attribute.key != ActionKey::new(key) || attribute.body_bytes != body {
             return Err(RangedError::Unsupported(
-                "unverified arrow66 class or secondary effect",
+                "unverified physical projectile class or secondary effect",
             ));
         }
     }
@@ -565,7 +594,7 @@ fn qualify(catalog: &SpriteActionCatalog) -> Result<Animation> {
             || !frame.events.is_empty()
         {
             return Err(RangedError::Unsupported(
-                "unverified arrow66 frames or cues",
+                "unverified physical projectile frames or cues",
             ));
         }
     }
@@ -613,6 +642,7 @@ mod tests {
             })
             .collect();
         RangedAssets {
+            graphics_id: GRAPHICS_ID,
             animation: qualify(&catalog(SOURCE)).unwrap(),
             sprites,
             catalog_sha256: [0; 32],
@@ -651,6 +681,23 @@ mod tests {
             );
         }
     }
+    #[test]
+    fn throwing_profile_uses_its_own_graphics_and_rejects_changed_contracts() {
+        let source = SOURCE.replace("#66 8 arrow", "#2989 8 sting knife");
+        let animation = qualify_graphics(&catalog(&source), 2989).unwrap();
+        assert_eq!(animation.frame_asset(2989, 1, 7).unwrap().graphics_id, 2989);
+        for changed in [
+            source.replace("3 -1", "4 -1"),
+            source.replace("3 -1", "3 219"),
+            source.replace("0.0:1", "0.0:1[97"),
+            source.replace("#2989 8", "#2989 4"),
+        ] {
+            assert!(qualify_graphics(&catalog(&changed), 2989).is_err());
+        }
+        assert!(qualify_graphics(&catalog(&source), 66).is_err());
+        assert!(qualify_graphics(&catalog(SOURCE), 2989).is_err());
+    }
+
     #[test]
     fn immediate_step_30ms_cadence_and_native_counter_choose_frames_not_24fps() {
         let from = cell(32724, 32784);
