@@ -64,3 +64,5 @@
 - 2026-11-06 — #145 T027-1: T027（M2 1/6）: src/：候選獨有的 48 個技能重做進 src（code，codex-local，PR #233 已合併）→ [報告](reports/issue-145.md)
 - 2026-11-06 — #142 T020-1: T020（M2 1/2）: src/：#97 暗隱術（code，codex-local，PR #222 已合併）→ [報告](reports/issue-142.md)
 - 2026-11-06 — #146 T027-2: T027（M2 2/6）: src/：候選獨有的 48 個技能重做進 src（code，codex-local，PR 已合併）→ [報告](reports/issue-146.md)
+- 2026-11-06 — #186 T048-1: T048（M2 1/1）: src/（code，codex-local，PR 已合併）→ [報告](reports/issue-186.md)
+- 2026-11-06 — #192 T061-1: T061（M2 1/2）: src/：Ctrl 強制目標與目標選取政策（code，codex-local，PR 已合併）→ [報告](reports/issue-192.md)

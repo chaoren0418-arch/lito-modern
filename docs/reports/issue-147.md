@@ -32,24 +32,26 @@ class1、投射物與地裂術加入 metadata History，保留時鐘、固定位
 
 完整執行 `powershell -NoProfile -ExecutionPolicy Bypass -File 維護工具/run-local-test-suite.ps1`，Full 模式，未使用 `-Quick`。**114／114 步驟 PASS，套件 exit code 0**。0 tests、失敗與解析錯誤均依原門檻拒絕；577 個 ignored 不算通過，白名單 opt-in 案另行執行。
 
-日誌根目錄：`LiTo381-Modern/target/current/verification/local-test-suite/20261106-183505-664-14880/`（不追蹤），總表 `summary.txt`。必要檢查、兩版 library 與本批十案的命令、結束碼及結果原文：
+本次結果使用整合上游 `683b603`（#186 復活生命週期、#192 Ctrl／LFC1）後的來源。`native_login.rs` 衝突保留兩者行為，召喚仍使用獨立選項參數；既有加密 loopback 另加入本批八技能，確認六個 actor 技能的 Ctrl 尾段、53 selector 無尾段、51 召喚值無 LFC1，實際經控制器、加密傳輸及自行建立的 localhost fixture 比對。
+
+日誌根目錄：`LiTo381-Modern/target/current/verification/local-test-suite/20261106-191547-306-14544/`（不追蹤），總表 `summary.txt`。必要檢查、兩版 library 與本批十案的命令、結束碼及結果原文：
 
 ```text
 
 001.log | exit=0 | cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 13s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 45s
 
 002.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast
-test result: ok. 1958 passed; 0 failed; 577 ignored; 0 measured; 0 filtered out; finished in 3.19s
+test result: ok. 1978 passed; 0 failed; 577 ignored; 0 measured; 0 filtered out; finished in 11.18s
 
 003.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast --release
-test result: ok. 1958 passed; 0 failed; 577 ignored; 0 measured; 0 filtered out; finished in 1.93s
+test result: ok. 1978 passed; 0 failed; 577 ignored; 0 measured; 0 filtered out; finished in 9.35s
 
 105.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact eight_wire_shapes_are_exact_and_costs_are_not_predicted
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
 
 106.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact caster_and_target_gates_preserve_authority
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.04s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.03s
 
 107.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact ranges_menu_and_stale_target_intent_are_enforced
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
@@ -61,27 +63,26 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; fini
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
 
 110.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact all_receive_profiles_are_atomic_and_do_not_grant_status_or_costs
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.07s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.05s
 
 111.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact original_object_effects_use_exact_banks_and_blends
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 9.67s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 9.11s
 
 112.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact original_tornado_is_one_four_image_group_and_hit_list
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.14s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.17s
 
 113.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact original_sunburst_uses_wire_destination_and_original_hit_timing
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.24s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.25s
 
 114.log | exit=0 | cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch3 --no-fail-fast -- --include-ignored --exact original_lance_is_silent_and_eruption_propagates_with_paired_shadows
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 3.89s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 4.35s
 ```
 
 新增十個 integration 案（六個純封包／模型、四個原資源記憶體繪製），全部納入既有白名單；另新增四個 library 案，驗證地裂路徑端點排除／預算、巢狀 callback FIFO、class6 最後提交與來源退役／晚到 History。未刪除既有案例或降低門檻。
 
-本機測試套件開始後，在交叉核對原始設計時收緊1811的通用 hurt 輸出；Debug／Release與本批逐案執行都使用修正後版本。套件後另針對最終來源重跑相同 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`，exit code 0，日誌 `scratch/check-final.log`，以排除第一個 check 與最後調整的時間差。
+合併前首輪 Full 套件亦為114／114 PASS（`20261106-183505-664-14880/`），另有最終 check exit0（`scratch/check-final.log`）。合併後重跑的上述 Full 套件才是本次交付依據。
 
-開發階段保留紀錄：`scratch/check-initial.log`（cargo exit101，新增模組的引用路徑）、`scratch/check-second.log`（cargo exit101，資源錯誤型別轉換）均為編譯失敗，尚未執行測試，修正後才進入驗證。`scratch/batch3-first.log` 曾整批 exit0，原文 `test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.26s`；最後完成證據以上述 Full 套件與最終 check 為準。
-
+開發階段保留紀錄：`scratch/check-initial.log`（cargo exit101，新增模組的引用路徑）、`scratch/check-second.log`（cargo exit101，資源錯誤型別轉換）均為編譯失敗，尚未執行測試，修正後才進入驗證。`scratch/batch3-first.log` 曾整批 exit0，原文 `test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.26s`。
 
 ## 推測
 
@@ -92,15 +93,16 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; fini
 - 未啟動遊戲或客戶端、未連正式服務或 DB、未做 GUI、DPI、實體滑鼠鍵盤、音效裝置或原版並排驗收。
 - 45／46／50 原生相對 graphics 的 hurt guard／LT 家族仍未核定；目前不產生通用受擊替代。45 保留節點影格記錄、46 保留原 Hit 診斷，50 arrival 不更動狀態。原 action0 可選倍率、長 uptime／u32 rollover、全域 native callback 交錯與最大共存壓力亦未宣告完成。
 - 51 的正式控制能力、等級／地圖／容量、材料、同伴指令、自然到期與伺服器生命週期未驗；44／47／51 原有「伺服器待定」分類保留。
-- Ctrl／LFC1 敵友政策屬 T061；未進行其他批次開發、G06 歷史矩陣或 T030 完整 GUI。
+- Ctrl／LFC1 已沿上游 #192 接線並離線驗證；完整敵友政策與正式服務端解讀仍依 T061 範圍審查。未進行其他批次開發、G06 歷史矩陣或 T030 完整 GUI。
 
 ## 產出路徑
 
 - `LiTo381-Modern/src/modern_lito/native_skills.rs`、`native_skill_selection.rs`、`native_login.rs`、`native_login_window.rs`：八技能請求、召喚選單／控制器、等待與拒絕。
 - `native_world.rs`：召喚拒絕序號；`native_additional_finite_effects.rs`、`native_skill_effects.rs`：870／2228及混色。
 - `native_eruption.rs`、`native_tornado.rs`、`native_attack_many.rs`、`native_class1.rs`、`native_spell_projectiles.rs`、`light_arrow_effect.rs`、`native_world_scene.rs`：特殊呈現、空音效、History 與收包接線。
+- `LiTo381-Modern/src/modern_lito/native_forced_combat_controller_tests.rs`：補上本批八技能的上游 Ctrl／召喚對接加密 loopback。
 - `LiTo381-Modern/tests/native_t027_batch3.rs`、`維護工具/test-whitelist/tests.tsv`：本批十個離線／原資源案例；地裂核心另有四個單元案例。
-- `docs/SKILLS-STATUS.md`：只回填本批八列；本報告 `docs/reports/issue-147.md`。未改 `docs/REPORT.md`。
+- `docs/SKILLS-STATUS.md`：只回填本批八列；本報告 `docs/reports/issue-147.md`。未手動修改 `docs/REPORT.md`；合併僅帶入上游索引，相對 main 無差異。
 
 ## 給下一棒的提示
 
