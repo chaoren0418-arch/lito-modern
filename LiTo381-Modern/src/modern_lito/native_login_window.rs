@@ -88,6 +88,7 @@ struct Ui {
     inventory_icons: super::native_inventory_icons::Service,
     inventory_icon_rows: Vec<(u32, u16)>,
     inventory_choice: Option<super::native_item_actions::Choice>,
+    skill_item_target: Option<super::native_skills::ItemTarget>,
     item_cursor: Option<super::native_item_actions::TargetChoice>,
     target: Option<super::native_skill_selection::Target>,
     ground: Option<super::native_skill_selection::Ground>,
@@ -430,8 +431,8 @@ impl Ui {
                 }
                 INVENTORY_TOGGLE => true,
                 ROOMS => !self.world_view && !self.inventory_view,
-                SKILL_LABEL => self.world_view && !self.result_view && !self.inventory_view && !self.rental.open,
-                SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.inventory_view,
+                SKILL_LABEL => self.world_view && !self.result_view && (!self.inventory_view || !self.ground_view) && !self.rental.open,
+                SKILLS | CAST_SKILL => self.world_view && !self.result_view && (!self.inventory_view || !self.ground_view),
                 SCORES => self.result_view && !self.inventory_view,
                 _ => !self.world_view || matches!(*id, CANCEL | STATUS | RETURN),
             };
@@ -486,7 +487,7 @@ impl Ui {
             let _ = MoveWindow(
                 self.control(ITEM_FEEDBACK),
                 px(16),
-                area.bottom - px(200),
+                area.bottom - px(if self.inventory_view && !self.ground_view {240} else {200}),
                 area.right - px(32),
                 px(22),
                 true,
@@ -494,9 +495,9 @@ impl Ui {
             let _ = MoveWindow(
                 self.control(INVENTORY_LIST),
                 px(16),
-                area.bottom - px(175),
+                area.bottom - px(if self.inventory_view && !self.ground_view {215} else {175}),
                 area.right - px(32),
-                px(120),
+                px(if self.inventory_view && !self.ground_view {110} else {120}),
                 true,
             );
             let _ = MoveWindow(
@@ -543,7 +544,7 @@ impl Ui {
                 self.control(STATUS),
                 px(16),
                 area.bottom
-                    - px(if self.inventory_view { 286 } else if self.result_view { 250 } else { 185 }),
+                    - px(if self.inventory_view { if self.ground_view {286} else {326} } else if self.result_view { 250 } else { 185 }),
                 area.right - px(32),
                 px(if self.inventory_view { 80 } else if self.result_view { 45 } else { 90 }),
                 true,
@@ -810,6 +811,13 @@ impl Ui {
     unsafe fn cast_skill(&mut self, skill: u16) -> Result<()> {
         self.held.clear();
         self.held_attack.clear();
+        if super::native_skills::item_targeted(skill) {
+            ensure!(self.inventory_view && !self.ground_view && !self.closing,
+                "請開啟背包並選取附魔物品");
+            let target = self.skill_item_target.as_ref().context("請重新選取要附魔的背包物品")?;
+            let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+            return self.controller.cast_item(skill, target, frame);
+        }
         let choice = if matches!(skill, 58 | 63) {
             self.skills.choice_at(
                 self.controller.transport().snapshot().epoch,
@@ -1014,11 +1022,22 @@ impl Ui {
                 LPARAM(0),
             );
         }
-        let choice = self
-            .skills
-            .choice_at(epoch, &snapshot.world, self.target, self.ground);
+        if !self.inventory_view || self.ground_view || self.closing
+            || self.skill_item_target.as_ref().is_some_and(|t| t.validate(snapshot, epoch).is_err())
+        {
+            self.skill_item_target = None;
+        }
+        let choice_valid = if self.skills.selected().is_some_and(super::native_skills::item_targeted) {
+            self.skills.selected_skill(epoch, &snapshot.world).and_then(|skill| {
+                let item = self.skill_item_target.as_ref().context("請選取背包物品")?;
+                super::native_skills::item_request(snapshot, epoch, skill, item)
+            }).is_ok()
+        } else {
+            !self.inventory_view
+                && self.skills.choice_at(epoch, &snapshot.world, self.target, self.ground).is_ok()
+        };
         let enabled = active
-            && choice.is_ok()
+            && choice_valid
             && snapshot.skill_feedback != super::native_skills::Feedback::Pending
             && snapshot.attack_feedback != super::native_combat::Feedback::Pending
             && self
@@ -1846,6 +1865,7 @@ impl Ui {
                 self.pickup_choice = None;
                 self.pickup_rows.clear();
                 self.inventory_choice = None;
+                self.skill_item_target = None;
                 self.item_cursor = None;
                 self.inventory_rows.clear();
                 send(
@@ -1909,13 +1929,11 @@ impl Ui {
                 self.refresh_item_actions();
             }
             CAST_SKILL => {
-                let choice = self.skills.choice_at(
+                let skill = self.skills.selected_skill(
                     self.controller.transport().snapshot().epoch,
                     &self.controller.snapshot().world,
-                    self.target,
-                    self.ground,
                 )?;
-                self.cast_skill(choice.skill)?;
+                self.cast_skill(skill)?;
             }
             CONNECT => self.controller.start(self.peer, Limits::default())?,
             LOGIN => {
@@ -2132,7 +2150,16 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                         && (wparam.0 >> 16) == LBN_SELCHANGE as usize =>
                 {
                     ui.sync_item_choice();
+                    ui.skill_item_target = if ui.inventory_view && !ui.ground_view && !ui.closing {
+                        ui.inventory_choice.as_ref().and_then(|choice| {
+                            super::native_skills::ItemTarget::capture(ui.controller.snapshot(),
+                                ui.controller.transport().snapshot().epoch, choice.item.id).ok()
+                        })
+                    } else {
+                        None
+                    };
                     ui.refresh_item_actions();
+                    ui.refresh_skills();
                     return LRESULT(0);
                 }
                 WM_COMMAND
@@ -2296,6 +2323,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 inventory_icons: super::native_inventory_icons::Service::new(resource_root.clone()),
                 inventory_icon_rows: vec![],
                 inventory_choice: None,
+                skill_item_target: None,
                 item_cursor: None,
                 target: None,
                 ground: None,

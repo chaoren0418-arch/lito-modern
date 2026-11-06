@@ -100,6 +100,64 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
     can_cast(world,skill)?;
     let mut bytes=vec![0x14,7,3];bytes.extend_from_slice(&tick.0.to_le_bytes());Ok(bytes)
 }
+/// One classification for wire admission and clearing unrelated hovered actors.
+pub fn selector_only(skill: u16) -> bool {
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 101 | 102 | 104 | 105 | 106 | 109 | 206)
+}
+
+pub fn item_targeted(skill: u16) -> bool {
+    matches!(skill, 107)
+}
+
+/// Inventory intent stays bound to the selection, item revision and live caster.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ItemTarget {
+    choice: super::native_item_actions::Choice,
+    stamp: super::native_navigation::InputStamp,
+    inventory_revision: u64,
+    map: Option<u16>,
+}
+impl ItemTarget {
+    pub fn capture(snapshot: &super::native_login::Snapshot, connection: u64, id: u32) -> Result<Self> {
+        let target = Self {
+            choice: super::native_item_actions::Choice::capture(snapshot, id)?,
+            stamp: super::native_navigation::InputStamp::capture(connection, &snapshot.world),
+            inventory_revision: snapshot.inventory.revision,
+            map: snapshot.world.map_id,
+        };
+        target.validate(snapshot, connection)?;
+        Ok(target)
+    }
+
+    pub fn validate(&self, snapshot: &super::native_login::Snapshot, connection: u64) -> Result<()> {
+        ensure!(snapshot.game_connected && snapshot.phase.active_world()
+            && !snapshot.observer && !snapshot.world.observer_mode && snapshot.world.ready(),
+            "請在世界中選取背包物品");
+        self.choice.validate(snapshot)?;
+        ensure!(self.choice.owner.connection == connection
+            && snapshot.inventory.revision == self.inventory_revision
+            && snapshot.world.map_id == self.map
+            && self.stamp == super::native_navigation::InputStamp::capture(connection, &snapshot.world),
+            "背包、角色或場景已更新，請重新選取附魔物品");
+        Ok(())
+    }
+}
+
+pub fn item_request(
+    snapshot: &super::native_login::Snapshot,
+    connection: u64,
+    skill: u16,
+    target: &ItemTarget,
+) -> Result<Vec<u8>> {
+    ensure!(item_targeted(skill), "此技能不是物品附魔");
+    target.validate(snapshot, connection)?;
+    can_cast(&snapshot.world, skill)?;
+    // Equipment eligibility, materials, MP and enchantment results are server-owned.
+    let mut body = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
+    body.extend_from_slice(&target.choice.item.id.to_le_bytes());
+    Ok(body)
+}
+
 pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>> {
     can_cast(world, skill)?;
     let own = world.own_actor().unwrap();
@@ -120,20 +178,20 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
             );
             b.extend_from_slice(&id.to_le_bytes());
         }
-        14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 206 => {ensure!(target.is_none(), "此技能不接受指定目標");}
+        id if selector_only(id) => {ensure!(target.is_none(), "此技能不接受指定目標");}
         13 => {ensure!(target.is_none(), "偵測術不接受目標");}
         60 => {return self_tick_request(world,skill,target,ClientTick::now()?);}
         2 => {ensure!(target.is_none(), "日光術不接受目標");}
         3 => {}
         131 => {ensure!(target.is_none(),"世界樹呼喚不接受目標");}
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 28 | 34 | 38 | 77 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 28 | 34 | 38 | 77 | 103 | 108 => {
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {10=>3,11=>1,28=>4,17|34|38=>6,_=>10},
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {10|103=>3,11|108=>1,28=>4,17|34|38=>6,_=>10},
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -145,7 +203,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {77=>5000,60=>0,11|13|17|18|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {77=>5000,60|101|104|105|106|107|108|109=>0,102=>2990,103=>990,11|13|17|18|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -168,6 +226,7 @@ impl Feedback {
             Self::Interrupted => "施法已中止",
             Self::Rejected(276) => "目前地圖無法使用此技能",
             Self::Rejected(278) => "MP 不足",
+            Self::Rejected(79) => "伺服器拒絕此物品附魔",
             Self::Rejected(280) => "法術未生效",
             Self::Rejected(299) => "施法材料不足",
             Self::Rejected(_) => "伺服器限制施法",
@@ -182,6 +241,18 @@ pub struct Pending {
     pub incarnation: u64,
 }
 impl Pending {
+    pub fn observe_item(&self, world: &World, now: Instant) -> Feedback {
+        let feedback = self.observe(world, now);
+        if matches!(feedback, Feedback::Pending | Feedback::NoResponse)
+            && world.message_count > self.messages
+            && world.last_message.as_ref().is_some_and(|(code, _)| *code == 79)
+        {
+            Feedback::Rejected(79)
+        } else {
+            feedback
+        }
+    }
+
     pub fn observe(&self, world: &World, now: Instant) -> Feedback {
         if world.generation != self.generation
             || world.battle_result.is_some()
