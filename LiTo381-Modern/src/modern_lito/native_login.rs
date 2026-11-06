@@ -349,6 +349,7 @@ pub struct LoginController {
     item_pending: Option<super::native_item_actions::Pending>,
     skill_pending: Option<super::native_skills::Pending>,
     skill_item_pending: bool,
+    skill_summon_pending: bool,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
@@ -396,6 +397,7 @@ impl Default for LoginController {
             attack_pending: None,
             skill_pending: None,
             skill_item_pending: false,
+            skill_summon_pending: false,
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
@@ -610,7 +612,7 @@ impl LoginController {
         target: Option<u32>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, None, None, frame)
+        self.cast_request(skill, target, None, None, None, None, frame)
     }
     pub fn cast_ground(
         &mut self,
@@ -624,12 +626,12 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), None, None, frame)
+        self.cast_request(skill, None, Some(position), None, None, None, frame)
     }
     pub fn cast_item(&mut self, skill: u16, item: &super::native_skills::ItemTarget,
         frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "等待目前物品操作回覆");
-        self.cast_request(skill, None, None, Some(item), None, frame)
+        self.cast_request(skill, None, None, Some(item), None, None, frame)
     }
     pub fn teleport_labels(&self)->Vec<String> {
         self.teleport_bookmarks.labels(&self.state,self.transport.snapshot().epoch)
@@ -641,7 +643,11 @@ impl LoginController {
         choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks).is_ok()
     }
     pub fn cast_teleport(&mut self,choice:&super::native_teleport_spell::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
-        self.cast_request(5,None,None,None,Some(choice),frame)
+        self.cast_request(5,None,None,None,Some(choice),None,frame)
+    }
+    pub fn cast_summon(&mut self,choice:&super::native_skills::SummonTarget,frame:&super::native_world_scene::Frame)->Result<()> {
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),"等待目前物品操作回覆");
+        self.cast_request(51,None,None,None,None,Some(choice),frame)
     }
     fn cast_request(
         &mut self,
@@ -650,6 +656,7 @@ impl LoginController {
         ground: Option<[u16; 2]>,
         item: Option<&super::native_skills::ItemTarget>,
         teleport: Option<&super::native_teleport_spell::Choice>,
+        summon: Option<&super::native_skills::SummonTarget>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
@@ -668,7 +675,9 @@ impl LoginController {
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
         ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
-        let body = if let Some(choice)=teleport {
+        ensure!(summon.is_none() || (skill==51 && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none()),"混合召喚目標");
+        let body = if let Some(choice)=summon {super::native_skills::summon_request(&self.state,self.transport.snapshot().epoch,choice)?}
+        else if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
         } else {match ground {
             Some(position) => {
@@ -682,7 +691,8 @@ impl LoginController {
             .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
-        self.skill_item_pending = item.is_some();
+        self.skill_item_pending = item.is_some() || skill==48;
+        self.skill_summon_pending = summon.is_some();
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
             casts: self.state.world.own_cast_packets,
@@ -2102,13 +2112,15 @@ impl LoginController {
         }
         if let Some(pending) = &self.skill_pending {
             let feedback = if self.state.phase.active_world() {
-                if self.skill_item_pending { pending.observe_item(&self.state.world, Instant::now()) }
+                if self.skill_summon_pending {pending.observe_summon(&self.state.world,Instant::now())}
+                else if self.skill_item_pending { pending.observe_item(&self.state.world, Instant::now()) }
                 else { pending.observe(&self.state.world, Instant::now()) }
             } else {
                 super::native_skills::Feedback::Interrupted
             };
             self.state.skill_feedback = feedback;
-            if feedback != super::native_skills::Feedback::Pending {
+            if feedback != super::native_skills::Feedback::Pending
+                && !(self.skill_summon_pending && pending.hold_summon(feedback,Instant::now())) {
                 self.skill_pending = None;
                 if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;self.teleport_spell=None;}
             }

@@ -107,6 +107,7 @@ pub struct World {
     pub ability_buffs: BTreeMap<u8,super::native_ability_buffs::Update>,
     pub last_message: Option<(u16, Vec<String>)>,
     pub last_skill_rejection: Option<(u64, u16)>,
+    pub last_summon_rejection: Option<(u64, u16)>,
     pub death_confirmation_pending: bool,
     pub death_confirmations_sent: u64,
     pub last_death_confirmed_action: Option<u64>,
@@ -719,6 +720,7 @@ impl World {
                 r.end()?;
                 self.message_count += 1;
                 self.last_message = Some((code, args));
+                if matches!(code,353|743) {self.last_summon_rejection=Some((self.message_count,code));}
                 if matches!(code, 276 | 278 | 280 | 285 | 299 | 316 | 319 | 352) {
                     self.last_skill_rejection = Some((self.message_count, code));
                 }

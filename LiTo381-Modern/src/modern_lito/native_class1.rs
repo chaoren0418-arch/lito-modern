@@ -6,9 +6,9 @@ use super::{native_combat::ProjectileCue, native_combat_animation::EnteredEvent,
     tower_assets::{HonorAssetError,SharedEffectBank}, world_map::{WorldCell,ViewProjection}};
 use std::{collections::{BTreeMap,BTreeSet},path::Path,sync::{Arc,atomic::AtomicBool}};
 use serde_json::{json,Value};
-pub fn supports_graphics(gfx:u16)->bool {matches!(gfx,252|236|1801)}
+pub fn supports_graphics(gfx:u16)->bool {matches!(gfx,252|236|1801|1811)}
 pub fn qualify(c:&SpriteActionCatalog)->super::tower_assets::Result<Vec<(u32,u8,Animation)>> {
-    let mut rows=qualify_chill(c)?;rows.extend(qualify_vampiric(c)?);rows.extend(qualify_stalac(c)?);Ok(rows)
+    let mut rows=qualify_chill(c)?;rows.extend(qualify_vampiric(c)?);rows.extend(qualify_stalac(c)?);rows.extend(qualify_sunburst(c)?);Ok(rows)
 }
 fn qualify_stalac(c:&SpriteActionCatalog)->super::tower_assets::Result<Vec<(u32,u8,Animation)>> {
     let row=c.sprites.get(&1801).ok_or(HonorAssetError::Unsupported("stalac absent"))?;
@@ -54,6 +54,7 @@ pub fn position(to:[u16;2],heading:u8)->anyhow::Result<WorldCell> {
     let delta=[(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)][heading as usize];
     Ok(WorldCell{x:i32::from(to[0])+2*delta.0,y:i32::from(to[1])+2*delta.1})
 }
+#[derive(Clone)]
 struct Active {cue:ProjectileCue,position:WorldCell,heading:u8,start:u64,playback:Playback,frame:usize,finished:bool}
 struct Layers {bank:super::native_actor_layers::Bank,bindings:super::native_actor_layers::Bindings}
 #[derive(Default)]
@@ -66,10 +67,10 @@ impl Effects {
     }
     pub(crate) fn prepare_with_catalog(&mut self,root:&Path,w:&World,cancel:&AtomicBool,
         shared:&mut Option<super::shared_action_catalog::SharedActionCatalog>) {
-        for (skill,gfx) in [(10,252u16),(28,236u16),(16,1801u16)] {
-            if self.banks.contains_key(&gfx)||self.error.is_some()||!(w.learned_skills.contains(&skill)||w.projectiles.iter().any(|c|c.projectile.graphics==gfx)){continue;}
+        for (skill,gfx) in [(10,252u16),(28,236u16),(16,1801u16),(46,1811u16)] {
+            if self.banks.contains_key(&gfx)||self.error.is_some()||!(w.learned_skills.contains(&skill)||w.projectiles.iter().any(|c|c.projectile.graphics==gfx)||self.active.iter().any(|a|a.cue.projectile.graphics==gfx)){continue;}
             let loaded=(||->anyhow::Result<_>{let catalog=SharedActionCatalog::reuse_for_model(root,cancel,shared)?;
-                let bank=SharedEffectBank::load_directional(&catalog,cancel,match gfx{252=>qualify_chill,236=>qualify_vampiric,_=>qualify_stalac})?;
+                let bank=SharedEffectBank::load_directional(&catalog,cancel,match gfx{252=>qualify_chill,236=>qualify_vampiric,1811=>qualify_sunburst,_=>qualify_stalac})?;
                 let animation=bank.animation(u32::from(gfx),0)?;
                 let clip=Clip::new(Arc::clone(animation))?;
                 let layers=if gfx==1801 {
@@ -86,7 +87,7 @@ impl Effects {
     pub fn update<'a>(&mut self,w:&World,events:impl Iterator<Item=&'a EnteredEvent>,now:u64)->Vec<Impact> {
         self.events.clear();self.non_audio.clear();
         if self.generation!=Some(w.generation){self.generation=Some(w.generation);self.seen.clear();self.active.clear();self.started=0;self.hits=0;self.omitted=0;}
-        let live:BTreeSet<_>=w.projectiles.iter().map(|c|(c.attacker,c.action_sequence)).collect();self.seen.retain(|k|live.contains(k));
+        let live:BTreeSet<_>=w.projectiles.iter().map(|c|(c.attacker,c.action_sequence)).collect();self.seen.retain(|k|live.contains(k)||self.active.iter().any(|a|(a.cue.attacker,a.cue.action_sequence)==*k));
         for event in events.filter(|e|e.event=="Hit") {
             let key=(event.actor,event.sequence);
             let Some(cue)=w.projectiles.iter().find(|c|(c.attacker,c.action_sequence)==key&&c.projectile.flight_type==0&&supports_graphics(c.projectile.graphics)) else {continue;};
@@ -94,7 +95,7 @@ impl Effects {
             if self.active.len()>=64||w.actors.get(&cue.attacker).is_none_or(|a|a.dead||a.incarnation!=cue.attacker_incarnation){self.omitted+=1;continue;}
             let Some(clip)=self.clips.get(&cue.projectile.graphics) else{self.omitted+=1;continue;};
             let heading=cue.heading;
-            let Ok(position)=position(cue.projectile.to,heading) else{self.omitted+=1;continue;};
+            let Ok(position)=(if cue.projectile.graphics==1811 {Ok(WorldCell{x:i32::from(cue.projectile.to[0]),y:i32::from(cue.projectile.to[1])})}else{position(cue.projectile.to,heading)}) else{self.omitted+=1;continue;};
             self.active.push(Active{cue:cue.clone(),position,heading,start:now,playback:clip.start(),frame:1,finished:false});self.started+=1;
         }
         let mut impacts=Vec::new();
@@ -102,9 +103,19 @@ impl Effects {
             match a.playback.advance((now / 1_000_000).saturating_sub(a.start / 1_000_000) * 1_000_000) {
                 Ok(sample)=>{a.frame=sample.source_frame;a.finished=sample.finished;
                     for cue in sample.crossed_cues {match cue.event {
-                        FrameEvent::Sound(sound)=>self.events.push(EnteredEvent{ prepared_audio:None,actor:a.cue.attacker,sequence:a.cue.action_sequence,action:0,frame:cue.source_frame,event:format!("Class1Sound({sound})"),sound:Some(sound)}),
+                        FrameEvent::Sound(sound)=>{
+                            let prepared=(||->anyhow::Result<_>{
+                                let bank=self.banks.get(&a.cue.projectile.graphics).ok_or_else(||anyhow::anyhow!("class1 bank missing"))?;
+                                let group=super::combat_animation::classify_native_cues(&[FrameEvent::Sound(sound)])?.audio.ok_or_else(||anyhow::anyhow!("class1 sound missing"))?;
+                                super::native_audio_delivery::PreparedCue::from_finite_event(bank.sound_bank(),group,0,
+                                    super::native_audio_delivery::FiniteEventKey{sequence:a.cue.action_sequence,graphics:a.cue.projectile.graphics,action:0,source_frame:cue.source_frame})
+                            })();
+                            match prepared {Ok(payload)=>self.events.push(EnteredEvent{prepared_audio:Some(payload),actor:0,sequence:a.cue.action_sequence,action:0,frame:cue.source_frame,event:format!("Class1Sound({sound})"),sound:Some(sound)}),Err(e)=>{self.omitted+=1;self.error=Some(e.to_string());a.finished=true;}}
+                        },
                         FrameEvent::Hit=>{self.hits+=1;self.non_audio.push(json!({"sequence":a.cue.action_sequence,"source_frame":cue.source_frame,"event":"Hit","authority_callback":false}));
-                            if a.cue.damage_marker>0&&w.actors.get(&a.cue.target).is_some_and(|actor|Some(actor.incarnation)==a.cue.target_incarnation&&!actor.dead){
+                            // 1811's relative-gfx hurt guard remains unqualified;
+                            // retain its Hit as a diagnostic, never synthesize a generic hurt.
+                            if a.cue.projectile.graphics!=1811 && a.cue.damage_marker>0&&w.actors.get(&a.cue.target).is_some_and(|actor|Some(actor.incarnation)==a.cue.target_incarnation&&!actor.dead){
                                 impacts.push(Impact{target:a.cue.target,sequence:a.cue.action_sequence,projectile:a.cue.projectile.id});}}
                         _=>{self.omitted+=1;a.finished=true;}
                     }}
@@ -152,4 +163,31 @@ impl Effects {
     pub fn draw(&mut self,canvas:&mut super::compositor::Canvas,projection:ViewProjection,now:u64)->(Value,Vec<EnteredEvent>) {
         self.draw_to(&mut super::native_world_effects::Target::Canvas(canvas),projection,now)
     }
+}
+
+fn qualify_sunburst(c:&SpriteActionCatalog)->super::tower_assets::Result<Vec<(u32,u8,Animation)>> {
+    let row=c.sprites.get(&1811).ok_or(HonorAssetError::Unsupported("sunburst missing"))?;
+    let a=c.resolve_action(1811,ActionKey::new(0))?.animation;
+    let ticks=[4,1,1,1,1,1,1,1,1,1,1,4,4,4,4,4,4,4,4];
+    if row.graphics_id!=1811 || row.image_count!=Some(1) || row.header_issue.is_some()
+        || row.actions.len()!=1 || row.attributes.len()!=2
+        || [(104,b"8".as_slice()),(109,b"1 -1")].iter().any(|(k,v)|row.attributes.iter().filter(|r|r.key==ActionKey::new(*k)&&r.body_bytes.trim_ascii()==*v).count()!=1)
+        || a.directionality!=Directionality::Undirected || a.frames_per_second!=24 || a.frames.len()!=19
+        || a.frames.iter().enumerate().any(|(n,f)|f.image_id!=0 || f.subframe!=if n==0{18}else{n as u32-1}
+            || f.duration_ticks!=ticks[n] || f.events!=match n{1=>vec![FrameEvent::Sound(709)],11=>vec![FrameEvent::Hit],_=>vec![]}) {
+        return Err(HonorAssetError::Unsupported("sunburst definition changed"));
+    }
+    Ok(vec![(1811,0,a.clone())])
+}
+
+#[derive(Clone)]
+pub(crate) struct History {generation:Option<u64>,seen:BTreeSet<(u32,u64)>,active:Vec<Active>,started:u64,hits:u64,omitted:u64}
+impl History {
+    pub(crate) fn retire(&mut self){self.active.clear();}
+    pub(crate) fn merge(&mut self,other:&Self){if self.generation==other.generation{self.seen.extend(other.seen.iter().copied());}}
+    pub(crate) fn oldest(&self)->Option<u64>{self.active.iter().map(|a|a.cue.action_sequence).min()}
+}
+impl Effects {
+    pub(crate) fn history(&self)->History{History{generation:self.generation,seen:self.seen.clone(),active:self.active.clone(),started:self.started,hits:self.hits,omitted:self.omitted}}
+    pub(crate) fn restore(&mut self,h:History){self.generation=h.generation;self.seen=h.seen;self.active=h.active;self.started=h.started;self.hits=h.hits;self.omitted=h.omitted;}
 }
