@@ -58,3 +58,4 @@
 - 2026-11-06 — #176 T044-1: T044（M2 1/3）: src/：移動正確性與 G04 剩餘項（code，codex-local，PR 已合併）→ [報告](reports/issue-176.md)
 - 2026-11-06 — #140 T026-1: T026（M2 1/2）: docs/SKILLS-STATUS.md（新增）（design，claude-chat，PR #213 已合併）→ [報告](reports/issue-140.md)
 - 2026-11-06 — #174 T043-1: T043（M2 1/2）: tests/、fixture（code，codex-local，PR #208 已合併）→ [報告](reports/issue-174.md)
+- 2026-11-06 — #188 T054-1: T054（M2 1/2）: src/：房間分支正式整合（G06.1、G06.2）（code，codex-local，PR #215 已合併）→ [報告](reports/issue-188.md)
