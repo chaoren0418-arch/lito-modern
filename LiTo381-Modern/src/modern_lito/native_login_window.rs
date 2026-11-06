@@ -25,6 +25,8 @@ use windows::{
 use zeroize::Zeroizing;
 #[path="native_rental_window.rs"]
 mod rental;
+#[path="native_companion_window.rs"]
+mod companions;
 const CREATE_ROOM:u16=119;
 const EDIT_ROOM:u16=120;
 const SAVE_ROOM:u16=121;
@@ -74,6 +76,7 @@ const STATUS: u16 = 204;
 const SCORES: u16 = 207;
 struct Ui {
     rental:rental::View,
+    companions:companions::View,
     parent: HWND,
     room_tools_view: bool,
     room_editor: Option<super::native_room_ui::Draft>,
@@ -321,6 +324,7 @@ impl Ui {
             send(self.control(id),EM_SETLIMITTEXT,WPARAM(max),LPARAM(0));
         }
         self.create_rental_controls()?;
+        self.create_companion_controls()?;
         let ids:std::collections::BTreeSet<_>=self.controls.iter().map(|(id,_)|*id).collect();
         ensure!(ids.len()==self.controls.len(),"duplicate native child control id");
         self.layout(parent, true);
@@ -435,7 +439,7 @@ impl Ui {
                 }
                 INVENTORY_TOGGLE => true,
                 ROOMS => !self.world_view && !self.inventory_view,
-                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !self.rental.open,
+                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !(self.rental.open || self.companions.open),
                 SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.ground_view,
                 TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected()==Some(5),
                 SCORES => self.result_view && !self.inventory_view,
@@ -576,6 +580,7 @@ impl Ui {
             self.inventory_rows.iter().map(|r| r.1.as_str()),
         );
         self.layout_rental();
+        self.layout_companions();
     }
     unsafe fn score_extent(&self) {
         self.list_extent(SCORES, self.score_labels.iter().map(String::as_str));
@@ -743,7 +748,7 @@ impl Ui {
         // Hover is sampled against the actual painted viewport, including when
         // the pointer leaves this window or a child control receives input.
         let hover = (|| {
-            if !active || self.closing || self.inventory_view || self.rental.open || GetForegroundWindow() != parent {
+            if !active || self.closing || self.inventory_view || self.rental.open || self.companions.open || GetForegroundWindow() != parent {
                 return None;
             }
             let mut point = POINT::default();
@@ -920,7 +925,7 @@ impl Ui {
             }
             return;
         }
-        if self.inventory_view || self.rental.open {
+        if self.inventory_view || self.rental.open || self.companions.open {
             self.held.clear();
             self.held_attack.clear();
             return;
@@ -959,7 +964,7 @@ impl Ui {
         let dc = BeginPaint(parent, &mut paint);
         let mut area = RECT::default();
         let _ = GetClientRect(parent, &mut area);
-        if self.rental.open {
+        if self.rental.open || self.companions.open {
             FillRect(dc,&area,GetSysColorBrush(COLOR_BTNFACE));
             let _=EndPaint(parent,&paint);self.painted=None;self.painted_input=None;return;
         }
@@ -1846,6 +1851,7 @@ impl Ui {
             );
         }
         self.refresh_rental();
+        self.refresh_companions();
         self.restore_keyboard_focus_after_update();
     }
     unsafe fn restore_keyboard_focus_after_update(&self) {
@@ -1856,6 +1862,10 @@ impl Ui {
         if retired { let _ = SetFocus(Some(self.parent)); }
     }
     unsafe fn action(&mut self, id: u16) -> Result<()> {
+        match self.companion_action(id) {
+            Ok(true)=>return Ok(()), Ok(false)=>{},
+            Err(error)=>{self.companions.error=Some(format!("{error:#}"));self.refresh_companions();return Err(error);}
+        }
         if self.rental_action(id)? {return Ok(());}
         match id {
             CREATE_ROOM|EDIT_ROOM=>{
@@ -2092,7 +2102,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                         return LRESULT(1);
                     }
                 }
-                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !ui.rental.open => {
+                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !(ui.rental.open || ui.companions.open) => {
                     let _ = SetFocus(Some(hwnd));
                     let mut area = RECT::default();
                     let _ = GetClientRect(hwnd, &mut area);
@@ -2354,6 +2364,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
             });
             let state = Box::new(State(RefCell::new(Ui {
                 rental:rental::View::new(resource_root.clone())?,
+                companions:companions::View::default(),
                 parent: HWND::default(),
                 room_tools_view:false,
                 room_editor:None,
@@ -2470,7 +2481,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if world_focus && message.message == WM_KEYDOWN && message.wParam.0 == 0x1b {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         ui.held.clear();
@@ -2484,7 +2495,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if message.message == WM_KEYDOWN && matches!(message.wParam.0, 0x70 | 0x71 | 0x72) {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.lParam.0 & (1 << 30) == 0 {
@@ -2505,7 +2516,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x50 {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!ui.rental.open&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             let result=ui.enter_nearby_portal();
                             if let Err(e)=result{ui.text(STATUS,&format!("{e:#}"));}
@@ -2515,7 +2526,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x4f {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!ui.rental.open&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             if let Err(e)=ui.toggle_selected_door(){ui.text(STATUS,&format!("{e:#}"));}
                         }
@@ -2528,7 +2539,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.message == WM_KEYUP {
@@ -2547,7 +2558,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if ui.controller.snapshot().observer {
