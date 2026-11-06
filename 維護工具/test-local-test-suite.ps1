@@ -104,7 +104,7 @@ $PowerShellPath = Join-Path $qa 'absent-pwsh.exe'
 $ReferenceJar = ''; $common = @(); $cargoPath = 'must-not-run'
 $rows = @(Invoke-G06Suite 2)
 Assert ($rows.Count -eq 8) 'G06 precondition dropped scenarios'
-Assert (@($rows | Where-Object Status -eq 'PASS').Count -eq 0) 'G06 missing tool passed'
+Assert (@($rows | Where-Object Status -eq 'PASS').Count -eq 0) 'G06 incomplete preconditions passed'
 Assert (($rows.Step -join ',') -eq 'timeout,refused,wrong-service,cancel-retry,cancel-expiry,cancel-repeat,refused-cancel-repeat,cancel-expiry-source') 'G06 inventory changed'
 $supported = @(Read-G06SupportedScenarios (Join-Path $PSScriptRoot 'run-teleport-failure.ps1'))
 Assert ($supported -contains 'timeout' -and $supported -contains 'cancel-expiry') 'owned runner metadata unavailable'
@@ -129,18 +129,29 @@ $ReferenceJar = Join-Path $target 'synthetic.jar'
 $binaryFixture = Join-Path $target 'synthetic-test.exe'
 [IO.File]::WriteAllText($ReferenceJar, 'not a real JAR', $utf8)
 [IO.File]::WriteAllText($binaryFixture, 'not executable', $utf8)
-$PowerShellPath = 'synthetic-shell'; $supportedCount = 5; $fault = ''; $scenarioCalls = 0
+$PowerShellPath = 'synthetic-shell'; $supportedCount = 5; $fault = ''; $scenarioCalls = 0; $processCalls = 0
 $fakeSha = 'E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498'
 function Get-FileHash { param($LiteralPath,$Algorithm); [pscustomobject]@{ Hash = $fakeSha } }
 function Read-G06SupportedScenarios { $scenarioNames[0..($supportedCount-1)] }
 function Invoke-SuiteProcess {
     param($Name,$Executable,$Arguments,$Index)
+    $script:processCalls++
     $log = Join-Path $qa ('synthetic-' + $Index + '.log')
     [IO.File]::WriteAllText($log, 'SYNTHETIC RUNNER QA ONLY', $utf8)
     $code = 0
     if ($Name -eq 'G06-pwsh-version') { $output = '7.0.0' }
     elseif ($Name -eq 'G06-build') {
         $output = @{ reason='compiler-artifact'; target=@{name='native_teleport_failure'}; profile=@{test=$true}; executable=$binaryFixture } | ConvertTo-Json -Compress
+    } elseif ($Name -eq 'G06-test-inventory') {
+        Assert (($Arguments -join ' ') -eq '--list --ignored --format terse') 'inventory could execute tests'
+        $output = ($testNames | ForEach-Object { $_ + ': test' }) -join "`n"
+        switch ($fault) {
+            'inventory-missing' { $output = ($testNames[0..6] | ForEach-Object { $_ + ': test' }) -join "`n" }
+            'inventory-duplicate' { $output += "`n" + $testNames[0] + ': test' }
+            'inventory-case' { $output = $output.ToUpperInvariant() }
+            'inventory-exit' { $code = 1 }
+            'inventory-empty' { $output = '' }
+        }
     } else {
         $script:scenarioCalls++
         $scenario = $Name.Substring('G06:'.Length)
@@ -164,12 +175,19 @@ function Invoke-SuiteProcess {
     [pscustomobject]@{ Output=$output; ExitCode=$code; Seconds=0.001; Log=$log }
 }
 $rows = @(Invoke-G06Suite 0)
-Assert ($rows.Count -eq 8 -and $scenarioCalls -eq 5) ("unsupported scenarios executed or disappeared: " + ($rows | ConvertTo-Json -Compress))
-Assert (@($rows | Where-Object Status -eq 'PASS').Count -eq 5) 'five supported synthetic scenarios did not pass'
-Assert (@($rows | Where-Object Status -like '*unsupported-owned-scenario*').Count -eq 3) 'missing scenarios not failed'
+Assert ($rows.Count -eq 8 -and $processCalls -eq 0) 'incomplete contract started a subprocess or dropped rows'
+Assert (@($rows | Where-Object Status -eq 'PASS').Count -eq 0) 'incomplete contract partially passed'
+Assert (@($rows | Where-Object Status -like '*incomplete-owned-scenarios (T023-2): cancel-repeat, refused-cancel-repeat, cancel-expiry-source*').Count -eq 8) 'missing scenarios not identified'
+Assert (@($rows | Where-Object { $_.ExitCode -ne 'N/A' -or $_.Passed -ne 'N/A' }).Count -eq 0) 'unexecuted scenarios have invented results'
 $supportedCount = 8; $scenarioCalls = 0
 $rows = @(Invoke-G06Suite 0)
 Assert ($scenarioCalls -eq 8 -and @($rows | Where-Object Status -eq 'PASS').Count -eq 8) 'eight supported synthetic scenarios did not run'
+foreach ($fault in @('inventory-missing','inventory-duplicate','inventory-case','inventory-exit','inventory-empty')) {
+    $scenarioCalls = 0
+    $rows = @(Invoke-G06Suite 0)
+    Assert ($rows.Count -eq 8 -and $scenarioCalls -eq 0) "invalid inventory started owned harness: $fault"
+    Assert (@($rows | Where-Object Status -eq 'PASS').Count -eq 0) "invalid inventory passed: $fault"
+}
 foreach ($fault in @('zero','cleanup','identity','exit','malformed')) {
     $scenarioCalls = 0
     $rows = @(Invoke-G06Suite 0)

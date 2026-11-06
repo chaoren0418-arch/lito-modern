@@ -21,7 +21,7 @@ pwsh -NoProfile -File 維護工具/run-local-test-suite.ps1
 
 G06 使用既有 `run-teleport-failure.ps1` 的 JDK、memory 模式、loopback listener、來源綁定、原子 lease、程序身分與清理守門。JAR 必須先由本機執行者驗證為 E149（SHA256 `E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498`），再準備於本 worktree 的上述路徑；套件不掃描或修改外部伺服器目錄。測試 EXE 從本次 `cargo test --no-run --message-format=json` 的單一 artifact 取得，不以目錄中「最新 EXE」猜測。Cargo／pwsh 子程序清除繼承的 `LITO_*`，TEMP／TMP 使用本 worktree 的 `target/current/scratch`。
 
-G06 必跑順序與契約 `native_E149_recovery_contract.py` 一致：`timeout`、`refused`、`wrong-service`、`cancel-retry`、`cancel-expiry`、`cancel-repeat`、`refused-cancel-repeat`、`cancel-expiry-source`。後三案由 T023 第 2 張補回。在當版 runner 只支援五案時，後三案各自顯示 `FAIL: unsupported-owned-scenario (T023-2)`，總碼為 1。支援的 scenario 一旦實跑失敗，後續支援案都列為未執行的失敗，不重試。前置條件缺失同樣會列出八個失敗項；只有八案全部通過才可稱 G06 通過。
+G06 必跑順序與契約 `native_E149_recovery_contract.py` 一致：`timeout`、`refused`、`wrong-service`、`cancel-retry`、`cancel-expiry`、`cancel-repeat`、`refused-cancel-repeat`、`cancel-expiry-source`。後三案由 T023 第 2 張補回。套件先核對 owned runner 是否支援全部八案；缺案時八列都顯示 `FAIL: precondition: incomplete-owned-scenarios (T023-2)` 並列出缺項，結束碼為 1，不建置或啟動 G06 子程序。支援齊全後才建置，並以測試 EXE 的 `--list --ignored --format terse` 檢查八個精確測試名稱各出現一次；列舉失敗、缺項或重複都不啟動 Java。此列舉不是測試通過證據。開始實跑後若任一案失敗，後續案均列為未執行的失敗，不重試。前置條件缺失同樣會列出八個失敗項；只有八案全部實跑通過才可稱 G06 通過。
 
 ## 技能精確對照
 

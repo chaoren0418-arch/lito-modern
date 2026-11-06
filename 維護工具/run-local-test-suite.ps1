@@ -252,6 +252,14 @@ function Invoke-G06Suite {
     }
     $index = $StartIndex
     try {
+        # Check the complete contract before building or starting any harness.
+        # Five passing scenarios cannot satisfy the eight-scenario M2 gate.
+        $runnerPath = Join-Path $PSScriptRoot 'run-teleport-failure.ps1'
+        $supported = @(Read-G06SupportedScenarios $runnerPath)
+        $missing = @($scenarios.Keys | Where-Object { $_ -cnotin $supported })
+        if ($missing.Count -gt 0) {
+            throw ('incomplete-owned-scenarios (T023-2): ' + ($missing -join ', '))
+        }
         if (-not $PowerShellPath) {
             if ($PSVersionTable.PSVersion.Major -ge 7) { $PowerShellPath = Join-Path $PSHOME 'pwsh.exe' }
             else { $PowerShellPath = (Get-Command pwsh -CommandType Application -ErrorAction Stop).Source }
@@ -263,9 +271,6 @@ function Invoke-G06Suite {
         $ReferenceJar = Assert-ArtifactPath $ReferenceJar (Join-Path $project 'target/current')
         $jarSha = (Get-FileHash -LiteralPath $ReferenceJar -Algorithm SHA256).Hash
         if ($jarSha -cne 'E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498') { throw 'G06 requires reviewed E149 JAR' }
-        $runnerPath = Join-Path $PSScriptRoot 'run-teleport-failure.ps1'
-        $supported = @(Read-G06SupportedScenarios $runnerPath)
-        if ($supported.Count -eq 0) { throw 'Missing G06 runner scenario contract' }
         $buildArgs = @('test') + $common + @('--test','native_teleport_failure','--no-run','--message-format=json')
         $build = Invoke-SuiteProcess 'G06-build' $cargoPath $buildArgs (++$index)
         if ($build.ExitCode -ne 0) { throw "G06 build exit=$($build.ExitCode); log=$($build.Log)" }
@@ -275,13 +280,22 @@ function Invoke-G06Suite {
         } | Select-Object -Unique)
         if ($binaries.Count -ne 1) { throw 'Expected one Cargo test executable artifact' }
         $binary = Assert-ArtifactPath $binaries[0] (Join-Path $project 'target/current')
+        # --list only enumerates tests; it does not run ignored network fixtures.
+        # Catch a runner updated ahead of its Rust tests before starting Java.
+        $inventory = Invoke-SuiteProcess 'G06-test-inventory' $binary @('--list','--ignored','--format','terse') (++$index)
+        if ($inventory.ExitCode -ne 0) { throw "G06 inventory exit=$($inventory.ExitCode); log=$($inventory.Log)" }
+        foreach ($scenario in $scenarios.Keys) {
+            $pattern = '(?m)^' + [regex]::Escape($scenarios[$scenario]) + ': test\r?$'
+            if ([regex]::Matches($inventory.Output, $pattern).Count -ne 1) {
+                throw "missing-or-duplicate-G06-test: $scenario -> $($scenarios[$scenario]); log=$($inventory.Log)"
+            }
+        }
     } catch {
         foreach ($scenario in $scenarios.Keys) { New-FailedRow 'G06' $scenario ('precondition: ' + $_.Exception.Message) }
         return
     }
     $stopped = $false
     foreach ($scenario in $scenarios.Keys) {
-        if ($scenario -cnotin $supported) { New-FailedRow 'G06' $scenario 'unsupported-owned-scenario (T023-2)'; continue }
         if ($stopped) { New-FailedRow 'G06' $scenario 'not-run-after-G06-failure'; continue }
         # Redirected pwsh can inherit the Windows ANSI console encoding. Force
         # UTF-8 before invoking the runner so Chinese diagnostics are preserved.
