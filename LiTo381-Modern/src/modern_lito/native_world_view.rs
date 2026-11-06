@@ -111,7 +111,8 @@ impl Presentation {
     /// Retired results never reach the queue; stale-environment results retain
     /// their live callbacks before their pixels are rejected.
     pub fn tick_environment(&mut self,root:&Path,connection:u64,world:&World,environment:&mut super::native_environment::State,active:bool)->bool {
-        let mut changed=self.tick(root,connection,world,environment,active);
+        let mut changed=self.prune_static_frame(world, connection);
+        changed |= self.tick(root,connection,world,environment,active);
         let scene=if active && connection!=0 && world.generation!=0 && world.view_ready() {
             world.map_id.map(|map|super::native_ambient_bridge::Scene::new(connection,world.generation,map,Arc::clone(self.ambient_source_owner.as_ref().unwrap_or(&self.publication))))
         } else {None};
@@ -152,6 +153,27 @@ impl Presentation {
             }
         }
         changed
+    }
+    /// Run after controller callbacks as well as at tick entry. Preserve already
+    /// admitted audio/hurt deliveries while discarding a retired raster.
+    pub(crate) fn prune_static_frame(&mut self, world: &World, connection: u64) -> bool {
+        if !self.frame.as_ref().is_some_and(|frame| !frame.static_current(world, connection)) { return false; }
+        let mut frame = self.frame.take().expect("checked frame");
+        self.rendered_revision = None;
+        if self.deferred_sounds.len().saturating_add(self.deferred_native_audio.len())
+            .saturating_add(frame.sounds.len()).saturating_add(frame.native_audio.len()) <= 4096 {
+            self.deferred_sounds.append(&mut frame.sounds);
+            self.deferred_legacy_audio.append(&mut frame.legacy_audio);
+            self.deferred_native_audio.append(&mut frame.native_audio);
+        } else {
+            for cue in &frame.legacy_audio { cue.discard(); }
+            for cue in &frame.native_audio { cue.discard(); }
+            self.error = Some("static retirement audio backlog exceeded".into());
+        }
+        if self.deferred_finite_hurt.len().saturating_add(frame.finite_hurt_callbacks.len()) <= 4096 {
+            self.deferred_finite_hurt.append(&mut frame.finite_hurt_callbacks);
+        } else { self.error = Some("static retirement hurt backlog exceeded".into()); }
+        true
     }
     pub(crate) fn take_static2941_ready(&mut self) -> Vec<super::native_static2941::Prepared> {
         std::mem::take(&mut self.static2941_ready)
@@ -324,7 +346,7 @@ impl Presentation {
                                 done.frame.receipt["native_finite_audio_history"]=serde_json::json!(report);Ok(())
                             });
                             if let Err(e)=bound {self.error=Some(format!("native audio publication: {e:#}"));}
-                            else if Some(*captured_environment) == expected_environment {
+                            else if Some(*captured_environment) == expected_environment && done.frame.static_active(world) {
                                 if done.frame.environment_key() != expected_environment {
                                     self.error = Some("world frame environment binding mismatch".into());
                                 } else {

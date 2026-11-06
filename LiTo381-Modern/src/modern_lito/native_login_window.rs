@@ -782,6 +782,9 @@ impl Ui {
         if let Err(error) = self.controller.enqueue_static2941(&self.resource_root, prepared) {
             self.world_presentation.error = Some(format!("static2941: {error:#}"));
         }
+        if self.world_presentation.prune_static_frame(&self.controller.snapshot().world, epoch) {
+            let _ = InvalidateRect(Some(parent), None, true);
+        }
         if let Err(e)=self.voices.poll() {self.audio_error=Some(e.to_string());}
         let native_scope=self.world_presentation.audio_scope(self.controller.transport().snapshot().epoch,
             self.controller.snapshot().world.generation);
@@ -955,7 +958,8 @@ impl Ui {
             let _=EndPaint(parent,&paint);self.painted=None;self.painted_input=None;return;
         }
         FillRect(dc, &area, HBRUSH(GetStockObject(BLACK_BRUSH).0));
-        if let Some(frame) = &self.world_presentation.frame {
+        if let Some(frame) = self.world_presentation.frame.as_ref().filter(|frame|
+            frame.static_current(&self.controller.snapshot().world, self.controller.transport().snapshot().epoch)) {
             let dpi = GetDpiForWindow(parent).max(96) as i32;
             if let Some(view) = super::compositor::Viewport::fit(
                 area.right,
