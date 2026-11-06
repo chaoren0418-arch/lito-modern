@@ -185,6 +185,20 @@ impl Presentation {
     /// cancellation arrived after the decoder had completed successfully.
     pub fn tick(&mut self, root: &Path, connection: u64, world: &World,
         environment: &super::native_environment::State, active: bool) -> bool {
+        self.tick_mode(root,connection,world,environment,active,false,true)
+    }
+    pub(crate) fn callback_draw(&mut self, root: &Path, connection: u64, world: &World,
+        environment: &super::native_environment::State) -> anyhow::Result<usize> {
+        self.rendered_revision=None;
+        self.tick_mode(root,connection,world,environment,true,true,true);
+        if let Some(error)=&self.error {anyhow::bail!("callback draw: {error}");}
+        let frame=self.frame.as_ref().ok_or_else(||anyhow::anyhow!("callback frame absent"))?;
+        anyhow::ensure!(frame.composition_current(world),"callback frame revision changed");
+        Ok(frame.player_walk_plan.as_ref().map_or(0,|p|p.frame_count()))
+    }
+    fn tick_mode(&mut self, root: &Path, connection: u64, world: &World,
+        environment: &super::native_environment::State, active: bool,
+        synchronous: bool, request: bool) -> bool {
         let root_changed=self.source_root.as_deref()!=Some(root);
         if root_changed {
             self.source_owner=None;self.source_root=Some(root.to_path_buf());
@@ -279,7 +293,7 @@ impl Presentation {
             changed = true;
         }
         if let Some(PendingRender{key,source_root,publication,revision,environment:captured_environment,job,..}) = &mut self.job {
-            if let Some(result) = job.poll() {
+            if let Some(result) = if synchronous {Some(job.finish())} else {job.poll()} {
                 let same_root=source_root.as_path()==root;
                 let current_context=same_root&&Arc::ptr_eq(publication,&self.publication);
                 if !current_context {
@@ -397,7 +411,7 @@ impl Presentation {
             changed |= self.frame.take().is_some();
         }
         if let Some(key) = target.filter(|_| world.view_ready() && bound.is_some()) {
-            if self.job.is_none()
+            if request && self.job.is_none()
                 && self.error.is_none()
                 && (self.rendered_revision != Some(world.visual_revision)
                     || self.rendered_environment != expected_environment
@@ -436,6 +450,9 @@ impl Presentation {
                     }
                 }
             }
+        }
+        if synchronous && request && self.job.is_some() {
+            changed |= self.tick_mode(root,connection,world,environment,active,true,false);
         }
         changed
     }

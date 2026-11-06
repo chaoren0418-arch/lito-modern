@@ -50,6 +50,7 @@ fn navigation(map_id: u32, closed: bool) -> Arc<Navigation> {
 pub(crate) fn frame(world: &World, arrived: bool) -> Frame {
     let a = world.own_actor().unwrap();
     Frame {
+        player_walk_plan: None,
         static2941: Default::default(),
         ground_items: vec![],
         hits: vec![],

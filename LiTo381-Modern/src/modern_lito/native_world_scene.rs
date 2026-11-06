@@ -94,6 +94,7 @@ impl HurtCallback {
     }
 }
 pub struct Frame {
+    pub(crate) player_walk_plan: Option<std::sync::Arc<super::native_player_callbacks::WalkPlan>>,
     pub(crate) static2941: super::native_static2941::DrawGuard,
     pub ground_items: Vec<super::native_world::Actor>,
     pub hits: Vec<(u32, [i32; 4])>,
@@ -120,8 +121,13 @@ pub struct Frame {
     pub receipt: serde_json::Value,
 }
 impl Frame {
+    pub(crate) fn composition_current(&self, world:&World)->bool {
+        self.static2941.active(world) && self.identity().matches_world(world)
+            && self.input_revision==world.visual_revision
+    }
     pub(crate) fn static_current(&self, world: &World, connection: u64) -> bool {
         self.static2941.current(world, connection)
+            && (world.player_walk.is_none() || self.input_revision == world.visual_revision)
     }
     pub(crate) fn static_active(&self, world: &World) -> bool { self.static2941.active(world) }
     pub fn environment_key(&self) -> Option<super::native_render_environment::Key> { self.environment_key }
@@ -140,6 +146,7 @@ impl Frame {
     }
     pub fn movement_ready(&self, world: &World) -> bool {
         self.movement_arrived && self.matches_world(world)
+            && (world.player_walk.is_none() || self.input_revision == world.visual_revision)
             && self.movement_stamp == super::native_navigation::InputStamp::capture(0, world)
             && world.ready() && world.hp.is_some_and(|hp| hp[0] > 0)
             && world.battle_result.is_none() && world.movement_blocks.is_empty()
@@ -307,6 +314,14 @@ impl Job {
             let _ = worker.join();
         }
         Some(result)
+    }
+    /// Callback draw is a synchronous composition boundary. The worker owns
+    /// only resource/CPU work; it cannot touch the controller queue or clock.
+    pub(crate) fn finish(&mut self) -> Result<Completion> {
+        if let Some(worker)=self.worker.take() {
+            worker.join().map_err(|_|anyhow::anyhow!("world callback renderer panicked"))?;
+        }
+        self.receiver.try_recv().context("world callback renderer ended without result")?
     }
     pub fn finished(&self) -> bool {
         self.worker.is_none()
@@ -826,9 +841,15 @@ impl Model {
             .begin(elapsed_ns, world.actors.keys().copied())?;
         let mut poses = std::collections::BTreeMap::new();
         for actor in world.actors.values() {
+            if let Some(p)=world.player_walk.as_ref().filter(|p|p.current(world)
+                && world.own_actor().is_some_and(|own|own.id==actor.id)) {
+                self.animator.source_motion(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(),
+                    actor,elapsed_ns,p.frame==0)?;
+            }
             poses.insert(
                 actor.id,
-                self.animator.pose(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(), actor, elapsed_ns),
+                world.player_walk.as_ref().and_then(|p|p.pose(world,actor)).unwrap_or_else(||
+                    self.animator.pose(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(), actor, elapsed_ns)),
             );
         }
         let mut impacts = self.projectiles.update(
@@ -1404,6 +1425,9 @@ impl Model {
         };
         receipt["static2941"] = serde_json::json!({"sequences":static2941.sequences(),"flags":0,"direction6_alias":-1,"shadow":-1,"paint_advances_clock":false});
         Ok(Frame {
+            player_walk_plan: world.own_actor().and_then(|actor|
+                super::native_player_callbacks::WalkPlan::load(
+                    self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(),actor).ok()).map(std::sync::Arc::new),
             static2941,
             ground_items,
             hits,

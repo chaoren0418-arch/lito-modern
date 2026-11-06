@@ -194,7 +194,27 @@ struct Due {
 type Producer = Box<dyn FnOnce(&mut Queue, &mut World, u64) -> Result<()> + Send>;
 enum Callback {
     Retire(Due),
-    Shared { owner: Owner, producer: Producer },
+    Shared {
+        owner: Owner,
+        producer: Producer,
+    },
+    Native {
+        owner: Owner,
+        event: super::native_player_callbacks::Event,
+    },
+}
+/// The host is borrowed only after the event has been removed. Recursive
+/// drains therefore use the same queue and host, without a lock or a side queue.
+pub(crate) trait CallbackHost {
+    fn sample(&mut self) -> Result<u32>;
+    fn dispatch(
+        &mut self,
+        queue: &mut Queue,
+        world: &mut World,
+        connection: u64,
+        event: super::native_player_callbacks::Event,
+    ) -> Result<()>;
+    fn draw(&mut self, queue: &mut Queue, world: &mut World, connection: u64) -> Result<()>;
 }
 struct Event {
     deadline: u32,
@@ -211,6 +231,12 @@ pub(crate) struct Queue {
     due: Vec<Event>,
 }
 impl Queue {
+    pub(crate) fn scope_token(&self) -> Arc<()> {
+        self.scope.clone()
+    }
+    pub(crate) fn same_scope(&self, token: &Arc<()>) -> bool {
+        Arc::ptr_eq(token, &self.scope)
+    }
     pub(crate) fn synchronize(&mut self, world: &World, connection: u64) {
         let owner =
             (connection != 0 && world.generation != 0 && world.map_id.is_some()).then_some(Owner {
@@ -232,6 +258,7 @@ impl Queue {
         self.due.retain(|entry| match &entry.callback {
             Callback::Retire(due) => due.lease.active(),
             Callback::Shared { owner, .. } => Some(*owner) == self.owner,
+            Callback::Native { owner, .. } => Some(*owner) == self.owner,
         });
     }
 
@@ -397,6 +424,63 @@ impl Queue {
         connection: u64,
         cutoff: u32,
     ) -> Result<Vec<u64>> {
+        struct Unbound;
+        impl CallbackHost for Unbound {
+            fn sample(&mut self) -> Result<u32> {
+                native_clock::sample()
+            }
+            fn dispatch(
+                &mut self,
+                _: &mut Queue,
+                _: &mut World,
+                _: u64,
+                _: super::native_player_callbacks::Event,
+            ) -> Result<()> {
+                anyhow::bail!("player callback requires its presentation host")
+            }
+            fn draw(&mut self, _: &mut Queue, _: &mut World, _: u64) -> Result<()> {
+                anyhow::bail!("player draw requires its presentation host")
+            }
+        }
+        self.drain_with(world, connection, cutoff, &mut Unbound)
+    }
+    pub(crate) fn enqueue_native(
+        &mut self,
+        world: &World,
+        connection: u64,
+        delay: u32,
+        sampled: u32,
+        event: super::native_player_callbacks::Event,
+    ) -> Result<bool> {
+        self.synchronize(world, connection);
+        let Some(owner) = self.owner else {
+            return Ok(false);
+        };
+        ensure!(self.due.len() < 4096, "shared native callback queue budget");
+        let deadline = sampled.wrapping_add(delay);
+        let at = self.due.partition_point(|entry| entry.deadline <= deadline);
+        self.due.insert(
+            at,
+            Event {
+                deadline,
+                callback: Callback::Native { owner, event },
+            },
+        );
+        Ok(true)
+    }
+    pub(crate) fn cancel_native(&mut self, kind: super::native_player_callbacks::Kind) {
+        self.due.retain(|entry| {
+            !matches!(&entry.callback,
+            Callback::Native { event, .. } if event.kind() == kind)
+        });
+    }
+    pub(crate) fn drain_with(
+        &mut self,
+        world: &mut World,
+        connection: u64,
+        cutoff: u32,
+        host: &mut impl CallbackHost,
+    ) -> Result<Vec<u64>> {
         self.synchronize(world, connection);
         let scope = self.scope.clone();
         if self
@@ -437,6 +521,11 @@ impl Queue {
                         producer(self, world, connection)?;
                     }
                 }
+                Callback::Native { owner, event } => {
+                    if self.owner == Some(owner) {
+                        host.dispatch(self, world, connection, event)?;
+                    }
+                }
             }
             if !Arc::ptr_eq(&scope, &self.scope) {
                 // The callback replaced the queue. Its new events require a
@@ -451,6 +540,40 @@ impl Queue {
         self.pending.retain(Lease::active);
         Ok(retired)
     }
+    /// Full host version of the same do/while pump. False means retirement,
+    /// and the caller must not write the source completion flag in that case.
+    pub(crate) fn drain_4857b0_with_host(
+        &mut self,
+        world: &mut World,
+        connection: u64,
+        host: &mut impl CallbackHost,
+    ) -> Result<bool> {
+        self.synchronize(world, connection);
+        if self.owner.is_none() {
+            return Ok(false);
+        }
+        let scope = self.scope.clone();
+        let mut previous = host.sample()?;
+        let mut elapsed = 0i32;
+        loop {
+            let cutoff = host.sample()?;
+            self.drain_with(world, connection, cutoff, host)?;
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                return Ok(false);
+            }
+            host.draw(self, world, connection)?;
+            self.synchronize(world, connection);
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                return Ok(false);
+            }
+            let now = host.sample()?;
+            elapsed = elapsed.wrapping_add(now.wrapping_sub(previous) as i32);
+            previous = now;
+            if elapsed >= 500 {
+                return Ok(true);
+            }
+        }
+    }
     /// 4857B0's timer/draw portion. Each iteration has a fresh 4D6570 sample,
     /// then redraw, then a separate relative-time sample. The native loop is
     /// do/while with signed accumulated dword deltas (including wrap).
@@ -460,36 +583,34 @@ impl Queue {
         &mut self,
         world: &mut World,
         connection: u64,
-        mut clock: impl FnMut() -> Result<u32>,
-        mut draw: impl FnMut(&mut Self, &mut World, u64) -> Result<()>,
+        clock: impl FnMut() -> Result<u32>,
+        draw: impl FnMut(&mut Self, &mut World, u64) -> Result<()>,
     ) -> Result<()> {
-        self.synchronize(world, connection);
-        if self.owner.is_none() {
-            return Ok(());
+        struct Host<C, D> {
+            clock: C,
+            draw: D,
         }
-        let scope = self.scope.clone();
-        let mut previous = clock()?;
-        let mut elapsed = 0i32;
-        loop {
-            self.drain_due(world, connection, clock()?)?;
-            if !Arc::ptr_eq(&scope, &self.scope) {
-                return Ok(());
+        impl<C: FnMut() -> Result<u32>, D: FnMut(&mut Queue, &mut World, u64) -> Result<()>>
+            CallbackHost for Host<C, D>
+        {
+            fn sample(&mut self) -> Result<u32> {
+                (self.clock)()
             }
-            draw(self, world, connection)?;
-            if !Arc::ptr_eq(&scope, &self.scope) {
-                return Ok(());
+            fn draw(&mut self, q: &mut Queue, w: &mut World, c: u64) -> Result<()> {
+                (self.draw)(q, w, c)
             }
-            self.synchronize(world, connection);
-            if !Arc::ptr_eq(&scope, &self.scope) {
-                return Ok(());
-            }
-            let now = clock()?;
-            elapsed = elapsed.wrapping_add(now.wrapping_sub(previous) as i32);
-            previous = now;
-            if elapsed >= 500 {
-                return Ok(());
+            fn dispatch(
+                &mut self,
+                _: &mut Queue,
+                _: &mut World,
+                _: u64,
+                _: super::native_player_callbacks::Event,
+            ) -> Result<()> {
+                anyhow::bail!("player callback requires its presentation host")
             }
         }
+        self.drain_4857b0_with_host(world, connection, &mut Host { clock, draw })
+            .map(|_| ())
     }
     pub(crate) fn retire(&mut self) {
         self.scope = Arc::new(());

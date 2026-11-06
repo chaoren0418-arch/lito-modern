@@ -1,67 +1,34 @@
-# Issue #143：T020-2 暗隱術（第二次嘗試）
+# Issue #143：T020-2 暗隱術（第三次嘗試）
 
-**結論：部分修正，未完成；前次 review:fail 的正式接線問題仍在。請勿標記 T020／#143 完成。**
-
-本次基底 `98981f4a2510bf83c8b74b3c32884b68c0de0bd5`，沿用 `task/143`，未切換或另建分支。本次修正共享 queue 在重入退役／重綁後繼續執行舊 drain 的錯誤，補原始控制旗標的上游核對，並重跑本張測試及 metadata。**沒有把只有測試呼叫的 helper 包一層便宣稱正式 producer 已接入。**
+本次在既有 `task/143`、基底 `77f30e1` 上補正式玩家 callback 與 S37/169 巢狀 drain 接線，完成本張本機驗證，提交 Claude 審查。沒有切換／另建分支，也沒有修改 `docs/REPORT.md` 或 T020 的整體狀態；#142 與完整 M2 驗收另行裁定。
 
 ## 做了什麼
 
-- `native_static2941.rs`：新增獨立於數值 `Owner` 的 `Arc<()>` queue 身分。每次 retire 都換身分；外層 drain 在 callback 返回後，及 World 同步後，檢查原身分是否仍有效。重入 callback 即使退役後綁回相同 connection／generation，新事件也留給新的 drain／sample，不能被舊 stack 的 cutoff 消費。
-- `drain_4857b0`：無有效 owner 時不讀 clock／不 draw；每輪 drain 後與 draw 後檢查 queue 身分及 World 是否退役。取消時離開 helper，不繼續畫新場景或讀取舊相對時鐘。此取消機制是現代 queue 的生命週期保護，不是原 `4857B0` 完整實作，也沒有補寫原 `75AB1C` 完成旗標。
-- `native_static2941_callback_tests.rs`：新增三個回歸案例，分別覆蓋相同 Owner 的退役／重綁、drain 內退役、draw 內清空 World。修正前逐一重現，修正後全部通過。正常同一 queue 的巢狀 drain、固定外層 cutoff、fresh enqueue sample、同期限 FIFO 與 rollover 案仍通過。
-- `native_static2941_source_tests.rs`：在既有完整 PE／ASM SHA gate 下，新增 76 個有序指令核對，涵蓋 `4ADDA0 → 4857B0` 三層條件、取消 callback／camera globals、兩個 suffix 的分岔及取消路徑、`641498` 真正 producer、玩家 `4E8750` 額外分支。這是唯讀靜態證據，不當成真機 trace 或正式接線測試。
+- `native_static2941::Queue` 的同一 due queue 同時保存玩家 source-frame callback、camera callback 識別及 static retirement。保留 unsigned deadline 排序、同期限 FIFO、remove-before-call、固定外層 cutoff、fresh enqueue sample 與重入退役身分守衛。正式 `drain_with` 接受借用的繪圖 host；舊測試 helper 委派相同的巢狀 drain 核心。
+- 新 `native_player_callbacks` 擁有 source frame、held／pending／cancel／continuation 狀態。成功 `move_presented` 後從 frame 1 起步，按真實 catalog 的每幀 duration 逐段整數運算預排 callback，各 enqueue 重新讀 native clock。callback 推進 frame 至零；只有 held input 存在且沒有新收到的角色動作，才排續步。續步重新檢查真實導航，成功送出 move 後才 predict 並建立下一步。
+- `4E2150` 兩個 suffix 直接接正式繪圖 host：非零 source frame 走一般 suffix；frame 零先處理 cancel，再處理待送動作，最後才處理 continuation draw。控制狀態來自 Windows held input／前景與視窗狀態、已驗證的施法請求、成功 transport send，以及角色動作佇列，不從 heading 或 elapsed pose 推造。
+- `4E8750` duration 使用 catalog 原 ticks／FPS，speed、brave 分段截斷；特殊 7/16 分支由選角 mode／等級與 actor status 控制。normal-tail 使用真正完成的新 composition、fresh clock、原始 unsigned delta；frame count=12 且 delta>40 才抑制 suffix draw，之後才 cap 至500。重複畫同一 Frame 不重算。
+- 新 `native_login_callbacks::DrawHost` 在 callback 返回前同步完成既有 CPU renderer／SPR 解碼，接收 `Prepared`、enqueue 靜態 retirement，再合成可發佈的 Frame。不是只送出視窗重畫要求，也不是只排下一張 worker。`World.player_walk` 是 source-frame 權威；renderer 用它選圖與位置，完成後交回既有 Animator，避免同一步從 elapsed=0 再播。
+- 正式 `WM_TIMER → poll_presented → accept_game_received` 在成功接受 World 封包後檢查成功動作送出旗標、graphics=169、target=目前 own actor。每個接收事件後先完成巢狀 pump，才處理下一個事件。入口取消 Camera 識別的 callback、重設 camera 狀態；至少一次 drain→draw→fresh relative sample，以 signed wrapping 累加至500；只有正常完成才寫完成旗標。World／queue 退役不誤寫完成。
+- 可安全延後的已驗證自體施法在步伐 frame 零送出，回覆 timeout 與施法冷卻以實際送出時刻調整；有指定目標、地面、物品與傳送請求仍保留既有等待條件。`action_sent` 只在 transport 接受送出後設立；message 0x49 與場景控制換代會清除，不能以 `skill_pending` 代替。
+- 保留前兩次已移植的12 ready gates、原 PE／ASM 控制流核對、方向6 flags=0／alias=-1／shadow=-1 與固定2941 SPR fragments／lease／History 接線；本次把它們和正式 producer 一起重跑。
 
-前次已加入的 SPR fragments 繪圖、共享 lease、Frame／InputSurface／cache 退役守衛、History 與 12 ready gates 均保留。本次沒有套用候選 Runtime，沒有修改 `docs/REPORT.md`、TASKS、其他分張功能或原始專案工作檔。
+## 已驗證
 
-## 已驗證：正式呼叫路徑仍有缺口
+### 行為與整合
 
-靜態檢查本次 `src/modern_lito/`：`.enqueue_callback(` 與 `.drain_4857b0(` 的呼叫者仍全部在 `native_static2941_callback_tests.rs`。正式路徑仍為：
+新增15個純邏輯案例與3個 controller 案。純邏輯涵蓋兩 suffix、cancel 優先、pending 只送一次、fresh continuation 與固定 cutoff、真正續步、收到戰鬥動作後不續步、12幀 draw 抑制、整數 duration、169 正反條件、camera 取消、rollover、巢狀 drain 內執行玩家 callback、重入退役及重複畫面不讀新 clock。
 
-1. `LoginController::accept_game_received` 接受 World 封包與 static receipt。
-2. `Presentation::tick_environment`／worker 交付 `Prepared`，UI 呼叫 `enqueue_static2941`。
-3. `LoginController::poll` 直接取一次 native clock 後呼叫 `drain_due`；正式 queue 目前只有 static retirement producer。
-4. `Model::draw_at_labels_environment` 仍呼叫 `Animator::pose`；該 pose 由 elapsed／FPS 與 speed factor 推導，沒有 `4E2150` 的 source frame／control-state authority。
+兩個資源整合案使用唯讀 `D:/lineage開發/0-客戶端` 的實際地圖／SPR、正式 `Presentation`／`Model` 和本測試自己建立的 `127.0.0.1:0` 加密 loopback。沒有連外部遊戲伺服器：
 
-這是**尚未完成的本張實作**，不是 GitHub 登入、測試授權、缺 clock export 或使用者批准造成的阻擋。本次沒有要求重新批准測試，也沒有把 #142 的外部 clock 身分要求恢復成門檻。
+1. 從載入的真實地圖選取方向6可走的邊，正式 `move_presented` 送出封包並建立 source walk。步伐中正式 `cast` 保留待送請求，frame 零才由 peer 收到。callback 內合成2941並以 cutoff+1 fresh sample enqueue，舊 cutoff 不能消費；下一 drain 使 lease 退役、舊 Frame 失效，下一次真實合成移除 fragments。
+2. 正式 `cast` 成功送出後，peer 送出自己的 S37/169，正式 `poll_presented` 收包並完成真實繪圖 pump；最終 Frame 通過 input gate。另一案確認 transport 送出失敗不建立169旗標。
 
-## 已驗證：來源與不可直接替換的狀態
+測試初輪曾因 fixture 的 Windows accepted socket 繼承非阻塞模式，以及原 fixture 座標位於地圖牆邊而失敗；已明確設定測試 peer 阻塞／timeout，並從真實導航選擇可走邊。未放寬正式導航、加密、輸入或資源 gate。純測試的正常速度前置亦已明確設定，未把原 fixture 的減速狀態誤當正常速度。
 
-唯讀來源與前次相同：
+### 建置與測試原文
 
-- `D:/lineage開發/3-lito開發/lito登入器/舊版分析與驗收/runtime/LiTo.unpacked-oep-current.exe`，SHA256 `4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9`。
-- 同分析根目錄 `ida-client-oep-v2/full-disassembly.asm`，SHA256 `2A3A6E1026EE65288C07EFF00990BDDDBEFA5ACEC9EED551F528A0CC0A7DEA9A`。
-- SPR／list 根目錄 `D:/lineage開發/0-客戶端`，由既有 `Static2941Bank` loader 核對 digest、單 frame、metadata 與四個原 fragments；資源沒有複製進 git。
-
-| 原控制流 | 本次核對與正式接線缺口 |
-|---|---|
-| `4E2CD1` | 起步依 `4E8750` 逐幀累加 delay，各次 `4D65F0` 取 fresh sample。不是在 worker 回傳一個 elapsed pose 後補排同名 callback。 |
-| `4E2E93 → 4E5B50` | 推進 actor `+13h`，末幀回零並進入 `4E5C00`；非零回傳跳過 EB3=1。正式 Animator 沒有同一 source frame 的 owner／timer。 |
-| `4E307E → 4E308F` | frame 完成、actor `+74h <= 0`，且 `760098 != 0` 或 `64BBC3 != 0`，才設 EB3=1 並排後續 `4E2150`。目前 `HeldInput::direction`／`Actor.heading` 不能單獨證明這些條件。 |
-| `4E3207` suffix | frame 非零走 `4E3429`；frame 零先檢查 `834F1D` 取消，再檢查 `834EB2` pending action，最後才是 `834EB3`。`4E33AD` 與 `4E3432` 都受 `641498` 控制。 |
-| `488860` normal tail／`4E8E70` | fresh native draw sample 減前一 sample，先保存 raw dword delta；actor graphics `+14h`、base action `+18h` 的 frame count 為 12 且 unsigned delta >40，才留下 `641498=1`；之後才 cap 至 500。不能用最小化、worker pending、paint FPS 或 walk 完成布林代替。 |
-| `4E8750` | 玩家讀特有 globals，還有 `64BC13 != 0 && 64AFBF == 0` 時的 7/16 分支；普通 speed／brave 使用逐段整數運算。現有 `native_speed::factor` 不是整個原 duration producer。 |
-| `4ADDA0 → 4857B0` | 特效虛擬呼叫返回後，依 `63DF4C != 0`、封包 graphics=169、target=own actor 判斷。不能用收到 2941 或 `skill_pending.is_some()` 直接冒充完整控制旗標。 |
-| `4857B0` | 入口先以 `4D6870` 取消 `482F50`／參數0，再設 `62F32C=-1`、`75A988=0`；至少一次 drain→draw→fresh relative sample，signed 累加達500後設 `75AB1C=1`。現有 helper 只覆蓋 timer／draw 子流程；這些 state／取消 callback 與正式 S37 adapter 尚未實作。 |
-| 方向6／shadow | 前次釘住的普通初始化與固定2941 list row仍成立：flags=0、alias=-1、shadow=-1；本 bank 使用普通 Over／單 primary frame，沒有 alias／shadow。未取得獨立原生像素 oracle。 |
-
-`native_active_tick_study` 明文拒絕假稱已執行 `488860` surface/list/music/provider body；`native_locomotion_input_study` 的 inputs 是條件式研究值，不是實際 Windows／controller 的 authority。`fixed_walk` 只提供四／八 source 的無節奏參考步伐，也明文不擁有 world controller／`4E8750` 的全部狀態。沒有把這些研究預設值強行接入正式流程。
-
-## 已驗證：建置與測試
-
-命令都在本 worktree 的 `LiTo381-Modern/` 執行，`CARGO_HOME=D:/dev-cache/cargo`、`RUSTUP_HOME=D:/dev-cache/rustup`，TEMP／TMP 指向本 worktree `scratch/tmp`。沿用 `scratch/run143.ps1`，以 AST 讀取現行 `維護工具/run-local-test-suite.ps1` 的 `Measure-TestResult` 原函數，未放寬 0 tests、failed>0、解析失敗與 command exit 門檻。
-
-### 修正前的回歸證據
-
-```text
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_static2941::tests::callbacks:: -- --test-threads=1
-exit=101
-gate=FAIL: command-exit,test-failed
-test result: FAILED. 4 passed; 3 failed; 1 ignored; 0 measured; 2540 filtered out; finished in 0.01s
-```
-
-三個失敗分別為 `retired_outer_drain_cannot_consume_replacement_queue_even_with_same_owner`、`nested_pump_retirement_during_drain_prevents_stale_draw_and_clock_reads`、`nested_pump_draw_retirement_does_not_resume_old_relative_timer`。不是編譯錯誤或門檻解析失敗；原始 assert／panic 保存在 `scratch/reentry-before.log`。
-
-### 最終來源
+所有命令在本 worktree 的 `LiTo381-Modern/` 執行。`CARGO_HOME=D:/dev-cache/cargo`、`RUSTUP_HOME=D:/dev-cache/rustup`；TEMP／TMP 使用本 worktree `scratch/tmp`。一次性 `scratch/run143.ps1` 以 AST 讀取現行 `維護工具/run-local-test-suite.ps1` 的 `Measure-TestResult` 原函數；0 tests、failed>0、解析失敗與非零結束碼均不算通過。
 
 ```text
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
@@ -73,25 +40,40 @@ gate=PASS
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib
 exit=0
 gate=PASS
-test result: ok. 1965 passed; 0 failed; 583 ignored; 0 measured; 0 filtered out; finished in 3.45s
+test result: ok. 1981 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 3.36s
+```
+
+```text
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_player_callbacks::tests:: -- --test-threads=1
+exit=0
+gate=PASS
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 2551 filtered out; finished in 0.01s
+```
+
+```text
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_login::player_callbacks::tests:: -- --include-ignored --test-threads=1
+exit=0
+gate=PASS
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 2563 filtered out; finished in 11.22s
 ```
 
 ```text
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_static2941::tests:: -- --include-ignored --test-threads=1
 exit=0
 gate=PASS
-test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 2517 filtered out; finished in 7.64s
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 2535 filtered out; finished in 6.98s
 ```
 
-本張31案包含已移植的12 ready gates（8純邏輯、4原資源 opt-in），不是以 ignored 或 metadata 代替執行。另有原 #142 核心案、callback／draw 案、原 PE／ASM 案。完整 library 的 ignored 不計通過；本張另外執行其中7案，其餘576案未跑。
+全 library 的 ignored 不算通過。另行 opt-in 執行的31個 static 案包含全部12 ready gates；兩個真實資源 controller 案也有獨立非零執行結果。日誌為本 worktree `scratch/third-*.log` 與 `third-*-result.txt`。既有 warnings 仍存在，沒有宣稱零警告。
 
-原資源命令明確設定 `LITO_STATIC2941_ROOT`，原來源命令明確設定 `LITO_NATIVE_CLOCK_PE`、`LITO_NATIVE_CALLBACK_ASM` 為上述唯讀來源。日誌與 gate 分別為 `scratch/check-final.log`、`lib-final.log`、`static2941.log` 及同名 `*-result.txt`。仍有既有 warnings，包含未有正式 producer 呼叫者的 dead-code 警告；沒有宣稱零警告。
+### 來源與 metadata
 
-### Library-test 與七個整合 metadata
+原 PE／ASM 僅唯讀核對，未載入執行：
 
-從原專案 `驗證紀錄/current/native-E149-static2941-queue-metadata/20261024-203626-169258/cohort.json` 的 `paired_tests` 與 `input_pins` 重新唯讀取樣，核對七個 QA 本文 SHA256、單一 hardlink count；僅將 QA 本文放在本 worktree `scratch/metadata/`，沒有套用候選 Runtime。
+- `D:/lineage開發/3-lito開發/lito登入器/舊版分析與驗收/runtime/LiTo.unpacked-oep-current.exe`，SHA256 `4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9`。
+- 同分析根目錄 `ida-client-oep-v2/full-disassembly.asm`，SHA256 `2A3A6E1026EE65288C07EFF00990BDDDBEFA5ACEC9EED551F528A0CC0A7DEA9A`。
 
-fixture include 重綁至本 worktree；`object374448` 的五處 `.observe_equipment(` 依前次確認的方法名適配改回當版 `.observe_item(`，所有預期值與分支不變。這不授予裝備接線的行為資格。
+從原專案 `驗證紀錄/current/native-E149-static2941-queue-metadata/20261024-203626-169258/cohort.json` 的 paired_tests／input_pins 重新唯讀核對七份 QA 本文 SHA256 與單一 hardlink count，只將 QA 放入本 worktree `scratch/metadata/`。fixture include 重綁至本 worktree；object374448 五處方法名依當版 API 適配為 `observe_item`，預期值／分支不變。未套用候選 Runtime。
 
 | QA | 原文 SHA256 |
 |---|---|
@@ -103,7 +85,8 @@ fixture include 重綁至本 worktree；`object374448` 的五處 `.observe_equip
 | shadow107 | `F73F627CAB38B179228F0B61F13593E3E8A4ABF805DBCF8E4CD89BB426D22919` |
 | object374448 | `F170F1B1B857297EB579283C7AF897A73019CD65AA33C5AB6A7C65B4787587EE` |
 
-兩版先執行 `cargo check --lib --tests --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --message-format=json`（Release加 `--release`），核對 `build-finished.success=true`、library 與 library-test artifacts。七個 QA 用該版直接相依與 library metadata、target／host dependency 搜尋路徑、`rustc --test --emit=metadata --edition=2021 --target x86_64-pc-windows-msvc` 重編，Release另加 `-C opt-level=z -C debug-assertions=off`。
+
+Debug／Release 各執行 `cargo check --lib --tests --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --message-format=json`（Release加 `--release`），核對 library、library-test artifact 與 build-finished.success。七份 QA 各用當版直接相依與 library metadata 執行 `rustc --test --emit=metadata --edition=2021 --target x86_64-pc-windows-msvc`，Release加 `-C opt-level=z -C debug-assertions=off`。
 
 ```text
 debug library-test=False exit=0 fresh=True
@@ -116,7 +99,7 @@ debug object374448 exit=0
 debug shadow107 exit=0
 debug slow29 exit=0
 release library-test=False exit=0 fresh=False
-release library-test=True exit=0 fresh=False
+release library-test=True exit=0 fresh=True
 release advance79 exit=0
 release blind20 exit=0
 release item_spells exit=0
@@ -126,28 +109,23 @@ release shadow107 exit=0
 release slow29 exit=0
 ```
 
-完整命令在 `scratch/metadata/<profile>-<name>-command.txt`，輸出在 `current-<profile>-<name>.log` 與 `current-results.txt`，一次性 runner 為 `scratch/rebuild143.py`。metadata 沒有 `test result:`，**僅算編譯成功，七個整合測試本文未執行**。產物只在 `LiTo381-Modern/target/current/issue143/metadata/`，不入 git。
+完整命令／log 位於 `scratch/metadata/<profile>-<name>-command.txt`、`current-<profile>-<name>.log` 與 `current-results.txt`。metadata **僅算編譯成功，七個整合測試本文未執行**；無 `test result:`。產物只在 `LiTo381-Modern/target/current/issue143/metadata/`，不入 git。
 
 ## 推測
 
-- worker 預先合成、controller enqueue 與下一次 poll 之間可能有可見窗口，但無法保證實際 paint 或可見幀數。
-- 普通初始化的無 alias／shadow 支持現有 Over 路徑；未做獨立原像素比對。
-- 將上述來源狀態映射為現代輸入／動作 authority 的完整方案尚未實作；不能因 helper 或來源核對通過，就推導正式 player scheduler 等價。
+- 原控制流的 held／pending／cancel／成功送出旗標，現映射至本客戶端實際擁有的輸入與 transport 狀態；來源靜態核對與本地整合支持此映射，但沒有原程序同步 trace，不能宣稱所有原生輸入分支逐指令等價。
+- 同步 CPU composition／資源 enqueue 已驗證；Windows 最終呈現的可見幀數及長耗時 callback 的手感仍需要 GUI 觀測。
 
-## 待驗證／未完成與給下一棒的提示
+## 待驗證／未驗證什麼
 
-1. **本機 code 執行器接續同一 #143，先完成正式玩家 callback adapter。** 必須有真正的 source frame 推進、`4E8750` duration 狀態、held／active／pending／cancel producers，並讓 `4E2150` 與 static retirement 共用同一 queue；不可從 history、heading 或 elapsed pose 反造旗標。
-2. 建立同步繪圖邊界與 normal-tail clock 狀態：callback 內真正提交既有資源／fragments，處理 `641498`，在 callback 返回前允許合法 reentry。只發出 `InvalidateRect` 或排下一張 worker，不足以證明原 suffix 的 draw→enqueue→外層固定 cutoff 交錯。
-3. 補 `63DF4C` 的正式 set／clear authority 與 S37／169 own-target adapter；補 `482F50` 的識別／取消、camera／完成狀態，才能把 `drain_4857b0` 接入正式分支。
-4. 加入 controller→真正 producer→畫面提交的整合正例及反例（兩 suffix、取消／pending 分支、169 wrong-target／flag=false、巢狀 drain、同 sample 與 rollover、退役／換代）。接線後重跑本報告命令與兩版 metadata；目前31案沒有取代這些必要驗收。
-5. **Claude／調度器保留 review:fail／未完成狀態。** 目前可審查的是 queue 退役修正與來源證據；正式接線仍須本張後續實作，不應只派重跑相同 helper tests，亦不需使用者再批准已授權的本機測試。
+- 未執行完整原生 GUI、正式服務／DB、原遊戲程序、獨立原像素 oracle、Release 測試或 G06 640次。沒有啟動／附加／停止遊戲程序。
+- 本張 source-walk adapter 支援真實 catalog 的普通八方向4／6／8／12幀步伐；不合條件的特殊姿勢沿用既有 Animator。不是整個 `4E2150` 全分支、原 camera renderer 或所有動畫事件 interpreter 的重寫；camera callback 的識別／取消及 pump 狀態已接，本張不宣稱新增完整 camera 追蹤功能。
+- #97 的 UI 技能請求擴充與其他分張不在本次修改；2941 收包／SPR／queue 與相關 ready gates 的驗證不等於整個技能或 M2 已完成。既有一般施法14僅用於驗證成功發送／延後發送 authority 與169條件。
 
-未做原生 GUI、正式服務／DB、原遊戲程序、獨立原像素 oracle、Release測試或 G06 640次。未啟動／附加／停止任何遊戲、未讀寫機密設定或封存，未修改硬連結。未新增 GitHub 留言或標籤。
+## 產出路徑與給下一棒的提示
 
-## 產出路徑
-
-- `LiTo381-Modern/src/modern_lito/native_static2941.rs`
-- `LiTo381-Modern/src/modern_lito/native_static2941_callback_tests.rs`
-- `LiTo381-Modern/src/modern_lito/native_static2941_source_tests.rs`
-- `docs/reports/issue-143.md`（本報告，取代前次版本；歷史在 git）
-- 一次性腳本／日誌：本 worktree `scratch/`；建置產物：`LiTo381-Modern/target/current/`，均不提交。
+- 新增：`LiTo381-Modern/src/modern_lito/native_player_callbacks.rs`、`native_player_callback_tests.rs`、`native_login_callbacks.rs`、`native_login_callback_tests.rs`。
+- 接線：同目錄 `native_static2941.rs`、`native_login.rs`、`native_login_window.rs`、`native_world.rs`、`native_world_animation.rs`、`native_world_scene.rs`、`native_world_view.rs`、`native_movement_tests.rs`、`mod.rs`。
+- 最新報告：`docs/reports/issue-143.md`。一次性腳本與日誌在本 worktree `scratch/`；建置產物在 `LiTo381-Modern/target/current/`，均不提交。
+- Claude 接手 code review，重點核對正式呼叫鏈、兩 suffix 優先順序、169 旗標 authority、同步 composition 與外層固定 cutoff 的交錯，以及上述支援範圍。調度器依審查結果處理 PR／佇列；使用者依專案規則保留合併與後續 GUI 驗收。
+- 本次沒有修改 `docs/REPORT.md`、原始專案、機密設定、封存或硬連結；修改檔案的 link count 均核對為1。沒有發送 GitHub 留言或合併。

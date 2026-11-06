@@ -6,6 +6,8 @@ use std::{
     time::{Duration, Instant},
 };
 use zeroize::Zeroizing;
+#[path = "native_login_callbacks.rs"]
+mod player_callbacks;
 
 #[cfg(test)]
 #[path = "native_rental_return_tests.rs"]
@@ -334,6 +336,8 @@ struct RentalReturnReconnect {
     closing: bool,
 }
 pub struct LoginController {
+    player_callbacks: super::native_player_callbacks::Control,
+    presentation_callbacks: bool,
     static2941: super::native_static2941::Queue,
     teleport: Option<super::native_teleport::Pending>,
     teleport_quit_tx: Option<u64>,
@@ -381,6 +385,8 @@ impl Default for LoginController {
         super::native_clock::initialize();
         Self {
             static2941: Default::default(),
+            player_callbacks: Default::default(),
+            presentation_callbacks: false,
             teleport: None,
             teleport_quit_tx: None,
             login_peer: None,
@@ -663,7 +669,10 @@ impl LoginController {
         let now = Instant::now();
         ensure!(
             self.skill_ready.is_none_or(|deadline| now >= deadline)
-                && frame.movement_ready(&self.state.world),
+                && (frame.movement_ready(&self.state.world)
+                    || (self.presentation_callbacks && self.player_callbacks.moving()
+                        && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none() && !matches!(skill,60|131)
+                        && frame.input_ready(&self.state.world))),
             "等待施法動作完成"
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
@@ -678,8 +687,7 @@ impl LoginController {
                 super::native_skills::item_request(&self.state, self.transport.snapshot().epoch, skill, item)?
             } else { super::native_skills::request(&self.state.world, skill, target)? },
         }};
-        self.transport
-            .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+        self.send_player_action(body)?;
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
         self.skill_item_pending = item.is_some();
@@ -697,6 +705,7 @@ impl LoginController {
         Ok(())
     }
     pub fn attack(&mut self, target: u32) -> Result<()> {
+        ensure!(!self.player_callbacks.moving(),"等待目前步伐完成");
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot attack");
         ensure!(
@@ -706,8 +715,7 @@ impl LoginController {
             "attack unavailable or awaiting server"
         );
         let body = self.state.world.attack_request(target)?;
-        self.transport
-            .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+        self.send_player_action(body)?;
         self.attack_pending = Some(super::native_combat::Pending {
             since: Instant::now(),
             count: self.state.world.own_attack_packets,
@@ -763,7 +771,14 @@ impl LoginController {
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
         ensure!(frame.movement_ready(&self.state.world), "等待目前步伐抵達或更新畫面");
-        self.move_checked(heading, &frame.navigation)
+        self.move_checked(heading, &frame.navigation)?;
+        if self.presentation_callbacks {
+            if let Some(plan)=&frame.player_walk_plan {
+                self.player_callbacks.start(&mut self.static2941,&mut self.state.world,
+                    self.transport.snapshot().epoch,plan.clone(),&mut super::native_clock::sample)?;
+            }
+        }
+        Ok(())
     }
     /// Low-level protocol probes own their animation clock; interactive callers
     /// must use move_presented so an in-flight step cannot be skipped.
@@ -1656,6 +1671,8 @@ impl LoginController {
         };
         self.static2941.synchronize(&self.state.world, self.transport.snapshot().epoch);
         if world_accepted {
+            self.player_callbacks.synchronize(&mut self.static2941,&mut self.state.world,self.transport.snapshot().epoch);
+            self.player_callbacks.accepted(body,&self.state.world);
             if let Some(receipt) = ingress {
                 self.static2941.admit_received(&mut self.state.world, self.transport.snapshot().epoch, receipt, dispatched_at)?;
             }
@@ -1979,6 +1996,14 @@ impl LoginController {
         Ok(())
     }
     pub fn poll(&mut self) {
+        self.poll_inner(None);
+    }
+    pub(crate) fn poll_presented(&mut self, root: &std::path::Path,
+        presentation: &mut super::native_world_view::Presentation) {
+        self.presentation_callbacks=true;
+        self.poll_inner(Some((root,presentation)));
+    }
+    fn poll_inner(&mut self, mut presentation: Option<(&std::path::Path,&mut super::native_world_view::Presentation)>) {
         for event in self.transport.poll() {
             if matches!(
                 self.state.phase,
@@ -2051,12 +2076,19 @@ impl LoginController {
             if let Err(error) = result {
                 self.fail(format!("{error:#}"));
             }
+            // S37/169's nested pump completes before dispatching the next
+            // packet in this transport batch, as in 4ADDA0's virtual-call tail.
+            if let Some((root,view))=presentation.as_mut() {
+                if let Err(error)=self.run_player_callbacks(root,view,true) {self.fail(format!("player callback: {error:#}"));}
+            }
         }
         let connection = self.transport.snapshot().epoch;
         self.static2941.synchronize(&self.state.world, connection);
-        let drain = super::native_clock::sample().and_then(|sample|
-            self.static2941.drain_due(&mut self.state.world, connection, sample));
-        if let Err(error) = drain { self.fail(format!("static2941 clock: {error:#}")); }
+        let drain = if let Some((root,view))=presentation.as_mut() {
+            self.run_player_callbacks(root,view,false)
+        } else {super::native_clock::sample().and_then(|sample|
+            self.static2941.drain_due(&mut self.state.world, connection, sample).map(|_|()))};
+        if let Err(error) = drain { self.fail(format!("native callback: {error:#}")); }
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);
             if let Err(error)=self.state.environment.water_poll(epoch,generation) {
@@ -2102,13 +2134,15 @@ impl LoginController {
         }
         if let Some(pending) = &self.skill_pending {
             let feedback = if self.state.phase.active_world() {
-                if self.skill_item_pending { pending.observe_item(&self.state.world, Instant::now()) }
+                if self.player_callbacks.pending() {super::native_skills::Feedback::Pending}
+                else if self.skill_item_pending { pending.observe_item(&self.state.world, Instant::now()) }
                 else { pending.observe(&self.state.world, Instant::now()) }
             } else {
                 super::native_skills::Feedback::Interrupted
             };
             self.state.skill_feedback = feedback;
             if feedback != super::native_skills::Feedback::Pending {
+                self.player_callbacks.cancel_pending();
                 self.skill_pending = None;
                 if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;self.teleport_spell=None;}
             }
@@ -2289,6 +2323,7 @@ impl LoginController {
         self.transport.cancel();
     }
     fn interrupt_world_actions(&mut self) {
+        self.player_callbacks.cancel_pending();self.player_callbacks.cancel();
         self.teleport_spell = None;
         self.skill_item_pending = false;
         self.attack_pending=None;self.skill_pending=None;self.skill_ready=None;self.world_tree_request=None;
