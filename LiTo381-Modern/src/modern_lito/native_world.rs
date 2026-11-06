@@ -113,6 +113,8 @@ pub struct World {
     pub own_attack_packets: u64,
     pub last_attack: Option<super::native_combat::Attack>,
     pub projectiles: Vec<super::native_combat::ProjectileCue>,
+    /// S15 retirement of the native retained-projectile sentinel (-1).
+    pub retained_projectile_removed_at: u64,
     pub many_attacks: Vec<super::native_attack_many::Cue>,
     pub many_attacks_dropped:u64,
     pub projectile_cues_dropped: u64,
@@ -947,6 +949,10 @@ impl World {
                 let id = r.d()?;
                 r.end()?;
                 ensure!(id != 0, "zero removed actor");
+                if id == u32::MAX {
+                    self.visual_revision += 1;
+                    self.retained_projectile_removed_at = self.visual_revision;
+                }
                 if self.minimap.remove(id) {self.visual_revision += 1;}
                 if self.actors.remove(&id).is_some() {
                     self.door_attributes.retain(|_,r|r.owner.is_none_or(|(owner,_)|owner!=id));

@@ -581,10 +581,24 @@ impl RangedAssets {
     pub fn effect_frame(&self, path: &RangedPath, elapsed: Duration) -> Result<VisualSample<'_>> {
         let sample = path.sample(elapsed);
         let source_frame = self.source_frame(sample);
+        self.visual_frame(
+            sample.position,
+            sample.heading,
+            source_frame,
+            sample.finished,
+        )
+    }
+    fn visual_frame(
+        &self,
+        position: WorldCell,
+        heading: u8,
+        source_frame: usize,
+        finished: bool,
+    ) -> Result<VisualSample<'_>> {
         let asset = self
             .animation
-            .frame_asset(self.graphics_id, source_frame, sample.heading)?;
-        let sprite = self.sprite(sample.heading)?;
+            .frame_asset(self.graphics_id, source_frame, heading)?;
+        let sprite = self.sprite(heading)?;
         let frame = sprite
             .decoded
             .frames
@@ -592,9 +606,9 @@ impl RangedAssets {
             .ok_or(RangedError::Unsupported("unloaded arrow subframe"))?;
         Ok(VisualSample {
             frame,
-            position: sample.position,
+            position,
             source_frame,
-            finished: sample.finished,
+            finished,
             graphics_id: asset.graphics_id,
             sprite_name: &sprite.provenance.name,
             subframe: asset.subframe as usize,
@@ -646,8 +660,34 @@ impl RangedAssets {
         projection: ViewProjection,
         elapsed: Duration,
     ) -> Result<bool> {
-        use super::native_world_effects::Mix;
         let sample = self.effect_frame(path, elapsed)?;
+        self.submit_sample(target, projection, sample)
+    }
+    /// 4E7C3F resets to source0; 4E7E91 loads it with event dispatch disabled.
+    pub(crate) fn retained_frame(
+        &self,
+        position: WorldCell,
+        heading: u8,
+    ) -> Result<VisualSample<'_>> {
+        self.visual_frame(position, heading, 0, false)
+    }
+    pub(crate) fn submit_retained<'s>(
+        &'s self,
+        target: &mut super::native_world_effects::Target<'_, 's>,
+        projection: ViewProjection,
+        position: WorldCell,
+        heading: u8,
+    ) -> Result<()> {
+        self.submit_sample(target, projection, self.retained_frame(position, heading)?)?;
+        Ok(())
+    }
+    fn submit_sample<'s>(
+        &'s self,
+        target: &mut super::native_world_effects::Target<'_, 's>,
+        projection: ViewProjection,
+        sample: VisualSample<'s>,
+    ) -> Result<bool> {
+        use super::native_world_effects::Mix;
         if sample.finished {
             return Ok(false);
         }

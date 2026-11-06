@@ -106,23 +106,140 @@ fn legal_nonempty_name_reaches_model_with_original_stone_pixels() {
     let world = world("named_stone");
     let root = Path::new(r"D:\lineage開發\0-客戶端");
     let cancel = AtomicBool::new(false);
-    let mut model = Model::load(root,&world,&cancel).unwrap();
+    let mut model = Model::load(root, &world, &cancel).unwrap();
     let mut drawn = 0;
     let mut hurts = 0;
     for ms in (0..=1500).step_by(50) {
-        let frame = model.draw_at(&world,&cancel,ms*1_000_000).unwrap();
+        let frame = model.draw_at(&world, &cancel, ms * 1_000_000).unwrap();
         let receipt = &frame.receipt["projectiles"];
         hurts += receipt["hurt_callbacks"].as_array().unwrap().len();
         for flight in receipt["flights"].as_array().unwrap() {
-            assert_eq!(flight["name_bytes"],serde_json::json!(b"stone"));
-            assert_eq!(flight["sprite"],"1156-0.spr");
-            assert_eq!(flight["shadow"],"1157-0.spr");
-            assert_eq!(flight["drawn"],true);
-            drawn+=1;
+            assert_eq!(flight["name_bytes"], serde_json::json!(b"stone"));
+            assert_eq!(flight["sprite"], "1156-0.spr");
+            assert_eq!(flight["shadow"], "1157-0.spr");
+            assert_eq!(flight["drawn"], true);
+            drawn += 1;
         }
     }
-    assert!(drawn>0);
-    assert_eq!(hurts,1);
+    assert!(drawn > 0);
+    assert_eq!(hurts, 1);
+}
+
+#[test]
+fn nonzero_flag_retains_original_frame_without_replaying_audio_and_s15_retires_it() {
+    let mut world = world("named_energy");
+    let root = Path::new(r"D:\lineage開發\0-客戶端");
+    let cancel = AtomicBool::new(false);
+    let before = serde_json::to_value(&world).unwrap();
+    let mut model = Model::load(root, &world, &cancel).unwrap();
+    let mut retained_frames = 0;
+    let mut hurts = 0;
+    for ms in (0..=1800).step_by(50) {
+        let frame = model.draw_at(&world, &cancel, ms * 1_000_000).unwrap();
+        let receipt = &frame.receipt["projectiles"];
+        hurts += receipt["hurt_callbacks"].as_array().unwrap().len();
+        if receipt["retained_active"] == 1 {
+            retained_frames += 1;
+            assert_eq!(receipt["active"], 0);
+            let retained = &receipt["retained"][0];
+            assert_eq!(retained["id"], u32::MAX);
+            assert_eq!(retained["source_frame"], 0);
+            assert_eq!(retained["sprite"], "2349-2.spr");
+            assert_eq!(retained["drawn"], true);
+            assert_eq!(retained["position"], serde_json::json!([32741, 32801]));
+            if retained_frames > 1 {
+                assert!(receipt["entered_events"].as_array().unwrap().is_empty());
+            }
+        }
+    }
+    assert!(retained_frames > 2);
+    assert_eq!(hurts, 1);
+    assert_eq!(serde_json::to_value(&world).unwrap(), before);
+    // The landed native object has its own identity and outlives the target.
+    world.actors.remove(&2);
+    let frame = model.draw_at(&world, &cancel, 1_825_000_000).unwrap();
+    assert_eq!(frame.receipt["projectiles"]["retained_active"], 1);
+    world.accept(&[0x15, 255, 255, 255, 255]).unwrap();
+    let frame = model.draw_at(&world, &cancel, 1_850_000_000).unwrap();
+    assert_eq!(frame.receipt["projectiles"]["retained_active"], 0);
+    assert!(frame.receipt["projectiles"]["entered_events"]
+        .as_array()
+        .unwrap()
+        .is_empty());
+}
+
+#[test]
+fn retained_zero_id_replaces_previous_landing_and_world_change_clears_both_slots() {
+    use lito_modern::modern_lito::{
+        compositor::Canvas,
+        world_map::{PixelPoint, ViewProjection, WorldCell},
+    };
+    let mut world = world("named_energy");
+    let root = Path::new(r"D:\lineage開發\0-客戶端");
+    let cancel = AtomicBool::new(false);
+    let mut effects = Projectiles::default();
+    let mut canvas = Canvas::new(400, 400).unwrap();
+    let view = ViewProjection {
+        anchor_cell: WorldCell { x: 32729, y: 32797 },
+        anchor_pixel: PixelPoint { x: 200, y: 200 },
+    };
+    effects.prepare(root, &cancel, &world);
+    effects.update(&world, std::iter::once(&hit(&world)), 0);
+    world.accept(&[0x15, 255, 255, 255, 255]).unwrap();
+    assert!(effects
+        .update(&world, std::iter::empty(), 150_000_000)
+        .is_empty());
+    let receipt = effects.draw(root, &cancel, &mut canvas, view, 150_000_000);
+    assert_eq!(receipt["active"], 0);
+    assert_eq!(receipt["retained_active"], 0);
+    world.accept(&p("named_energy")).unwrap();
+    effects.update(&world, std::iter::once(&hit(&world)), 500_000_000);
+    effects.update(&world, std::iter::empty(), 830_000_000);
+    for (index, id) in [31u32, 32].into_iter().enumerate() {
+        let mut bytes = p("named_energy");
+        bytes[12..16].copy_from_slice(&id.to_le_bytes());
+        world.accept(&bytes).unwrap();
+        let now = (index as u64 + 1) * 1_000_000_000;
+        effects.update(&world, std::iter::once(&hit(&world)), now);
+        effects.update(&world, std::iter::empty(), now + 330_000_000);
+        let receipt = effects.draw(root, &cancel, &mut canvas, view, now + 330_000_000);
+        assert_eq!(receipt["active"], 0);
+        assert_eq!(receipt["retained_active"], 2);
+        assert_eq!(receipt["retained"][0]["id"], 0);
+        assert_eq!(
+            receipt["retained"][0]["sequence"],
+            world.projectiles.last().unwrap().action_sequence
+        );
+        assert_eq!(receipt["retained"][1]["id"], u32::MAX);
+    }
+    let mut long = p("named_energy");
+    long[12..16].copy_from_slice(&33u32.to_le_bytes());
+    world.accept(&long).unwrap();
+    let long_hit = hit(&world);
+    let mut short = long.clone();
+    short[12..16].copy_from_slice(&34u32.to_le_bytes());
+    short[23..25].copy_from_slice(&32733u16.to_le_bytes());
+    short[25..27].copy_from_slice(&32797u16.to_le_bytes());
+    world.accept(&short).unwrap();
+    let short_hit = hit(&world);
+    effects.update(&world, [long_hit.clone(), short_hit].iter(), 3_000_000_000);
+    effects.update(&world, std::iter::empty(), 3_400_000_000);
+    let receipt = effects.draw(root, &cancel, &mut canvas, view, 3_400_000_000);
+    assert_eq!(
+        receipt["retained"][0]["sequence"], long_hit.sequence,
+        "last arrival wins despite delayed polling"
+    );
+    world.actors.remove(&1);
+    effects.update(&world, std::iter::empty(), 3_450_000_000);
+    let receipt = effects.draw(root, &cancel, &mut canvas, view, 3_450_000_000);
+    assert_eq!(
+        receipt["retained_active"], 2,
+        "landed objects outlive the shooter"
+    );
+    world.accept(&[0x28, 0x34, 2, 0]).unwrap();
+    effects.update(&world, std::iter::empty(), 4_000_000_000);
+    let receipt = effects.draw(root, &cancel, &mut canvas, view, 4_000_000_000);
+    assert_eq!(receipt["retained_active"], 0);
 }
 
 #[test]

@@ -37,6 +37,15 @@ struct Flight {
     retain_on_arrival: u8,
     name: Vec<u8>,
 }
+struct Retained {
+    graphics: u16,
+    flight_type: u8,
+    sequence: u64,
+    arrived_at: u64,
+    name: Vec<u8>,
+    position: WorldCell,
+    heading: u8,
+}
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct Impact {
     pub target: u32,
@@ -62,10 +71,13 @@ impl Flight {
         }
     }
     fn valid(&self, world: &World) -> bool {
-        world
-            .actors
-            .get(&self.attacker)
-            .is_some_and(|a| a.incarnation == self.attacker_incarnation)
+        !(self.retain_on_arrival != 0
+            && self.id == u32::MAX
+            && world.retained_projectile_removed_at >= self.sequence)
+            && world
+                .actors
+                .get(&self.attacker)
+                .is_some_and(|a| a.incarnation == self.attacker_incarnation)
             && (self.target == 0
                 || world
                     .actors
@@ -87,12 +99,43 @@ impl Flight {
             projectile: self.id,
         })
     }
+    fn retain_at_arrival(&self, retained: &mut BTreeMap<u32, Retained>) {
+        if self.retain_on_arrival == 0 {
+            return;
+        }
+        // 4A602D keeps only the -1 sentinel; every other retained ID is zero.
+        // 4E7A40 replaces the object with that same ID, so at most two survive.
+        let id = if self.id == u32::MAX { u32::MAX } else { 0 };
+        let arrived_at = self
+            .start
+            .saturating_add(self.path.finished_at().as_nanos() as u64);
+        // A delayed render poll can observe several arrivals at once.
+        if retained
+            .get(&id)
+            .is_some_and(|old| (old.arrived_at, old.sequence) > (arrived_at, self.sequence))
+        {
+            return;
+        }
+        retained.insert(
+            id,
+            Retained {
+                graphics: self.graphics,
+                flight_type: self.flight_type,
+                sequence: self.sequence,
+                arrived_at,
+                name: self.name.clone(),
+                position: self.path.sample(self.path.finished_at()).position,
+                heading: self.path.heading(),
+            },
+        );
+    }
 }
 #[derive(Default)]
 pub struct Projectiles {
     generation: Option<u64>,
     seen: BTreeSet<(u32, u64)>,
     flights: Vec<Flight>,
+    retained: BTreeMap<u32, Retained>,
     assets: BTreeMap<u16, RangedAssets>,
     load_errors: BTreeMap<u16, String>,
     launched: u64,
@@ -147,6 +190,7 @@ impl Projectiles {
             self.generation = Some(world.generation);
             self.seen.clear();
             self.flights.clear();
+            self.retained.clear();
             self.launched = 0;
             self.omitted = 0;
             self.arrivals = 0;
@@ -157,6 +201,10 @@ impl Projectiles {
             .map(|c| (c.attacker, c.action_sequence))
             .collect();
         self.seen.retain(|k| valid.contains(k));
+        self.retained.retain(|id, retained| {
+            !world.actors.contains_key(id)
+                && (*id != u32::MAX || world.retained_projectile_removed_at < retained.sequence)
+        });
         self.flights.retain_mut(|f| {
             if !f.valid(world) {
                 return false;
@@ -167,11 +215,14 @@ impl Projectiles {
             if let Some(impact) = f.impact(world, now) {
                 impacts.push(impact);
             }
-            f.valid(world)
-                && !f
-                    .path
-                    .sample(Duration::from_nanos(now.saturating_sub(f.start)))
-                    .finished
+            let finished = f
+                .path
+                .sample(Duration::from_nanos(now.saturating_sub(f.start)))
+                .finished;
+            if finished {
+                f.retain_at_arrival(&mut self.retained);
+            }
+            !finished
         });
         for e in events.filter(|e| e.event == "Hit") {
             let key = (e.actor, e.sequence);
@@ -243,6 +294,10 @@ impl Projectiles {
                         retain_on_arrival: cue.projectile.retain_on_arrival,
                         name: cue.projectile.name.clone(),
                     };
+                    if !flight.valid(world) {
+                        self.omitted += 1;
+                        continue;
+                    }
                     if let Some(assets) = self.assets.get(&flight.graphics) {
                         flight.advance_audio(assets, now, &mut self.events);
                     }
@@ -251,6 +306,8 @@ impl Projectiles {
                     }
                     if !flight.path.sample(Duration::ZERO).finished {
                         self.flights.push(flight);
+                    } else {
+                        flight.retain_at_arrival(&mut self.retained);
                     }
                 }
                 Err(_) => self.omitted += 1,
@@ -284,7 +341,12 @@ impl Projectiles {
         projection: ViewProjection,
         now: u64,
     ) -> serde_json::Value {
-        let needed: BTreeSet<_> = self.flights.iter().map(|flight| flight.graphics).collect();
+        let needed: BTreeSet<_> = self
+            .flights
+            .iter()
+            .map(|flight| flight.graphics)
+            .chain(self.retained.values().map(|retained| retained.graphics))
+            .collect();
         for graphics in needed {
             self.load(root, cancel, graphics);
         }
@@ -306,7 +368,33 @@ impl Projectiles {
                 });
             }
         }
+        let mut retained_rows = Vec::new();
+        for (id, retained) in &self.retained {
+            if let Some(assets) = self.assets.get(&retained.graphics) {
+                let result = (|| -> anyhow::Result<serde_json::Value> {
+                    let sample = assets.retained_frame(retained.position, retained.heading)?;
+                    assets.submit_retained(
+                        target,
+                        projection,
+                        retained.position,
+                        retained.heading,
+                    )?;
+                    Ok(serde_json::json!({"id":id,"graphics":retained.graphics,
+                        "flight_type":retained.flight_type,"sequence":retained.sequence,
+                        "name_bytes":retained.name,"position":[retained.position.x,retained.position.y],
+                        "heading":retained.heading,"sprite":sample.sprite_name,
+                        "source_frame":sample.source_frame,"subframe":sample.subframe,"drawn":true}))
+                })();
+                retained_rows.push(match result {
+                    Ok(row) => row,
+                    Err(error) => {
+                        serde_json::json!({"id":id,"drawn":false,"error":error.to_string()})
+                    }
+                });
+            }
+        }
         serde_json::json!({"generation":self.generation,"launched":self.launched,"omitted":self.omitted,"arrivals":self.arrivals,"active":self.flights.len(),"flights":rows,"entered_events":self.events,"load_error":self.load_errors.values().next(),"load_errors":self.load_errors,
+            "retained_active":self.retained.len(),"retained":retained_rows,
             "shadow_sources":self.assets.values().filter_map(|a|a.shadow_source()).map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>(),
             "sources":(!self.assets.is_empty()).then(||self.assets.values().flat_map(|a|a.sprite_sources()).map(|s|serde_json::json!({"archive":format!("{:?}",s.archive),"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),
             "graphics_supported":super::ranged_effect::PHYSICAL_GRAPHICS,"native_effects_complete":false})
