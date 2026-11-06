@@ -1,6 +1,6 @@
 # Issue #144 — T021：技能 98、99、100 與 97／98 權威驗證
 
-日期：2026-11-06。分支 `task/144`，基底 `928d0a3`。只處理本張範圍；沒有修改 `TASKS.md` 狀態或 `docs/REPORT.md`。
+日期：2026-11-06。分支 `task/144`，起始基底 `928d0a3`；交付前整合 main `26e687d`。只處理本張範圍；沒有修改 `TASKS.md` 狀態或 `docs/REPORT.md`。
 
 ## 做了什麼
 
@@ -75,6 +75,37 @@ test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 2608 filtered ou
 ```
 
 另一次性SPR診斷工具初次rustc呼叫未帶完整host／native依賴、以及誤選x86匯入庫而連結失敗；修正為x64後唯讀解碼四個原SPR，沒有啟動遊戲。診斷資料在 `scratch/spr-shapes.txt`，不計測試通過。
+
+### 整合最新 main 後重驗
+
+建立 PR #264 時，main 已前進至 `26e687d`（#194）。在同一 `task/144` 合併；唯一衝突是 `tests.tsv` 尾端新增列，保留本張七案及 #194 三案。登入視窗自動合併。既有 runner 的 `Read-Whitelist` 驗證110筆整合列無格式錯誤或重複；相對 main 仍僅本張19個檔案，沒有修改 `docs/REPORT.md`。
+
+Quick 重跑兩步均 PASS，exit=0；日誌位於 `LiTo381-Modern/target/current/verification/local-test-suite/20261106-212527-340-13736/`。下列四組專項亦經原 `Measure-TestResult` 判讀均 PASS（`scratch/merge-*.log`、`scratch/gate-results.txt`）。
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+exit=0; gate=PASS
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast
+exit=0; gate=PASS
+test result: ok. 2029 passed; 0 failed; 587 ignored; 0 measured; 0 filtered out; finished in 9.14s
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib t021_ -- --include-ignored --test-threads=1
+exit=0; gate=PASS
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 2610 filtered out; finished in 14.89s
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t021
+exit=0; gate=PASS
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_character_flow
+exit=0; gate=PASS
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_game
+exit=0; gate=PASS
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+```
 
 ## 推測
 
