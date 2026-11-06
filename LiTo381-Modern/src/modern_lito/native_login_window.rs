@@ -17,7 +17,7 @@ use windows::{
                 ODS_SELECTED,
             },
             HiDpi::*,
-            Input::KeyboardAndMouse::{EnableWindow, GetFocus, IsWindowEnabled, SetFocus},
+            Input::KeyboardAndMouse::{EnableWindow, GetAsyncKeyState, GetFocus, IsWindowEnabled, SetFocus, VK_CONTROL},
             WindowsAndMessaging::*,
         },
     },
@@ -823,7 +823,15 @@ impl Ui {
             }
         }
     }
+    unsafe fn combat_input(&self) -> super::native_forced_combat::Input {
+        super::native_forced_combat::Input {
+            foreground: self.world_view && !self.closing
+                && GetForegroundWindow() == self.parent && IsWindowEnabled(self.parent).as_bool(),
+            ctrl: GetAsyncKeyState(i32::from(VK_CONTROL.0)) < 0,
+        }
+    }
     unsafe fn cast_skill(&mut self, skill: u16) -> Result<()> {
+        let input = self.combat_input();
         self.held.clear();
         self.held_attack.clear();
         if super::native_skills::item_targeted(skill) {
@@ -861,7 +869,7 @@ impl Ui {
             .context("等待世界畫面")?;
         match choice.ground {
             Some(position) => self.controller.cast_ground(choice.skill, position, frame),
-            None => self.controller.cast(choice.skill, choice.target, frame),
+            None => self.controller.cast_with_input(choice.skill, choice.target, frame, input),
         }
     }
     fn enter_nearby_portal(&mut self)->Result<()> {
@@ -922,10 +930,11 @@ impl Ui {
             self.held_attack.clear();
             return;
         }
+        let input = self.combat_input();
         if let Some(frame) = self.world_presentation.frame.as_ref() {
             if let Err(error) = self
                 .controller
-                .continue_attack(&mut self.held_attack, frame)
+                .continue_attack_with_input(&mut self.held_attack, frame, input)
             {
                 self.text(STATUS, &format!("{error:#}"));
             }

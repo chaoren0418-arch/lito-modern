@@ -4,6 +4,8 @@
 
 在 `task/195` worktree 實作正式 GAME 控制器的同伴面板，支援競技場與一般世界。世界畫面右上角的「寵物／召喚物」開啟面板；同伴來自已收到的主人欄位，不以外觀、NPC 模板或項圈名稱猜測所有權。
 
+PR #251 建立後，為解決同期間合入 #192 造成的衝突，在原分支同步 `main@683b603`。僅人工合併 `native_login.rs` 的相鄰模組宣告，保留同伴控制器與強制目標測試兩者；相對最新 main 仍只有本張 9 檔差異，沒有自行修改 #192 的功能或 `docs/REPORT.md` 索引。
+
 | 範圍 | 本張實作與權威界線 |
 | --- | --- |
 | 控制 | `aggressive`、`defensive`、`stay`、`extend`、`alert`、`attackchr`、`getitem`、`changename`、`dismiss` 九種已知靜態動作，透過 `C_HACTION 0x27 cdss` 送出；不在客戶端模擬 AI 或群組姿態。 |
@@ -24,11 +26,11 @@
 ```text
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
 結束碼：0
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 37s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 37s
 
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib native_t063
 結束碼：0
-test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 2543 filtered out; finished in 0.01s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 2551 filtered out; finished in 0.01s
 ```
 
 16 案涵蓋九種動作的確切封包、選單欄位、截短／多餘位元組、非本同伴回覆、提示與一次性回覆、逾時、改名編碼、角色／連線／同伴世代失效、失敗傳輸不消耗提示、容量拒絕不修改背包、項圈使用、`WorldReady`，以及只有伺服器移除才退役同伴。這些是離線合成封包與現有 fixture 測試，不是正式伺服器行為驗收。
@@ -42,7 +44,7 @@ test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_merchant
 結束碼：0
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 ```
 
 從 `維護工具/run-local-test-suite.ps1` 以 PowerShell AST 讀出原本的 `Measure-TestResult` 函式，對四份完整紀錄與結束碼套用同一門檻；`check`、`test`、`item-tests`、`merchant-tests` 均為 **PASS**，解析程式結束碼 0。三個測試 harness 共 36 passed、0 failed、0 ignored、0 個 running-0-tests；沒有把 filtered out 計入通過。未執行整套測試或真機驗收。差異空白檢查通過，保留既有檔案的 CRLF。
