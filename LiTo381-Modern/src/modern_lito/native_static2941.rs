@@ -203,6 +203,9 @@ struct Event {
 #[derive(Default)]
 pub(crate) struct Queue {
     owner: Option<Owner>,
+    // Reset identity is separate from numeric connection/generation. A
+    // reentrant callback can retire and rebind to the very same Owner.
+    scope: Arc<()>,
     floor: u64,
     pending: Vec<Lease>,
     due: Vec<Event>,
@@ -395,6 +398,7 @@ impl Queue {
         cutoff: u32,
     ) -> Result<Vec<u64>> {
         self.synchronize(world, connection);
+        let scope = self.scope.clone();
         if self
             .due
             .first()
@@ -434,7 +438,15 @@ impl Queue {
                     }
                 }
             }
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                // The callback replaced the queue. Its new events require a
+                // new invocation/sample, never this retired stack's cutoff.
+                break;
+            }
             self.synchronize(world, connection);
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                break;
+            }
         }
         self.pending.retain(Lease::active);
         Ok(retired)
@@ -451,11 +463,26 @@ impl Queue {
         mut clock: impl FnMut() -> Result<u32>,
         mut draw: impl FnMut(&mut Self, &mut World, u64) -> Result<()>,
     ) -> Result<()> {
+        self.synchronize(world, connection);
+        if self.owner.is_none() {
+            return Ok(());
+        }
+        let scope = self.scope.clone();
         let mut previous = clock()?;
         let mut elapsed = 0i32;
         loop {
             self.drain_due(world, connection, clock()?)?;
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                return Ok(());
+            }
             draw(self, world, connection)?;
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                return Ok(());
+            }
+            self.synchronize(world, connection);
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                return Ok(());
+            }
             let now = clock()?;
             elapsed = elapsed.wrapping_add(now.wrapping_sub(previous) as i32);
             previous = now;
@@ -465,6 +492,7 @@ impl Queue {
         }
     }
     pub(crate) fn retire(&mut self) {
+        self.scope = Arc::new(());
         for lease in self.pending.drain(..) {
             lease.retire();
         }

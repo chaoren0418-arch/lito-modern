@@ -106,4 +106,131 @@ fn original_callback_cfg_suffixes_nested_drain_and_defaults_match() {
     assert!(packet.contains("cmp     word ptr [ebp+var_10], di"));
     assert!(packet.contains("cmp     esi, dword_834EE4"));
     assert_eq!(packet.matches("call    sub_4857B0").count(), 1);
+
+    // Guard provenance matters as much as the two suffix call sites. These
+    // are ordered instructions in the SHA-pinned ASM, not live observations
+    // or permission to substitute modern animation/input state for globals.
+    let ordered = |body: &str, instructions: &[&str]| {
+        let mut rest = body;
+        for instruction in instructions {
+            let at = rest
+                .find(instruction)
+                .unwrap_or_else(|| panic!("missing {instruction}"));
+            rest = &rest[at + instruction.len()..];
+        }
+    };
+    ordered(
+        packet,
+        &[
+            "call    dword ptr [edx+4]",
+            "mov     al, byte_63DF4C",
+            "test    al, al",
+            "jz      short loc_4ADF45",
+            "cmp     word ptr [ebp+var_10], di",
+            "jnz     short loc_4ADF45",
+            "cmp     esi, dword_834EE4",
+            "jnz     short loc_4ADF45",
+            "call    sub_4857B0",
+        ],
+    );
+    ordered(
+        pump,
+        &[
+            "xor     edx, edx",
+            "mov     ecx, offset sub_482F50",
+            "call    sub_4D6870",
+            "mov     dword_62F32C, 0FFFFFFFFh",
+            "mov     dword_75A988, edi",
+            "call    sub_4D69F0",
+            "call    sub_4D6570",
+            "call    sub_488860",
+            "call    sub_4D69F0",
+            "sub     ecx, esi",
+            "add     edi, ecx",
+            "cmp     edi, 1F4h",
+            "jl      short loc_4857D7",
+            "mov     byte_75AB1C, 1",
+        ],
+    );
+    let suffix = &actor[actor.find("\nloc_4E3207:").unwrap()..];
+    ordered(
+        suffix,
+        &[
+            "mov     al, [ecx+13h]",
+            "jnz     loc_4E3429",
+            "mov     al, byte_834F1D",
+            "jz      short loc_4E325C",
+            "call    sub_48BC80",
+            "mov     ecx, offset sub_4E2150",
+            "call    sub_4D6870",
+            "mov     byte_834EB3, 0",
+            "loc_4E325C:",
+            "mov     al, byte_834EB2",
+            "jz      loc_4E339B",
+            "loc_4E3354:",
+            "mov     byte_63DF4C, 1",
+            "loc_4E339B:",
+            "mov     al, byte_834EB3",
+            "jz      short loc_4E3420",
+            "mov     al, byte_641498",
+            "jnz     short loc_4E33B2",
+            "call    sub_488860",
+            "loc_4E3429:",
+            "mov     al, byte_641498",
+            "jnz     short loc_4E3437",
+            "call    sub_488860",
+        ],
+    );
+    // 641498 is produced by the normal render tail: base action count 12
+    // AND an unsigned raw render-clock delta greater than 40 ms. It is not
+    // a minimized-window flag, a pending worker, or the current walk pose.
+    let render = function("488860");
+    let tail = &render[render.find("\nloc_48AED4:").unwrap()..];
+    ordered(
+        tail,
+        &[
+            "call    sub_4D69F0",
+            "mov     esi, dword_75A834",
+            "sub     edx, esi",
+            "mov     dword_75AC18, edx",
+            "mov     dword_75A834, eax",
+            "call    sub_4E8E70",
+            "jz      short loc_48AF1B",
+            "cmp     eax, 28h",
+            "mov     byte_641498, 1",
+            "ja      short loc_48AF22",
+            "loc_48AF1B:",
+            "mov     byte_641498, 0",
+            "loc_48AF22:",
+            "cmp     eax, 1F4h",
+            "jbe     short loc_48AF33",
+            "mov     dword_75AC18, 1F4h",
+        ],
+    );
+    ordered(
+        function("4E8E70"),
+        &[
+            "movsx   edx, word ptr [ecx+14h]",
+            "movsx   ecx, byte ptr [ecx+18h]",
+            "mov     bl, [ecx+edx*4+1]",
+            "cmp     bl, 0Ch",
+            "setz    al",
+        ],
+    );
+    // Player duration has an additional source branch before ordinary speed
+    // modifiers. native_speed::factor alone cannot qualify 4E2150 deadlines.
+    ordered(
+        function("4E8750"),
+        &[
+            "cmp     ebx, dword_75AA48",
+            "mov     al, byte_64BC13",
+            "jz      short loc_4E88C9",
+            "mov     al, byte_64AFBF",
+            "jnz     short loc_4E88C9",
+            "lea     eax, ds:0[edx*8]",
+            "sub     eax, edx",
+            "sar     eax, 4",
+            "jmp     short loc_4E8935",
+        ],
+    );
 }

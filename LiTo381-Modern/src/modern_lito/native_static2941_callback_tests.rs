@@ -163,6 +163,93 @@ fn failed_shared_callback_is_not_replayed_and_leaves_later_work_queued() {
 }
 
 #[test]
+fn retired_outer_drain_cannot_consume_replacement_queue_even_with_same_owner() {
+    let (mut world, mut queue) = (world(), Queue::default());
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let log = calls.clone();
+    queue
+        .enqueue_callback(
+            &world,
+            1,
+            0,
+            || Ok(10),
+            Box::new(move |q, w, c| {
+                log.lock().unwrap().push("old");
+                q.retire();
+                let next = log.clone();
+                q.enqueue_callback(
+                    w,
+                    c,
+                    0,
+                    || Ok(9),
+                    Box::new(move |_, _, _| {
+                        next.lock().unwrap().push("replacement");
+                        Ok(())
+                    }),
+                )?;
+                Ok(())
+            }),
+        )
+        .unwrap();
+    queue.drain_due(&mut world, 1, 10).unwrap();
+    assert_eq!(*calls.lock().unwrap(), ["old"]);
+    assert_eq!(queue.due.len(), 1);
+    queue.drain_due(&mut world, 1, 9).unwrap();
+    assert_eq!(*calls.lock().unwrap(), ["old", "replacement"]);
+}
+
+#[test]
+fn nested_pump_retirement_during_drain_prevents_stale_draw_and_clock_reads() {
+    let (mut world, mut queue) = (world(), Queue::default());
+    queue
+        .enqueue_callback(
+            &world,
+            1,
+            0,
+            || Ok(0),
+            Box::new(|q, w, c| {
+                q.retire();
+                // Rebind to the same numeric owner: comparing only Owner misses ABA.
+                q.synchronize(w, c);
+                Ok(())
+            }),
+        )
+        .unwrap();
+    let mut samples = [0, 0].into_iter();
+    queue
+        .drain_4857b0(
+            &mut world,
+            1,
+            || Ok(samples.next().expect("retired pump sampled clock")),
+            |_, _, _| panic!("retired pump drew replacement scene"),
+        )
+        .unwrap();
+    assert!(samples.next().is_none());
+}
+
+#[test]
+fn nested_pump_draw_retirement_does_not_resume_old_relative_timer() {
+    let (mut world, mut queue) = (world(), Queue::default());
+    let mut samples = [0, 0].into_iter();
+    let mut draws = 0;
+    queue
+        .drain_4857b0(
+            &mut world,
+            1,
+            || Ok(samples.next().expect("retired draw sampled clock")),
+            |_, w, _| {
+                draws += 1;
+                w.clear_preserving_generation();
+                Ok(())
+            },
+        )
+        .unwrap();
+    assert_eq!(draws, 1);
+    assert!(samples.next().is_none());
+    assert!(queue.owner.is_none());
+}
+
+#[test]
 #[ignore = "LITO_STATIC2941_ROOT; original fragments and shared callback redraw"]
 fn original_pixels_publish_inside_callback_window_and_are_revoked_after_retirement() {
     use super::super::super::{
