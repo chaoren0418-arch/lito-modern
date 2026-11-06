@@ -1,61 +1,72 @@
 # Issue #167 — T029-1 遠程戰鬥基礎
 
+## 結論
+
+本輪接續 PR #205 的 `bd2a423`，補上 #1156 stone、#2349 energy arrow、S23 跨 class 的 type 分派與可變長尾段。**整張 #167 仍有未完成項目，尚不能判定完整驗收通過。**
+
+工作在指定 worktree、既有 `task/167` 進行。已讀 AGENTS.md、docs/REPORT.md、TASKS.md T029。原始專案及客戶端資源採唯讀引用，寫入限本 worktree。
+
 ## 做了什麼
 
-本次工作在既有 `task/167` worktree 進行，範圍為 T029 第一張的遠程封包、弓與投擲、投射物資源及生命週期。
-
-- S23 非零 projectile 的固定 29-byte 尾段會保留所有 u8 flightType。截斷、額外資料、錯誤 heading、零 graphics、未命中卻有傷害標記仍在修改 World 前拒絕。
-- 原生接收器按 graphics 的 `list.spr` effect class 分派。#66 arrow 與 #2989 sting knife 均使用已核對的 class3 路徑，flightType 會保留在呈現收據。
-- `RangedAssets::load` 與既有 catalog 呼叫入口繼續載入 #66。新增指定圖形入口，依各自 graphics 載入八個 SPR bank，逐一檢查三影格、八方向、class3、無 secondary、無事件的資源契約。
-- stance20 預載 #66，stance62 預載 #2989。實際發射圖形取自伺服器 S23。兩種圖形共用每 30ms 的 fixed-point 路徑、Hit 事件一次發射、發射時固定終點、抵達受傷回呼與物件世代防護。
-- World 將兩種 class3 圖形歸為物理攻擊，含 type0 的 class3 封包。抵達回呼只驅動受傷呈現。
-- 以 E149 正式 JAR 重產 `native-ranged-current.json`，加入 action63／gfx2989 以及 ResourceDatabase snapshot 映射向量。
+- `ranged_effect.rs` 載入石頭1156、陰影1157、能量箭2349的各自原SPR。依原定義檢查方向、影格、事件、混合模式、secondary與陰影。保留既有66／2989路徑。
+- 能量箭Sound97使用既有 `PreparedCue`／Model音效發布路徑，保留 `SuppressWhileSameIdPlaying`。單影格依class3回呼回到source0，含抵達最後一筆音效。同一時間重取樣不重播。
+- 石頭依原生body→shadow順序提交。新增非黑背景逐像素比較，核對Screen及RGB555 shadow。
+- S23依 `h graphics,c type,h fromX,h fromY,h toX,h toY,c flag,s name` 解析，保留flag及原MS950名稱bytes，上限127 bytes。完整驗證長度、NUL終止與欄位後才修改World。
+- 已接class1／class4／class5呈現器按graphics分派，移除wire type0限制。action18／19施法回覆識別與已接效果的延後受傷回呼一併對齊。
+- Oracle以E149 writer新增特殊箭與十種graphics各兩種type。type0來自 `Protocol.attackSpell`，type127來自 `Protocol.rangedPhysicalAttack`。具名尾段用正式 `Protocol.Writer` 按原生reader格式建立。
 
 ## 已驗證
 
-### 正式版本與映射靜態核對
+### 來源與映射
 
-唯讀正式 JAR 路徑為 `D:\lineage開發\3-lito開發\lito登入器\LiTo381-Launcher\app\server\LiTo381-SharedResources-candidate.jar`。本次前後 SHA256 均為下列值。
-
-```text
-E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498
-```
-
-使用 Microsoft JDK 17.0.17 的 `javap -p -c` 核對下列方法。
-
-| 方法 | bytecode 證據與結論 |
+| 來源 | SHA256 |
 | --- | --- |
-| `Protocol.rangedPhysicalAttack` | offset 2 呼叫 `ResourceDatabase.arrow`，offset 197 呼叫 `flightType`，輸出 `h graphics,c type,h fromX,h fromY,h toX,h toY,c 0,s empty` |
-| `ResourceDatabase.load` | offset 1577–1614 要求 graphics 66、type127、opcode35，其他組合會拋 SQLException |
-| `ResourceDatabase.arrow` | snapshot 存在、shared profile 啟用且原圖形為66時使用 snapshot.arrow，其他原圖形保留 |
-| `ResourceDatabase.flightType` | snapshot 存在且 shared profile 啟用時使用 snapshot.flightType |
-| `SourceProjectilePhysicalStats.effectGfx` | 正值 arrowGfx 直接採用，缺少自訂圖形時 useType -3 使用2989，其餘使用66 |
+| 正式JAR | `E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498` |
+| common_catalog | `B64ED920792805C3380AD0E50B1AE089A8779B4ADDDEC2FBF3780C2FA88A3C01` |
+| 原Text/list.spr解碼bytes | `523C61AD5CC362A56A36F58B262C84EFA8B4435F017E7074D35B5834E8B9F127` |
+| 原生PE | `4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9` |
 
-Oracle 僅執行封包 writer/parser 與映射方法，以空集合建立記憶體 Snapshot 並於 finally 還原。映射 fixture 使用目前資格檢查允許的66／127。Oracle 過程沒有呼叫 `ResourceDatabase.load` 或建立網路／SQL 連線。
+JAR唯讀引用相鄰登入器的 `LiTo381-Launcher/app/server/LiTo381-SharedResources-candidate.jar`。common catalog位於原始專案 `LiTo381-Modern/target/current/shared-profile-inputs/common_catalog-B64ED920.bin`。PE位於相鄰登入器 `舊版分析與驗收/runtime/LiTo.unpacked-oep-current.exe`。
 
-### 原生 class3 與資源核對
+本輪重產oracle前核對JAR及common catalog雜湊，啟用 `tw13081901-v1`。`ResourceDatabase.arrow`／`flightType`沿用前次E149 bytecode核對，本輪再以隔離記憶體Snapshot驗證66／2989映射與127。未呼叫 `ResourceDatabase.load` 或建立SQL／網路連線。
 
-以 capstone 5.0.6 靜態解碼唯讀原生 PE，SHA256 為 `4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9`。
+### 特殊投射物的原生契約
 
-- `4A5ED0` 讀取共同尾段 `hchhhhcs`。`4A5FBx–4A5FD9` 從 graphics 對應的 class table 取得分支，class3 於 `4A60A8` 呼叫 `40E2E0`。
-- `40E375–40E382` 將 wire type 存進 effect 的 byte12。既有 class3 路徑與影格回呼由 `40E420`、`40E8F0` 執行。
-- 原解碼 `Text/list.spr` 的 #66 與 #2989 均為 `0.fly(1 3,0.2:1 0.0:1 0.1:1) 102.type(9) 109.effect(3 -1)`。解碼檔 SHA256 為 `523C61AD5CC362A56A36F58B262C84EFA8B4435F017E7074D35B5834E8B9F127`。資源測試另外從現用 `D:\lineage開發\0-客戶端` 的 Text／Sprite archive 重新讀取並檢查。
+| 圖形 | 原資源 | 生命週期證據 |
+| --- | --- | --- |
+| 66／2989 | 八方向三影格、type9、class3 -1 | stance20／62、action21／63、Hit一次發射、抵達回呼與退休 |
+| 1156 | `0.fly(0 1,0.0:1)`、shadow1157、type9、class3 -1 | 單一原SPR與陰影、八方向路徑、Model成功呈現、一次hurt |
+| 2349 | `0.fly(1 1,0.0:10[97)`、type9、attr8、class3 219 | 八個原SPR、Screen、原Sound97、Model成功呈現、最後回呼後退休 |
+
+**#2349的secondary219依原生class3契約保留宣告，沒有建立219物件。** `4A5ED0`按graphics的109 class table跳轉，class3於 `4A60A8` 呼叫 `40E2E0`。該建構子及 `40E420`／`40E8F0` 回呼沒有讀取secondary table `647E50`。class4／5分支則明確讀取此table。
+
+`40E7E0–40E803`設定影格索引後呼叫 `4E5B50`，後者先加一再依影格數回繞。2349只有一影格，因此每個30ms回呼都進入帶Sound97的source0。測試核對12次回呼各一筆原音效事件、同時間重取樣零新增、一次hurt及退休後零事件。`40E828`／`40E854`的body／shadow提交順序也已核對。
+
+已檢視1156與2349離線Model飛行PNG，並用收據核對各自SPR。這項檢視屬離線場景驗證。
+
+### S23矩陣
+
+| class／圖形 | 封包來源 | 驗證結果 |
+| --- | --- | --- |
+| class3 66、2989、1156、2349 | E149 rangedPhysicalAttack的127 | 各自原資源、Model、發射、hurt、退休 |
+| class1 252、236、1801 | E149兩種writer，type0／127 | 6組Model正向呈現、一次hurt、退休及World不變 |
+| class4 167、1583、1799 | 同上 | 6組Model正向呈現，使用各自飛行與secondary資源 |
+| class5 1797 | 同上 | 2組Model正向呈現，飛行、secondary、hurt、退休 |
+| TW 11738、11746、11748 | 同上 | 6組不可用負向案例，明確unavailable，零圖像及hurt；成功呈現待驗證 |
+| 非空名稱、flag0 | 正式Writer按原生reader格式建立 | 具名stone經World→Model使用1156／1157；截斷、內嵌NUL、額外尾段與過長名稱原子拒絕 |
+| 非零flag | 同上 | 保留欄位、固定封包終點、能量箭音效；抵達留地分支尚未完成 |
+
+14組跨class正向案例合計338個drawn frame與14次hurt，最後active皆為0，完整World序列化前後相等。前次256種type解析合成測試保留，class3合成生命週期擴為四圖形1024組。這些合成案例只提供邊界回歸，真實雙玩家發送組合仍待T043。
 
 ### 建置與測試
 
-本次使用 `維護工具/run-local-test-suite.ps1` 原本的 `Measure-TestResult` 函式判讀各次結果。每個測試程序必須有一組可解析的 `running N tests` 與 `test result`，N 大於0、failed為0、結束碼為0。
-
-執行目錄為 worktree 內的 `LiTo381-Modern`。檢查指令如下。
+以原 `維護工具/run-local-test-suite.ps1` 的 `Measure-TestResult` 判讀。要求結束碼0、可解析的 `running N tests`／`test result:`、N大於0、failed為0。TEMP／TMP導向本worktree的 `scratch/issue-167/tmp`。
 
 ```powershell
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
-```
-
-測試共用參數及各組指令如下。建置暫存均導向本 worktree 的 scratch，產物使用 `target/current`。
-
-```powershell
 $common = @('--locked','--offline','-j1','--target','x86_64-pc-windows-msvc','--target-dir','target/current')
 cargo test @common --test native_ranged -- --test-threads=1
+cargo test @common --test native_s23_profiles -- --test-threads=1
 cargo test @common --test native_ranged_profiles
 cargo test @common --test native_combat
 cargo test @common --test native_fire_arrow -- --test-threads=1
@@ -63,43 +74,42 @@ cargo test @common --test native_ice_arrow -- --test-threads=1
 cargo test @common --lib ranged_effect::tests
 ```
 
-最終 `cargo check` 結束碼為 **0**，gate 為 **PASS**。六組測試合計 **45 passed、0 failed、0 ignored**，各次結束碼均為 **0**，gate 均為 **PASS**。以下保留 `test result:` 原文。
+最終 `cargo check --all-targets` 結束碼 **0**，gate **PASS**。七組測試合計 **54 passed、0 failed、0 ignored**，每組結束碼0且gate PASS。完成全部測試後再執行一次同參數cargo check，結束碼同為0。
 
-| 組別 | 結束碼 | 原文 |
+| 組別 | 結束碼／gate | test result原文 |
 | --- | --- | --- |
-| native_ranged | 0 | `test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.15s` |
-| native_ranged_profiles | 0 | `test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.51s` |
-| native_combat | 0 | `test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s` |
-| native_fire_arrow | 0 | `test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.75s` |
-| native_ice_arrow | 0 | `test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.03s` |
-| ranged_effect::tests | 0 | `test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 2468 filtered out; finished in 0.02s` |
+| native_ranged | 0／PASS | `test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 49.24s` |
+| native_s23_profiles | 0／PASS | `test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 270.01s` |
+| native_ranged_profiles | 0／PASS | `test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.04s` |
+| native_combat | 0／PASS | `test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.75s` |
+| native_fire_arrow | 0／PASS | `test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.95s` |
+| native_ice_arrow | 0／PASS | `test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.52s` |
+| ranged_effect | 0／PASS | `test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 2468 filtered out; finished in 0.02s` |
 
-初次工具呼叫曾遇到沙箱檔案存取限制及 PowerShell 5 的 native stderr 判讀問題，之後改由 PowerShell 7／子程序 runner 執行。最終表格均取實際成功程序的結束碼及輸出。建置仍有既有 warnings。全套 library／Release／網路測試待後續任務安排。
-
-新增回歸涵蓋所有256種 type 的解析與截斷原子性、兩種圖形的512組發射／抵達組合、stance62 預載、實際 action63 到 Model 的呈現、弓與刺針交錯、同 ID 替換／新世界退休、miss／零傷害／死亡目標、八方向原始 SPR 像素與改動資源契約的拒絕。既有近戰、火箭、冰箭一併回歸。
-
-已檢視離線 Model 產出的 #2989 飛行 PNG，並核對收據實際引用 `2989-7.spr`、gfx2989、type127、原生 action63。場景影格與真實玩家 GUI 驗收分開記錄。
+首次跨class測試結束碼101、3 passed／1 failed，失敗於11738資源資格。已將TW不可用案例獨立驗證，六組不得計為成功呈現。初輪log保留於 `native_s23_profiles.initial.log`。建置有既有warnings。
 
 ## 推測
 
-- 已核對的 class3 建構子及路徑支持以 graphics 分派、完整保留 type byte。對所有256種 type 的回歸使用合成變體，實際正式 writer 目前產生的物理 type 為127。
-- 自訂 arrowGfx 可由伺服器來源帶入。每種自訂圖形仍需依自己的動畫、音效、secondary 與 shadow 契約實作。
+- 原生class分派與所有u8 type的class3合成回歸吻合。正式服務每個自訂arrowGfx實際搭配的type、動作與裝備，仍需T043收據。
+- 本輪以原生class3靜態回呼裁定2349 secondary不建立。原BIN執行畫面及實體音效裝置仍待真機驗收。
 
 ## 待驗證與未完成事項
 
-- 特殊投射物本次具體完成 #2989 投擲刺針。#2349 energy arrow、#1156 stone 等其餘 class3 特殊圖形仍待各自的資源／事件實作。#2349 會明確拒絕載入普通箭 profile，執行時未知圖形仍有 omitted 計數與既有受傷回退行為。
-- S23 的非零末尾旗標與非空字串仍超出目前固定尾段解析範圍。其他 effect class 的 type 變體亦待各自的呈現器支援。
-- 雙真實玩家 fixture、現版實際扣彈藥、真實 TCP、Release 執行、GUI 與實體音效仍待 T043 與後續驗收。本次採用離線 World／Model／資源測試。
-- T029 第二張的操作、空揮封包及拒絕條件由該張任務接續。
+1. 原Text/list.spr另有23種class3，尚未接入。圖形為2740、2748、3584、3692、3705、4026、4523、4530、4547、4552、4621、4799、5415、5526、6767、7288、8721、8771、8904、8916、9545、10699、10782，各有影格、聲音、overlay、cloth或shadow契約。自動審核拒絕一次重寫核心載入器並擴充全部27種的腳本，理由為程式損壞與範圍風險。已提出逐組擴充的授權問題，該重寫未執行。
+2. 非零flag的class3抵達留地物件分支尚未完成。原生 `40E868–40E8A6` 呼叫 `4E7A40` 建立物件。本輪完成解析、欄位保留與飛行終點處理，完整留地生命週期待接續。
+3. TW三種呈現器受Issue #111既有資格限制阻擋。現用 `0-客戶端/launcher/TW13081901.pak` 的SHA256為 `92B512A32349D0775E1036F1832E21F1141AE66E64821D6978F0879246E59CA7`。本輪保留資格檢查，成功呈現待資源資格處理。
+4. 真實雙玩家、正式扣彈藥、TCP、Release、GUI及實體音效裝置待後續驗收。執行期間沒有啟動遊戲、操作既有遊戲程序、連正式服務或DB。
+5. T029第二張的操作、空揮與拒絕條件由該張接續。
 
 ## 產出路徑
 
-- 程式碼位於 `LiTo381-Modern/src/modern_lito/{native_combat,native_world,native_projectiles,ranged_effect}.rs`。
-- 測試位於 `LiTo381-Modern/tests/native_ranged.rs`、`native_ranged_profiles.rs`、`tests/oracle/NativeRangedOracle.java`、`tests/fixtures/native-ranged-current.json`。
-- 本報告位於 `docs/reports/issue-167.md`。
-- 本機建置與測試紀錄位於 `LiTo381-Modern/target/current/verification/issue-167/`，離線場景影格位於 `target/current/verification/native-projectile{66,2989}*`，均排除於 git。
-- 暫存 oracle classes、javap 摘錄與 PE 靜態檢查位於 `scratch/issue-167/`，排除於 git。
+- 程式位於 `LiTo381-Modern/src/modern_lito/` 的 `ranged_effect.rs`、`native_projectiles.rs`、`native_combat.rs`、`native_world.rs`、`native_world_scene.rs`、`native_spell_projectiles.rs`、`native_class1.rs`、`native_disintegrate.rs`、`native_cone_cold.rs`。
+- 測試位於 `LiTo381-Modern/tests/native_ranged.rs`、`native_ranged_profiles.rs`、`native_s23_profiles.rs`。
+- Oracle與向量位於 `LiTo381-Modern/tests/oracle/NativeRangedOracle.java`、`tests/fixtures/native-ranged-current.json`。
+- 本報告為 `docs/reports/issue-167.md`。
+- 本機log與Model矩陣為 `LiTo381-Modern/target/current/verification/issue-167/`。飛行PNG為 `target/current/verification/native-projectile1156-*`、`native-projectile2349-*`，排除於git。
+- 原生靜態解碼、oracle runner與暫存為 `scratch/issue-167/`，排除於git。
 
 ## 給下一棒的提示
 
-請 Claude 審查上述有限支援範圍，特別留意「其餘特殊圖形」與「非空 S23 尾段」仍需接續，因此 T029 整項維持待完成。T043 本機執行者可用本版重產向量作為封包基準，再建立雙玩家弓／投擲連線驗收。原始專案與相鄰來源全程唯讀，本次僅在 task-167 worktree 寫入，未啟動遊戲或操作正式服務。
+Claude可先審查本輪具體修正與14組正向矩陣。請維持#167未完成，待其他特殊class3及非零flag留地分支補齊。TW資格由本機資源任務接續，處理後再重跑六組正向呈現。沿用task/167與PR #205繼續工作。本輪沒有修改docs/REPORT.md。

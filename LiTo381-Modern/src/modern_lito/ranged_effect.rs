@@ -1,4 +1,4 @@
-//! Shared arrow66 and throwing sting2989, native projectile class3.
+//! Shared arrow66, stone1156, energy2349 and throwing sting2989, native class3.
 //!
 //! Evidence: ida-client-oep-v2/full-disassembly.asm sub_40E8F0 (29604)
 //! snapshots the live target ON LAUNCH for a hit; a miss keeps packet coords.
@@ -13,8 +13,9 @@
 //! loading. Thus source1/sub0, source2/sub1, terminal0/sub2. The terminal frame
 //! is immediately unregistered/deleted (29513..29562), never held or drawn.
 //! Adjacent and zero-distance arrows therefore finish in the first callback.
-//! No guessed impact SPR, Sound or24FPS loop is added. This path has no actor
-//! side effects; native_projectiles releases presentation hurt on arrival.
+//! One-frame profiles wrap to source0 on every callback, including the terminal
+//! callback. Energy2349 therefore enters native sound97 each time, retaining its
+//! suppress-same-ID audio mode. Class3 never dispatches attribute109 secondary.
 //!
 //! The caller owns per-shot lifetimes and discards them on world-generation or
 //! entity departure. Assets load only in a worker; immutable draw/sample has no
@@ -24,7 +25,10 @@ use std::{
     collections::BTreeMap,
     fmt,
     path::{Path, PathBuf},
-    sync::atomic::{AtomicBool, Ordering},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
     time::Duration,
 };
 
@@ -35,12 +39,14 @@ use super::{
     resources::{ResourceError, SharedArchive, SharedArchiveKind},
     shared_action_catalog::{SharedActionCatalog, SharedCatalogError},
     sprite::{decode_world_spr_with_limits, DecodedSprite, SpriteError, SpriteFrame, SpriteLimits},
-    sprite_actions::{ActionError, ActionKey, Animation, Directionality, SpriteActionCatalog},
+    sprite_actions::{
+        ActionError, ActionKey, Animation, Directionality, FrameEvent, SpriteActionCatalog,
+    },
     world_map::{ViewProjection, WorldCell},
 };
 
 const GRAPHICS_ID: u32 = 66;
-pub const PHYSICAL_GRAPHICS: [u32; 2] = [66, 2989];
+pub const PHYSICAL_GRAPHICS: [u32; 4] = [66, 1156, 2349, 2989];
 const STEP_NANOS: u64 = 30_000_000;
 /// Presentation limit, NOT the authority's attack range. A target can move
 /// between shot acceptance and visual launch. Omit an over-bound presentation;
@@ -233,6 +239,14 @@ impl RangedPath {
             as usize;
         self.steps[index]
     }
+    pub(crate) fn callbacks(
+        &self,
+        elapsed: Duration,
+    ) -> impl Iterator<Item = (usize, RangedSample)> + '_ {
+        let count = (elapsed.as_nanos() / u128::from(STEP_NANOS) + 1).min(self.steps.len() as u128)
+            as usize;
+        self.steps[..count].iter().copied().enumerate()
+    }
     pub fn position(&self, elapsed: Duration) -> WorldCell {
         self.sample(elapsed).position
     }
@@ -343,12 +357,15 @@ pub struct RangedAssets {
     catalog_sha256: [u8; 32],
     encoded: usize,
     rgba: usize,
+    shadow: Option<LoadedSprite>,
+    sound: Option<Arc<super::combat_audio::SoundBank>>,
 }
 impl RangedAssets {
-    /// Worker-only. Fixed shared Text/list.spr and the qualified projectile's 8 banks;
+    /// Worker-only. Shared Text/list.spr and each qualified projectile's own banks;
     /// every referenced SPR subframe is decoded before publishing any assets.
     /// This does NOT load bow bodies or their audio (existing actor assets own
-    /// those), and each profile must contain no cue. Cancel/failure drops all handles.
+    /// those). Original projectile audio and shadow are prepared here.
+    /// Cancel/failure drops all handles.
     pub fn load(root: &Path, cancel: &AtomicBool) -> Result<Self> {
         Self::load_graphics(root, GRAPHICS_ID, cancel)
     }
@@ -382,12 +399,17 @@ impl RangedAssets {
         let catalog = context.catalog();
         let animation = qualify_graphics(&catalog, graphics_id)?;
         let mut reader = SpriteReader::open(root, cancel)?;
-        let mut sprites = reserve(8)?;
+        let directions = if animation.directionality == Directionality::EightWay {
+            8
+        } else {
+            1
+        };
+        let mut sprites = reserve(directions)?;
         let mut encoded = 0usize;
         let mut rgba = 0usize;
-        for heading in 0..8 {
+        for heading in 0..directions as u8 {
             active(cancel)?;
-            let asset = animation.frame_asset(graphics_id, 1, heading)?;
+            let asset = animation.frame_asset(graphics_id, 0, heading)?;
             let name = format!("{}-{}.spr", asset.graphics_id, asset.image_id);
             let archive = reader.archive_for(&name, cancel)?;
             let size = archive.entry(&name)?.size as usize;
@@ -409,7 +431,7 @@ impl RangedAssets {
                 &bytes,
                 SpriteLimits {
                     max_input_bytes: MAX_ENTRY,
-                    max_frames: 3,
+                    max_frames: animation.frames.len(),
                     max_blocks: 4096,
                     max_block_references: 16384,
                     max_frame_dimension: 512,
@@ -417,7 +439,7 @@ impl RangedAssets {
                 },
             )?;
             active(cancel)?;
-            if decoded.frames.len() != 3 {
+            if decoded.frames.len() != animation.frames.len() {
                 return Err(RangedError::Unsupported("ordinary arrow subframes"));
             }
             let count = decoded
@@ -426,7 +448,7 @@ impl RangedAssets {
             if count > MAX_RGBA - rgba {
                 return Err(RangedError::Bound("decoded sprites"));
             }
-            for source_frame in 0..3 {
+            for source_frame in 0..animation.frames.len() {
                 let bound = animation.frame_asset(graphics_id, source_frame, heading)?;
                 if bound.image_id != u32::from(heading)
                     || bound.subframe as usize >= decoded.frames.len()
@@ -446,6 +468,69 @@ impl RangedAssets {
                 decoded,
             });
         }
+        let shadow = if graphics_id == 1156 {
+            let name = "1157-0.spr";
+            let archive = reader.archive_for(name, cancel)?;
+            let kind = archive.kind();
+            if archive.entry(name)?.size as usize > MAX_ENTRY {
+                return Err(RangedError::Bound("stone shadow"));
+            }
+            let bytes = archive.read_entry(name)?;
+            let decoded = decode_world_spr_with_limits(
+                &bytes,
+                SpriteLimits {
+                    max_input_bytes: MAX_ENTRY,
+                    max_frames: 1,
+                    max_blocks: 4096,
+                    max_block_references: 16384,
+                    max_frame_dimension: 512,
+                    max_total_pixels: (MAX_RGBA - rgba) / 4,
+                },
+            )?;
+            if decoded.frames.len() != 1 {
+                return Err(RangedError::Unsupported("stone shadow frames"));
+            }
+            encoded += bytes.len();
+            rgba += decoded
+                .retained_rgba_bytes()
+                .ok_or(RangedError::Bound("shadow RGBA"))?;
+            Some(LoadedSprite {
+                provenance: SpriteProvenance {
+                    archive: kind,
+                    name: name.into(),
+                    bytes: bytes.len() as u32,
+                    sha256: Sha256::digest(&bytes).into(),
+                },
+                decoded,
+            })
+        } else {
+            None
+        };
+        let groups = animation
+            .frames
+            .iter()
+            .map(|frame| {
+                super::combat_animation::classify_native_cues(&frame.events)
+                    .map(|c| c.audio)
+                    .map_err(RangedError::Render)
+            })
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>();
+        let sound = if groups.is_empty() {
+            None
+        } else {
+            Some(Arc::new(
+                super::combat_audio::SoundBank::load_shared(
+                    root,
+                    &groups,
+                    Default::default(),
+                    cancel,
+                )
+                .map_err(RangedError::Render)?,
+            ))
+        };
         drop(reader);
         active(cancel)?;
         Ok(Self {
@@ -455,6 +540,8 @@ impl RangedAssets {
             catalog_sha256,
             encoded,
             rgba,
+            shadow,
+            sound,
         })
     }
     pub fn catalog_sha256(&self) -> [u8; 32] {
@@ -480,17 +567,23 @@ impl RangedAssets {
         if heading > 7 {
             return Err(RangedError::InvalidInput("heading"));
         }
+        let direction = if self.animation.directionality == Directionality::EightWay {
+            heading
+        } else {
+            0
+        };
         self.sprites
-            .get(usize::from(heading))
+            .get(usize::from(direction))
             .ok_or(RangedError::Unsupported("unloaded arrow heading"))
     }
     /// Finished samples expose terminal provenance only. They MUST NOT draw;
     /// draw_effect enforces this, including duration0 adjacent/overlapping shots.
     pub fn effect_frame(&self, path: &RangedPath, elapsed: Duration) -> Result<VisualSample<'_>> {
         let sample = path.sample(elapsed);
-        let asset =
-            self.animation
-                .frame_asset(self.graphics_id, sample.source_frame, sample.heading)?;
+        let source_frame = self.source_frame(sample);
+        let asset = self
+            .animation
+            .frame_asset(self.graphics_id, source_frame, sample.heading)?;
         let sprite = self.sprite(sample.heading)?;
         let frame = sprite
             .decoded
@@ -500,12 +593,80 @@ impl RangedAssets {
         Ok(VisualSample {
             frame,
             position: sample.position,
-            source_frame: sample.source_frame,
+            source_frame,
             finished: sample.finished,
             graphics_id: asset.graphics_id,
             sprite_name: &sprite.provenance.name,
             subframe: asset.subframe as usize,
         })
+    }
+    fn source_frame(&self, sample: RangedSample) -> usize {
+        // 40E7E0 sets 0/1/2, then 4E5B50 increments and wraps at frame count.
+        let incremented = if sample.finished {
+            3
+        } else {
+            sample.source_frame
+        };
+        if incremented >= self.animation.frames.len() {
+            0
+        } else {
+            incremented
+        }
+    }
+    pub(crate) fn audio(
+        &self,
+        sample: RangedSample,
+    ) -> Result<Option<super::native_audio_delivery::PreparedCue>> {
+        let Some(bank) = &self.sound else {
+            return Ok(None);
+        };
+        let group = super::combat_animation::classify_native_cues(
+            &self.animation.frames[self.source_frame(sample)].events,
+        )
+        .map_err(RangedError::Render)?
+        .audio;
+        group
+            .map(|group| {
+                super::native_audio_delivery::PreparedCue::new(Arc::clone(bank), group, 0)
+                    .map_err(RangedError::Render)
+            })
+            .transpose()
+    }
+    pub fn shadow_source(&self) -> Option<&SpriteProvenance> {
+        self.shadow.as_ref().map(|s| &s.provenance)
+    }
+    /// class3's constructor/callback never reads the 109 secondary table.
+    pub fn declared_secondary(&self) -> Option<u32> {
+        (self.graphics_id == 2349).then_some(219)
+    }
+    pub(crate) fn submit<'s>(
+        &'s self,
+        target: &mut super::native_world_effects::Target<'_, 's>,
+        path: &RangedPath,
+        projection: ViewProjection,
+        elapsed: Duration,
+    ) -> Result<bool> {
+        use super::native_world_effects::Mix;
+        let sample = self.effect_frame(path, elapsed)?;
+        if sample.finished {
+            return Ok(false);
+        }
+        let mut frames = vec![(
+            sample.frame,
+            if self.graphics_id == 2349 {
+                Mix::Screen
+            } else {
+                Mix::Over
+            },
+        )];
+        // 40E828 submits body, then 40E854 submits its native shadow.
+        if let Some(shadow) = &self.shadow {
+            frames.push((&shadow.decoded.frames[0], Mix::Shadow));
+        }
+        target
+            .submit_batch(&frames, sample.position, projection)
+            .map_err(RangedError::Render)?;
+        Ok(true)
     }
     /// Current paint projection, frozen flight endpoint. Never uses a pending
     /// camera, actor interpolation, target lookup, collision or damage mutation.
@@ -516,31 +677,12 @@ impl RangedAssets {
         projection: ViewProjection,
         elapsed: Duration,
     ) -> Result<bool> {
-        let sample = self.effect_frame(path, elapsed)?;
-        if sample.finished {
-            return Ok(false);
-        }
-        let anchor = projection
-            .cell_to_pixel(sample.position)
-            .ok_or(RangedError::Bound("projectile projection"))?;
-        let x = anchor
-            .x
-            .checked_add(sample.frame.x_offset)
-            .ok_or(RangedError::Bound("projected x"))?;
-        let y = anchor
-            .y
-            .checked_add(sample.frame.y_offset)
-            .ok_or(RangedError::Bound("projected y"))?;
-        canvas
-            .blit_rgba(
-                &sample.frame.rgba,
-                sample.frame.width,
-                sample.frame.height,
-                x,
-                y,
-            )
-            .map_err(RangedError::Render)?;
-        Ok(true)
+        self.submit(
+            &mut super::native_world_effects::Target::Canvas(canvas),
+            path,
+            projection,
+            elapsed,
+        )
     }
 }
 
@@ -563,6 +705,68 @@ fn qualify_graphics(catalog: &SpriteActionCatalog, graphics_id: u32) -> Result<A
         ))?;
     let resolved = catalog.resolve_action(graphics_id, ActionKey::new(0))?;
     let animation = resolved.animation;
+    if matches!(graphics_id, 1156 | 2349) {
+        let (images, direction, ticks, events, attributes) = if graphics_id == 1156 {
+            (
+                1,
+                Directionality::Undirected,
+                1,
+                vec![],
+                vec![(101, b"1157".as_slice()), (102, b"9"), (109, b"3 -1")],
+            )
+        } else {
+            (
+                8,
+                Directionality::EightWay,
+                10,
+                vec![FrameEvent::Sound(97)],
+                vec![(102, b"9".as_slice()), (104, b"8"), (109, b"3 219")],
+            )
+        };
+        if sprite.graphics_id != graphics_id
+            || resolved.definition_sprite_id != graphics_id
+            || sprite.header_issue.is_some()
+            || sprite.image_count != Some(images)
+            || sprite.actions.len() != 1
+            || animation.directionality != direction
+            || animation.frames_per_second != 24
+            || animation.frames.len() != 1
+            || animation.frames[0].image_id != 0
+            || animation.frames[0].subframe != 0
+            || animation.frames[0].duration_ticks != ticks
+            || animation.frames[0].events != events
+            || sprite.attributes.len() != attributes.len()
+            || attributes.iter().any(|(key, body)| {
+                sprite
+                    .attributes
+                    .iter()
+                    .filter(|a| a.key == ActionKey::new(*key) && a.body_bytes.trim_ascii() == *body)
+                    .count()
+                    != 1
+            })
+        {
+            return Err(RangedError::Unsupported(
+                "special projectile definition changed",
+            ));
+        }
+        if graphics_id == 1156 {
+            let shadow = catalog
+                .sprites
+                .get(&1157)
+                .ok_or(RangedError::Unsupported("stone shadow absent"))?;
+            if shadow.graphics_id != 1157
+                || shadow.image_count != Some(1)
+                || shadow.header_issue.is_some()
+                || !shadow.actions.is_empty()
+                || shadow.attributes.len() != 1
+                || shadow.attributes[0].key != ActionKey::new(102)
+                || shadow.attributes[0].body_bytes.trim_ascii() != b"0"
+            {
+                return Err(RangedError::Unsupported("stone shadow definition changed"));
+            }
+        }
+        return Ok(animation.clone());
+    }
     if sprite.graphics_id != graphics_id
         || resolved.definition_sprite_id != graphics_id
         || sprite.image_count != Some(8)
@@ -648,6 +852,8 @@ mod tests {
             catalog_sha256: [0; 32],
             encoded: 0,
             rgba: 96,
+            shadow: None,
+            sound: None,
         }
     }
     #[test]
@@ -696,6 +902,33 @@ mod tests {
         }
         assert!(qualify_graphics(&catalog(&source), 66).is_err());
         assert!(qualify_graphics(&catalog(SOURCE), 2989).is_err());
+    }
+
+    #[test]
+    fn special_profiles_pin_the_original_audio_shadow_and_secondary_contracts() {
+        let energy = "1 0 0\n#2349 8 energy arrow 0.fly(1 1,0.0:10[97) 102.type(9) 104.attr(8) 109.effect(3 219)\n";
+        let animation = qualify_graphics(&catalog(energy), 2349).unwrap();
+        assert_eq!(animation.frames[0].events, vec![FrameEvent::Sound(97)]);
+        for changed in [
+            energy.replace("[97", "<97"),
+            energy.replace("[97", "[99"),
+            energy.replace("3 219", "3 -1"),
+            energy.replace("attr(8)", "attr(0)"),
+            energy.replace("0.0:10", "0.0:1"),
+            energy.replace("1 1,", "0 1,"),
+        ] {
+            assert!(qualify_graphics(&catalog(&changed), 2349).is_err());
+        }
+        let stone = "2 0 0\n#1156 1 stone 0.fly(0 1,0.0:1) 101.shadow(1157) 102.type(9) 109.effect(3 -1)\n#1157 1 stone s 102.type(0)\n";
+        assert!(qualify_graphics(&catalog(stone), 1156).is_ok());
+        for changed in [
+            stone.replace("shadow(1157)", "shadow(66)"),
+            stone.replace("type(0)", "type(9)"),
+            stone.replace("0.0:1", "0.0:1[97"),
+            stone.replace("#1157 1", "#1157 8"),
+        ] {
+            assert!(qualify_graphics(&catalog(&changed), 1156).is_err());
+        }
     }
 
     #[test]

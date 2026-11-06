@@ -5,6 +5,7 @@ import java.util.*;
 /** Current deployed Protocol vectors, independent of historical Modern contracts. */
 public final class NativeRangedOracle {
  public static void main(String[] args)throws Exception {
+  System.setProperty("lito.resourceProfile","tw13081901-v1");
   LinkedHashMap<String,byte[]> p=new LinkedHashMap<>();
   byte[] request=new Protocol.Writer().c(Protocol.C_FAR_ATTACK).d(2).h(32741).h(32801).bytes();
   Protocol.attackRequest(request,Protocol.C_FAR_ATTACK);p.put("request",request);
@@ -13,6 +14,21 @@ public final class NativeRangedOracle {
   p.put("miss",Protocol.rangedPhysicalAttack(21,1,0,0,3,18,66,32729,32797,32741,32801));
   p.put("boundary",Protocol.rangedPhysicalAttack(63,0xffffffffL,2,255,7,0xffffffffL,65535,0,65535,65535,0));
   p.put("throwing",Protocol.rangedPhysicalAttack(63,1,2,5,3,20,2989,32729,32797,32741,32801));
+  p.put("stone",Protocol.rangedPhysicalAttack(21,1,2,5,3,21,1156,32729,32797,32741,32801));
+  p.put("energy",Protocol.rangedPhysicalAttack(21,1,2,5,3,22,2349,32729,32797,32741,32801));
+  // Each class/type combination is emitted by an actual E149 writer. These
+  // are offline writer coverage, not captures from a running game session.
+  for(int gfx:new int[]{252,236,1801,167,1583,1799,1797,11738,11746,11748}) {
+   p.put("class_"+gfx+"_type0",Protocol.attackSpell(18,1,2,5,3,23,gfx,32729,32797,32741,32801));
+   p.put("class_"+gfx+"_type127",Protocol.rangedPhysicalAttack(18,1,2,5,3,24,gfx,32729,32797,32741,32801));
+  }
+  // PE4271 4A5ED0 reads hchhhhcs, with a 128-byte destination buffer.
+  // The ordinary writer always leaves these fields empty. Use its Writer to
+  // transcribe the native retained-projectile branch without patching bytes.
+  p.put("named_energy",new Protocol.Writer().c(0x23).c(21).d(1).d(2).c(5).c(3).d(0xffffffffL)
+   .h(2349).c(127).h(32729).h(32797).h(32741).h(32801).c(1).s("能量箭").bytes());
+  p.put("named_stone",new Protocol.Writer().c(0x23).c(21).d(1).d(2).c(5).c(3).d(25)
+   .h(1156).c(127).h(32729).h(32797).h(32741).h(32801).c(0).s("stone").bytes());
   // Exercise the deployed mapping methods without loading SQL or ServerConfig.
   // Snapshot contents here are an isolated fixture, not live database evidence.
   var current=ResourceDatabase.class.getDeclaredField("current");current.setAccessible(true);

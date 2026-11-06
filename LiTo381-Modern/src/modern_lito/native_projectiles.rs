@@ -1,4 +1,4 @@
-//! Current physical S23 cues -> arrow66 / sting2989 at the actor's Hit entry.
+//! Current class3 S23 cues -> original projectile assets at the actor's Hit entry.
 //! Flight is presentation only; it never mutates HP, hit ratios or authority.
 use super::{
     compositor::Canvas,
@@ -16,7 +16,7 @@ use std::{
 
 pub fn supports_graphics(graphics: u16) -> bool {
     // Native S23 dispatches by list.spr effect class, independently of the
-    // wire type byte stored in the effect object. Both qualified profiles
+    // wire type byte stored in the effect object. The qualified profiles
     // have class 3 and use the same path/frame callback.
     super::ranged_effect::PHYSICAL_GRAPHICS.contains(&u32::from(graphics))
 }
@@ -33,6 +33,9 @@ struct Flight {
     id: u32,
     start: u64,
     path: RangedPath,
+    callbacks: usize,
+    retain_on_arrival: u8,
+    name: Vec<u8>,
 }
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct Impact {
@@ -41,6 +44,23 @@ pub struct Impact {
     pub projectile: u32,
 }
 impl Flight {
+    fn advance_audio(&mut self, assets: &RangedAssets, now: u64, events: &mut Vec<EnteredEvent>) {
+        let elapsed = Duration::from_nanos(now.saturating_sub(self.start));
+        for (index, sample) in self.path.callbacks(elapsed).skip(self.callbacks) {
+            if let Ok(Some(cue)) = assets.audio(sample) {
+                events.push(EnteredEvent {
+                    actor: self.attacker,
+                    sequence: self.sequence,
+                    action: 0,
+                    frame: index,
+                    event: format!("ProjectileSound({})", self.graphics),
+                    sound: cue.group().selected(cue.selection()),
+                    prepared_audio: Some(cue),
+                });
+            }
+            self.callbacks = index + 1;
+        }
+    }
     fn valid(&self, world: &World) -> bool {
         world
             .actors
@@ -78,6 +98,7 @@ pub struct Projectiles {
     launched: u64,
     omitted: u64,
     arrivals: u64,
+    events: Vec<EnteredEvent>,
 }
 impl Projectiles {
     pub fn prepare(&mut self, root: &Path, cancel: &AtomicBool, world: &World) {
@@ -91,6 +112,14 @@ impl Projectiles {
                 self.load(root, cancel, graphics);
             }
         }
+        for cue in &world.projectiles {
+            if supports_graphics(cue.projectile.graphics) {
+                self.load(root, cancel, cue.projectile.graphics);
+            }
+        }
+    }
+    pub fn entered_events(&self) -> &[EnteredEvent] {
+        &self.events
     }
 
     fn load(&mut self, root: &Path, cancel: &AtomicBool, graphics: u16) {
@@ -113,6 +142,7 @@ impl Projectiles {
         now: u64,
     ) -> Vec<Impact> {
         let mut impacts = Vec::new();
+        self.events.clear();
         if self.generation != Some(world.generation) {
             self.generation = Some(world.generation);
             self.seen.clear();
@@ -127,7 +157,13 @@ impl Projectiles {
             .map(|c| (c.attacker, c.action_sequence))
             .collect();
         self.seen.retain(|k| valid.contains(k));
-        self.flights.retain(|f| {
+        self.flights.retain_mut(|f| {
+            if !f.valid(world) {
+                return false;
+            }
+            if let Some(assets) = self.assets.get(&f.graphics) {
+                f.advance_audio(assets, now, &mut self.events);
+            }
             if let Some(impact) = f.impact(world, now) {
                 impacts.push(impact);
             }
@@ -149,12 +185,19 @@ impl Projectiles {
             if !self.seen.insert(key) {
                 continue;
             }
-            if cue.projectile.flight_type == 0 && !supports_graphics(cue.projectile.graphics) {
-                // Existing spell presenters own type 0.
+            if !supports_graphics(cue.projectile.graphics) {
+                // Other catalog classes have their own presenters, for every wire type.
+                if cue.projectile.flight_type != 0
+                    && !super::native_spell_projectiles::supports_graphics(cue.projectile.graphics)
+                    && !super::native_class1::supports_graphics(cue.projectile.graphics)
+                    && !super::native_disintegrate::supports_graphics(cue.projectile.graphics)
+                    && !super::native_cone_cold::supports_graphics(cue.projectile.graphics)
+                {
+                    self.omitted += 1;
+                }
                 continue;
             }
-            if !supports_graphics(cue.projectile.graphics)
-                || self.flights.len() >= 64
+            if self.flights.len() >= 64
                 || !world
                     .actors
                     .get(&cue.attacker)
@@ -164,7 +207,7 @@ impl Projectiles {
                 continue;
             }
             // Native target identity encodes hit/miss, independently of damage.
-            let endpoint = if cue.target != 0 {
+            let endpoint = if cue.target != 0 && cue.projectile.retain_on_arrival == 0 {
                 let Some(a) = world
                     .actors
                     .get(&cue.target)
@@ -184,7 +227,7 @@ impl Projectiles {
             match RangedPath::new(cell(cue.projectile.from), cell(endpoint)) {
                 Ok(path) => {
                     self.launched += 1;
-                    let flight = Flight {
+                    let mut flight = Flight {
                         graphics: cue.projectile.graphics,
                         flight_type: cue.projectile.flight_type,
                         attacker: cue.attacker,
@@ -196,7 +239,13 @@ impl Projectiles {
                         id: cue.projectile.id,
                         start: now,
                         path,
+                        callbacks: 0,
+                        retain_on_arrival: cue.projectile.retain_on_arrival,
+                        name: cue.projectile.name.clone(),
                     };
+                    if let Some(assets) = self.assets.get(&flight.graphics) {
+                        flight.advance_audio(assets, now, &mut self.events);
+                    }
                     if let Some(impact) = flight.impact(world, now) {
                         impacts.push(impact);
                     }
@@ -246,16 +295,9 @@ impl Projectiles {
                 let result = (|| -> anyhow::Result<serde_json::Value> {
                     let sample = assets.effect_frame(&f.path, elapsed)?;
                     let drawn = !sample.finished;
-                    if drawn {
-                        target.submit(
-                            sample.frame,
-                            sample.position,
-                            projection,
-                            super::native_world_effects::Mix::Over,
-                        )?;
-                    }
+                    assets.submit(target, &f.path, projection, elapsed)?;
                     Ok(
-                        serde_json::json!({"id":f.id,"attacker":f.attacker,"target":f.target,"graphics":sample.graphics_id,"flight_type":f.flight_type,"from":[f.path.from().x,f.path.from().y],"to":[f.path.target().x,f.path.target().y],"position":[sample.position.x,sample.position.y],"heading":f.path.heading(),"sprite":sample.sprite_name,"subframe":sample.subframe,"source_frame":sample.source_frame,"drawn":drawn,"elapsed_ns":elapsed.as_nanos()}),
+                        serde_json::json!({"id":f.id,"attacker":f.attacker,"target":f.target,"graphics":sample.graphics_id,"flight_type":f.flight_type,"retain_on_arrival":f.retain_on_arrival,"name_bytes":f.name,"shadow":assets.shadow_source().map(|s|&s.name),"declared_secondary":assets.declared_secondary(),"secondary_dispatched":false,"from":[f.path.from().x,f.path.from().y],"to":[f.path.target().x,f.path.target().y],"position":[sample.position.x,sample.position.y],"heading":f.path.heading(),"sprite":sample.sprite_name,"subframe":sample.subframe,"source_frame":sample.source_frame,"drawn":drawn,"elapsed_ns":elapsed.as_nanos()}),
                     )
                 })();
                 rows.push(match result {
@@ -264,7 +306,8 @@ impl Projectiles {
                 });
             }
         }
-        serde_json::json!({"generation":self.generation,"launched":self.launched,"omitted":self.omitted,"arrivals":self.arrivals,"active":self.flights.len(),"flights":rows,"load_error":self.load_errors.values().next(),"load_errors":self.load_errors,
+        serde_json::json!({"generation":self.generation,"launched":self.launched,"omitted":self.omitted,"arrivals":self.arrivals,"active":self.flights.len(),"flights":rows,"entered_events":self.events,"load_error":self.load_errors.values().next(),"load_errors":self.load_errors,
+            "shadow_sources":self.assets.values().filter_map(|a|a.shadow_source()).map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>(),
             "sources":(!self.assets.is_empty()).then(||self.assets.values().flat_map(|a|a.sprite_sources()).map(|s|serde_json::json!({"archive":format!("{:?}",s.archive),"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),
             "graphics_supported":super::ranged_effect::PHYSICAL_GRAPHICS,"native_effects_complete":false})
     }

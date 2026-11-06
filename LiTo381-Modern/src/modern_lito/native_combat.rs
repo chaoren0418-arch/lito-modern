@@ -156,6 +156,9 @@ pub struct Projectile {
     pub graphics: u16,
     pub from: [u16; 2],
     pub to: [u16; 2],
+    pub retain_on_arrival: u8,
+    /// Original bounded, NUL-terminated MS950 bytes, without the terminator.
+    pub name: Vec<u8>,
 }
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct ProjectileCue {
@@ -191,10 +194,9 @@ pub fn decode_attack(b: &[u8]) -> Result<Option<Attack>> {
         // Native 4A5ED0 reads hchhhhcs for every nonzero projectile ID.
         // The byte is passed to the effect constructor, while list.spr's
         // attribute 109 selects its class. It is not a packet discriminator.
-        ensure!(
-            b.len() == 29 && b[27..29] == [0, 0],
-            "invalid ranged attack tail"
-        );
+        ensure!((29..=156).contains(&b.len()), "invalid ranged attack tail length");
+        ensure!(b.last() == Some(&0) && !b[28..b.len()-1].contains(&0),
+            "invalid ranged attack name terminator");
         let h = |at| u16::from_le_bytes([b[at], b[at + 1]]);
         let graphics = h(16);
         ensure!(
@@ -207,6 +209,8 @@ pub fn decode_attack(b: &[u8]) -> Result<Option<Attack>> {
             graphics,
             from: [h(19), h(21)],
             to: [h(23), h(25)],
+            retain_on_arrival: b[27],
+            name: b[28..b.len()-1].to_vec(),
         });
         return Ok(Some(a));
     }

@@ -69,7 +69,7 @@ fn malformed_ranged_packets_are_atomic_for_every_flight_type() {
         assert!(w.accept(&b[..end]).is_err(), "truncation {end}");
         assert_eq!(serde_json::to_value(&w).unwrap(), before);
     }
-    for offset in [11, 16, 27, 28, 29] {
+    for offset in [11, 16, 28, 29] {
         let mut bad = b.clone();
         match offset {
             11 => bad[11] = 8,
@@ -151,6 +151,12 @@ fn original_throwing_action63_launches_sting2989_through_world_model() {
     render_projectile("throwing", 2786, 62, 2989);
 }
 
+#[test]
+fn original_stone_and_energy_resources_reach_model_arrival_and_retirement() {
+    render_projectile("stone", 0, 20, 1156);
+    render_projectile("energy", 0, 20, 2349);
+}
+
 fn render_projectile(key: &str, actor_graphics: u16, stance: u8, projectile_graphics: u16) {
     use lito_modern::modern_lito::native_world_scene::Model;
     use std::{path::Path, sync::atomic::AtomicBool};
@@ -218,7 +224,7 @@ fn render_projectile(key: &str, actor_graphics: u16, stance: u8, projectile_grap
             .as_array()
             .unwrap()
             .len(),
-        8
+        match projectile_graphics { 1156 => 9, 2349 => 16, _ => 8 }
     );
     assert_eq!(serde_json::to_value(&w).unwrap(), before);
     std::fs::write(output.join(format!("native-projectile{projectile_graphics}.json")),serde_json::to_vec_pretty(&serde_json::json!({"scope":"E149 packet vector + original resources; offline fixture","frames":frames,"hp_unchanged":true})).unwrap()).unwrap();
@@ -455,7 +461,7 @@ fn e149_resource_mapping_preserves_arrow_and_throwing_vectors() {
 #[test]
 fn physical_class3_types_launch_once_and_release_hurt_only_at_arrival() {
     use lito_modern::modern_lito::native_projectiles::Projectiles;
-    for graphics in [66u16, 2989] {
+    for graphics in [66u16, 1156, 2349, 2989] {
         for flight_type in 0..=u8::MAX {
             let mut w = world();
             w.actors.get_mut(&2).unwrap().x = 32741;

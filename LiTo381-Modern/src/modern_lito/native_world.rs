@@ -761,7 +761,7 @@ impl World {
                     return Ok(false);
                 };
                 let spell = attack.projectile.as_ref().is_some_and(|p| {
-                    p.flight_type == 0
+                    (p.flight_type == 0 || matches!(attack.action, 18 | 19))
                         && !super::native_projectiles::supports_graphics(p.graphics)
                 });
                 self.action(
@@ -798,10 +798,10 @@ impl World {
                 if attack.damage_marker > 0
                     && !attack.projectile.as_ref().is_some_and(|p| {
                         super::native_projectiles::supports_graphics(p.graphics)
-                            || (p.flight_type == 0 && (super::native_spell_projectiles::supports_graphics(p.graphics)
+                            || super::native_spell_projectiles::supports_graphics(p.graphics)
                                 || super::native_class1::supports_graphics(p.graphics)
                                 || super::native_disintegrate::supports_graphics(p.graphics)
-                                || super::native_cone_cold::supports_graphics(p.graphics)))
+                                || super::native_cone_cold::supports_graphics(p.graphics)
                     })
                 {
                     self.action(attack.target, 2, "damage");
