@@ -6,6 +6,7 @@ use std::{
     time::{Duration, Instant},
 };
 use zeroize::Zeroizing;
+use super::native_forced_combat::{self, Input as CombatInput};
 
 #[cfg(test)]
 #[path = "native_rental_return_tests.rs"]
@@ -22,6 +23,9 @@ mod movement_tests;
 #[cfg(test)]
 #[path = "native_room_admin_tests.rs"]
 mod room_admin_tests;
+#[cfg(test)]
+#[path = "native_forced_combat_controller_tests.rs"]
+mod forced_combat_tests;
 
 pub fn decode_text(bytes: &[u8]) -> Result<String> {
     decode_message(bytes, false)
@@ -588,6 +592,14 @@ impl LoginController {
         held: &mut super::native_combat::HeldAttack,
         frame: &super::native_world_scene::Frame,
     ) -> Result<bool> {
+        self.continue_attack_with_input(held, frame, CombatInput::default())
+    }
+    pub fn continue_attack_with_input(
+        &mut self,
+        held: &mut super::native_combat::HeldAttack,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+    ) -> Result<bool> {
         let Some(target) = held.ready(
             self.transport.snapshot().epoch,
             &self.state.world,
@@ -597,7 +609,7 @@ impl LoginController {
         ) else {
             return Ok(false);
         };
-        if let Err(error) = self.attack(target) {
+        if let Err(error) = self.attack_with_input(target, input) {
             held.clear();
             return Err(error);
         }
@@ -610,7 +622,16 @@ impl LoginController {
         target: Option<u32>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, None, None, frame)
+        self.cast_with_input(skill, target, frame, CombatInput::default())
+    }
+    pub fn cast_with_input(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+    ) -> Result<()> {
+        self.cast_request(skill, target, None, None, None, frame, input)
     }
     pub fn cast_ground(
         &mut self,
@@ -624,12 +645,12 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), None, None, frame)
+        self.cast_request(skill, None, Some(position), None, None, frame, CombatInput::default())
     }
     pub fn cast_item(&mut self, skill: u16, item: &super::native_skills::ItemTarget,
         frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "等待目前物品操作回覆");
-        self.cast_request(skill, None, None, Some(item), None, frame)
+        self.cast_request(skill, None, None, Some(item), None, frame, CombatInput::default())
     }
     pub fn teleport_labels(&self)->Vec<String> {
         self.teleport_bookmarks.labels(&self.state,self.transport.snapshot().epoch)
@@ -641,7 +662,7 @@ impl LoginController {
         choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks).is_ok()
     }
     pub fn cast_teleport(&mut self,choice:&super::native_teleport_spell::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
-        self.cast_request(5,None,None,None,Some(choice),frame)
+        self.cast_request(5,None,None,None,Some(choice),frame,CombatInput::default())
     }
     fn cast_request(
         &mut self,
@@ -651,6 +672,7 @@ impl LoginController {
         item: Option<&super::native_skills::ItemTarget>,
         teleport: Option<&super::native_teleport_spell::Choice>,
         frame: &super::native_world_scene::Frame,
+        input: CombatInput,
     ) -> Result<()> {
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot cast");
@@ -668,7 +690,7 @@ impl LoginController {
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
         ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
-        let body = if let Some(choice)=teleport {
+        let mut body = if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
         } else {match ground {
             Some(position) => {
@@ -678,6 +700,7 @@ impl LoginController {
                 super::native_skills::item_request(&self.state, self.transport.snapshot().epoch, skill, item)?
             } else { super::native_skills::request(&self.state.world, skill, target)? },
         }};
+        native_forced_combat::append(&mut body, input, &self.state);
         self.transport
             .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
@@ -697,6 +720,9 @@ impl LoginController {
         Ok(())
     }
     pub fn attack(&mut self, target: u32) -> Result<()> {
+        self.attack_with_input(target, CombatInput::default())
+    }
+    pub fn attack_with_input(&mut self, target: u32, input: CombatInput) -> Result<()> {
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot attack");
         ensure!(
@@ -705,7 +731,8 @@ impl LoginController {
                 && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
             "attack unavailable or awaiting server"
         );
-        let body = self.state.world.attack_request(target)?;
+        let mut body = self.state.world.attack_request(target)?;
+        native_forced_combat::append(&mut body, input, &self.state);
         self.transport
             .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
         self.attack_pending = Some(super::native_combat::Pending {
