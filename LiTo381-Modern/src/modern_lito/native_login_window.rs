@@ -771,6 +771,10 @@ impl Ui {
         if self.world_presentation.tick_environment(&self.resource_root,epoch,world,environment,active && !self.closing) {
             let _ = InvalidateRect(Some(parent), None, true);
         }
+        let prepared = self.world_presentation.take_static2941_ready();
+        if let Err(error) = self.controller.enqueue_static2941(&self.resource_root, prepared) {
+            self.world_presentation.error = Some(format!("static2941: {error:#}"));
+        }
         if let Err(e)=self.voices.poll() {self.audio_error=Some(e.to_string());}
         let native_scope=self.world_presentation.audio_scope(self.controller.transport().snapshot().epoch,
             self.controller.snapshot().world.generation);

@@ -106,6 +106,10 @@ pub(crate) fn active(cancel: &AtomicBool) -> Result<()> {
     }
 }
 
+#[path = "static2941_assets.rs"]
+mod static2941;
+pub(crate) use static2941::Static2941Bank;
+
 struct LoadedSprite {
     provenance: SpriteProvenance,
     decoded: DecodedSprite,

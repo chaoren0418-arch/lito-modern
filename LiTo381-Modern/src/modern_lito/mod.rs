@@ -162,6 +162,8 @@ pub mod native_wire;
 pub mod native_opcodes;
 pub mod native_version;
 pub mod native_connection;
+pub(crate) mod native_clock;
+pub(crate) mod native_static2941;
 pub mod native_login;
 pub mod native_game;
 #[cfg(windows)]

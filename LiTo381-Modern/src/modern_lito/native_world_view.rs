@@ -35,6 +35,7 @@ struct PendingRender {
 }
 #[derive(Default)]
 pub struct Presentation {
+    static2941_ready: Vec<super::native_static2941::Prepared>,
     pub hover: Option<super::native_world_labels::Hover>,
     fence: Fence,
     job: Option<PendingRender>,
@@ -72,6 +73,7 @@ pub struct Presentation {
 }
 impl Presentation {
     pub fn cancel(&mut self) {
+        self.static2941_ready.clear();
         self.publication=Arc::new(());
         self.keep_source_owner=false;
         self.source_owner=None;
@@ -150,6 +152,9 @@ impl Presentation {
             }
         }
         changed
+    }
+    pub(crate) fn take_static2941_ready(&mut self) -> Vec<super::native_static2941::Prepared> {
+        std::mem::take(&mut self.static2941_ready)
     }
     pub fn quiescent(&self) -> bool {
         self.job.is_none()
@@ -290,6 +295,10 @@ impl Presentation {
                 if current_context && self.fence.accepts(*key) && world.view_ready() {
                     match result {
                         Ok(mut done) => {
+                            // Resource readiness is independent of a stale light/environment frame.
+                            // Only the accepted root/publication/world may hand proofs to the controller.
+                            self.static2941_ready = std::mem::take(&mut done.static2941_ready);
+                            done.frame.receipt["static2941_resource_error"] = serde_json::json!(done.static2941_error);
                             self.finite_visual_history=Some((*key,source_root.clone(),done.model.finite_history()));
                             self.model = Some(done.model);
                             self.ambient_source_floor=self.model.as_ref().expect("accepted model").ambient_source_floor(world);
