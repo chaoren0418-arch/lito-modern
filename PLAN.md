@@ -36,8 +36,8 @@ Rust 原生 Windows x64 客戶端（G01–G12），沿用既有資源與 UI，�
 - **升級規則**：M2、M3 要等 M1 與 V1 完成後，開 Issue 經使用者同意（`needs:user`），把下方盤點列好的批次原樣升級；不得在升級時加項目。
 - **新發現的工作**：一律進 TASKS.md 的 `## Backlog`。
 
-## 盤點：已知範圍（2026-11-06，#92 步驟 0；第 4 版）
-### 來源與閱讀範圍（雲端來源逐檔讀完；本機未追蹤來源由 #106 唯讀取回後讀完）
+## 盤點：已知範圍（2026-11-06，#92 步驟 0；第 6 版）
+### 來源與閱讀範圍（雲端來源逐檔讀完；本機的 G01–G12 與候選測試由 #106 取回後讀完；伺服器 `de-native-*` 建置腳本由 #120 讀取中）
 | 來源 | 版本 | 閱讀方式 |
 |---|---|---|
 | `docs/HISTORY.md` | git blob `7dd82ba`（1589 行，其中 849 行空白、2 行逐字重複，實際 738 行） | 分 4 段逐行讀完。對照表見 `docs/reports/issue-92.md` 附錄 A |
@@ -49,14 +49,14 @@ Rust 原生 Windows x64 客戶端（G01–G12），沿用既有資源與 UI，�
 | 候選 overlay 測試 | `docs/reports/issue-106.md`（44 檔、554 個測試宣告的具名清單） | 逐檔對到任務，見報告附錄 E；另附 HISTORY L1–L65 的逐輪計數 |
 | 候選 overlay QA 475 案（歷史計數） | HISTORY L1–L65 逐輪計數 | 逐輪列出，見附錄 B。以 #106 的具名清單（554 個宣告、493 個候選新增）取代，差額 18 記為未解，見上一列與事實 3 |
 | 技能目錄 | `docs/PROTOCOL-CONTRACT.md` §6.3（`2066774`，181 項）；E149 `BattleSpellCatalog.class` | 逐 ID 比對 |
-| 伺服器建置鏈 | lito-launcher-server `lito伺服器/LiTo381-Server/tools/` 的 398 個 `build*.py`，另加不在 build*.py 裡的 3 段（`integrate_buff.py`、登入器 repo 的 `tools/world-resource-compat/build_*.py`、沒進 git 的 `resource-database/build/de-native-*`） | 逐組重建 0.6.35→0.6.71 的 patch 鏈，見附錄 D |
+| 伺服器建置鏈 | lito-launcher-server `lito伺服器/LiTo381-Server/tools/` 的 398 個 `build*.py`，另加不在 build*.py 裡的 3 段（`integrate_buff.py`、登入器 repo 的 `tools/world-resource-compat/build_*.py`、沒進 git 的 `resource-database/build/de-native-*`） | 已追蹤的 398 個 `build*.py`（`2066774`）逐組重建 0.6.35→0.6.71 的鏈，見附錄 D。另外 3 段：`integrate_buff.py` 與登入器 repo 的 `world-resource-compat/build_*.py` 已讀；**`resource-database/build/de-native-*`（本機 18 個目錄、62 個 `build*.py`，被 `.gitignore` 排除）雲端讀不到，交 #120 唯讀全讀，未讀完前列為待驗證**。其餘 11,285 個未追蹤 `build*.py` 只有 #106 的路徑分類，沒有讀內容；#106 推測它們是建置產物或輸入快照 |
 | 伺服器文件 | `PLAN.md`、`TASKS.md`、`docs/server-source-gap.md`、`lito伺服器/LiTo381-Server/docs/maintenance/` 86 檔（70 份 md／txt＋16 份 JSON）；本 repo `修補提案/` | **逐檔全讀**：md 全文；JSON 用 python 走訪全部元素。對照見報告附錄 F |
 | 伺服器隔離候選 | 398 個 `build*.py` 與收據串成的鏈（附錄 D），加上 E149 class 清單（E8） | 讀到「建置鏈、收據與 class 清單」層級。候選 JAR 的位元組碼沒有反編譯，因為客戶端只以 E149 為對象，候選都在 8d26 之後、沒有部署 |
 
 tw-bin（P01–P38）不屬於本 repo，不在範圍內。證據可以用 `bash 維護工具/check-issue-92-evidence.sh <lito-modern 根> <lito-launcher-server 根> <暫存目錄>` 重跑。
 
 ### 必須寫明的事實（證據 E1–E8 見報告）
-1. **技能接線大多不在 `src/`**：main 38、候選獨有 48、97–100 共 4、未接 91，合計 181，逐 ID 去重（E3）。「候選獨有 48」是用目錄裡 1–98 的 ID 扣掉 main 與 97／98 算出來的，不是解析候選原始碼得到。例外：候選的 `item_targeted` 含 107，所以嚴格來說是候選 49、未接 90。107 已在 T022 註明有候選參考實作；總數 181 與張數不受影響。
+1. **技能接線大多不在 `src/`**：main 38、候選獨有 48、97–100 共 4、未接 91，合計 181，逐 ID 去重（E3）。「候選獨有 48」是用目錄裡 1–98 的 ID 扣掉 main 與 97／98 算出來的，不是解析候選原始碼得到。例外：候選的 `item_targeted` 含 107，所以嚴格來說是候選 49、未接 90。107 在 TASKS 的 T022 批 2 註明有候選參考實作；總數 181 與張數不受影響。
 2. **181＝180 個 catalog 記錄＋TELEPORT 特例**：E149 與 `2066774` 的 catalog 常數相同（E2）。
 3. **「475 案」與「574／481」是兩批不同的測試。** #106 列出候選 44 檔共 554 個測試宣告（其中 493 個是候選新增）。主控裁定：以這份具名清單取代歷史計數 475，差額 18 沒有歷史名冊可以核對，記為「差額未解」。
 4. **伺服器端產品範圍：只有競技場，沒有 WORLD 地圖**（E6）。租裝城鎮與旅館屬於伺服器的城鎮模式，仍在範圍內。
@@ -68,7 +68,7 @@ tw-bin（P01–P38）不屬於本 repo，不在範圍內。證據可以用 `bash
 ### 各里程碑已知要做的全部事項
 **M0（完成）**：沒有剩餘。
 
-**M1（主線 3 張，T011-H、T011-F 已完成，剩 1 張）**：T011-H（#91，PR #95 已合併）、T011-F（#111，U-M1-1 兌現）、T011-B（#81）。
+**M1（主線 3 張，T011-H、T011-F 已完成，剩 1 張）**：T011-H（#91，PR #95 已合併）、T011-F（#111，U-M1-1 兌現）、T011-B（重跑 #118；首跑 #81）。
 - U-M1-1：T011-B 首跑失敗需要修，估 1 張。依據：G06 舊失敗 45538／80000／75086／4694，根因都沒定論（HISTORY L93–L107、L185–L193）。
 
 **V1（主線 2 張，已完成）**：T012（#101）、T013（#102，PR #105）。
