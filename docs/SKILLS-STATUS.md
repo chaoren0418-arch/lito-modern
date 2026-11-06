@@ -17,7 +17,7 @@
 - **是否需要 Ctrl**：依 E149 的 0.6.67 強制目標行為（`forced-combat-0.6.67.md:5`：Ctrl 解除明確指定目標的敵友限制，一般操作遵守模式與隊伍規則）逐列填寫。判定順序：
   1. 尾段形狀不含 `d(target)`：不適用。
   2. 記錄類型是物品類（ItemWeaponEnchant、ItemArmorEnchant、MagicalWeapon、BringStone）：不適用，目標是物品 object ID。
-  3. 負面或攻擊類：SQL `target=attack`，或 SQL `type` 是 1、4、64。填「依目標而定」，對敵方不需要，對同隊需要 Ctrl。36、145 的對象是 NPC，另有說明。
+  3. 負面或攻擊類：SQL `target=attack`，或 SQL `type` 是 1、4、64。填「依目標而定」，對敵方不需要，對同隊需要 Ctrl。36（只能對怪物）與 145（對受控召喚物）依原始碼個別判定，見該列。
   4. 其他物件目標：type 2 輔助、16 治癒、32、128 等，填「不需要（自身／友方輔助）」。其中 SQL target=none 的列，④ 的目標可能是自身 object ID，交 T061 核對。
   5. 26、42、68 另有說明。
 
@@ -93,7 +93,7 @@
 | 33 | 木乃伊的詛咒 | `CURSE_PARALYZE` | 共通魔法／法師 | ParalysisSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 2／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 150 | 0／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×2（伺服器 T025） |  |
 | 34 | 極道落雷 | `CALL_LIGHTNING` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 18 | 0／0 | main 已接 | `unqualified_loader_keeps_world_update_ok_without_retry_or_authority_mutation（include! native_tw_presentation_tests.rs）`（已執行通過（lib，#101））；`current_c02_exact_object_coordinates_and_readonly_authority`（未執行（白名單外））；`invalid_unlearned_dead_invisible_blocked_and_missing_states_cannot_make_requests`（未執行（白名單外））；`mp_and_lawful_are_server_permission_inputs_and_never_locally_spent`（未執行（白名單外））；`range_six_boundary_and_target_changes_use_current_received_coordinates`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 35 | 高級治癒術 | `GREATER_HEAL` | 共通魔法／法師 | HealingSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 20 | 77／280 | main 已接 | `tw_higher_heal_requests_use_learned_ids_original_clocks_and_never_predict_authority`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
-| 36 | 迷魅術 | `TAMING_MONSTER` | 共通魔法／法師 | TamingSpell | ⑩ d(target) h(x) h(y) | buff／2／射程 -1／範圍 0 | 依目標而定：負面技能，對象是 NPC／召喚物；Ctrl 只影響對玩家的敵友判定 | MP 30、HP 20 | 0／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025）、受控 NPC（伺服器 T023） |  |
+| 36 | 迷魅術 | `TAMING_MONSTER` | 共通魔法／法師 | TamingSpell | ⑩ d(target) h(x) h(y) | buff／2／射程 -1／範圍 0 | 不需要：目標只能是 WORLD／Quest／Time Attack 的怪物，找不到就拒絕非怪物目標（`ClientSession.java:72350-72368`）；Quest／Time Attack 用 canAttackQuestMonster／canAttackTimeAttackActor 判定，不經 ForcedCombat。讀的是 src/main @2066774，E149 待核對 | MP 30、HP 20 | 0／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025）、受控 NPC（伺服器 T023） |  |
 | 37 | 聖潔之光 | `REMOVE_CURSE` | 共通魔法／法師 | CurseRemovalSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 20 | 155／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
 | 38 | 冰錐 | `CONE_OF_COLD` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 18 | 0／0 | main 已接 | `unqualified_loader_keeps_world_update_ok_without_retry_or_authority_mutation（include! native_tw_presentation_tests.rs）`（已執行通過（lib，#101））；`cold_request_uses_observed_C14_and_six_cell_range_without_spending_authority`（未執行（白名單外））；`cold_selector_rechecks_target_life_generation_owner_and_book`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 39 | 魔力奪取 | `MANA_DRAIN` | 共通魔法／法師 | ManaDrainSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 4／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 1、HP 50 | 690／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
@@ -173,7 +173,7 @@
 | 134 | 鏡反射 | `COUNTER_MIRROR` | 妖精 | CounterMirrorSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 10 | 0／280 | 未接（T022 批 3） | 尚無 | 待核對 | 伺服器待定：材料 40319×1（伺服器 T025） |  |
 | 137 | 淨化精神 | `CLEAR_MIND` | 妖精 | ClearMindSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 10 | 0／0 | 未接（T022 批 3） | 尚無 | 待核對 | 伺服器待定：材料 40319×1（伺服器 T025） |  |
 | 138 | 屬性防禦 | `RESIST_ELEMENTAL` | 妖精 | ResistElementalSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 10 | 0／0 | 未接（T022 批 3） | 尚無 | 待核對 | 伺服器待定：材料 40319×1（伺服器 T025） |  |
-| 145 | 釋放元素 | `RETURN_TO_NATURE` | 妖精 | ReturnToNatureSpell | ⑩ d(target) h(x) h(y) | buff／16／射程 -1／範圍 0 | 依目標而定：負面技能，對象是 NPC／召喚物；Ctrl 只影響對玩家的敵友判定 | MP 30 | 0／280 | 未接（T022 批 4） | 尚無 | 待核對 | 伺服器待定：材料 40319×2（伺服器 T025）、受控 NPC（伺服器 T023） |  |
+| 145 | 釋放元素 | `RETURN_TO_NATURE` | 妖精 | ReturnToNatureSpell | ⑩ d(target) h(x) h(y) | buff／16／射程 -1／範圍 0 | 待核對：目標是任一玩家的受控召喚物（只有 SUMMON／TAMED 可以釋放），要求同房間或同地圖（`ClientSession.java:49742` 起）。讀到的範圍內沒有看到敵友或 ForcedCombat 判定；ForcedCombat 本身對玩家的受控召喚物也會放寬敵友（`ForcedCombat.java:78-80`）。E149 普通與 Ctrl 是否有差異待 T061 核對 | MP 30 | 0／280 | 未接（T022 批 4） | 尚無 | 待核對 | 伺服器待定：材料 40319×2（伺服器 T025）、受控 NPC（伺服器 T023） |  |
 | 146 | 魂體轉換 | `BLOODY_SOUL` | 妖精 | BodyToMindSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 0、HP 40 | 0／0 | 未接（T022 批 4） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
 | 147 | 單屬性防禦 | `ELEMENTAL_PROTECTION` | 妖精 | ElementalProtectionSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 6 | 0／0 | 未接（T022 批 4） | 尚無 | 待核對 | 伺服器待定：材料 40319×1（伺服器 T025） |  |
 | 148 | 火焰武器 | `FIRE_WEAPON` | 妖精 | FireWeaponSpell | ④ d(target) | buff／1／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 15 | 0／280 | 未接（T022 批 4） | 尚無 | 待核對 | 以 E149 為準可驗 |  |

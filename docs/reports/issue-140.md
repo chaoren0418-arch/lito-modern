@@ -29,7 +29,7 @@
    - 結果：38 個技能有送包測試，**14 個已執行通過**，比上一版多了 34、38、77，來源是 lib 測試 `unqualified_loader_keeps_world_update_ok_without_retry_or_authority_mutation`。這個測試只斷言 request 的前 3 bytes，表內與統計都已註明。
    - 補列的測試：`tests/native_skill_selection.rs::selection_uses_formal_packets_and_preserves_authority`（1、3、43、4）、`tests/native_cone_cold.rs::cold_selector_rechecks_target_life_generation_owner_and_book`（38），兩者都在白名單外。
    - 「其餘都未執行」改成動態計算的數字；白名單測試數改依實際列出的計算（selector 2 個、ability_buffs 3 個）。
-2. **Ctrl 欄**：判定改成先分負面與輔助，用 SQL `type` 判定（1、4、64 是負面或攻擊）。審查列出的 29 個負面技能，現在全部是「依目標而定」；36、145 另有 NPC 對象的說明。分布是：不適用 83、依目標而定 61、不需要 36、26 單列 1。
+2. **Ctrl 欄**：判定改成先分負面與輔助，用 SQL `type` 判定（1、4、64 是負面或攻擊）。審查列出的 29 個負面技能裡，27 個是「依目標而定」，36 與 145 在第 4 次依原始碼個別判定（見下節）。分布是：不適用 83、依目標而定 59、不需要 37、26 單列 1、待核對 1。
 3. **26、42**：
    - 26 改為「政策上不需要；實機回報不按 Ctrl 無法自施，成因未判定」，附出處 `source-completion-work-current.zh-TW.md:41`、`combat-integration-lifecycle.zh-TW.md:282`、`:285`。
    - 42 刪掉沒有出處的說法。
@@ -37,6 +37,12 @@
 4. **請核對項**：
    - 12、21、73、100、107 的記錄類型是物品類，改為「不適用（目標是物品 object ID）」。
    - 163、166、168 是 SQL target=none 的 ④，保留「不需要」，並註明目標可能是自身 object ID，交 T061 核對。
+
+### 第 4 次修正（codex-review 退回 1 點）
+- **36、145**：刪掉「Ctrl 只影響對玩家的敵友判定」這句錯誤的全域說法。`forced-combat-0.6.67.md:5` 與 `ForcedCombat.java:78-80` 寫明，Ctrl 也放寬玩家的受控召喚物。兩列改依 `src/main @2066774` 的原始碼個別判定：
+  - **36 迷魅術**：目標只能是 WORLD／Quest／Time Attack 的怪物，找不到就拒絕非怪物（`ClientSession.java:72350-72368`）；Quest／Time Attack 用 `canAttackQuestMonster`／`canAttackTimeAttackActor` 判定，不經 ForcedCombat。填「不需要」，E149 待核對。
+  - **145 釋放元素**：目標是任一玩家的受控召喚物（只有 SUMMON／TAMED 可以釋放），要求同房間或同地圖（`ClientSession.java:49742` 起）。讀到的範圍內沒有看到敵友或 ForcedCombat 判定，普通與 Ctrl 是否有差異還不能確定，所以填「待核對」，交 T061。
+- Ctrl 分布更新為：不適用 83、依目標而定 59、不需要 37、26 單列 1、待核對 1。
 
 ## 已驗證
 - 181 列和 PROTOCOL-CONTRACT §6.3 一致。以 E149 為準可驗 **114**、伺服器待定 **67**。審查者已用腳本比對 SQL 欄位，0 不符。
@@ -59,4 +65,5 @@
 - 24 個有測試但沒執行的技能：要納入 T041 的測試腳本後才會執行。
 - 材料 25／58 的逐技能區分：清單在伺服器未追蹤的建置產物裡，本表沒有區分。
 - 「需要 Ctrl」的逐技能細節（例如隔離候選的新政策）：由 T061 對齊。
+- 36 與 145 的目標與 Ctrl 判定讀的是 `src/main @2066774`，E149 是否相同待核對；145 普通與 Ctrl 的差異待 T061 核對。
 - 玩法支援矩陣（技能以外的操作）：T026 第 2 張。
