@@ -157,13 +157,13 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     let own = world.own_actor().unwrap();
     let mut b = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
     match skill {
-        1 | 8 | 9 | 19 | 26 | 35 | 42 | 43 | 57 => {
+        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 57 => {
             let id = target.unwrap_or(own.id);
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
                     && world.actor_visible(id)
-                    && if matches!(skill, 8 | 9 | 26 | 42 | 43) {
+                    && if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43) {
                         in_native_screen([own.x, own.y], [actor.x, actor.y])
                     } else {
                         own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 19
@@ -178,24 +178,51 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
         2 => {ensure!(target.is_none(), "日光術不接受目標");}
         3 => {}
         131 => {ensure!(target.is_none(),"世界樹呼喚不接受目標");}
-        23 => {
+        39 => {
+            // The formal mana-drain branch permits self; an invalid explicit target
+            // must never silently fall back to self. HP/cost/drain stay server-owned.
+            let id = target.unwrap_or(own.id);
+            let actor = world.actors.get(&id).context("技能目標已離開")?;
+            ensure!(!actor.dead && world.actor_visible(id)
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 4,
+                "魔力奪取目標不可用或超出四格");
+            b.extend_from_slice(&id.to_le_bytes());
+            b.extend_from_slice(&actor.x.to_le_bytes());
+            b.extend_from_slice(&actor.y.to_le_bytes());
+        }
+        41 => {
+            let id = target.context("請先選取屍體")?;
+            let actor = world.actors.get(&id).context("屍體已離開")?;
+            ensure!(id != own.id && actor.dead && world.actor_visible(id)
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && in_native_screen([own.x, own.y], [actor.x, actor.y]),
+                "屍體不可用或超出畫面");
+            // Eligibility, consumption, capacity and companion creation are server-owned.
+            b.extend_from_slice(&id.to_le_bytes());
+        }
+        23 | 36 => {
             let id = target.context("請先選取怪物")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(id != own.id && world.actor_visible(id) && !actor.dead
                 && !super::native_obstacles::destroyed_guardian(actor)
                 && in_native_screen([own.x, own.y], [actor.x, actor.y]),
                 "法術目標不可用或超出畫面");
-            // NPC eligibility and weakness bits are determined by the server.
+            // NPC eligibility, taming costs and weakness bits are server-owned.
             b.extend_from_slice(&id.to_le_bytes());
+            if skill == 36 {
+                b.extend_from_slice(&actor.x.to_le_bytes());
+                b.extend_from_slice(&actor.y.to_le_bytes());
+            }
         }
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 34 | 38 | 77 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 77 => {
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {10=>3,11|20=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30=>8,33=>2,40=>3,10=>3,11|20=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -207,9 +234,9 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {27=>3000,22=>300,77=>5000,60=>0,11|13|17|18|20|25|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {27=>3000,22=>300,33|77=>5000,60=>0,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
-pub fn client_clock_millis(skill:u16)->u64 {match skill {10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
+pub fn client_clock_millis(skill:u16)->u64 {match skill {33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub enum Feedback {
     #[default]
@@ -233,6 +260,7 @@ impl Feedback {
             Self::Rejected(280) => "法術未生效",
             Self::Rejected(79) => "伺服器拒絕此物品附魔",
             Self::Rejected(299) => "施法材料不足",
+            Self::Rejected(319) => "可控制的同伴數量已達上限",
             Self::Rejected(_) => "伺服器限制施法",
         }
     }

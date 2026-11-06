@@ -1674,7 +1674,7 @@ impl Ui {
                         });
                         let target = self
                             .target
-                            .and_then(|t| t.resolve(&snapshot.world))
+                            .and_then(|t| t.resolve_for_skill(&snapshot.world, self.skills.selected().unwrap_or(0)))
                             .and_then(|id| snapshot.world.actors.get(&id))
                             .map(super::native_combat::target_label)
                             .unwrap_or_else(|| "未選取".into());
