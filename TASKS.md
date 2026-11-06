@@ -101,7 +101,7 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 
 **分張**（#132 定義，每張一個 Issue，只做本張範圍）：
   1. 技能狀態表 `docs/SKILLS-STATUS.md`：181 技能逐列（目標類型、是否需要 Ctrl、可驗／伺服器待定、訊息 ID、保留槽、別名等技能欄位）
-  2. 玩法支援矩陣：技能以外的玩家可達操作（物品使用／裝卸／丟棄／拾取、遠程與彈藥、耗材／MP、buff／debuff、復活、寵物控制），以及 #120 新 N2 的隱身裝備例外
+  2. 玩法支援矩陣：技能以外的玩家可達操作（物品使用／裝卸／丟棄／拾取、遠程與彈藥、耗材／MP、buff／debuff、復活），以及 #120 新 N2 的隱身裝備例外
 
 ### T020 | todo | Cursor | `src/`：#97 暗隱術（2 張）
 ：在 `src/` 重寫 ingress clock、專用 queue、Static2941Bank 與資源就緒 gate（在 enqueue 前，原 4E5C00 先 SPR 再 4D65F0）。範圍包括：
@@ -230,8 +230,8 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 ：雙真實玩家戰鬥 fixture。NATIVE-EMBLEMS:29–31 記載：正式 JAR `EBF5EE66` 起，startBattle 會強制關閉舊訓練 bot。EBF5EE66 是 E149 的祖先（0.6.59，見報告附錄 D），E149 是否仍是如此，要在本任務第一步用 javap 核對；所以 schema37 的 54 個情境不能標成新版通過。要用兩個真實玩家連線，重新核對攻擊、HP／MP、死亡、結算、重入（NATIVE-EMBLEMS:29–31）。T028、T029、T048 的戰鬥驗證以它為前提。（2 張）
 
 **分張**（#132 定義，每張一個 Issue，只做本張範圍）：
-  1. 先用 javap 核對 E149 的 startBattle 是否關閉訓練 bot；建立雙真實玩家連線 fixture 本身（兩組 LOGIN／GAME session、正式角色身分、世代隔離與回收），附自我測試
-  2. 用 fixture 重新核對攻擊、HP／MP、死亡、結算、重入，以及同連線第二場互換勝敗（G02），並加入 unsigned 物件 ID 的測試向量
+  1. 先用 javap 核對 E149 的 startBattle 是否關閉訓練 bot；建立雙真實玩家連線 fixture 本身
+  2. 用 fixture 重新核對攻擊、HP／MP、死亡、結算、重入
 
 ### T044 | todo | Cursor | `src/`：移動正確性與 G04 剩餘項（3 張）
 。範圍包括：
@@ -262,7 +262,7 @@ U-M1-1 兌現：#81 首跑 timeout 失敗，原因是角色 A 進世界時預載
 **分張**（#132 定義，每張一個 Issue，只做本張範圍）：
   1. 快捷列與技能圖示綁定、完整技能書、技能中斷、1480ms 動畫窗內的連按拒絕
   2. buff／AC／冷卻／MP 呈現、ICONS1 36 種狀態、ICON_I2H、OwnCharStatus、龍之護鎧 3080、9 個幻術 lease、S_SPEED 與娃娃緩速的 writeH 期限、MP 只在改變時通知
-  3. HPBAR（任務／限時怪物、0xFF 隱藏）、NPC 血條比例、其餘狀態顯示，以及三張整合後的實際畫面核對
+  3. HPBAR（只給任務／限時怪物，0xFF 隱藏）
 
 ### T047 | todo | Cursor | `src/`（2 張）
 ：影格事件 Effect／Hit 映射到特效（NATIVE-ANIMATION:11、NATIVE-COMBAT:30），以及 gfx1544 action0 在 catalog 缺定義、首幀只畫出 11／12 個物件（NATIVE-WORLD:24、:34）。另外依 G07.2（pending）：全部玩法可見角色、NPC、狀態型物件的原始動作。另外包括：Source169 移除特效、奇古獸 SPR、proc_spr、凍結 palette、立方體 GFX、傷害數字與 miss／critical、動畫先於 HP、光術的封包順序（隱身解除→motion→effect→sound→light→MP）、隱身重施不顯形、變身 7200 秒到期還原、武器族退回 spear24。驗收要看攻擊影格，不能只看封包（0.6.49 的前例：封包通過，但玩家只看到轉向）。（2 張）
