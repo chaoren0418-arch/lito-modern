@@ -494,6 +494,18 @@ impl World {
     pub fn accept(&mut self, b: &[u8]) -> Result<bool> {
         let op = *b.first().context("empty world packet")?;
         let mut r = Reader { b, at: 1 };
+        // S_MESSAGE also carries room rules and start refusals before S_WORLD.
+        if op == 0x0f {
+            let kind = r.c()?;
+            let text = r.s()?;
+            r.end()?;
+            ensure!(!text.is_empty(), "empty system message");
+            let revision = self.revision.checked_add(1).context("world revision")?;
+            self.system_message_count += 1;
+            self.last_system_message = Some((kind, text));
+            self.revision = revision;
+            return Ok(true);
+        }
         if op==0x5a{
             let destination=super::native_portal::parse(b)?;ensure!(self.ready(),"portal before ready world or repeated pending portal");
             let object_id=self.own_actor().unwrap().id;let generation=self.generation.checked_add(1).context("portal generation")?;
@@ -703,10 +715,6 @@ impl World {
                 } else {
                     self.orphan_updates += 1;
                 }
-            }
-            0x0f => {
-                let kind=r.c()?;let text=r.s()?;r.end()?;ensure!(!text.is_empty(),"empty system message");
-                self.system_message_count+=1;self.last_system_message=Some((kind,text));
             }
             0x10 => {
                 ensure!(b.len() <= 8192, "message byte budget");

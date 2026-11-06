@@ -1636,23 +1636,7 @@ impl Ui {
                 LoginPhase::RoomEditing => "正在等待房間設定回覆…".into(),
                 LoginPhase::KickPending => "正在等待成員移出…".into(),
                 LoginPhase::ObserverPending => "正在等待觀戰狀態…".into(),
-                LoginPhase::RoomReady | LoginPhase::ReadyPending => snapshot
-                    .joined_room
-                    .as_ref()
-                    .map(|r| {
-                        format!(
-                            "{}　房主：{}\r\n模式 {}　地圖 {}　已收到 {} 位成員{}",
-                            r.name,
-                            r.owner,
-                            ["寵物競賽","死鬥","任務戰","攻城戰","限時挑戰","榮譽戰","租裝村"].get(usize::from(r.mode)).copied().unwrap_or("未知"),
-                            r.map_id,
-                            r.members.len(),
-                            r.countdown
-                                .map(|n| format!("　倒數 {}", n))
-                                .unwrap_or_default()
-                        )
-                    })
-                    .unwrap_or_default(),
+                LoginPhase::RoomReady | LoginPhase::ReadyPending => super::native_room_ui::status(snapshot),
                 LoginPhase::RoomLeaving => "正在離開房間…".into(),
                 LoginPhase::BattleResult => format!(
                     "戰鬥結束：{}　結算 {} 人。按「返回大廳」繼續。",
@@ -1748,14 +1732,14 @@ impl Ui {
         } else {
             status
         };
-        let status=if phase.active_world()&&snapshot.observer {"觀戰中；方向鍵移動鏡頭。".into()} else if self.rental.open {self.rental_status()}else{status};
+        let status=if phase==LoginPhase::BattlePending&&snapshot.observer {"觀戰中，方向鍵移動鏡頭。".into()} else if self.rental.open {self.rental_status()}else{status};
         if status != self.status {
             self.text(STATUS, &status);
             self.status = status;
         }
         let owner=phase==LoginPhase::RoomReady && snapshot.joined_room.as_ref().is_some_and(|r|snapshot.selected_character.as_deref()==Some(r.owner.as_str()));
         let no_editor=self.room_editor.is_none();
-        let modes=owner && no_editor && snapshot.joined_room.as_ref().is_some_and(|r|r.members.iter().all(|m|m.state==0));
+        let modes=owner && no_editor;
         self.text(OBSERVER,if snapshot.observer {"關閉觀戰"}else{"開啟觀戰"});
         for (id,enabled) in [
             (CREATE_ROOM,phase==LoginPhase::LobbyReady && no_editor),
@@ -1817,7 +1801,7 @@ impl Ui {
             (READY, phase == LoginPhase::RoomReady && !snapshot.observer),
             (UNREADY, phase == LoginPhase::RoomReady),
             (CHANGE_FORCE, phase == LoginPhase::RoomReady && snapshot.joined_room.as_ref().is_some_and(|r|
-                r.members.iter().any(|m|Some(m.name.as_str())==snapshot.selected_character.as_deref() && m.state==0))),
+                r.members.iter().any(|m|Some(m.name.as_str())==snapshot.selected_character.as_deref()))),
             (EXIT_ROOM, phase == LoginPhase::RoomReady),
             (CANCEL, !self.controller.is_quiescent()),
         ] {
