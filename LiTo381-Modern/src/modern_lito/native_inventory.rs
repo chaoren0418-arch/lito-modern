@@ -31,7 +31,7 @@ impl Item {
             .chars()
             .map(|c| if c.is_control() { ' ' } else { c })
             .collect();
-        format!(
+        let label = format!(
             "{} × {}",
             if name.is_empty() {
                 "未命名物品"
@@ -39,7 +39,12 @@ impl Item {
                 &name
             },
             self.count
-        )
+        );
+        if matches!(self.use_type, 3 | 4) {
+            if (1..=127).contains(&self.charge) {
+                format!("{label}（剩餘次數 {}）", self.charge)
+            } else { format!("{label}（無可用次數）") }
+        } else { label }
     }
 }
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]

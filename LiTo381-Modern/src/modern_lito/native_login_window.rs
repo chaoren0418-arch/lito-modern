@@ -59,6 +59,10 @@ const GROUND_TOGGLE: u16 = 117;
 const CHANGE_FORCE: u16 = 118;
 const ITEM_USE: u16 = 115;
 const ITEM_DROP: u16 = 116;
+const ITEM_DESTROY: u16 = 150;
+const ITEM_OPTION_SEND: u16 = 151;
+const ITEM_OPTION_CANCEL: u16 = 152;
+const ITEM_ARGUMENT: u16 = 250;
 const ITEM_QUANTITY: u16 = 210;
 const ITEM_FEEDBACK: u16 = 211;
 const ITEM_QUANTITY_LABEL: u16 = 212;
@@ -88,7 +92,10 @@ struct Ui {
     inventory_icons: super::native_inventory_icons::Service,
     inventory_icon_rows: Vec<(u32, u16)>,
     inventory_choice: Option<super::native_item_actions::Choice>,
+    skill_item_choice: Option<super::native_item_actions::Choice>,
     item_cursor: Option<super::native_item_actions::TargetChoice>,
+    item_selection: Option<super::native_item_actions::Selection>,
+    destroy_choice: Option<super::native_item_actions::Choice>,
     target: Option<super::native_skill_selection::Target>,
     ground: Option<super::native_skill_selection::Ground>,
     skills: super::native_skill_selection::Model,
@@ -229,6 +236,10 @@ impl Ui {
             (GROUND_TOGGLE, w!("BUTTON"), "附近物品".into(), 0),
             (ITEM_USE, w!("BUTTON"), "使用／裝卸".into(), 0),
             (ITEM_DROP, w!("BUTTON"), "丟棄".into(), 0),
+            (ITEM_DESTROY, w!("BUTTON"), "銷毀整疊".into(), 0),
+            (ITEM_OPTION_SEND, w!("BUTTON"), "確認選項".into(), 0),
+            (ITEM_OPTION_CANCEL, w!("BUTTON"), "取消選項".into(), 0),
+            (ITEM_ARGUMENT, w!("EDIT"), String::new(), ES_AUTOHSCROLL as u32),
             (
                 ITEM_QUANTITY,
                 w!("EDIT"),
@@ -371,6 +382,10 @@ impl Ui {
             (ITEM_QUANTITY_LABEL, 130, 644, px(32), 25),
             (ITEM_QUANTITY, 166, 640, px(60), 28),
             (ITEM_DROP, 240, 640, px(100), 32),
+            (ITEM_DESTROY, 350, 640, px(110), 32),
+            (ITEM_ARGUMENT, 20, 466, px(220), 28),
+            (ITEM_OPTION_SEND, 250, 466, px(100), 28),
+            (ITEM_OPTION_CANCEL, 360, 466, px(100), 28),
             (ITEM_FEEDBACK, 20, 678, width, 36),
             (306, 20, 642, px(80), 25),
             (ROOM_PASSWORD, 105, 640, px(90), 28),
@@ -422,6 +437,9 @@ impl Ui {
                 301|302|303|304|ACCOUNT|PASSWORD|CONNECT|LOGIN|SOURCES|SELECT|GAME|ACK if self.room_tools_view => false,
                 CANCEL | RETURN if self.world_view && self.inventory_view => false,
                 ITEM_DROP if self.ground_view => false,
+                ITEM_DESTROY => self.inventory_view && !self.ground_view,
+                ITEM_ARGUMENT | ITEM_OPTION_SEND | ITEM_OPTION_CANCEL => self.inventory_view
+                    && !self.ground_view && (self.item_selection.is_some() || self.destroy_choice.is_some()),
                 GROUND_TOGGLE => self.world_view && !self.result_view,
                 INVENTORY_LIST | ITEM_USE | ITEM_DROP | ITEM_QUANTITY | ITEM_FEEDBACK
                 | ITEM_QUANTITY_LABEL => self.inventory_view,
@@ -491,6 +509,10 @@ impl Ui {
                 px(22),
                 true,
             );
+            for (id, x, width) in [(ITEM_ARGUMENT,16,220),(ITEM_OPTION_SEND,246,110),
+                (ITEM_OPTION_CANCEL,366,110),(ITEM_DESTROY,486,110)] {
+                let _ = MoveWindow(self.control(id),px(x),area.bottom-px(240),px(width),px(30),true);
+            }
             let _ = MoveWindow(
                 self.control(INVENTORY_LIST),
                 px(16),
@@ -694,6 +716,17 @@ impl Ui {
         );
     }
     unsafe fn world_tick(&mut self, parent: HWND) {
+        let mut options_changed = false;
+        if self.item_selection.as_ref().is_some_and(|c| c.validate(self.controller.snapshot()).is_err()) || self.closing {
+            options_changed |= self.item_selection.take().is_some();
+        }
+        if self.destroy_choice.as_ref().is_some_and(|c| c.validate(self.controller.snapshot()).is_err()) || self.closing {
+            options_changed |= self.destroy_choice.take().is_some();
+        }
+        if self.skill_item_choice.as_ref().is_some_and(|c| c.validate(self.controller.snapshot()).is_err()) || self.closing {
+            self.skill_item_choice = None;
+        }
+        if options_changed { self.layout(parent, false); }
         if self.item_cursor.as_ref().is_some_and(|c| c.validate(self.controller.snapshot()).is_err())
             || self.closing {
             self.item_cursor = None;
@@ -810,6 +843,11 @@ impl Ui {
     unsafe fn cast_skill(&mut self, skill: u16) -> Result<()> {
         self.held.clear();
         self.held_attack.clear();
+        if super::native_skills::inventory_target(skill) {
+            let item = self.skill_item_choice.clone().context("請先在背包選取施法物品，再關閉背包施放")?;
+            let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+            return self.controller.cast_item(skill, item, frame);
+        }
         let choice = if matches!(skill, 58 | 63) {
             self.skills.choice_at(
                 self.controller.transport().snapshot().epoch,
@@ -1014,11 +1052,14 @@ impl Ui {
                 LPARAM(0),
             );
         }
-        let choice = self
-            .skills
-            .choice_at(epoch, &snapshot.world, self.target, self.ground);
+        let choice_ready = if self.skills.selected().is_some_and(super::native_skills::inventory_target) {
+            self.skill_item_choice.as_ref().is_some_and(|item|
+                super::native_skills::item_request(snapshot, self.skills.selected().unwrap(), item).is_ok())
+        } else {
+            self.skills.choice_at(epoch, &snapshot.world, self.target, self.ground).is_ok()
+        };
         let enabled = active
-            && choice.is_ok()
+            && choice_ready
             && snapshot.skill_feedback != super::native_skills::Feedback::Pending
             && snapshot.attack_feedback != super::native_combat::Feedback::Pending
             && self
@@ -1060,6 +1101,9 @@ impl Ui {
         } else {
             None
         };
+        // The cast controls are visible after closing the inventory. Keep the
+        // displayed item snapshot then; world_tick invalidates later deltas.
+        if self.inventory_view { self.skill_item_choice = self.inventory_choice.clone(); }
     }
     unsafe fn item_choice(&self) -> Result<super::native_item_actions::Choice> {
         ensure!(
@@ -1111,7 +1155,8 @@ impl Ui {
             && choice
                 .as_ref()
                 .is_ok_and(|c| actions::request(snapshot, c, Action::Use).is_ok()
-                    || actions::TargetChoice::capture(snapshot, c.item.id).is_ok());
+                    || actions::TargetChoice::capture(snapshot, c.item.id).is_ok()
+                    || actions::Selection::capture(snapshot, c.clone()).is_ok());
         let can_drop = ready
             && choice
                 .as_ref()
@@ -1119,17 +1164,30 @@ impl Ui {
         let _ = EnableWindow(self.control(ITEM_USE), can_use);
         let _ = EnableWindow(self.control(ITEM_DROP), can_drop);
         let _ = EnableWindow(self.control(ITEM_QUANTITY), can_drop);
+        let _ = EnableWindow(self.control(ITEM_DESTROY), ready && choice.as_ref()
+            .is_ok_and(|c| actions::request(snapshot,c,Action::Destroy).is_ok()));
+        let _ = EnableWindow(self.control(ITEM_OPTION_SEND), ready && (
+            self.item_selection.as_ref().is_some_and(|c| c.validate(snapshot).is_ok())
+            || self.destroy_choice.as_ref().is_some_and(|c| c.validate(snapshot).is_ok())));
+        let _ = EnableWindow(self.control(ITEM_ARGUMENT), self.item_selection.as_ref()
+            .is_some_and(|c| actions::text_choice_type(c.source.item.use_type)));
         self.text(
             ITEM_FEEDBACK,
-            if snapshot.item_feedback != Feedback::Idle {
+            if self.destroy_choice.is_some() {
+                "銷毀會移除選定物品整疊；確認前不會送出，取消可返回"
+            } else if let Some(selection) = &self.item_selection {
+                if actions::inventory_target_type(selection.source.item.use_type) {
+                    "請在背包選取另一件目標物品，再按確認選項"
+                } else { "請輸入物品選項名稱，再按確認選項" }
+            } else if snapshot.item_feedback != Feedback::Idle {
                 snapshot.item_feedback.label()
-            } else if choice.as_ref().is_ok_and(|c| c.item.use_type == 5) {
+            } else if choice.as_ref().is_ok_and(|c| actions::world_target_type(c.item.use_type)) {
                 "使用後點選世界中的目標位置；Esc取消"
             } else if choice
                 .as_ref()
                 .is_ok_and(|c| !actions::default_use_type(c.item.use_type))
             {
-                "此物品的目標或選項操作尚未接入"
+                "使用後選取目標或輸入選項；無可用操作時請查看物品種類與剩餘次數"
             } else {
                 "選取物品後使用／裝卸，或輸入要丟棄的數量"
             },
@@ -1634,7 +1692,12 @@ impl Ui {
                             })
                             .map(|c| format!("　選點 {},{}", c[0], c[1]))
                             .unwrap_or_default();
-                        let selection = self
+                        let selection = if let Some(skill) = self.skills.selected()
+                            .filter(|id| super::native_skills::inventory_target(*id)) {
+                            self.skill_item_choice.as_ref().context("請先在背包選取施法物品，再關閉背包施放")
+                                .and_then(|item| super::native_skills::item_request(&snapshot,skill,item))
+                                .err().map(|e|e.to_string()).unwrap_or_else(|| "可對所選背包物品施法".into())
+                        } else { self
                             .skills
                             .choice_at(
                                 self.controller.transport().snapshot().epoch,
@@ -1644,7 +1707,7 @@ impl Ui {
                             )
                             .err()
                             .map(|e| e.to_string())
-                            .unwrap_or_else(|| "可按「施放技能」".into());
+                            .unwrap_or_else(|| "可按「施放技能」".into()) };
                         let guidance = if snapshot.battle_withdrawal_pending {
                             "正在等待退出戰鬥確認…".to_owned()
                         } else if self.item_cursor.is_some() {
@@ -1847,6 +1910,8 @@ impl Ui {
                 self.pickup_rows.clear();
                 self.inventory_choice = None;
                 self.item_cursor = None;
+                self.item_selection = None;
+                self.destroy_choice = None;
                 self.inventory_rows.clear();
                 send(
                     self.control(INVENTORY_LIST),
@@ -1883,7 +1948,18 @@ impl Ui {
             }
             ITEM_USE | ITEM_DROP => {
                 let choice = self.item_choice()?;
-                if id == ITEM_USE && choice.item.use_type == 5 {
+                self.destroy_choice = None;
+                self.item_selection = None;
+                if id == ITEM_USE && (super::native_item_actions::inventory_target_type(choice.item.use_type)
+                    || super::native_item_actions::text_choice_type(choice.item.use_type)) {
+                    self.item_selection = Some(super::native_item_actions::Selection::capture(
+                        self.controller.snapshot(), choice)?);
+                    self.text(ITEM_ARGUMENT, "");
+                    self.layout(self.parent, false);
+                    self.refresh_item_actions();
+                    return Ok(());
+                }
+                if id == ITEM_USE && super::native_item_actions::world_target_type(choice.item.use_type) {
                     let cursor = super::native_item_actions::TargetChoice::capture(
                         self.controller.snapshot(), choice.item.id)?;
                     self.held.clear(); self.held_attack.clear();
@@ -1909,6 +1985,9 @@ impl Ui {
                 self.refresh_item_actions();
             }
             CAST_SKILL => {
+                if let Some(skill) = self.skills.selected().filter(|id| super::native_skills::inventory_target(*id)) {
+                    return self.cast_skill(skill);
+                }
                 let choice = self.skills.choice_at(
                     self.controller.transport().snapshot().epoch,
                     &self.controller.snapshot().world,
@@ -1916,6 +1995,40 @@ impl Ui {
                     self.ground,
                 )?;
                 self.cast_skill(choice.skill)?;
+            }
+            ITEM_DESTROY => {
+                let choice = self.item_choice()?;
+                super::native_item_actions::request(self.controller.snapshot(), &choice,
+                    super::native_item_actions::Action::Destroy)?;
+                self.item_selection = None;
+                self.text(ITEM_ARGUMENT, &choice.item.label());
+                self.destroy_choice = Some(choice);
+                self.layout(self.parent, false);
+                self.refresh_item_actions();
+            }
+            ITEM_OPTION_CANCEL => {
+                self.item_selection = None;
+                self.destroy_choice = None;
+                self.text(ITEM_ARGUMENT, "");
+                self.layout(self.parent, false);
+                self.refresh_item_actions();
+            }
+            ITEM_OPTION_SEND => {
+                if let Some(choice) = self.destroy_choice.clone() {
+                    ensure!(self.item_choice()? == choice, "選取已變更，請重新確認銷毀物品");
+                    self.controller.item_action(choice, super::native_item_actions::Action::Destroy)?;
+                    self.destroy_choice = None;
+                } else {
+                    let selection = self.item_selection.clone().context("請先使用物品")?;
+                    let target = if super::native_item_actions::inventory_target_type(selection.source.item.use_type) {
+                        Some(self.item_choice()?)
+                    } else { None };
+                    let text = self.read(ITEM_ARGUMENT,255)?;
+                    self.controller.item_selection_action(selection,target,&text)?;
+                    self.item_selection = None;
+                }
+                self.layout(self.parent, false);
+                self.refresh_item_actions();
             }
             CONNECT => self.controller.start(self.peer, Limits::default())?,
             LOGIN => {
@@ -2296,7 +2409,10 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 inventory_icons: super::native_inventory_icons::Service::new(resource_root.clone()),
                 inventory_icon_rows: vec![],
                 inventory_choice: None,
+                skill_item_choice: None,
                 item_cursor: None,
+                item_selection: None,
+                destroy_choice: None,
                 target: None,
                 ground: None,
                 skills: Default::default(),
@@ -2386,6 +2502,16 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                             };
                             if enabled { send(hwnd, WM_COMMAND, WPARAM(rental::ORDER as usize), LPARAM(0)); }
                         }
+                        continue;
+                    }
+                }
+                if message.message == WM_KEYDOWN && message.wParam.0 == 0x1b {
+                    let mut ui = state.0.borrow_mut();
+                    if ui.inventory_view && (ui.item_selection.is_some() || ui.destroy_choice.is_some()) {
+                        ui.item_selection = None;
+                        ui.destroy_choice = None;
+                        ui.layout(hwnd, false);
+                        ui.refresh_item_actions();
                         continue;
                     }
                 }

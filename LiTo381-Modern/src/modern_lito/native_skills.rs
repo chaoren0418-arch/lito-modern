@@ -43,6 +43,22 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     ensure!(!own.dead, "角色已死亡");
     Ok(())
 }
+pub fn inventory_target(skill: u16) -> bool { matches!(skill, 12 | 21 | 73 | 100 | 107) }
+
+/// These selectors address inventory instances, never a world actor or catalog ID.
+/// Item eligibility, equipped-weapon resolution and reagent cost remain authoritative.
+pub fn item_request(s: &super::native_login::Snapshot, skill: u16,
+    item: &super::native_item_actions::Choice) -> Result<Vec<u8>> {
+    ensure!(inventory_target(skill), "此技能不使用背包目標");
+    ensure!(s.phase.active_world()
+        && super::native_item_actions::available(s) && !s.observer && !s.world.observer_mode,
+        "目前不能對物品施法");
+    item.validate(s)?;
+    can_cast(&s.world, skill)?;
+    let mut bytes = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
+    bytes.extend(item.item.id.to_le_bytes());
+    Ok(bytes)
+}
 pub fn ground_request(world: &World, skill: u16, position: [u16; 2]) -> Result<Vec<u8>> {
     ensure!(matches!(skill, 58 | 63), "此地面技能尚未接入");
     can_cast(world, skill)?;

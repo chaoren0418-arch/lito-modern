@@ -566,6 +566,26 @@ impl LoginController {
         self.state.item_feedback = super::native_item_actions::Feedback::Pending;
         Ok(())
     }
+    pub fn item_selection_action(
+        &mut self,
+        selection: super::native_item_actions::Selection,
+        target: Option<super::native_item_actions::Choice>,
+        text: &str,
+    ) -> Result<()> {
+        ensure!(self.portal_entry.is_none(), "等待地圖入口回覆");
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "請等待上一筆物品更新");
+        ensure!(selection.source.owner.connection == self.transport.snapshot().epoch, "物品連線已變更");
+        let body = if let Some(target) = target {
+            selection.item_request(&self.state, &target)?
+        } else {
+            selection.text_request(&self.state, text)?
+        };
+        self.transport.send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+        self.item_pending = Some(super::native_item_actions::Pending::new(
+            &self.state, selection.source, Instant::now()));
+        self.state.item_feedback = super::native_item_actions::Feedback::Pending;
+        Ok(())
+    }
     pub fn continue_attack(
         &mut self,
         held: &mut super::native_combat::HeldAttack,
@@ -593,7 +613,7 @@ impl LoginController {
         target: Option<u32>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, frame)
+        self.cast_request(skill, target, None, None, frame)
     }
     pub fn cast_ground(
         &mut self,
@@ -607,13 +627,19 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), frame)
+        self.cast_request(skill, None, Some(position), None, frame)
+    }
+    pub fn cast_item(&mut self, skill: u16, item: super::native_item_actions::Choice,
+        frame: &super::native_world_scene::Frame) -> Result<()> {
+        ensure!(item.owner.connection == self.transport.snapshot().epoch, "物品連線已變更");
+        self.cast_request(skill, None, None, Some(&item), frame)
     }
     fn cast_request(
         &mut self,
         skill: u16,
         target: Option<u32>,
         ground: Option<[u16; 2]>,
+        item: Option<&super::native_item_actions::Choice>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
         ensure!(self.world_tree_request.is_none(),"等待世界樹傳送回覆");
@@ -630,11 +656,15 @@ impl LoginController {
                 && frame.movement_ready(&self.state.world),
             "等待施法動作完成"
         );
-        let body = match ground {
-            Some(position) => {
-                super::native_skills::ground_request(&self.state.world, skill, position)?
+        let body = if let Some(item) = item {
+            super::native_skills::item_request(&self.state, skill, item)?
+        } else {
+            match ground {
+                Some(position) => {
+                    super::native_skills::ground_request(&self.state.world, skill, position)?
+                }
+                None => super::native_skills::request(&self.state.world, skill, target)?,
             }
-            None => super::native_skills::request(&self.state.world, skill, target)?,
         };
         self.transport
             .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
@@ -2359,6 +2389,8 @@ pub fn probe_lobby(
             "room-world-wall",
             "room-world-wall-refused",
             "room-world-item-heal",
+            "room-world-item-heal-194",
+            "room-world-item-heal-197",
             "room-world-item-drop",
             "room-world-item-drop-refused"
         ]
@@ -2415,6 +2447,8 @@ fn probe_flow(
                         | "room-world-wall"
                         | "room-world-wall-refused"
                         | "room-world-item-heal"
+                        | "room-world-item-heal-194"
+                        | "room-world-item-heal-197"
                         | "room-world-item-drop"
                         | "room-world-item-drop-refused"
                 )
@@ -2473,6 +2507,8 @@ fn probe_flow(
                 | "room-world-wall"
                 | "room-world-wall-refused"
                 | "room-world-item-heal"
+                | "room-world-item-heal-194"
+                | "room-world-item-heal-197"
                 | "room-world-item-drop"
                 | "room-world-item-drop-refused"
         )

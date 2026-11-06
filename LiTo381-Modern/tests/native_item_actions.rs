@@ -79,10 +79,12 @@ fn specialized_or_unknown_use_types_never_fall_through_to_default_packet() {
     let mut s = state();
     for ty in 0..=255 {
         s.inventory.items.get_mut(&ID).unwrap().use_type = ty;
+        s.inventory.items.get_mut(&ID).unwrap().charge = 1;
         let c = Choice::capture(&s, ID).unwrap();
         assert_eq!(
             actions::request(&s, &c, Action::Use).is_ok(),
-            [0, 1, 2, 11, 18, 19, 20, 21, 22, 23, 24, 25].contains(&ty)
+            [0, 1, 2, 3, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25,
+                0xf7,0xf8,0xf9,0xfa,0xfc,0xfd,0xfe].contains(&ty)
         );
     }
 }
@@ -339,4 +341,213 @@ fn ordinary_portal_admission_requires_live_room_and_same_map() {
     s.world.hp=Some([0,50]);
     let own=s.world.own_actor().unwrap().id;s.world.actors.get_mut(&own).unwrap().dead=true;
     assert!(admit(&s,Destination{map:d.map+1,..d}).is_ok());
+}
+
+#[test]
+fn charged_type_three_is_cd_and_waits_for_authoritative_charge_delta() {
+    let mut s = battle();
+    s.inventory.items.get_mut(&ID).unwrap().use_type = 3;
+    for charge in [0,1,127,128,255] {
+        s.inventory.items.get_mut(&ID).unwrap().charge = charge;
+        let c = Choice::capture(&s,ID).unwrap();
+        let before = serde_json::to_value(&s).unwrap();
+        let r = actions::request(&s,&c,Action::Use);
+        assert_eq!(r.is_ok(), (1..=127).contains(&charge));
+        if let Ok(r) = r { assert_eq!(r, [0x1c,0x98,0xba,0xdc,0xfe]); }
+        assert_eq!(serde_json::to_value(&s).unwrap(),before);
+    }
+    s.inventory.items.get_mut(&ID).unwrap().charge = 1;
+    let c = Choice::capture(&s,ID).unwrap();
+    let now = Instant::now();
+    let p = Pending::new(&s,c.clone(),now);
+    s.inventory.accept(2,&[0x19,0x98,0xba,0xdc,0xfe,0]).unwrap();
+    assert_eq!(p.observe(&s,now),Feedback::InventoryChanged);
+    assert!(actions::request(&s,&c,Action::Use).is_err());
+    assert!(actions::request(&s,&Choice::capture(&s,ID).unwrap(),Action::Use).is_err());
+}
+
+#[test]
+fn destroy_is_whole_stack_cd_and_never_predicts_removal() {
+    let mut s = state();
+    s.inventory.items.get_mut(&ID).unwrap().count = u32::MAX;
+    let c = Choice::capture(&s,ID).unwrap();
+    assert_eq!(actions::request(&s,&c,Action::Destroy).unwrap(),[0x76,0x98,0xba,0xdc,0xfe]);
+    assert_eq!(s.inventory.items[&ID].count,u32::MAX);
+    s.observer = true;
+    assert!(actions::request(&s,&c,Action::Destroy).is_err());
+    s.observer = false;
+    s.inventory.items.get_mut(&ID).unwrap().count = 1;
+    assert!(actions::request(&s,&c,Action::Destroy).is_err());
+}
+
+fn add_target(s: &mut Snapshot) -> Choice {
+    let mut item = s.inventory.items[&ID].clone();
+    item.id = u32::MAX;
+    item.use_type = 23;
+    s.inventory.items.insert(item.id,item);
+    Choice::capture(s,u32::MAX).unwrap()
+}
+
+#[test]
+fn inventory_options_use_both_unsigned_objects_and_reject_stale_choices() {
+    for ty in [7,14,26,27] {
+        let mut s = battle();
+        s.inventory.items.get_mut(&ID).unwrap().use_type = ty;
+        let target = add_target(&mut s);
+        let c = Choice::capture(&s,ID).unwrap();
+        let selection = actions::Selection::capture(&s,c.clone()).unwrap();
+        assert_eq!(selection.item_request(&s,&target).unwrap(),
+            [0x1c,0x98,0xba,0xdc,0xfe,255,255,255,255]);
+        assert!(selection.item_request(&s,&c).is_err());
+        assert!(selection.text_request(&s,"name").is_err());
+        for change in 0..8 {
+            let mut changed = s.clone();
+            match change {
+                0 => changed.inventory.items.get_mut(&u32::MAX).unwrap().count -= 1,
+                1 => changed.inventory.items.get_mut(&ID).unwrap().charge += 1,
+                2 => changed.inventory.owner.as_mut().unwrap().selection += 1,
+                3 => changed.world.generation += 1,
+                4 => changed.world.control_interruptions += 1,
+                5 => changed.phase = LoginPhase::LobbyReady,
+                6 => changed.game_connected = false,
+                _ => changed.observer = true,
+            }
+            assert!(selection.item_request(&changed,&target).is_err(),"type={ty}, change={change}");
+        }
+    }
+}
+
+#[test]
+fn text_options_are_bounded_exact_ms950_and_never_default_empty() {
+    let mut s = state();
+    for ty in [4,16] {
+        s.inventory.items.get_mut(&ID).unwrap().use_type = ty;
+        s.inventory.items.get_mut(&ID).unwrap().charge = 1;
+        let selection = actions::Selection::capture(&s,Choice::capture(&s,ID).unwrap()).unwrap();
+        assert_eq!(selection.text_request(&s,"orc").unwrap(),[0x1c,0x98,0xba,0xdc,0xfe,b'o',b'r',b'c',0]);
+        assert_eq!(&selection.text_request(&s,"測試").unwrap()[5..], &[0xb4,0xfa,0xb8,0xd5,0]);
+        for text in ["", "x\0y", "x\ny", "😀"] { assert!(selection.text_request(&s,text).is_err()); }
+        assert!(selection.text_request(&s,&"a".repeat(256)).is_err());
+    }
+    s.inventory.items.get_mut(&ID).unwrap().use_type = 4;
+    s.inventory.items.get_mut(&ID).unwrap().charge = 0;
+    assert!(actions::Selection::capture(&s,Choice::capture(&s,ID).unwrap()).is_err());
+}
+
+#[test]
+fn home_and_light_have_distinct_tails_and_actor_target_is_not_a_coordinate_packet() {
+    let mut s = battle();
+    s.inventory.items.get_mut(&ID).unwrap().use_type = 9;
+    let bytes = actions::request(&s,&Choice::capture(&s,ID).unwrap(),Action::Use).unwrap();
+    assert_eq!(bytes.len(),11);
+    assert_eq!(&bytes[5..7], &s.world.map_id.unwrap().to_le_bytes());
+    assert_eq!(&bytes[7..], &[0,0,0,0]);
+    s.inventory.items.get_mut(&ID).unwrap().use_type = 10;
+    assert_eq!(actions::request(&s,&Choice::capture(&s,ID).unwrap(),Action::Use).unwrap().len(),9);
+    s.inventory.items.get_mut(&ID).unwrap().use_type = 8;
+    let cursor = actions::TargetChoice::capture(&s,ID).unwrap();
+    let actor = s.world.actors[&2].clone();
+    let bytes = actions::target_request(&s,&cursor,2,[actor.x,actor.y]).unwrap();
+    assert_eq!(bytes,[0x1c,0x98,0xba,0xdc,0xfe,2,0,0,0]);
+    assert!(actions::target_request(&s,&cursor,0,[actor.x,actor.y]).is_err());
+    for (ty,length) in [(17,13),(30,9)] {
+        s.inventory.items.get_mut(&ID).unwrap().use_type = ty;
+        let cursor = actions::TargetChoice::capture(&s,ID).unwrap();
+        assert_eq!(actions::target_request(&s,&cursor,2,[actor.x,actor.y]).unwrap().len(),length);
+    }
+}
+
+#[test]
+fn five_item_spells_never_send_actor_or_catalog_id_or_spend_locally() {
+    use lito_modern::modern_lito::native_skills as skills;
+    let mut s = battle();
+    s.world.mp = Some([100,100]);
+    let target = add_target(&mut s);
+    for (skill,row,col) in [(12,1,3),(21,2,4),(73,9,0),(100,12,3),(107,13,2)] {
+        s.world.learned_skills.insert(skill);
+        let before = serde_json::to_value(&s).unwrap();
+        assert_eq!(skills::item_request(&s,skill,&target).unwrap(),[0x14,row,col,255,255,255,255]);
+        let mut classic = s.clone();
+        classic.phase = LoginPhase::WorldReady;
+        assert_eq!(skills::item_request(&classic,skill,&target).unwrap(),[0x14,row,col,255,255,255,255]);
+        assert!(skills::request(&s.world,skill,Some(2)).is_err());
+        assert_eq!(serde_json::to_value(&s).unwrap(),before);
+        s.world.learned_skills.remove(&skill);
+        assert!(skills::item_request(&s,skill,&target).is_err());
+    }
+    s.world.learned_skills.insert(73);
+    s.inventory.items.get_mut(&u32::MAX).unwrap().charge += 1;
+    assert!(skills::item_request(&s,73,&target).is_err());
+    s.inventory.items.remove(&u32::MAX);
+    assert!(skills::item_request(&s,73,&target).is_err());
+}
+
+#[test]
+fn healing_effects_and_reagent_deltas_are_independent_authority() {
+    use lito_modern::modern_lito::native_skills as skills;
+    for effect in [194u16,197] {
+        let mut s = battle();
+        let choice = Choice::capture(&s,ID).unwrap();
+        let now = Instant::now();
+        let pending = Pending::new(&s,choice.clone(),now);
+        actions::request(&s,&choice,Action::Use).unwrap();
+        let before_hp = s.world.hp;
+        let count = s.inventory.items[&ID].count;
+        let mut effect_packet = vec![0x37];
+        effect_packet.extend(s.world.own_actor().unwrap().id.to_le_bytes());
+        effect_packet.extend(effect.to_le_bytes());
+        s.world.accept(&effect_packet).unwrap();
+        assert_eq!(s.world.hp,before_hp);
+        assert_eq!(s.inventory.items[&ID].count,count);
+        assert_eq!(pending.observe(&s,now),Feedback::Pending);
+        assert_eq!(s.world.effects.last().unwrap().graphics,effect);
+        s.inventory.accept(2,&[0x1a,0x98,0xba,0xdc,0xfe,1,0,0,0]).unwrap();
+        assert_eq!(pending.observe(&s,now),Feedback::InventoryChanged);
+    }
+    let mut s = battle();
+    s.world.mp = Some([80,80]);
+    s.world.learned_skills.insert(63);
+    let own = s.world.own_actor().unwrap();
+    let position = [own.x,own.y];
+    let count = s.inventory.items[&ID].count;
+    skills::ground_request(&s.world,63,position).unwrap();
+    assert_eq!(s.world.mp,Some([80,80]));
+    assert_eq!(s.inventory.items[&ID].count,count);
+    s.world.accept(&[0x4d,60,0,80,0]).unwrap();
+    s.inventory.accept(2,&[0x17,0x98,0xba,0xdc,0xfe]).unwrap();
+    assert_eq!(s.world.mp,Some([60,80]));
+    assert!(!s.inventory.items.contains_key(&ID));
+}
+
+#[test]
+fn formal_e149_options_and_item_skill_vectors_match_production_builders() {
+    use lito_modern::modern_lito::native_skills as skills;
+    let fixture = include_bytes!("fixtures/native-item-options-e149.json");
+    let value: serde_json::Value = serde_json::from_slice(fixture).unwrap();
+    assert_eq!(value["jar_sha256"],"e1498871c7be6b287821c57ef5d95933db1740d9b4d4a80f6c3465f21d99d498");
+    let mut s = battle();
+    let target = add_target(&mut s);
+    let choice = Choice::capture(&s,ID).unwrap();
+    assert_eq!(actions::request(&s,&choice,Action::Destroy).unwrap(),packet(fixture,"destroy"));
+    for (ty,key) in [(7,"appraisal"),(14,"choice")] {
+        s.inventory.items.get_mut(&ID).unwrap().use_type = ty;
+        let selection = actions::Selection::capture(&s,Choice::capture(&s,ID).unwrap()).unwrap();
+        assert_eq!(selection.item_request(&s,&target).unwrap(),packet(fixture,key));
+    }
+    s.inventory.items.get_mut(&ID).unwrap().use_type = 16;
+    let selection = actions::Selection::capture(&s,Choice::capture(&s,ID).unwrap()).unwrap();
+    assert_eq!(selection.text_request(&s,"orc").unwrap(),packet(fixture,"polymorph"));
+    assert_eq!(actions::target_location_request(ID,u32::MAX,[32768,65535]).unwrap(),packet(fixture,"target_location"));
+    s.world.mp = Some([100,100]);
+    for skill in [12,21,73,100,107] {
+        s.world.learned_skills.insert(skill);
+        assert_eq!(skills::item_request(&s,skill,&target).unwrap(),packet(fixture,&format!("skill_{skill}")));
+    }
+    for (key, expected) in [("charge_zero",0),("count_one",1)] {
+        s.inventory.accept(2,&packet(fixture,key)).unwrap();
+        if key=="charge_zero" { assert_eq!(s.inventory.items[&ID].charge,expected as u8); }
+        else { assert_eq!(s.inventory.items[&ID].count,expected); }
+    }
+    s.inventory.accept(2,&packet(fixture,"remove")).unwrap();
+    assert!(!s.inventory.items.contains_key(&ID));
 }
