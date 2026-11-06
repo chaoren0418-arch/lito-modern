@@ -18,7 +18,7 @@ fn object_target(body: &[u8]) -> Option<u32> {
             let skill = u16::from(body[1]) * 8 + u16::from(body[2]) + 1;
             if body[2] > 7
                 || skill > 220
-                || matches!(skill, 5 | 12 | 21 | 51 | 58 | 60 | 63 | 69 | 116 | 118)
+                || matches!(skill, 5 | 12 | 21 | 51 | 58 | 60 | 63 | 69 | 100 | 116 | 118)
             {
                 return None;
             }

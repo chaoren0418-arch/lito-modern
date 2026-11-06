@@ -225,3 +225,12 @@ fn lfc1_cipher_counter_and_next_ordinary_frame_remain_aligned() {
         }
     }
 }
+
+#[test]
+fn t021_stone_object_never_receives_actor_force_trailer() {
+    let state = snapshot();
+    let original = spell(100, 0xfedcba98, false);
+    let mut body = original.clone();
+    append(&mut body, CTRL, &state);
+    assert_eq!(body, original);
+}
