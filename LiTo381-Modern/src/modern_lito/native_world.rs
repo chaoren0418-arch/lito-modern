@@ -87,6 +87,9 @@ pub struct World {
     pub emblems: super::native_emblems::Cache,
     pub learned_skills: BTreeSet<u16>,
     pub effects: Vec<super::native_skills::Effect>,
+    /// Local decode binding; snapshots share irreversible lease retirement.
+    #[serde(skip)]
+    pub static_effect_receipts: BTreeMap<u64, super::native_static2941::Receipt>,
     pub effects_dropped: u64,
     /// Direct S4A cues, scoped to this world. No inferred spell or expiry.
     pub wire_sounds: Vec<WireSound>,
@@ -318,7 +321,24 @@ impl World {
     }
     /// Empty authority without reusing the identity of any previously rendered
     /// world. The next map packet advances this generation, including reconnects.
+    pub(crate) fn retire_static_effects(&mut self) {
+        for receipt in self.static_effect_receipts.values() { receipt.retire(); }
+        self.static_effect_receipts.clear();
+    }
+    pub(crate) fn accept_received(&mut self, body: &[u8], ingress: super::native_connection::IngressReceipt) -> Result<bool> {
+        ensure!(ingress.connection_epoch() != 0, "static receipt without connection");
+        let before = self.visual_revision;
+        let handled = self.accept(body)?;
+        if handled && body.first() == Some(&0x37) && self.visual_revision != before {
+            if let Some(cue) = self.effects.last().filter(|cue| cue.graphics == 2941 && cue.sequence == self.visual_revision) {
+                let receipt = super::native_static2941::Receipt::received(self, cue, ingress);
+                self.static_effect_receipts.insert(cue.sequence, receipt);
+            }
+        }
+        Ok(handled)
+    }
     pub fn clear_preserving_generation(&mut self) {
+        self.retire_static_effects();
         *self = Self { generation: self.generation,
             relations:std::mem::take(&mut self.relations), ..Default::default() };
     }
@@ -477,6 +497,7 @@ impl World {
         if op==0x5a{
             let destination=super::native_portal::parse(b)?;ensure!(self.ready(),"portal before ready world or repeated pending portal");
             let object_id=self.own_actor().unwrap().id;let generation=self.generation.checked_add(1).context("portal generation")?;
+            self.retire_static_effects();
             *self=Self{portal:Some(super::native_portal::Pending{destination,object_id}),completed_portals:self.completed_portals,
                 map_id:Some(destination.map),generation,started:true,learned_skills:std::mem::take(&mut self.learned_skills),
                 relations:std::mem::take(&mut self.relations),..Default::default()};
@@ -514,6 +535,7 @@ impl World {
             let underwater = r.c()?;
             r.end()?;
             let generation = self.generation.checked_add(1).context("world generation")?;
+            self.retire_static_effects();
             *self = Self {
                 observer_mode: self.observer_mode,
                 learned_skills: std::mem::take(&mut self.learned_skills),
@@ -723,7 +745,8 @@ impl World {
                     .map(|id| [self.actors[&id].x, self.actors[&id].y])
                     .unwrap_or(position);
                 if self.effects.len() == 128 {
-                    self.effects.remove(0);
+                    let retired = self.effects.remove(0);
+                    if let Some(receipt) = self.static_effect_receipts.remove(&retired.sequence) { receipt.retire(); }
                     self.effects_dropped += 1;
                 }
                 self.effects.push(super::native_skills::Effect {

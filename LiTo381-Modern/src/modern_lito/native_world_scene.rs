@@ -273,7 +273,9 @@ impl Job {
                     }
                     if let Some(cursor)=wire_audio {model.wire_audio=cursor;}
                     let frame = model.draw_at_labels_environment(&world, &token, elapsed_ns, hover, environment.as_ref())?;
-                    Ok(Completion { model, frame })
+                    let static2941_ready = model.static2941.prepare(&root, &world, &token, &mut model.effect_catalog)?;
+                    let static2941_error = model.static2941.error().map(str::to_owned);
+                    Ok(Completion { model, frame, static2941_ready, static2941_error })
                 })();
                 let _ = send.send(result);
             })?;
@@ -354,6 +356,7 @@ impl FiniteHistory {
     pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();}
 }
 pub struct Model {
+    static2941: super::native_static2941::Stage,
     world_generation:u64,
     lighting: super::native_world_lighting::Runtime,
     names: super::native_inventory_names::Catalog,
@@ -401,6 +404,8 @@ pub struct Model {
     many_effects:super::native_attack_many::Effects,
 }
 pub struct Completion {
+    pub(crate) static2941_ready: Vec<super::native_static2941::Prepared>,
+    pub(crate) static2941_error: Option<String>,
     pub model: Model,
     pub frame: Frame,
 }
@@ -709,6 +714,7 @@ impl Model {
             disintegrate_effects:Default::default(),
             call_lightning_effects:Default::default(),
             cone_cold_effects:Default::default(),
+            static2941: Default::default(),
             effect_source_owner:std::sync::Arc::new(()),
             many_effects:Default::default(),
         })

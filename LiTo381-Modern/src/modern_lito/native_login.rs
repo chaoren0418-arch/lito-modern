@@ -334,6 +334,7 @@ struct RentalReturnReconnect {
     closing: bool,
 }
 pub struct LoginController {
+    static2941: super::native_static2941::Queue,
     teleport: Option<super::native_teleport::Pending>,
     teleport_quit_tx: Option<u64>,
     login_peer: Option<SocketAddr>,
@@ -375,7 +376,11 @@ pub struct LoginController {
 }
 impl Default for LoginController {
     fn default() -> Self {
+        // Native 480A60 calls 4D6360 during startup, before queue activity.
+        // This process-wide result (including an error) survives controller reset.
+        super::native_clock::initialize();
         Self {
+            static2941: Default::default(),
             teleport: None,
             teleport_quit_tx: None,
             login_peer: None,
@@ -840,6 +845,8 @@ impl LoginController {
         self.state.pickup_feedback = super::native_ground_pickup::Feedback::Interrupted;
         self.item_pending = None;
         let generation = self.state.world.generation;
+        self.static2941.retire();
+        self.state.world.retire_static_effects();
         self.state = Self::default().state;
         self.state.world.generation = generation;
         self.state.phase = LoginPhase::Connecting;
@@ -1513,6 +1520,13 @@ impl LoginController {
         Ok(true)
     }
     fn accept_game(&mut self, body: &[u8]) -> Result<()> {
+        self.accept_game_received(body, None)
+    }
+    fn accept_game_received(&mut self, body: &[u8], ingress: Option<super::native_connection::IngressReceipt>) -> Result<()> {
+        let dispatched_at = Instant::now();
+        if let Some(receipt) = ingress {
+            ensure!(receipt.connection_epoch() == self.transport.snapshot().epoch, "world ingress connection retired");
+        }
         if self.state.phase==LoginPhase::TeleportQuitPending {
             if body.first()==Some(&0xf0) {
                 ensure!(body==[0xf0,0],"malformed teleport quit acknowledgement");
@@ -1636,7 +1650,15 @@ impl LoginController {
             );
         }
         let previous_world_generation=self.state.world.generation;
-        if self.state.world.accept(body)? {
+        let world_accepted = match ingress {
+            Some(receipt) => self.state.world.accept_received(body, receipt)?,
+            None => self.state.world.accept(body)?,
+        };
+        self.static2941.synchronize(&self.state.world, self.transport.snapshot().epoch);
+        if world_accepted {
+            if let Some(receipt) = ingress {
+                self.static2941.admit_received(&mut self.state.world, self.transport.snapshot().epoch, receipt, dispatched_at)?;
+            }
             if matches!(body.first(), Some(0x28 | 0x5a)) {
                 self.state.environment.map_changed(self.transport.snapshot().epoch,
                     self.state.world.map_id.context("accepted environment map")?,
@@ -1867,6 +1889,7 @@ impl LoginController {
         Ok(())
     }
     pub fn cancel(&mut self) {
+        self.static2941.retire();
         self.rental_return_reconnect=None;
         self.confirm_initial_source = false;
         self.state.environment.retire();
@@ -1945,6 +1968,16 @@ impl LoginController {
         };
         Ok(())
     }
+    /// Accepted worker proofs enter the controller before the next poll drain.
+    /// Loading and paint never provide native timer samples.
+    pub(crate) fn enqueue_static2941(&mut self, root: &std::path::Path,
+        prepared: Vec<super::native_static2941::Prepared>) -> Result<()> {
+        for proof in prepared {
+            self.static2941.enqueue_prepared(&mut self.state.world, self.transport.snapshot().epoch,
+                root, proof, super::native_clock::sample)?;
+        }
+        Ok(())
+    }
     pub fn poll(&mut self) {
         for event in self.transport.poll() {
             if matches!(
@@ -1994,10 +2027,12 @@ impl LoginController {
                         Ok(())
                     }
                 }
-                Event::Packet { epoch, body, .. } => {
+                Event::Packet { epoch, body, rx_counter, receipt } => {
                     if epoch != self.transport.snapshot().epoch { continue; }
-                    if self.game {
-                        self.accept_game(&body)
+                    if receipt.connection_epoch() != epoch || receipt.rx_counter() != rx_counter {
+                        Err(anyhow::anyhow!("native packet receipt identity mismatch"))
+                    } else if self.game {
+                        self.accept_game_received(&body, Some(receipt))
                     } else {
                         parse(&body).and_then(|packet| self.accept(packet))
                     }
@@ -2017,6 +2052,11 @@ impl LoginController {
                 self.fail(format!("{error:#}"));
             }
         }
+        let connection = self.transport.snapshot().epoch;
+        self.static2941.synchronize(&self.state.world, connection);
+        let drain = super::native_clock::sample().and_then(|sample|
+            self.static2941.drain_due(&mut self.state.world, connection, sample));
+        if let Err(error) = drain { self.fail(format!("static2941 clock: {error:#}")); }
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);
             if let Err(error)=self.state.environment.water_poll(epoch,generation) {
@@ -2217,6 +2257,7 @@ impl LoginController {
             source:self.state.selected_source.clone()?,character:teleport.character.clone()})
     }
     fn fail(&mut self, error: String) {
+        self.static2941.retire();
         self.rental_return_reconnect=None;
         self.confirm_initial_source = false;
         self.state.environment.retire();
