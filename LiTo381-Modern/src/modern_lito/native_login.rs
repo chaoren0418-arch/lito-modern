@@ -714,6 +714,40 @@ impl LoginController {
         self.deadline = Some(Instant::now() + Duration::from_secs(8));
         Ok(())
     }
+    /// One held press waits for animation, but is retired by authority changes
+    /// or a rejected next step. Opening a door later cannot resume that press.
+    pub fn continue_movement(
+        &mut self,
+        held: &mut super::native_navigation::HeldInput,
+        frame: Option<&super::native_world_scene::Frame>,
+    ) -> Result<bool> {
+        let w = &self.state.world;
+        held.synchronize_action(w);
+        held.synchronize(Some(super::native_navigation::InputStamp::capture(
+            self.transport.snapshot().epoch, w,
+        )));
+        if !self.state.phase.active_world() || !w.ready()
+            || w.hp.is_none_or(|hp| hp[0] == 0)
+            || w.own_actor().is_none_or(|a| a.dead)
+            || w.battle_result.is_some() || !w.movement_blocks.is_empty()
+            || w.movement_lock != super::native_world::MovementLock::Open
+        {
+            held.clear();
+            return Ok(false);
+        }
+        let (Some(heading), Some(frame)) = (held.direction(), frame) else {
+            return Ok(false);
+        };
+        if !frame.movement_ready(w) || self.attack_pending.is_some() {
+            return Ok(false);
+        }
+        if let Err(error) = self.move_presented(heading, frame) {
+            held.clear();
+            return Err(error);
+        }
+        held.sent();
+        Ok(true)
+    }
     /// Interactive movement requires the latest arrived presentation. A previous
     /// frame cannot authorize a second step after predict_step changes its key.
     pub fn move_presented(
@@ -1672,6 +1706,9 @@ impl LoginController {
                 self.deadline = None;
                 self.attack_pending = None;
             }
+            self.state.world.encounter_mode = self.state.joined_room.as_ref()
+                .filter(|_| matches!(self.state.phase, LoginPhase::BattlePending | LoginPhase::BattleResult))
+                .and_then(|room| super::native_obstacles::EncounterMode::from_room_mode(room.mode));
             return Ok(());
         }
         if self.accept_room(body)? {

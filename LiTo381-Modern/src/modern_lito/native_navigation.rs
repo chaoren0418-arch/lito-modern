@@ -2,6 +2,9 @@
 use super::world_map::WorldMap;
 use anyhow::{ensure, Context, Result};
 use std::{cmp::Reverse, collections::{BTreeMap, BTreeSet, BinaryHeap, VecDeque}};
+#[cfg(test)]
+#[path = "native_collision_tests.rs"]
+mod collision_tests;
 const DIR: [(i32, i32); 8] = [
     (0, -1),
     (1, -1),
@@ -83,20 +86,43 @@ impl Navigation {
             })
     }
     pub fn can_step(&self, x: i32, y: i32, heading: u8) -> bool {
-        if !(0..=65535).contains(&x) || !(0..=65535).contains(&y) {
-            return false;
-        }
+        self.can_step_with_edges(x, y, heading, |_, _, _| None)
+    }
+    /// S_CHANGE_ATTR replaces one Layer3 edge. Merge before evaluating either
+    /// diagonal path; two independent static/dynamic checks can admit a corner.
+    pub fn can_step_with_edges(
+        &self, x: i32, y: i32, heading: u8,
+        edge_override: impl Fn(u16, u16, u8) -> Option<bool>,
+    ) -> bool {
         let Some(&(dx, dy)) = DIR.get(usize::from(heading)) else {
             return false;
         };
-        if !self.contains(x, y) || !self.standing(x + dx, y + dy) {
+        let loaded = |x, y| (0..=65535).contains(&x) && (0..=65535).contains(&y)
+            && self.contains(x, y);
+        let cardinal = |x, y, dx, dy| {
+            if !loaded(x, y) || !loaded(x + dx, y + dy) { return false; }
+            let (ex, ey, bit) = match (dx, dy) {
+                (0, -1) => (x, y, 0),
+                (1, 0) => (x, y, 1),
+                (0, 1) => (x, y + 1, 0),
+                (-1, 0) => (x - 1, y, 1),
+                _ => return false,
+            };
+            !edge_override(ex as u16, ey as u16, bit)
+                .unwrap_or_else(|| self.edge(ex, ey, bit))
+        };
+        if !loaded(x, y) || !loaded(x + dx, y + dy)
+            || ![0, 2, 4, 6].iter().any(|&h| {
+                let (sx, sy) = DIR[h];
+                cardinal(x + dx, y + dy, sx, sy)
+            }) {
             return false;
         }
         if dx == 0 || dy == 0 {
-            return self.cardinal(x, y, dx, dy);
+            return cardinal(x, y, dx, dy);
         }
-        (self.cardinal(x, y, dx, 0) && self.cardinal(x + dx, y, 0, dy))
-            || (self.cardinal(x, y, 0, dy) && self.cardinal(x, y + dy, dx, 0))
+        (cardinal(x, y, dx, 0) && cardinal(x + dx, y, 0, dy))
+            || (cardinal(x, y, 0, dy) && cardinal(x, y + dy, dx, 0))
     }
     pub fn mask(&self, x: i32, y: i32) -> u8 {
         (0..8).fold(0, |m, h| {
@@ -236,8 +262,16 @@ pub struct HeldInput {
     keys: Vec<(usize, u8)>,
     pending: Option<u8>,
     stamp:Option<InputStamp>,
+    action_stamp: Option<(u32, u64, u64)>,
 }
 impl HeldInput {
+    /// An authoritative action interrupts walking without cancelling the
+    /// independent held-attack intent. Prediction and speed changes do not.
+    pub fn synchronize_action(&mut self, world: &super::native_world::World) {
+        let next = world.own_actor().map(|a| (a.id, a.incarnation, a.action_sequence));
+        if self.action_stamp.is_some() && self.action_stamp != next { self.clear(); }
+        self.action_stamp = next;
+    }
     pub fn synchronize(&mut self,stamp:Option<InputStamp>)->bool {
         let changed=self.stamp!=stamp;
         if changed || stamp.is_none() {self.clear();}

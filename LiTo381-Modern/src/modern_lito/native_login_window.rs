@@ -710,6 +710,7 @@ impl Ui {
         } else {
             None
         };
+        self.held.synchronize_action(&self.controller.snapshot().world);
         if self.held.synchronize(stamp) {
             self.held_attack.clear();
             self.target = None;
@@ -900,23 +901,11 @@ impl Ui {
                 self.text(STATUS, &format!("{error:#}"));
             }
         }
-        if let (Some(heading), Some(frame)) = (
-            self.held.direction(),
-            self.world_presentation.frame.as_ref(),
+        if let Err(error) = self.controller.continue_movement(
+            &mut self.held, self.world_presentation.frame.as_ref(),
         ) {
-            if frame.movement_ready(&self.controller.snapshot().world)
-                && self.controller.snapshot().attack_feedback
-                    != super::native_combat::Feedback::Pending
-            {
-                match self.controller.move_presented(heading, frame) {
-                    Ok(()) => self.held.sent(),
-                    Err(error) => {
-                        self.held.clear();
-                        self.held_attack.clear();
-                        self.text(STATUS, &format!("{error:#}"));
-                    }
-                }
-            }
+            self.held_attack.clear();
+            self.text(STATUS, &format!("{error:#}"));
         }
     }
     unsafe fn paint_world(&mut self, parent: HWND) {

@@ -9,6 +9,134 @@ fn active() -> LoginController {
     c
 }
 
+fn held(c: &LoginController) -> super::super::native_navigation::HeldInput {
+    use super::super::native_navigation::{HeldInput, InputStamp};
+    let mut held = HeldInput::default();
+    held.synchronize_action(&c.state.world);
+    held.synchronize(Some(InputStamp::capture(c.transport.snapshot().epoch, &c.state.world)));
+    held.press(0x68);
+    held
+}
+
+#[test]
+fn collision_tests_held_step_rechecks_late_boundary_then_never_auto_resumes() {
+    let mut c = active(); let mut held = held(&c);
+    let arrived = frame(&c.state.world,true);
+    let moving = frame(&c.state.world,false);
+    let a = c.state.world.own_actor().unwrap();
+    let mut attr = vec![0x22]; attr.extend(a.x.to_le_bytes()); attr.extend(a.y.to_le_bytes());
+    attr.extend([0,65]);
+    c.state.world.accept(&attr).unwrap();
+    assert!(!c.continue_movement(&mut held,Some(&moving)).unwrap());
+    assert_eq!(held.direction(),Some(0));
+    let before = serde_json::to_value(&c.state).unwrap();
+    let error = c.continue_movement(&mut held,Some(&arrived)).unwrap_err();
+    assert!(error.to_string().contains("map edge blocks movement"));
+    assert_eq!(serde_json::to_value(&c.state).unwrap(),before);
+    assert_eq!(held.direction(),None);
+    *attr.last_mut().unwrap() = 0;
+    c.state.world.accept(&attr).unwrap();
+    assert!(!c.continue_movement(&mut held,Some(&arrived)).unwrap());
+    assert_eq!(c.state.world.predicted_moves,0);
+}
+
+#[test]
+fn collision_tests_new_monster_blocks_even_when_arrived_frame_predates_it() {
+    let mut c = active(); let f = frame(&c.state.world,true); let mut held = held(&c);
+    c.state.world.encounter_mode = Some(super::super::native_obstacles::EncounterMode::TimeAttack);
+    let mut a = c.state.world.own_actor().unwrap().clone();
+    a.id = 0x6d000001; a.y -= 1; a.graphics = 61; a.walk_action = 0;
+    c.state.world.actors.insert(a.id,a);
+    let error = c.continue_movement(&mut held,Some(&f)).unwrap_err();
+    assert!(error.to_string().contains("動態物件"));
+    assert_eq!(held.direction(),None);
+    assert_eq!(c.state.world.predicted_moves,0);
+}
+
+#[test]
+fn collision_tests_zero_hp_and_inactive_world_cancel_without_a_frame() {
+    let mut c = active(); let mut held = held(&c);
+    c.state.world.accept(&[0x0d,0,0,200,0]).unwrap();
+    assert!(!c.continue_movement(&mut held,None).unwrap());
+    c.state.world.accept(&[0x0d,100,0,200,0]).unwrap();
+    let f = frame(&c.state.world,true);
+    assert!(!c.continue_movement(&mut held,Some(&f)).unwrap());
+    held.press(0x68); c.state.phase = LoginPhase::ResultReturning;
+    assert!(!c.continue_movement(&mut held,None).unwrap());
+    assert_eq!(held.direction(),None);
+}
+
+#[test]
+fn collision_tests_authoritative_hurt_stops_held_walk_without_rolling_back_prediction() {
+    let mut c = active(); let mut held = held(&c);
+    c.state.world.predict_step(0).unwrap();
+    let own = c.state.world.own_actor().unwrap().clone();
+    let mut hurt = vec![0x20]; hurt.extend(own.id.to_le_bytes()); hurt.push(2);
+    c.state.world.accept(&hurt).unwrap();
+    assert!(!c.continue_movement(&mut held,None).unwrap());
+    assert_eq!(held.direction(),None);
+    let current = c.state.world.own_actor().unwrap();
+    assert_eq!((current.x,current.y),(own.x,own.y));
+    assert!(current.position_predicted);
+    assert!(current.motion_from.is_none(),"hurt interrupts interpolation");
+    let f = frame(&c.state.world,true);
+    assert!(!c.continue_movement(&mut held,Some(&f)).unwrap());
+}
+
+#[test]
+fn collision_tests_observer_round_trip_and_short_lock_retire_the_press() {
+    let mut c = active(); let mut held = held(&c);
+    c.state.world.set_observer_mode(true);
+    c.state.world.set_observer_mode(false);
+    let f = frame(&c.state.world,true);
+    assert!(!c.continue_movement(&mut held,Some(&f)).unwrap());
+    held.press(0x68);
+    c.state.world.accept(&[0x25,24]).unwrap();
+    c.state.world.accept(&[0x25,25]).unwrap();
+    let f = frame(&c.state.world,true);
+    assert!(!c.continue_movement(&mut held,Some(&f)).unwrap());
+    assert_eq!(held.direction(),None);
+}
+
+#[test]
+fn collision_tests_release_and_no_frame_wait_without_replaying_after_send_error() {
+    let mut c = active(); let mut held = held(&c);
+    held.release(0x68);
+    assert!(!c.continue_movement(&mut held,None).unwrap());
+    assert_eq!(held.direction(),Some(0),"quick tap retained until arrived");
+    let f = frame(&c.state.world,true);
+    let error = c.continue_movement(&mut held,Some(&f)).unwrap_err();
+    assert!(error.to_string().contains("native send owner"));
+    assert_eq!(held.direction(),None);
+    assert!(!c.continue_movement(&mut held,Some(&f)).unwrap());
+}
+
+#[test]
+fn collision_tests_controller_qualifies_encounter_from_room_and_retires_it_in_world() {
+    use super::super::{native_room, native_obstacles::EncounterMode};
+    let f: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../tests/fixtures/native-room-current.json")).unwrap();
+    let hex = f["packets"]["joined"].as_str().unwrap();
+    let bytes: Vec<_> = (0..hex.len()).step_by(2)
+        .map(|i| u8::from_str_radix(&hex[i..i+2],16).unwrap()).collect();
+    let native_room::Packet::Joined(room) = native_room::parse(&bytes).unwrap() else { panic!() };
+    let mut c = active(); c.state.joined_room = Some(room);
+    for mode in 0..=7 {
+        c.state.joined_room.as_mut().unwrap().mode = mode;
+        c.accept_game(&[0x0d,100,0,200,0]).unwrap();
+        assert_eq!(c.state.world.encounter_mode,EncounterMode::from_room_mode(mode));
+    }
+    c.state.joined_room.as_mut().unwrap().mode = 2;
+    c.accept_game(&[0x0d,100,0,200,0]).unwrap();
+    assert_eq!(c.state.world.encounter_mode,Some(EncounterMode::Quest));
+    c.state.phase = LoginPhase::WorldReady;
+    c.accept_game(&[0x0d,100,0,200,0]).unwrap();
+    assert_eq!(c.state.world.encounter_mode,None);
+    c.state.phase = LoginPhase::BattlePending; c.state.joined_room = None;
+    c.accept_game(&[0x0d,100,0,200,0]).unwrap();
+    assert_eq!(c.state.world.encounter_mode,None);
+}
+
 #[test]
 fn movement_tests_controller_rejects_in_flight_before_transport_or_prediction() {
     let mut c = active();
@@ -192,11 +320,15 @@ fn movement_tests_encrypted_single_owner_correction_ack_release_and_next_step() 
     });
     let initial_counter = c.transport.queued_tx_counter().unwrap();
     let old = frame(&c.state.world, true);
-    c.move_presented(0, &old).unwrap();
+    let mut held = held(&c);
+    assert!(c.continue_movement(&mut held, Some(&old)).unwrap());
+    assert!(!c.continue_movement(&mut held, Some(&old)).unwrap());
     assert!(c.move_presented(0, &old).is_err());
     pump(&mut c, |c| c.state.world.movement_locks == 2);
     assert_eq!(c.state.world.movement_lock, MovementLock::AwaitRelease);
     let locked = frame(&c.state.world, true);
+    assert!(!c.continue_movement(&mut held, Some(&locked)).unwrap());
+    assert_eq!(held.direction(), None);
     assert!(c.move_presented(0, &locked).is_err());
     assert_eq!(
         c.transport.queued_tx_counter(),
@@ -215,7 +347,9 @@ fn movement_tests_encrypted_single_owner_correction_ack_release_and_next_step() 
     });
     assert!(c.move_presented(0, &locked).is_err());
     let fresh = frame(&c.state.world, true);
-    c.move_presented(0, &fresh).unwrap();
+    assert!(!c.continue_movement(&mut held, Some(&fresh)).unwrap());
+    held.press(0x68);
+    assert!(c.continue_movement(&mut held, Some(&fresh)).unwrap());
     server.join().unwrap();
     assert_eq!(c.state.world.predicted_moves, 2);
     assert_eq!(
