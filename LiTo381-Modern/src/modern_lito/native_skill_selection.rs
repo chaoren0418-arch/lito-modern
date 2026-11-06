@@ -129,6 +129,14 @@ impl Model {
                         2 => "#2 日光術（自己）".into(),
                         3 => "#3 護盾（自己）".into(),
                         4 => "#4 光箭（選取目標）".into(),
+                        5 => "#5 指定傳送（隨機／書籤）".into(),
+                        12 => "#12 擬似魔法武器（選取背包物品）".into(),
+                        20 => "#20 闇盲咒術（選取目標，一格內）".into(),
+                        21 => "#21 鎧甲護持（選取背包物品）".into(),
+                        22 => "#22 寒冰氣息（選取目標，六格內）".into(),
+                        23 => "#23 能量感測（選取怪物，畫面內）".into(),
+                        25 => "#25 燃燒的火球（選取目標，六格內）".into(),
+                        27 => "#27 壞物術（選取目標，四格內；消耗魔法寶石）".into(),
                         6 => "#6 冰箭（選取目標）".into(),
                         7 => "#7 風刃（選取目標）".into(),
                         8 => "#8 神聖武器（選取目標／自己）".into(),
@@ -195,6 +203,12 @@ impl Model {
     }
     pub fn choice(&self, connection: u64, world: &World, target: Option<Target>) -> Result<Choice> {
         self.choice_at(connection, world, target, None)
+    }
+    pub fn selected_skill(&self, connection: u64, world: &World) -> Result<u16> {
+        ensure!(self.owner.is_some() && self.owner == Owner::current(connection, world), "技能畫面已失效");
+        let skill = self.selected.context("請先選擇已學會的技能")?;
+        ensure!(world.learned_skills.contains(&skill), "技能清單已更新");
+        Ok(skill)
     }
     pub fn choice_at(
         &self,

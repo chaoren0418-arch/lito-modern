@@ -782,7 +782,7 @@ impl World {
                 if let Some(actor)=self.actors.get(&attack.caster).filter(|a|!a.dead) {
                     if self.many_attacks.len()==128 {self.many_attacks.remove(0);self.many_attacks_dropped+=1;}
                     let targets=attack.targets.iter().map(|t|(t.id,t.hit,self.actors.get(&t.id).map(|a|a.incarnation))).collect();
-                    self.many_attacks.push(super::native_attack_many::Cue{attack:attack.clone(),caster_incarnation:actor.incarnation,action_sequence:actor.action_sequence,targets});
+                    self.many_attacks.push(super::native_attack_many::Cue{target_origin:super::native_attack_many::capture_target_origin(&attack,&self.actors),attack:attack.clone(),caster_incarnation:actor.incarnation,action_sequence:actor.action_sequence,targets});
                 }
                 if let Some(a)=self.actors.get_mut(&attack.caster){a.heading=attack.heading;}
                 self.attack_packets+=1;
