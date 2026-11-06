@@ -849,10 +849,10 @@ impl World {
                     self.unhandled_opcodes.insert(op);
                     return Ok(false);
                 };
-                let spell = attack
-                    .projectile
-                    .as_ref()
-                    .is_some_and(|p| p.flight_type == 0);
+                let spell = attack.projectile.as_ref().is_some_and(|p| {
+                    (p.flight_type == 0 || matches!(attack.action, 18 | 19))
+                        && !super::native_projectiles::supports_graphics(p.graphics)
+                });
                 self.action(
                     attack.attacker,
                     attack.action,
@@ -882,15 +882,15 @@ impl World {
                 if let Some(a) = self.actors.get_mut(&attack.attacker) {
                     a.heading = attack.heading;
                 }
-                // Ordinary arrow hurt is released by presentation on arrival.
+                // Qualified class3 projectile hurt is released on arrival.
                 // Unknown projectile classes retain the previous fallback.
                 if attack.damage_marker > 0
                     && !attack.projectile.as_ref().is_some_and(|p| {
-                        (p.flight_type == 0x7f && p.graphics == 66)
-                            || (p.flight_type == 0 && (super::native_spell_projectiles::supports_graphics(p.graphics)
+                        super::native_projectiles::supports_graphics(p.graphics)
+                            || super::native_spell_projectiles::supports_graphics(p.graphics)
                                 || super::native_class1::supports_graphics(p.graphics)
                                 || super::native_disintegrate::supports_graphics(p.graphics)
-                                || super::native_cone_cold::supports_graphics(p.graphics)))
+                                || super::native_cone_cold::supports_graphics(p.graphics)
                     })
                 {
                     self.action(attack.target, 2, "damage");

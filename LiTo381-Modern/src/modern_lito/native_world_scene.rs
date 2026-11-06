@@ -1313,6 +1313,7 @@ impl Model {
                 .chain(reagent_events.iter())
                 .chain(travel_events.iter())
                 .chain(spell_events.iter())
+                .chain(self.projectiles.entered_events().iter())
                 .chain(class1_events.iter())
                 .chain(disintegrate_events.iter())
                 .chain(lightning_events.iter())
