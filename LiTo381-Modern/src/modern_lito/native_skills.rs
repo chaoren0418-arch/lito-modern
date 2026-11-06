@@ -44,7 +44,7 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     Ok(())
 }
 /// Item object IDs must never pass through the actor-target request path.
-pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21) }
+pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 100) }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemTarget {
@@ -66,17 +66,17 @@ impl ItemTarget {
     }
     pub fn validate(&self, s: &super::native_login::Snapshot, epoch: u64) -> Result<()> {
         ensure!(s.game_connected && s.phase.active_world() && !s.observer
-            && !s.world.observer_mode && s.world.ready(), "目前不能選取附魔物品");
+            && !s.world.observer_mode && s.world.ready(), "目前不能選取施法物品");
         self.choice.validate(s)?;
         ensure!(self.choice.owner.connection == epoch && self.revision == s.inventory.revision
             && self.map == s.world.map_id
             && self.stamp == super::native_navigation::InputStamp::capture(epoch, &s.world),
-            "背包或場景已更新，請重新選取附魔物品");
+            "背包或場景已更新，請重新選取施法物品");
         Ok(())
     }
 }
 pub fn item_request(s: &super::native_login::Snapshot, epoch: u64, skill: u16, target: &ItemTarget) -> Result<Vec<u8>> {
-    ensure!(item_targeted(skill), "此技能不是物品附魔");
+    ensure!(item_targeted(skill), "此技能不是物品目標技能");
     target.validate(s, epoch)?;
     can_cast(&s.world, skill)?;
     // Eligibility, duration, durability, cost and inventory updates are server-owned.
@@ -172,7 +172,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
             );
             b.extend_from_slice(&id.to_le_bytes());
         }
-        14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 206 => {ensure!(target.is_none(), "此技能不接受指定目標");}
+        14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 97 | 98 | 99 | 206 => {ensure!(target.is_none(), "此技能不接受指定目標");}
         13 => {ensure!(target.is_none(), "偵測術不接受目標");}
         60 => {return self_tick_request(world,skill,target,ClientTick::now()?);}
         2 => {ensure!(target.is_none(), "日光術不接受目標");}
@@ -234,7 +234,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {27=>3000,22=>300,33|77=>5000,60=>0,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,27=>3000,22=>300,33|77=>5000,60=>0,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -257,6 +257,7 @@ impl Feedback {
             Self::Interrupted => "施法已中止",
             Self::Rejected(276) => "目前地圖無法使用此技能",
             Self::Rejected(278) => "MP 不足",
+            Self::Rejected(279) => "HP 不足",
             Self::Rejected(280) => "法術未生效",
             Self::Rejected(79) => "伺服器拒絕此物品附魔",
             Self::Rejected(299) => "施法材料不足",

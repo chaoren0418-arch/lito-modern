@@ -870,8 +870,8 @@ impl Ui {
         if super::native_skills::item_targeted(skill) {
             let epoch = self.controller.transport().snapshot().epoch;
             ensure!(self.skills.selected_skill(epoch, &self.controller.snapshot().world)? == skill, "技能已變更");
-            ensure!(self.inventory_view && !self.ground_view && !self.closing, "請開啟背包並選取附魔物品");
-            let item = self.skill_item_target.as_ref().context("請重新選取附魔物品")?;
+            ensure!(self.inventory_view && !self.ground_view && !self.closing, "請開啟背包並選取施法物品");
+            let item = self.skill_item_target.as_ref().context("請重新選取施法物品")?;
             let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
             return self.controller.cast_item(skill, item, frame);
         }
