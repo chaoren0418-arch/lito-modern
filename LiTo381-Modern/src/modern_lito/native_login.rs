@@ -16,6 +16,9 @@ mod battle_withdrawal_tests;
 #[cfg(test)]
 #[path = "native_return_server_negative_tests.rs"]
 mod return_server_negative_tests;
+#[cfg(test)]
+#[path = "native_teleport_recovery_tests.rs"]
+mod teleport_recovery_tests;
 
 pub fn decode_text(bytes: &[u8]) -> Result<String> {
     decode_message(bytes, false)
@@ -864,12 +867,9 @@ impl LoginController {
             self.transport.snapshot().epoch,
             source_request(&source.name)?,
         )?;
-        self.state.selected_source = Some(source.name.clone());
-        if let Some(recovery)=self.teleport_recovery.take(){
-            if recovery.source==source.name && self.credentials.as_ref().is_some_and(|(account,_)|**account==recovery.account) {
-                self.recovery_character=Some(recovery.character);
-            }
-        }
+        let source_name = source.name.clone();
+        self.state.selected_source = Some(source_name.clone());
+        self.recovery_character = self.take_teleport_recovery(&source_name);
         self.state.phase = LoginPhase::RedirectPending;
         self.deadline = Some(Instant::now() + Duration::from_secs(8));
         Ok(())
@@ -1785,7 +1785,15 @@ impl LoginController {
                 self.deadline = Some(Instant::now() + Duration::from_secs(8));
                 return Ok(());
             }
-            self.state.characters = self.directory.view()?;
+            let characters = self.directory.view()?;
+            if self.teleport.is_none() && self.recovery_character.as_ref()
+                .is_some_and(|name| !characters.iter().any(|row| row.name == *name)) {
+                // The LOGIN source handoff may have expired before GAME opened.
+                // Do not publish its default-source directory as our selection.
+                self.refresh_recovery_source()?;
+                return Ok(());
+            }
+            self.state.characters = characters;
             self.state.directory_generation = self
                 .state
                 .directory_generation
@@ -1815,7 +1823,11 @@ impl LoginController {
         // Cancellation closes transport and clears credentials/authority. Keep
         // only one correlation for a later explicit authenticated LOGIN: the
         // server may still have the loadout staged after C_D9 was written.
-        self.teleport_recovery=self.teleport_recovery_candidate();
+        if let Some(recovery) = self.teleport_recovery_candidate() {
+            self.teleport_recovery = Some(recovery);
+        }
+        // A repeated cancel has no pending teleport left. Preserve an unused
+        // identity correlation, without restarting transport or retaining secrets.
         self.retire_teleport_scene();
         self.teleport=None;self.recovery_character=None;
         self.state.battle_withdrawal_pending=false;
@@ -2032,14 +2044,9 @@ impl LoginController {
             } else if self.state.phase==LoginPhase::CharacterPending
                 && self.teleport.is_none() && self.recovery_character.is_some()
                 && self.state.character_result.is_none() && self.state.inventory.batches==0 {
-                // A fresh LOGIN can outlive the server's staged handoff. The
-                // protocol has no explicit "stage expired" response. With no
-                // selection ack or inventory, retire this one expectation and
-                // return to the current directory; do not invent authority or
-                // send a second C_C9 while server continuation is pending.
-                self.recovery_character=None;self.state.selected_character=None;
-                self.state.inventory.clear();self.deadline=None;
-                self.state.phase=LoginPhase::CharactersReady;
+                if let Err(error) = self.refresh_recovery_source() {
+                    self.fail(format!("recovery source confirmation: {error:#}"));
+                }
             } else {self.fail("native login response deadline exceeded".into());}
         }
         if self.state.phase.active_world() && self.state.world.ready() {
@@ -2147,6 +2154,45 @@ impl LoginController {
         }
         Ok(())
     }
+    /// One explicit authenticated source choice consumes the correlation,
+    /// including mismatches. A subsequent cancel cannot recreate that choice.
+    fn take_teleport_recovery(&mut self, source: &str) -> Option<String> {
+        let recovery = self.teleport_recovery.take()?;
+        (self.login_peer == Some(recovery.login_peer) && recovery.source == source
+            && self.credentials.as_ref().is_some_and(|(account, _)| **account == recovery.account))
+            .then_some(recovery.character)
+    }
+
+    /// Confirm the selected source after an unused continuation expires or a
+    /// complete bootstrap directory lacks its character. Partial admission is
+    /// never retried. C8 requests a new directory; it does not select a character.
+    fn refresh_recovery_source(&mut self) -> Result<()> {
+        let character = self.recovery_character.as_ref().context("missing recovery character")?;
+        let waiting = self.state.phase == LoginPhase::CharacterPending
+            && self.state.selected_character.as_ref() == Some(character);
+        let absent = self.state.phase == LoginPhase::LoadingCharacters
+            && self.directory.complete() && self.state.selected_character.is_none()
+            && !self.directory.view()?.iter().any(|row| row.name == *character);
+        ensure!((waiting || absent) && self.game && self.state.game_connected
+            && self.readiness_acked && self.teleport.is_none()
+            && self.state.character_result.is_none() && self.state.inventory.batches == 0
+            && self.state.notice.is_none(), "source confirmation outside unused recovery");
+        let source = self.state.selected_source.as_ref().context("missing recovery source")?;
+        ensure!(self.state.sources.iter().any(|row| row.name == *source), "recovery source not advertised");
+        self.transport.send(self.transport.snapshot().epoch, source_request(source)?)?;
+        self.recovery_character = None;
+        self.state.selected_character = None;
+        self.state.inventory.clear();
+        self.state.characters.clear();
+        self.directory = Default::default();
+        self.state.character_result = None;
+        self.state.classic_entry_result = None;
+        self.confirm_initial_source = false;
+        self.state.phase = LoginPhase::LoadingCharacters;
+        self.deadline = Some(Instant::now() + Duration::from_secs(8));
+        Ok(())
+    }
+
     fn teleport_recovery_candidate(&self)->Option<TeleportRecovery> {
         let teleport=self.teleport.as_ref().filter(|t|t.destination.is_some())?;
         Some(TeleportRecovery{login_peer:self.login_peer?,account:self.credentials.as_ref()?.0.as_str().to_owned(),
