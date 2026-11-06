@@ -48,3 +48,4 @@
 - 2026-11-06 — #106 T092-R: #92 步驟 0 本機盤點——G01–G12 定義原文、44 候選檔 545 測試清單、伺服器未追蹤 build 計數（resource，dot，PR #107 已合併）→ [報告](reports/issue-106.md)
 - 2026-11-06 — #111 T011-F: G06 首跑失敗修正——TW 特效資源資格不符時不中止連線（Disintegrate／cone cold／call lightning）（code，codex-local，PR #115 已合併）→ [報告](reports/issue-111.md)
 - 2026-11-06 — #120 T092-R2: #92 步驟 0 本機盤點——伺服器 de-native-* 建置鏈 62 個 build*.py 唯讀全讀（resource，codex-local，PR #121 已合併）→ [報告](reports/issue-120.md)
+- 2026-11-06 — #92 範圍凍結：完成定義、主線封頂、backlog 分流（plan，claude-chat，PR #99 已合併）→ [報告](reports/issue-92.md)
