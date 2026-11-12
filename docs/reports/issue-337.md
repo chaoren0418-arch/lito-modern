@@ -10,7 +10,7 @@ runner：claude-local。分支：`task/337`。本張做 G07.4 與地圖相關四
 - 地圖頁：原版圖片表只有第 1、2 頁。開著地圖頁時 HUD 會說明這一頁為什麼看不到圖。
 - 新增可重跑的盤點工具與 `docs/MAP-DOMAINS.md`（雙域 35 張逐張比較、11 張經典地圖、三張區域表、兩張地圖頁圖片）。
 - 沒有放寬任何解碼器，也沒有開始繪製地圖頁圖片。
-- 本機只做了編譯檢查與 Python 工具；Rust 測試沒有在本機執行，交給 CI（結果見文末）。
+- 本機只做了編譯檢查與 Python 工具；Rust 測試沒有在本機執行。CI 只在 PR 上跑，PR 由調度器在審查後開啟，所以寫報告時還沒有 CI 結果。
 
 ## 做了什麼
 
@@ -127,7 +127,7 @@ runner：claude-local。分支：`task/337`。本張做 G07.4 與地圖相關四
 
 ## 待驗證
 
-- **Rust 測試**：新增 9 個測試（`resource_diagnostics` 5、`native_zone` 3、`native_map_item` 1），本機沒有執行，等 CI 的 `cargo test --lib`。
+- **Rust 測試**：新增 9 個測試（`resource_diagnostics` 5、`native_zone` 3、`native_map_item` 1），本機沒有執行，等 PR 開啟後 CI 的 `cargo test --lib`。新測試只編譯過；如果 CI 有測試失敗，先看這 9 個。
 - **實機**（交給 Codex 或使用者）：
   1. 進地圖 500，HUD 第一行是「地圖 500（LODUN）」；進 504 沒有括號。
   2. 場上有 gfx 727 的角色時，HUD 出現「資源診斷…角色附件缺件：383-N.spr（SpriteXX→Sprite）」。
