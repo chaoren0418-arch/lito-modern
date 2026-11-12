@@ -50,6 +50,8 @@ $lease=[IO.File]::Open((Join-Path $target 'project-lease.lock'),[IO.FileMode]::O
 try {
     # Validate before creating any candidate directory. A test build or old
     # executable left in target is not evidence of a current player build.
+    # rc.exe embeds the manifest without reading it; a malformed one only fails when the player starts.
+    $null=[xml](Get-Content -LiteralPath (Join-Path $project 'windows/app.manifest') -Raw)
     $receipt=Assert-ModernBuildReceipt $project 'Release'
     $exe=Get-Item -LiteralPath (Get-ModernPlayerPath $project 'Release')
     $image=Assert-ModernPortableExecutable $exe.FullName @($project,$project.Replace('\','/'))
