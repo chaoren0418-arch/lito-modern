@@ -205,15 +205,13 @@ pub fn compose_with_presentations(
             shift,
         )?;
         for attachment in &layers.attachments {
-            let blend = match attachment.mix {
-                super::native_actor_layers::Mix::Over => {
-                    if style == Style::Half {
-                        Blend::Actor(Style::Half)
-                    } else {
-                        Blend::Over
-                    }
-                }
+            // 4E7000: only the half state reaches an attachment (actor word
+            // 0x100, or the attribute-100 rewrite); green and dim do not.
+            let blend = match attachment.mix.submitted(style == Style::Half) {
+                super::native_actor_layers::Mix::Over => Blend::Over,
+                super::native_actor_layers::Mix::Half => Blend::Actor(Style::Half),
                 super::native_actor_layers::Mix::Screen => Blend::Screen,
+                super::native_actor_layers::Mix::Multiply => Blend::Multiply,
             };
             raster.sprite_shifted(
                 origin,

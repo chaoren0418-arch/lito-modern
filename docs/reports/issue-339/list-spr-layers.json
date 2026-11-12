@@ -1,0 +1,652 @@
+{
+ "layer_plan_acceptance": {
+  "accepted_after": 3225,
+  "accepted_before": 3036,
+  "refused_attachment_word": 2,
+  "refused_body_word": 371,
+  "rows_with_layers": 3598
+ },
+ "newly_accepted_bodies": [
+  902,
+  916,
+  918,
+  924,
+  925,
+  1049,
+  1590,
+  1697,
+  1702,
+  1773,
+  1844,
+  2094,
+  2097,
+  2389,
+  2503,
+  2504,
+  2843,
+  3387,
+  3391,
+  3406,
+  3577,
+  3600,
+  3603,
+  3606,
+  3609,
+  3612,
+  3615,
+  3618,
+  3621,
+  3624,
+  3627,
+  4051,
+  4209,
+  4212,
+  4215,
+  4218,
+  4615,
+  4787,
+  4906,
+  4907,
+  4950,
+  5289,
+  5304,
+  5487,
+  5516,
+  5529,
+  5608,
+  5616,
+  5631,
+  5633,
+  5693,
+  5694,
+  5695,
+  5708,
+  5722,
+  5724,
+  5739,
+  5742,
+  5745,
+  5751,
+  5754,
+  5760,
+  5778,
+  5781,
+  6089,
+  6224,
+  6225,
+  6226,
+  6227,
+  6310,
+  6394,
+  6512,
+  6788,
+  7053,
+  7234,
+  7236,
+  7282,
+  7293,
+  7331,
+  7356,
+  7361,
+  7377,
+  7384,
+  7433,
+  7601,
+  7638,
+  7644,
+  7648,
+  7652,
+  7720,
+  7799,
+  7802,
+  7808,
+  7811,
+  7814,
+  7817,
+  7820,
+  7864,
+  7869,
+  7870,
+  7985,
+  8011,
+  8015,
+  8019,
+  8023,
+  8052,
+  8053,
+  8062,
+  8077,
+  8134,
+  8164,
+  8165,
+  8166,
+  8201,
+  8205,
+  8212,
+  8234,
+  8241,
+  8243,
+  8247,
+  8260,
+  8263,
+  8332,
+  8391,
+  8397,
+  8454,
+  8460,
+  8470,
+  8519,
+  8537,
+  8571,
+  8618,
+  8626,
+  8690,
+  8774,
+  8817,
+  8842,
+  8862,
+  8900,
+  9364,
+  9375,
+  9377,
+  9414,
+  9504,
+  9616,
+  9684,
+  9685,
+  9690,
+  9691,
+  9692,
+  9693,
+  9694,
+  9695,
+  9696,
+  9697,
+  9698,
+  9699,
+  9700,
+  9701,
+  9702,
+  9703,
+  9704,
+  9705,
+  9706,
+  9707,
+  9708,
+  9709,
+  9710,
+  10034,
+  10050,
+  10071,
+  10082,
+  10191,
+  10266,
+  10273,
+  10378,
+  10379,
+  10500,
+  10510,
+  10588,
+  10599,
+  10627,
+  10632,
+  10642,
+  10773,
+  10851,
+  10859,
+  10899,
+  10963
+ ],
+ "list_spr": {
+  "bytes": 4067417,
+  "sha256": "523C61AD5CC362A56A36F58B262C84EFA8B4435F017E7074D35B5834E8B9F127"
+ },
+ "sprites": 11297,
+ "bodies_with_104": 3298,
+ "body_104_values": {
+  "1": 8,
+  "12": 3,
+  "128": 515,
+  "131072": 4,
+  "256": 20,
+  "32768": 5,
+  "4096": 1,
+  "4104": 1,
+  "5": 4,
+  "65536": 4,
+  "8": 2731,
+  "8192": 1,
+  "8193": 1
+ },
+ "bodies_with_shadow": 3161,
+ "shadow_sprite_104_values": {
+  "0": 3147,
+  "1": 2,
+  "128": 1,
+  "256": 10,
+  "8": 1
+ },
+ "bodies_with_attachments": 1608,
+ "attachment_count_histogram": {
+  "1": 1308,
+  "2": 199,
+  "3": 46,
+  "4": 51,
+  "5": 3,
+  "6": 1
+ },
+ "attachment_sprite_104_values": {
+  "0": 357,
+  "1": 6,
+  "12": 2,
+  "128": 450,
+  "4104": 2,
+  "8": 1251,
+  "8193": 1
+ },
+ "examples_body_then_layer": {
+  "attachment:0": [
+   [
+    200,
+    202
+   ],
+   [
+    200,
+    205
+   ],
+   [
+    200,
+    206
+   ],
+   [
+    200,
+    210
+   ],
+   [
+    234,
+    201
+   ],
+   [
+    234,
+    204
+   ]
+  ],
+  "attachment:1": [
+   [
+    902,
+    903
+   ],
+   [
+    916,
+    923
+   ],
+   [
+    918,
+    922
+   ],
+   [
+    924,
+    923
+   ],
+   [
+    925,
+    922
+   ],
+   [
+    1090,
+    223
+   ]
+  ],
+  "attachment:12": [
+   [
+    3908,
+    3907
+   ],
+   [
+    10299,
+    10300
+   ]
+  ],
+  "attachment:128": [
+   [
+    1522,
+    1523
+   ],
+   [
+    1525,
+    1526
+   ],
+   [
+    1590,
+    1592
+   ],
+   [
+    1603,
+    1604
+   ],
+   [
+    1636,
+    1637
+   ],
+   [
+    1638,
+    1639
+   ]
+  ],
+  "attachment:4104": [
+   [
+    2412,
+    2414
+   ],
+   [
+    6284,
+    2414
+   ]
+  ],
+  "attachment:8": [
+   [
+    0,
+    6262
+   ],
+   [
+    1,
+    6261
+   ],
+   [
+    37,
+    6263
+   ],
+   [
+    48,
+    6255
+   ],
+   [
+    61,
+    6256
+   ],
+   [
+    138,
+    6264
+   ]
+  ],
+  "attachment:8193": [
+   [
+    2714,
+    2731
+   ]
+  ],
+  "shadow:0": [
+   [
+    0,
+    3226
+   ],
+   [
+    1,
+    3228
+   ],
+   [
+    30,
+    128
+   ],
+   [
+    37,
+    3475
+   ],
+   [
+    48,
+    3216
+   ],
+   [
+    53,
+    127
+   ]
+  ],
+  "shadow:1": [
+   [
+    222,
+    223
+   ],
+   [
+    1049,
+    1050
+   ]
+  ],
+  "shadow:128": [
+   [
+    3789,
+    3790
+   ]
+  ],
+  "shadow:256": [
+   [
+    3600,
+    3602
+   ],
+   [
+    3603,
+    3605
+   ],
+   [
+    3606,
+    3608
+   ],
+   [
+    3609,
+    3611
+   ],
+   [
+    3612,
+    3614
+   ],
+   [
+    3615,
+    3617
+   ]
+  ],
+  "shadow:8": [
+   [
+    1524,
+    1524
+   ]
+  ]
+ },
+ "malformed": [],
+ "switch_rows_with_linked_layers": [
+  {
+   "sprite": 717,
+   "label": "Airflow mtr E       3.rotate(0 5",
+   "shadow": 718,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "5 2,-1,2,-1 4,-2,4,-2 4,-3,8,-3 6,-4,10,-4 8,-5,8,-5"
+  },
+  {
+   "sprite": 975,
+   "label": "spin door a         0.spin(0 6,0",
+   "shadow": null,
+   "shadow_flags": null,
+   "attachments": [
+    977
+   ],
+   "attachment_flags": [
+    8
+   ],
+   "switch": "3 0,-2,0,0 1,-3,1,0 2,-4,2,-1"
+  },
+  {
+   "sprite": 976,
+   "label": "spin door c         0.spin(0 6,0",
+   "shadow": null,
+   "shadow_flags": null,
+   "attachments": [
+    978
+   ],
+   "attachment_flags": [
+    8
+   ],
+   "switch": "5 -1,-1,-1,0 0,-2,0,0 1,-2,1,0 2,-2,2,-1 3,-2,3,-2"
+  },
+  {
+   "sprite": 1826,
+   "label": "iron door a         32.dooractio",
+   "shadow": 2006,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "1 0,-3,8,2"
+  },
+  {
+   "sprite": 1827,
+   "label": "iron door b         32.dooractio",
+   "shadow": 2007,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "1 -4,-3,8,0"
+  },
+  {
+   "sprite": 2479,
+   "label": "Aden_lattice_Door_R 28.open(0 1,",
+   "shadow": 2480,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "1 -2,0,2,0"
+  },
+  {
+   "sprite": 2481,
+   "label": "Aden_lattice_Door_L  28.open(0 1",
+   "shadow": 2482,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "1 0,-1,2,1"
+  },
+  {
+   "sprite": 2732,
+   "label": "four cell door",
+   "shadow": 2733,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "2 -2,-1,0,0 0,-1,4,0"
+  },
+  {
+   "sprite": 3752,
+   "label": "diad castle gate",
+   "shadow": null,
+   "shadow_flags": null,
+   "attachments": [
+    3753,
+    3781
+   ],
+   "attachment_flags": [
+    8,
+    0
+   ],
+   "switch": "7 0,-2,1,2 1,-3,2,1 2,-4,3,0 3,-5,4,-1 4,-6,5,-2 5,-7,7,-4 7,-8,8,-6"
+  },
+  {
+   "sprite": 6336,
+   "label": "mystery tombstone five dir",
+   "shadow": 6337,
+   "shadow_flags": 0,
+   "attachments": [
+    6338
+   ],
+   "attachment_flags": [
+    8
+   ],
+   "switch": "3 0,-2,4,0,2,-4,6,-2,4,-6,8,-4"
+  },
+  {
+   "sprite": 6379,
+   "label": "mystery tombstone seven dir",
+   "shadow": 6380,
+   "shadow_flags": 0,
+   "attachments": [
+    6381
+   ],
+   "attachment_flags": [
+    8
+   ],
+   "switch": "3 0,0,3,3,2,-2,5,0,3,-4,6,-2"
+  },
+  {
+   "sprite": 6640,
+   "label": "ice cave gate L",
+   "shadow": null,
+   "shadow_flags": null,
+   "attachments": [
+    6641
+   ],
+   "attachment_flags": [
+    0
+   ],
+   "switch": "2 0,-6,5,0,2,-9,5,-6"
+  },
+  {
+   "sprite": 6642,
+   "label": "ice cave gate R",
+   "shadow": null,
+   "shadow_flags": null,
+   "attachments": [
+    6643
+   ],
+   "attachment_flags": [
+    0
+   ],
+   "switch": "2 0,-5,6,0,6,-5,9,-3"
+  },
+  {
+   "sprite": 7536,
+   "label": "id wall alpha two mu",
+   "shadow": null,
+   "shadow_flags": null,
+   "attachments": [
+    7537
+   ],
+   "attachment_flags": [
+    8
+   ],
+   "switch": "1 0,-2,4,0"
+  },
+  {
+   "sprite": 9605,
+   "label": "aden door right",
+   "shadow": 9606,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "2 0,-1,3,0 1,-3,4,-1"
+  },
+  {
+   "sprite": 9607,
+   "label": "aden door left",
+   "shadow": 9608,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "2 0,-3,1,0 1,-4,3,-1"
+  },
+  {
+   "sprite": 9609,
+   "label": "heine giran door right",
+   "shadow": 9610,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "2 0,-1,3,0 1,-3,4,-1"
+  },
+  {
+   "sprite": 9611,
+   "label": "heine giran door left",
+   "shadow": 9612,
+   "shadow_flags": 0,
+   "attachments": [],
+   "attachment_flags": [],
+   "switch": "2 0,-3,1,0 1,-4,3,-1"
+  }
+ ]
+}

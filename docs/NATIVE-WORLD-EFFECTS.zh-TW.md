@@ -14,4 +14,6 @@
 
 重跑：`pwsh -NoProfile -File 驗證紀錄/current/native-world-effects/run-final.ps1`，成功後執行同目錄 `finalize-receipt.py` 及 `final-state-check.ps1`。所有生成物僅寫本重建版。
 
+#339（2026-11-13）補充排序的界線：原版的特效也是 actor，走同一個 `4E0200`（本體 → 附件 → 陰影）與 `483770`（同 depth 時新項目插在前面、先畫）。同一格、同 depth 的兩個 actor 誰在上面，取決於誰最後換影格，沒有固定答案；現行固定為「特效排在本體名單之後提交」，所以同 depth 時特效畫在本體與附件底下，depth 不同時照來源的 depth byte。這個策略由 `native_world_layer_order_tests::effects_share_the_depth_queue_and_stay_click_through` 固定下來，不是原版時序的還原。帶附件的特效（Class1、土牢）沿用 `native_actor_layers` 的附件字，附件字 1 用陰影同一支半透明寫入器，`0x80` 用 multiply。
+
 十張最終離線圖採開放地面與樹木／圍牆交替位置。獨立coverage probe以相同原始分片／深度，分別啟用與停用地形；五個正向遮擋案例為66／219／744／194／2231，分別有13／143／7／2995／1463個特效coverage像素被後繪地形遮住。這項判定不依賴Screen混色後RGB是否改變，另保留舊flat overlay差異作歷史對照。
