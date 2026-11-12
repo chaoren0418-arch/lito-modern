@@ -4,12 +4,14 @@ function Get-ModernBuildInputs([string]$Project) {
     $Project = [IO.Path]::GetFullPath($Project)
     $items = @(Get-Item -LiteralPath $Project)
     foreach ($name in @('src','windows','.cargo','config','packaging')) {
-        $root = Get-Item -LiteralPath (Join-Path $Project $name)
+        # .cargo is a local, untracked directory: a fresh clone builds without it.
+        if ($name -ceq '.cargo' -and !(Test-Path -LiteralPath (Join-Path $Project $name))) { continue }
+        $root = Get-Item -LiteralPath (Join-Path $Project $name) -Force
         if (!$root.PSIsContainer -or ($root.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Unsafe build input directory' }
         $items += $root
         $items += @(Get-ChildItem -LiteralPath $root.FullName -Recurse -Force)
     }
-    foreach ($name in @('Cargo.toml','Cargo.lock','build.rs','tools/build.ps1','tools/build-evidence.ps1','tools/package.ps1','tools/verify-independent.ps1')) {
+    foreach ($name in @('Cargo.toml','Cargo.lock','build.rs','tools/build.ps1','tools/build-evidence.ps1','tools/package.ps1','tools/portable-evidence.ps1','tools/verify-independent.ps1')) {
         $items += Get-Item -LiteralPath (Join-Path $Project $name)
     }
     if (@($items | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }).Count) { throw 'Reparse point in build inputs' }
@@ -26,7 +28,8 @@ function Assert-ModernVersion($Version, [ValidateSet('Debug','Release')][string]
         $Version.build -cne $Mode.ToLowerInvariant() -or $Version.status -cne 'development_candidate' -or
         [string]::IsNullOrWhiteSpace($Version.version) -or
         @($Version.profile_protocols).Count -ne 2 -or 'legacy_v37' -cnotin $Version.profile_protocols -or 'modern_v47' -cnotin $Version.profile_protocols -or
-        @($Version.extensions).Count -ne 5 -or 'player_healing_v1' -cnotin $Version.extensions -or
+        @($Version.extensions).Count -ne 7 -or 'player_healing_v1' -cnotin $Version.extensions -or
+        'full_vip_v1' -cnotin $Version.extensions -or 'full_vip_v2' -cnotin $Version.extensions -or
         'armor_protection_v1' -cnotin $Version.extensions -or 'player_healing_armor_v1' -cnotin $Version.extensions -or
         'armor_presentation_v1' -cnotin $Version.extensions -or 'player_healing_armor_presentation_v1' -cnotin $Version.extensions -or
         $Version.launches_native_bin -isnot [bool] -or $Version.launches_native_bin -ne $false -or

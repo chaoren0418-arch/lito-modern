@@ -21,7 +21,7 @@ pub(super) fn walk(c:&mut LoginController,model:&mut Model,npc:u32,start:Instant
     }Ok(steps)
 }
 pub(super) fn run(c:&mut LoginController,model:&mut Model,root:&Path,role:&str,other:&str)->Result<Value>{
-    let cancel=AtomicBool::new(false);let started=Instant::now();let catalog=Catalog::load(Path::new(r"D:\lineage開發\0-客戶端"),&cancel)?;
+    let cancel=AtomicBool::new(false);let started=Instant::now();let catalog=Catalog::load(&super::native_startup::diagnostic_resource_root()?,&cancel)?;
     // Move one endpoint at a time so a player, never fixture teleportation, owns each route.
     if role=="b"{let deadline=Instant::now()+Duration::from_secs(130);while !root.join("a-citizen-complete").exists(){poll(c)?;ensure!(Instant::now()<deadline,"citizen peer start barrier");std::thread::sleep(Duration::from_millis(10));}}
     let before=c.snapshot().clone();let mut stages=vec![];

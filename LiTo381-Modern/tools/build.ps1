@@ -33,8 +33,17 @@ $cargoArgs=@('--locked','--offline','-j1','--manifest-path',$manifest,'--target-
 $verb=if($Mode -in @('Test','TestRelease')){'test'}else{'build'}
 if($Mode -in @('Release','TestRelease')){$cargoArgs+='--release'}
 $cargoCommand="cargo $verb "+($cargoArgs -join ' ')
+# Release players link the C runtime statically, so the portable package needs no
+# VCRUNTIME140.dll (installed, adjacent or from a Visual Studio preview). TestRelease
+# shares target/current/.../release and uses the same flag to keep its dependencies.
+$previousRustFlags=$env:RUSTFLAGS
+$rustFlags=$previousRustFlags
+if($Mode -in @('Release','TestRelease')){
+    if(-not [string]::IsNullOrEmpty($env:CARGO_ENCODED_RUSTFLAGS)){throw 'Unset CARGO_ENCODED_RUSTFLAGS: it would hide the static C runtime flag of Release builds'}
+    if("$rustFlags" -notmatch 'crt-static'){$rustFlags=("$rustFlags -C target-feature=+crt-static").Trim()}
+}
 if(-not $PSCmdlet.ShouldProcess($project,$cargoCommand)){
-    [pscustomobject]@{Mode=$Mode;RepoRoot=$repoRoot;Project=$project;Target=$target;ClientRoot=$clientRoot;Cargo=$cargoCommand;WhatIf=$true}
+    [pscustomobject]@{Mode=$Mode;RepoRoot=$repoRoot;Project=$project;Target=$target;ClientRoot=$clientRoot;Cargo=$cargoCommand;RustFlags=$rustFlags;WhatIf=$true}
     return
 }
 
@@ -43,6 +52,7 @@ $null=New-Item -ItemType Directory -Path $target,$logs -Force
 # on this lease, directory or Cargo artifact.
 $lease=[IO.File]::Open((Join-Path $project 'target/project-lease.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
 try {
+    $env:RUSTFLAGS=$rustFlags
     $inputs=if($Mode -in @('Debug','Release')){@(Get-ModernBuildInputs $project)}else{@()}
     if($Mode -in @('Debug','Release')){$null=Get-ModernPlayerPath $project $Mode}
     $log=Join-Path $logs ("build-$($Mode.ToLower())-"+[DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ')+'.log')
@@ -53,4 +63,4 @@ try {
     if($code -ne 0){throw "LiTo $Mode failed. See $log"}
     $receipt=if($Mode -in @('Debug','Release')){Write-ModernBuildReceipt $project $Mode $inputs $log}else{$null}
     [pscustomobject]@{Mode=$Mode;Log=$log;Target=$target;Receipt=$receipt;ClientRoot=$clientRoot}
-} finally { $lease.Dispose() }
+} finally { $env:RUSTFLAGS=$previousRustFlags;$lease.Dispose() }

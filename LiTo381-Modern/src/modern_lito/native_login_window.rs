@@ -2668,9 +2668,6 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     }
     DefWindowProcW(hwnd, msg, wparam, lparam)
 }
-pub fn run(peer: SocketAddr) -> Result<()> {
-    run_with_resources(peer, std::path::PathBuf::from(r"D:\lineage開發\0-客戶端"))
-}
 pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -> Result<()> {
     ensure!(
         resource_root.is_absolute(),
