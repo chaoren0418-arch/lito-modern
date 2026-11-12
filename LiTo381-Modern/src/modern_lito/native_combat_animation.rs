@@ -6,7 +6,7 @@ use super::{
     sprite_actions::{FrameEvent, SpriteActionCatalog},
 };
 use anyhow::{ensure, Context, Result};
-use std::collections::{BTreeMap, VecDeque};
+use std::{collections::{BTreeMap, VecDeque}, hash::BuildHasher};
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct EnteredEvent {
     pub actor: u32,
@@ -17,6 +17,20 @@ pub struct EnteredEvent {
     pub sound: Option<u32>,
     #[serde(skip)]
     pub prepared_audio: Option<super::native_audio_delivery::PreparedCue>,
+}
+
+/// The catalog's historical `Effect` name denotes the '<' overlapping WAV
+/// cue. Select one weighted candidate through the overlapping voice path.
+/// The caller supplies presentation randomness. Hit remains a visual trigger.
+pub(crate) fn frame_sound(events: &[FrameEvent], index: usize, selection: u32) -> Option<u32> {
+    match events.get(index)? {
+        FrameEvent::Sound(id) => Some(*id),
+        FrameEvent::Effect(_) => {
+            let group = super::combat_animation::classify_native_cues(events).ok()?.audio?;
+            (index == 0).then(|| group.selected(selection)).flatten()
+        }
+        _ => None,
+    }
 }
 pub struct ActionPose {
     pub action: u8,
@@ -38,6 +52,22 @@ struct State {
     brave: u8,
     active: Option<Active>,
     queue: VecDeque<ActionCue>,
+    /// Native 4E6B70: the body is in its running walk (`hold_for_motion`).
+    walking: bool,
+}
+impl State {
+    fn fresh(actor: &Actor, now: u64) -> Self {
+        Self {
+            incarnation: actor.incarnation,
+            seen: 0,
+            last: now,
+            speed: actor.speed,
+            brave: actor.brave,
+            active: None,
+            queue: VecDeque::new(),
+            walking: false,
+        }
+    }
 }
 #[derive(Clone,Default)]
 pub(crate) struct History { states:BTreeMap<u32,State> }
@@ -50,8 +80,8 @@ impl Playback {
     pub(crate) fn history(&self)->History {History{states:self.states.clone()}}
     pub(crate) fn restore(&mut self,history:History){self.states=history.states;self.clips.clear();}
     pub(crate) fn admit(&mut self,actor:&Actor,sequence:u64,now:u64) {
-        let state=self.states.entry(actor.id).or_insert(State{incarnation:actor.incarnation,seen:0,last:now,speed:actor.speed,brave:actor.brave,active:None,queue:VecDeque::new()});
-        if state.incarnation!=actor.incarnation {*state=State{incarnation:actor.incarnation,seen:0,last:now,speed:actor.speed,brave:actor.brave,active:None,queue:VecDeque::new()};}
+        let state=self.states.entry(actor.id).or_insert_with(||State::fresh(actor,now));
+        if state.incarnation!=actor.incarnation {*state=State::fresh(actor,now);}
         state.seen=state.seen.max(sequence);
         state.queue.retain(|cue|cue.sequence>sequence);
         // An admitted death stays on its final pose without entering old events.
@@ -60,46 +90,81 @@ impl Playback {
         }
     }
 
-    /// A presentation-only arrival. The caller has already sampled this actor
-    /// at `now`, so the next sample cannot spend pre-impact wall time on it.
+    /// A presentation-only arrival (effect-frame Hit, 44ECCE..44ED59). The
+    /// caller has already sampled this actor at `now`, so the next sample
+    /// cannot spend pre-impact wall time on it.
+    ///
+    /// Native order: dead / 4E8EC0 (44/45) / no-hurt bodies / 4DF7C0 /
+    /// `base+26` are ignored; a running walk (4E6B70) gets `4E63C0(2)` with
+    /// its >3 threshold; any other body is interrupted by `4E45F0(2)`, which
+    /// replaces the running action and keeps the pending commands.
     pub fn impact(&mut self, actor: &Actor, sequence: u64) -> bool {
+        use super::native_hurt::{dispatch, queue_suppresses, HurtDispatch, HurtTarget};
         let Some(state) = self.states.get_mut(&actor.id) else {
             return false;
         };
-        if actor.dead || super::native_obstacles::guardian(actor)
+        // Modern-retained guards: the guardian object clock, actor identity,
+        // a pending authoritative death and the bounded modern queue.
+        if super::native_obstacles::guardian(actor)
             || state.incarnation != actor.incarnation
             || state.queue.len() >= 16
-            || state.queue.back().is_some_and(|cue| cue.action == 2)
-            || state
-                .active
-                .as_ref()
-                .is_some_and(|a| matches!(a.cue.action, 8 | 44 | 45))
-            || state.queue.iter().any(|c| matches!(c.action, 8 | 44 | 45))
+            || state.queue.iter().any(|c| c.action == 8)
         {
             return false;
         }
-        state.queue.push_back(ActionCue {
+        let running = state.active.as_ref().map(|a| a.cue.action);
+        let target = HurtTarget {
+            dead: actor.dead || running == Some(8),
+            action_44_45: matches!(running, Some(44 | 45))
+                || state.queue.iter().any(|c| matches!(c.action, 44 | 45)),
+            graphics: actor.graphics,
+            walking: state.walking,
+        };
+        let cue = ActionCue {
             sequence,
             action: 2,
             source: "projectile_arrival",
-        });
-        true
+        };
+        match dispatch(&target) {
+            HurtDispatch::Ignore => false,
+            HurtDispatch::Enqueue => {
+                if queue_suppresses(state.queue.len(), state.queue.back().map(|c| c.action), 2) {
+                    return false;
+                }
+                state.queue.push_back(cue);
+                true
+            }
+            HurtDispatch::Interrupt => {
+                // The running action's remaining frame events are not entered.
+                state.active = None;
+                state.queue.push_front(cue);
+                true
+            }
+        }
     }
     /// A native running walk owns the body until its boundary. Impact may
     /// enqueue hurt meanwhile, but walk wall time must not age that action.
     pub(crate) fn hold_for_motion(&mut self,actor:&Actor,now:u64)->Result<()> {
-        let state=self.states.entry(actor.id).or_insert(State{
-            incarnation:actor.incarnation,seen:0,last:now,speed:actor.speed,brave:actor.brave,
-            active:None,queue:VecDeque::new(),
-        });
+        let state=self.states.entry(actor.id).or_insert_with(||State::fresh(actor,now));
         ensure!(now>=state.last,"combat clock reversed while walking");
         if state.incarnation!=actor.incarnation || actor.action_sequence<state.seen {
             state.incarnation=actor.incarnation;state.seen=0;state.active=None;state.queue.clear();
         }
+        state.walking=true;
         state.last=now;state.speed=actor.speed;state.brave=actor.brave;Ok(())
     }
     pub fn retain(&mut self, ids: &std::collections::BTreeSet<u32>) {
         self.states.retain(|id, _| ids.contains(id));
+    }
+    /// True once every received cue up to `barrier` has left the received
+    /// history for playback: it is active, finished, or was coalesced. A walk
+    /// hold or a backlog keeps later HP/MP presentation behind the action.
+    pub(crate) fn presented(&self, actor: &Actor, barrier: u64) -> bool {
+        let state = self.states.get(&actor.id).filter(|s| s.incarnation == actor.incarnation);
+        let seen = state.map_or(0, |s| s.seen);
+        let unseen = actor.actions.iter().any(|c| c.sequence <= barrier && c.sequence > seen);
+        let queued = state.is_some_and(|s| s.queue.iter().any(|c| c.sequence <= barrier));
+        !unseen && !queued
     }
     pub fn sample(
         &mut self,
@@ -107,15 +172,10 @@ impl Playback {
         actor: &Actor,
         now: u64,
     ) -> Result<(Option<ActionPose>, Vec<EnteredEvent>)> {
-        let state = self.states.entry(actor.id).or_insert(State {
-            incarnation: actor.incarnation,
-            seen: 0,
-            last: now,
-            speed: actor.speed,
-            brave: actor.brave,
-            active: None,
-            queue: VecDeque::new(),
-        });
+        use super::native_hurt::{hurt_exempt, queue_suppresses};
+        let state = self.states.entry(actor.id).or_insert_with(|| State::fresh(actor, now));
+        // The caller samples here only outside a held running walk.
+        state.walking = false;
         // A fresh authoritative S_PUT_OBJECT reuses the ID but retires its old
         // action history (including a held death pose).
         if actor.incarnation != state.incarnation || actor.action_sequence < state.seen {
@@ -137,11 +197,15 @@ impl Playback {
                 state.queue.clear();
                 wall = 0;
             }
-            // Native 4E63C0 suppresses consecutive queued action-2 commands.
-            // Keep one pending hurt pose: a crowd must not build an unbounded
-            // replay of old damage. Never merge across an attack/spell cue,
-            // whose frame-entry Hit/Sound events still have to run once.
-            if cue.action == 2 && state.queue.back().is_some_and(|c| c.action == 2) {
+            // Native guard before every hurt insertion: these bodies never
+            // take action 2 (4E461A/4E4655/4E466E, 4237D1..423808).
+            if cue.action == 2 && hurt_exempt(actor.graphics) {
+                continue;
+            }
+            // Native 4E63C0: with more than three pending commands, an
+            // action 2 directly behind another action 2 is dropped. Attack and
+            // spell cues are never merged, so their Hit/Sound events run once.
+            if queue_suppresses(state.queue.len(), state.queue.back().map(|c| c.action), cue.action) {
                 continue;
             }
             ensure!(state.queue.len() < 16, "combat action backlog");
@@ -157,6 +221,11 @@ impl Playback {
                 let Some(cue) = state.queue.pop_front() else {
                     break;
                 };
+                // 4E45F0 repeats the guard at action start: a polymorph after
+                // insertion cannot let a queued hurt reach an exempt body.
+                if cue.action == 2 && hurt_exempt(actor.graphics) {
+                    continue;
+                }
                 state.active = Some(Active {
                     cue,
                     units: 0,
@@ -188,7 +257,10 @@ impl Playback {
                 clip.sample(elapsed, false)
             };
             for index in active.emitted..=last {
-                for event in &clip.animation.frames[index].events {
+                let frame_events = &clip.animation.frames[index].events;
+                let selection = std::collections::hash_map::RandomState::new()
+                    .hash_one((actor.id, active.cue.sequence, index)) as u32;
+                for (event_index, event) in frame_events.iter().enumerate() {
                     ensure!(events.len() < 256, "combat frame event budget");
                     events.push(EnteredEvent { prepared_audio:None,
                         actor: actor.id,
@@ -196,11 +268,7 @@ impl Playback {
                         action: active.cue.action,
                         frame: index,
                         event: format!("{event:?}"),
-                        sound: if let FrameEvent::Sound(id) = event {
-                            Some(*id)
-                        } else {
-                            None
-                        },
+                        sound: frame_sound(frame_events, event_index, selection),
                     });
                 }
             }
@@ -231,3 +299,6 @@ impl Playback {
         ))
     }
 }
+#[cfg(test)]
+#[path = "native_combat_animation_tests.rs"]
+mod tests;

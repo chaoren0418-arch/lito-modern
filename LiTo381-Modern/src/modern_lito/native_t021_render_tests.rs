@@ -196,6 +196,7 @@ fn t021_history_does_not_restore_effects_into_a_different_world_generation() {
                 target: None,
                 position: [0, 0],
             },
+            heading: 0,
             start: 0,
             playback: Clip::new(Arc::new(a)).unwrap().start(),
         }],
