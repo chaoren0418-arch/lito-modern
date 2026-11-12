@@ -120,5 +120,5 @@ python -B 維護工具/test_native_skill_coverage.py
   - 167 不允許選自己、晚到的 280 不另外等待。
   - 175 的 5 秒客戶端施法時鐘（PE 值）會擋住所有技能 5 秒，與 33 木乃伊的詛咒同樣做法。
 - 需要 Codex 本機執行 `native_skills_167_176`（8 案）與回歸 `native_skills_156_166`、`native_skills_145_155`、`native_selector_only`、`native_skill_selection`，回報 `test result:` 原文。
-- 批 5（#155，`task/155`）與本張同時進行，兩邊都會改 `selector_only`、`self_object`（批 5 可能加 163）、⑩ 攻擊分支、`reuse_millis`、選單標籤、`tests.tsv`，以及 `native_skills_145_155.rs` 第 121 行的 `self_object` 清單。後合併的一方保留兩邊內容即可。
+- 批 5（#155）已合併進 main 並同步到本分支。`self_bound`（批 5：163／166）與 `self_object`（批 4 與本張：148／149／151／168）功能相同，之後可以整理成一個分類；這不在本張範圍，沒有動。
 - 後續批次：`self_object` 每加一個技能，都要同步改 `native_skills_145_155.rs` 的全域檢查清單。
