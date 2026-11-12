@@ -16,7 +16,7 @@ fn clip() -> Clip {
 }
 
 fn active(sequence: u64, graphics: u16) -> Active {
-    Active { cue: Effect { sequence, graphics, target: None, position: [32800, 32800] }, start: 0, playback: clip().start() }
+    Active { cue: Effect { sequence, graphics, target: None, position: [32800, 32800] }, heading: 0, start: 0, playback: clip().start() }
 }
 
 /// Profile-specific graphics: 744 Skills, 189 Items, 2231 Reagent, 169 Travel.

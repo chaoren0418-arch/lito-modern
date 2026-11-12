@@ -6,7 +6,7 @@ use super::{
     sprite_actions::{FrameEvent, SpriteActionCatalog},
 };
 use anyhow::{ensure, Context, Result};
-use std::collections::{BTreeMap, VecDeque};
+use std::{collections::{BTreeMap, VecDeque}, hash::BuildHasher};
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct EnteredEvent {
     pub actor: u32,
@@ -17,6 +17,20 @@ pub struct EnteredEvent {
     pub sound: Option<u32>,
     #[serde(skip)]
     pub prepared_audio: Option<super::native_audio_delivery::PreparedCue>,
+}
+
+/// The catalog's historical `Effect` name denotes the '<' overlapping WAV
+/// cue. Select one weighted candidate through the overlapping voice path.
+/// The caller supplies presentation randomness. Hit remains a visual trigger.
+pub(crate) fn frame_sound(events: &[FrameEvent], index: usize, selection: u32) -> Option<u32> {
+    match events.get(index)? {
+        FrameEvent::Sound(id) => Some(*id),
+        FrameEvent::Effect(_) => {
+            let group = super::combat_animation::classify_native_cues(events).ok()?.audio?;
+            (index == 0).then(|| group.selected(selection)).flatten()
+        }
+        _ => None,
+    }
 }
 pub struct ActionPose {
     pub action: u8,
@@ -142,6 +156,16 @@ impl Playback {
     pub fn retain(&mut self, ids: &std::collections::BTreeSet<u32>) {
         self.states.retain(|id, _| ids.contains(id));
     }
+    /// True once every received cue up to `barrier` has left the received
+    /// history for playback: it is active, finished, or was coalesced. A walk
+    /// hold or a backlog keeps later HP/MP presentation behind the action.
+    pub(crate) fn presented(&self, actor: &Actor, barrier: u64) -> bool {
+        let state = self.states.get(&actor.id).filter(|s| s.incarnation == actor.incarnation);
+        let seen = state.map_or(0, |s| s.seen);
+        let unseen = actor.actions.iter().any(|c| c.sequence <= barrier && c.sequence > seen);
+        let queued = state.is_some_and(|s| s.queue.iter().any(|c| c.sequence <= barrier));
+        !unseen && !queued
+    }
     pub fn sample(
         &mut self,
         catalog: &SpriteActionCatalog,
@@ -233,7 +257,10 @@ impl Playback {
                 clip.sample(elapsed, false)
             };
             for index in active.emitted..=last {
-                for event in &clip.animation.frames[index].events {
+                let frame_events = &clip.animation.frames[index].events;
+                let selection = std::collections::hash_map::RandomState::new()
+                    .hash_one((actor.id, active.cue.sequence, index)) as u32;
+                for (event_index, event) in frame_events.iter().enumerate() {
                     ensure!(events.len() < 256, "combat frame event budget");
                     events.push(EnteredEvent { prepared_audio:None,
                         actor: actor.id,
@@ -241,11 +268,7 @@ impl Playback {
                         action: active.cue.action,
                         frame: index,
                         event: format!("{event:?}"),
-                        sound: if let FrameEvent::Sound(id) = event {
-                            Some(*id)
-                        } else {
-                            None
-                        },
+                        sound: frame_sound(frame_events, event_index, selection),
                     });
                 }
             }

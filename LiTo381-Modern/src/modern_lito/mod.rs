@@ -480,3 +480,8 @@ pub mod native_cone_cold;
 pub(crate) mod native_additional_finite_effects;
 
 pub mod native_ability_buffs;
+
+pub(crate) mod native_cube;
+
+#[cfg(test)]
+mod native_t047_tests;

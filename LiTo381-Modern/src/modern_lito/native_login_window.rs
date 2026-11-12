@@ -1851,8 +1851,8 @@ impl Ui {
                         let target = self
                             .target
                             .and_then(|t| t.resolve_for_skill(&snapshot.world, self.skills.selected().unwrap_or(0)))
-                            .and_then(|id| snapshot.world.actors.get(&id))
-                            .map(super::native_combat::target_label)
+                            .and_then(|id| frame.vitals.target_label(&snapshot.world, id))
+                            .map(str::to_owned)
                             .unwrap_or_else(|| "未選取".into());
                         let ground = self
                             .ground
@@ -1898,10 +1898,10 @@ impl Ui {
                                 text.clone()
                             } else {format!("{selection}；F1 治癒／F2 護盾／F3 光箭")}
                         } else {format!("{selection}；F1 治癒／F2 護盾／F3 光箭")};
-                        let buffs = super::native_status_icons::summary(&snapshot.world,
+                        let buffs = super::native_status_icons::summary_with_mp(&snapshot.world, frame.vitals.mp,
                             super::native_status4183::now_ms(), self.controller.skill_cooldown_ms(std::time::Instant::now()));
                         format!("地圖 {}　HP {}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}",
-                            snapshot.world.map_id.unwrap_or(0),snapshot.world.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),buffs,target,ground,
+                            snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),buffs,target,ground,
                             snapshot.attack_feedback.text(),snapshot.skill_feedback.label(),format!("{}　{}",guidance,self.controller.portal_entry_feedback().label()),omitted,
                             self.audio_error.as_ref().map(|e|format!("音效：{e}")).unwrap_or_default())
                     } else {
