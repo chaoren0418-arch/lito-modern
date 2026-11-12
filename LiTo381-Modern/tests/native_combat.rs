@@ -124,12 +124,7 @@ fn attack_feedback_distinguishes_reply_timeout_and_interrupted_authority() {
     use std::time::{Duration, Instant};
     let mut w = world();
     let start = Instant::now();
-    let pending = Pending {
-        since: start,
-        count: 0,
-        target: 2,
-        generation: w.generation,
-    };
+    let pending = Pending::capture(&w, 2, start);
     assert_eq!(pending.observe(&w, start), Feedback::Pending);
     assert_eq!(
         pending.observe(&w, start + Duration::from_secs(2)),

@@ -160,6 +160,7 @@ pub mod resources;
 pub mod rebuild_verification;
 pub mod native_wire;
 pub mod native_opcodes;
+pub mod native_integrity;
 pub mod native_version;
 pub mod native_connection;
 pub(crate) mod native_clock;

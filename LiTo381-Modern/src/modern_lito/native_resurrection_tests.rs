@@ -261,12 +261,7 @@ fn controller_revival_retires_old_life_work_but_preserves_withdrawal_deadline() 
     let now = Instant::now();
     c.deadline = Some(now + Duration::from_secs(8));
     c.state.battle_withdrawal_pending = true;
-    c.attack_pending = Some(native_combat::Pending {
-        since: now,
-        count: 0,
-        target: other,
-        generation: c.state.world.generation,
-    });
+    c.attack_pending = Some(native_combat::Pending::capture(&c.state.world, other, now));
     c.skill_pending = Some(super::super::native_skills::Pending {
         since: now,
         casts: 0,
@@ -310,12 +305,8 @@ fn peer_or_orphan_revival_does_not_clear_own_death_or_unrelated_work() {
     let own = c.state.world.own_actor().unwrap().clone();
     c.skill_ready = Some(Instant::now() + Duration::from_secs(10));
     for target in [99, other] {
-        c.attack_pending = Some(native_combat::Pending {
-            since: Instant::now(),
-            count: 0,
-            target: other,
-            generation: c.state.world.generation,
-        });
+        c.attack_pending = Some(native_combat::Pending::capture(
+            &c.state.world, other, Instant::now()));
         c.accept_game(&resurrection(target, target, 0, 61)).unwrap();
         assert_eq!(c.state.world.own_actor().unwrap(), &own);
         assert!(c.state.world.death_confirmation_pending);

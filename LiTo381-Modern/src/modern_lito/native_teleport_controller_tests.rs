@@ -9,7 +9,7 @@ use std::{io::{Read, Write}, net::TcpListener, path::Path,
 const FIXTURE: &str = include_str!("../../tests/fixtures/native-teleport-controller-current.json");
 const NPC: u32 = 1812987996;
 fn fixture() -> serde_json::Value { serde_json::from_str(FIXTURE).unwrap() }
-fn bytes(name: &str) -> Vec<u8> {
+pub(super) fn bytes(name: &str) -> Vec<u8> {
     let f = fixture(); let text = f["vectors"][name]["hex"].as_str().unwrap();
     (0..text.len()).step_by(2).map(|i| u8::from_str_radix(&text[i..i+2], 16).unwrap()).collect()
 }
@@ -18,12 +18,12 @@ fn endpoint(peer: SocketAddr) -> Vec<u8> {
     let mut b=vec![0xf4,1]; b.extend(ip.octets()); b.extend(peer.port().to_le_bytes()); b
 }
 struct Emission { bodies: Vec<Vec<u8>>, raw: Option<Vec<u8>>, close: bool, done: mpsc::Sender<()> }
-struct FaultPeer {
-    peer: SocketAddr, commands: Arc<Mutex<Vec<Vec<u8>>>>, accepted: Arc<AtomicUsize>,
+pub(super) struct FaultPeer {
+    pub(super) peer: SocketAddr, commands: Arc<Mutex<Vec<Vec<u8>>>>, accepted: Arc<AtomicUsize>,
     stop: Arc<AtomicBool>, tx: mpsc::Sender<Emission>, worker: Option<thread::JoinHandle<anyhow::Result<()>>>,
 }
 impl FaultPeer {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self::at("127.0.0.1:0".parse().unwrap())
     }
     fn at(address: SocketAddr) -> Self {
@@ -59,14 +59,27 @@ impl FaultPeer {
             ensure!(version==crate::modern_lito::native_version::version_request(0),"version request changed");
             let mut outgoing=CipherState::new(seed); let mut accepted=bytes("version"); outgoing.encrypt(&mut accepted);
             socket.write_all(&native_wire::frame(&accepted)?)?;
-            socket.set_read_timeout(Some(Duration::from_millis(10)))?;
+            // Windows leaves a socket indeterminate after an SO_RCVTIMEO expiry
+            // (later I/O may fail with os error 997). Poll in nonblocking mode instead.
+            socket.set_read_timeout(None)?; socket.set_write_timeout(None)?; socket.set_nonblocking(true)?;
             let mut decoder=FrameDecoder::new(native_wire::MAX_FRAME)?;
             while !ending.load(Ordering::Acquire) {
                 while let Ok(e)=rx.try_recv() {
                     let mut wire=Vec::new();
                     for mut body in e.bodies { outgoing.encrypt(&mut body); wire.extend(native_wire::frame(&body)?); }
                     if let Some(raw)=e.raw { wire.extend(raw); }
-                    socket.write_all(&wire)?; let _=e.done.send(());
+                    let (mut at,until)=(0,Instant::now()+Duration::from_secs(2));
+                    while at<wire.len() {
+                        match socket.write(&wire[at..]) {
+                            Ok(0) => anyhow::bail!("synthetic peer write returned zero"),
+                            Ok(n) => at+=n,
+                            Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::Interrupted) => {
+                                ensure!(Instant::now()<until,"synthetic peer write deadline"); thread::sleep(Duration::from_millis(1));
+                            }
+                            Err(e) => return Err(e.into()),
+                        }
+                    }
+                    let _=e.done.send(());
                     if e.close { return Ok(()) }
                 }
                 let mut buf=[0;512];
@@ -80,7 +93,7 @@ impl FaultPeer {
                             ensure!(used>0,"synthetic frame decoder stalled");
                         }
                     }
-                    Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::TimedOut|std::io::ErrorKind::Interrupted) => {}
+                    Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::TimedOut|std::io::ErrorKind::Interrupted) => thread::sleep(Duration::from_millis(1)),
                     Err(e) if matches!(e.kind(),std::io::ErrorKind::ConnectionReset|std::io::ErrorKind::ConnectionAborted) => return Ok(()),
                     Err(e) => return Err(e.into()),
                 }
@@ -89,13 +102,14 @@ impl FaultPeer {
         });
         Self { peer, commands, accepted, stop, tx, worker:Some(worker) }
     }
-    fn emit(&self, bodies:Vec<Vec<u8>>) { self.write(bodies,None,false) }
+    pub(super) fn emit(&self, bodies:Vec<Vec<u8>>) { self.write(bodies,None,false) }
+    pub(super) fn commands(&self)->Vec<Vec<u8>> { self.commands.lock().unwrap().clone() }
     fn write(&self,bodies:Vec<Vec<u8>>,raw:Option<Vec<u8>>,close:bool) {
         let (done,rx)=mpsc::channel(); self.tx.send(Emission{bodies,raw,close,done}).unwrap();
         rx.recv_timeout(Duration::from_secs(2)).unwrap();
     }
     fn opcodes(&self)->Vec<u8> { self.commands.lock().unwrap().iter().map(|b|b[0]).collect() }
-    fn close(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){h.join().unwrap().unwrap();} }
+    pub(super) fn close(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){h.join().unwrap().unwrap();} }
 }
 
 fn recovery_wait(peer: &FaultPeer) -> LoginController {
@@ -244,8 +258,15 @@ fn authenticated_recovery_redirect(accept_timeout: Duration) -> (LoginController
     pump(&mut c, |c| c.transport.snapshot().epoch == 2 && c.state.phase == LoginPhase::GameLoginPending);
     stop(&mut c); c.cancel(); c.poll(); retired(&c);
     old.close(); target.close();
+    explicit_recovery_redirect(c, old.peer, accept_timeout)
+}
+
+/// Fresh authenticated LOGIN to the original peer after any retirement that
+/// kept one unused correlation. The caller has already closed `login_peer`.
+fn explicit_recovery_redirect(mut c: LoginController, login_peer: SocketAddr, accept_timeout: Duration)
+    -> (LoginController, FaultPeer, FaultPeer) {
     assert!(c.teleport_recovery.is_some());
-    let login = FaultPeer::at(old.peer);
+    let login = FaultPeer::at(login_peer);
     let game = FaultPeer::waiting_at("127.0.0.1:0".parse().unwrap(), accept_timeout);
     c.start(login.peer, Limits::default()).unwrap();
     pump(&mut c, |c| c.state.phase == LoginPhase::ReadyForLogin);
@@ -265,7 +286,111 @@ fn authenticated_recovery_redirect(accept_timeout: Duration) -> (LoginController
 
 #[cfg_attr(test, test)]
 pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
+    let (c, login, game) = authenticated_recovery_redirect(Duration::from_secs(5));
+    complete_explicit_recovery(c, login, game);
+}
+
+fn pump_for(c: &mut LoginController, seconds: u64, ok: impl Fn(&LoginController) -> bool) {
+    let until = Instant::now() + Duration::from_secs(seconds);
+    loop { c.poll(); if ok(c) { return } assert!(Instant::now() < until, "controller {:?}: {:?}", c.state.phase, c.state.error); thread::sleep(Duration::from_millis(2)); }
+}
+
+fn assert_one_correlation(c: &LoginController, login_peer: SocketAddr) {
+    let r = c.teleport_recovery.as_ref().expect("unused recovery erased");
+    assert_eq!(r.login_peer, login_peer);
+    assert_eq!((r.account.as_str(), r.source.as_str(), r.character.as_str()), ("SyntheticAccount", "測試乙", "重建角色"));
+    assert!(c.credentials.is_none() && c.teleport.is_none() && c.recovery_character.is_none());
+}
+
+/// G06 `cancel-repeat`: cancels while the destination worker is still live,
+/// then again after quiescence. Only one unused correlation survives, the old
+/// peer saw exactly one C_D9 and no further epoch starts in the background.
+#[cfg_attr(test, test)]
+pub fn repeated_cancellation_before_and_after_quiescence_keeps_one_recovery() {
+    let mut old = FaultPeer::new(); let mut target = FaultPeer::new();
+    let mut c = seeded(&old);
+    c.teleport.as_mut().unwrap().character = "重建角色".into();
+    old.emit(vec![bytes("availability"), endpoint(target.peer)]);
+    pump(&mut c, |c| c.transport.snapshot().epoch == 2 && c.state.phase == LoginPhase::GameLoginPending);
+    for _ in 0..4 { c.cancel(); }
+    pump(&mut c, |c| c.is_quiescent());
+    for _ in 0..3 { c.cancel(); c.poll(); retired(&c); assert_one_correlation(&c, old.peer); }
+    assert_eq!(c.state.phase, LoginPhase::Closed);
+    assert!(c.state.error.is_none());
+    for _ in 0..16 { c.poll(); assert_eq!(c.transport.snapshot().epoch, 2); assert!(c.is_quiescent()); thread::sleep(Duration::from_millis(2)); }
+    old.close(); target.close();
+    assert_eq!(old.opcodes().iter().filter(|&&op| op == 0xd9).count(), 1);
+    assert!(target.accepted.load(Ordering::Acquire) <= 1);
+    assert!(!target.opcodes().contains(&0xc8) && !target.opcodes().contains(&0xc9));
+    let peer = old.peer;
+    let (c, login, game) = explicit_recovery_redirect(c, peer, Duration::from_secs(5));
+    complete_explicit_recovery(c, login, game);
+}
+
+/// G06 `refused-cancel-repeat`: a refused destination fails boundedly, and
+/// later repeated cancels neither erase the correlation nor hide the failure.
+#[cfg_attr(test, test)]
+pub fn failed_handoff_then_repeated_cancel_keeps_the_authenticated_recovery() {
+    let closed = { let l = TcpListener::bind("127.0.0.1:0").unwrap(); l.local_addr().unwrap() };
+    let mut old = FaultPeer::new();
+    let mut c = seeded(&old);
+    c.teleport.as_mut().unwrap().character = "重建角色".into();
+    old.emit(vec![bytes("availability"), endpoint(closed)]);
+    pump_for(&mut c, 10, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+    let error = c.state.error.clone().expect("refused destination error");
+    assert_eq!(c.transport.snapshot().epoch, 2);
+    retired(&c); assert_one_correlation(&c, old.peer);
+    for _ in 0..3 { c.cancel(); c.poll(); retired(&c); assert_one_correlation(&c, old.peer); }
+    assert_eq!(c.state.phase, LoginPhase::Failed);
+    assert_eq!(c.state.error.as_deref(), Some(error.as_str()));
+    old.close();
+    assert_eq!(old.opcodes().iter().filter(|&&op| op == 0xd9).count(), 1);
+    let peer = old.peer;
+    let (c, login, game) = explicit_recovery_redirect(c, peer, Duration::from_secs(5));
+    complete_explicit_recovery(c, login, game);
+}
+
+/// A previous teleport generation's F4 reply reaching the recovery GAME epoch
+/// is not a handoff: it fails without C8/C9/C_D9 and the consumed correlation
+/// is not revived for another LOGIN.
+#[cfg_attr(test, test)]
+pub fn recovery_game_rejects_previous_generation_endpoint_reply() {
     let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(5));
+    c.begin_game().unwrap();
+    pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+    let epoch = c.transport.snapshot().epoch;
+    game.emit(vec![endpoint(login.peer)]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+    retired(&c);
+    assert_eq!(c.transport.snapshot().epoch, epoch, "stale endpoint started another epoch");
+    assert_ne!(c.state.redirect, Some(login.peer), "stale endpoint retargeted the client");
+    assert!(c.teleport_recovery.is_none() && c.recovery_character.is_none() && c.credentials.is_none());
+    c.cancel(); c.poll();
+    assert!(c.teleport_recovery.is_none(), "consumed recovery revived by cancel");
+    login.close(); game.close();
+    for op in [0xc8, 0xc9, 0xd9] { assert!(!game.opcodes().contains(&op), "stale endpoint sent {op:02X}"); }
+}
+
+/// Malformed S03 directory envelopes in the recovery GAME fail closed: no
+/// C8 retry, no C9, and no recovery for a later LOGIN.
+#[cfg_attr(test, test)]
+pub fn recovery_game_malformed_directory_reply_fails_without_retry() {
+    for (name, body) in [("count-truncated", vec![3u8]), ("count-trailing", vec![3, 1, 0]), ("count-negative", vec![3, 0x80])] {
+        let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(5));
+        c.begin_game().unwrap();
+        pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+        let epoch = c.transport.snapshot().epoch;
+        game.emit(vec![game_packet("ready"), body]);
+        pump(&mut c, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+        retired(&c);
+        assert_eq!(c.transport.snapshot().epoch, epoch, "{name}: another epoch");
+        assert!(c.teleport_recovery.is_none() && c.recovery_character.is_none(), "{name}: recovery survived");
+        login.close(); game.close();
+        assert!(!game.opcodes().contains(&0xc8) && !game.opcodes().contains(&0xc9), "{name}: sent C8/C9");
+    }
+}
+
+fn complete_explicit_recovery(mut c: LoginController, mut login: FaultPeer, mut game: FaultPeer) {
     c.begin_game().unwrap();
     pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
     game.emit(vec![game_packet("ready"), vec![3, 1], game_packet("row"), vec![0xc8, 0], bytes("inventory")]);
@@ -323,11 +448,11 @@ pub fn recovery_after_source_wait_confirms_directory(
 impl Drop for FaultPeer {
     fn drop(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){if let Ok(Err(error))=h.join(){eprintln!("synthetic peer {} failed: {error:#}",self.peer);}} }
 }
-fn pump(c:&mut LoginController, ok:impl Fn(&LoginController)->bool) {
+pub(super) fn pump(c:&mut LoginController, ok:impl Fn(&LoginController)->bool) {
     let until=Instant::now()+Duration::from_secs(3);
     loop { c.poll(); if ok(c){return} assert!(Instant::now()<until,"controller {:?}: {:?}, epoch={}, game={}",c.state.phase,c.state.error,c.transport.snapshot().epoch,c.game); thread::sleep(Duration::from_millis(2)); }
 }
-fn seeded(peer:&FaultPeer)->LoginController {
+pub(super) fn seeded_rental(peer:&FaultPeer)->LoginController {
     let mut c=LoginController::default();
     c.start(peer.peer,Limits{io_slice:Duration::from_millis(5),write_chunk:3,..Limits::default()}).unwrap();
     pump(&mut c,|c|c.state.phase==LoginPhase::ReadyForLogin);
@@ -343,6 +468,10 @@ fn seeded(peer:&FaultPeer)->LoginController {
     c.state.inventory.accept(c.transport.snapshot().epoch,&bytes("inventory")).unwrap();
     let owner=c.merchant_owner().unwrap(); c.state.merchant.begin(owner,NPC,Instant::now()).unwrap();
     c.state.merchant.accept(crate::modern_lito::native_merchant::parse(&bytes("dialog")).unwrap(),Instant::now()).unwrap();
+    c
+}
+fn seeded(peer:&FaultPeer)->LoginController {
+    let mut c=seeded_rental(peer);
     c.rental_npc_action(NPC,"LT_TELEPORT_B").unwrap();
     pump(&mut c,|_|peer.opcodes().contains(&0x27)); c
 }

@@ -80,3 +80,5 @@
 - 2026-11-12 — #189 T054-2: T054（M2 2/2）: src/：房間分支正式整合（G06.1、G06.2）（code，claude-local，PR #268 已合併）→ [報告](reports/issue-189.md)
 - 2026-11-12 — #144 T021-1: T021（M2 1/1）: src/：#98 附加劇毒、#99 影之防護、#100 提煉魔石（code，claude-local，PR #264 已合併）→ [報告](reports/issue-144.md)
 - 2026-11-12 — #182 T046-2: T046（M2 2/3）: src/：快捷列、技能書與狀態 UI（code，claude-local，PR #274 已合併）→ [報告](reports/issue-182.md)
+- 2026-11-12 — #164 T028-2: T028（M2 2/4）: src/、tests/：main 已接 38 技能的當版補驗（code，claude-local，PR #277 已合併）→ [報告](reports/issue-164.md)
+- 2026-11-12 — #187 T050-1: T050（M2 1/1）: src/（code，claude-local，PR #209 已合併）→ [報告](reports/issue-187.md)
