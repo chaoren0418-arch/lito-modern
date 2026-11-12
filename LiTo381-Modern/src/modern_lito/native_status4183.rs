@@ -149,6 +149,16 @@ struct Sound {
     prepared: Arc<OnceLock<PreparedCue>>,
     presentation: Arc<OnceLock<Weak<()>>>,
 }
+/// A per-object scheduler failure. The object is isolated (removed from the
+/// live set, its lease retired) so the rest of the scene and every other 4183
+/// keep running; the fault stays visible in the frame receipt until the same
+/// ID is rebuilt by a new S0B, the actor leaves, or the world is replaced.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize)]
+pub(crate) struct Fault {
+    pub(crate) incarnation: u64,
+    pub(crate) at_ms: u64,
+    pub(crate) error: String,
+}
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Runtime {
     generation: Option<u64>,
@@ -156,9 +166,25 @@ pub(crate) struct Runtime {
     sounds: Vec<Sound>,
     last_ms: Option<u64>,
     serial: Arc<AtomicU64>,
-    pub(crate) error: Option<String>,
+    pub(crate) faults: BTreeMap<u32, Fault>,
+    /// Count of faulted IDs that a later S0B rebuilt successfully.
+    pub(crate) recovered: u64,
 }
 impl Runtime {
+    fn isolate(&mut self, id: u32, at_ms: u64, error: anyhow::Error) {
+        if let Some(live) = self.live.remove(&id) {
+            live.lease.store(false, Ordering::Release);
+            self.faults.insert(
+                id,
+                Fault {
+                    incarnation: live.incarnation,
+                    at_ms,
+                    error: format!("{error:#}"),
+                },
+            );
+        }
+        self.sounds.retain(|s| s.lease.load(Ordering::Acquire));
+    }
     pub(crate) fn sequences(&self) -> impl Iterator<Item = u64> + '_ {
         self.sounds.iter().map(|s| s.sequence)
     }
@@ -187,12 +213,16 @@ impl Runtime {
         if self.generation != Some(world.generation) {
             self.generation = Some(world.generation);
             self.last_ms = None;
-            self.error = None;
+            self.faults.clear();
         }
+        // A fault describes an object that is still present but isolated.
+        self.faults
+            .retain(|id, _| world.actors.get(id).is_some_and(|a| a.graphics == 4183));
         if let Some(actor) = put
             .and_then(|id| world.actors.get(&id))
             .filter(|a| is_object(world, a) && canonical(a))
         {
+            let rebuilding = self.faults.contains_key(&actor.id);
             let live = self.live.entry(actor.id).or_insert_with(|| Live {
                 incarnation: actor.incarnation,
                 received_ms: received,
@@ -210,22 +240,27 @@ impl Runtime {
             live.lease.store(false, Ordering::Release);
             live.lease = Arc::new(AtomicBool::new(true));
             live.presentation = Arc::new(OnceLock::new());
-            if let Err(error) = live.refresh(actor, received, dispatched) {
-                live.lease.store(false, Ordering::Release);
-                self.error = Some(error.to_string());
+            match live.refresh(actor, received, dispatched) {
+                Ok(()) => {
+                    if rebuilding {
+                        self.faults.remove(&actor.id);
+                        self.recovered = self.recovered.saturating_add(1);
+                    }
+                }
+                Err(error) => self.isolate(actor.id, dispatched, error),
             }
         }
         self.sounds.retain(|s| s.lease.load(Ordering::Acquire));
     }
+    /// Errors returned here are runtime-wide (clock regression, dispatch or
+    /// revision budget) and go to the controller error channel. Per-object
+    /// failures never stop other objects; they are isolated into `faults`.
     pub(crate) fn poll(&mut self, now: u64, revision: &mut u64) -> Result<()> {
         ensure!(
             self.last_ms.is_none_or(|old| now >= old),
             "4183 controller clock regressed"
         );
         self.last_ms = Some(now);
-        if self.error.is_some() {
-            return Ok(());
-        }
         // Fixed sample, earliest deadline first; callbacks enqueue against this
         // dispatch sample. There is no modulo catch-up and no paint-side tick.
         for _ in 0..4096 {
@@ -244,10 +279,19 @@ impl Runtime {
             };
             let live = self.live.get_mut(&id).unwrap();
             let kind = live.callbacks.remove(&key).unwrap();
-            let sound = live.callback(kind, now)?;
+            let result = live.callback(kind, now);
             *revision = revision
                 .checked_add(1)
                 .ok_or_else(|| anyhow::anyhow!("4183 revision overflow"))?;
+            let sound = match result {
+                Ok(sound) => sound,
+                Err(error) => {
+                    // The bumped revision redraws without the isolated object.
+                    self.isolate(id, now, error);
+                    continue;
+                }
+            };
+            let live = &self.live[&id];
             if sound {
                 if self.sounds.len() == 32 {
                     self.sounds.remove(0);
@@ -416,7 +460,8 @@ impl Stage {
             }
         }
         Ok((
-            serde_json::json!({"objects":rows,"load_error":self.error,"clock_error":world.status4183.error,
+            serde_json::json!({"objects":rows,"load_error":self.error,"object_faults":world.status4183.faults,
+            "recovered":world.status4183.recovered,
             "local_expiry":false,"original_clock_execution_qualified":false}),
             audio,
         ))

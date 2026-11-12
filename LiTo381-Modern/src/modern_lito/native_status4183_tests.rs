@@ -233,14 +233,101 @@ fn exact_original_action_is_qualified_without_relaxing_other_idle_labels() {
 #[test]
 fn callback_budget_fails_closed_and_clock_regression_is_rejected() {
     let mut w = start();
+    let first = w.status4183.leases()[0].clone();
     for _ in 0..64 {
         w.accept_at(&put(&w), 1, 1).unwrap();
     }
-    assert!(w.status4183.error.is_some());
-    assert!(!w.status4183.leases()[0].load(Ordering::Acquire));
+    // The overflowing object is isolated: its lease is retired, and it no
+    // longer contributes a lease that would reject every later frame.
+    assert!(!first.load(Ordering::Acquire));
+    assert!(!w.status4183.live.contains_key(&ID));
+    assert!(w.status4183.leases().iter().all(|l| l.load(Ordering::Acquire)));
+    let fault = &w.status4183.faults[&ID];
+    assert!(fault.error.contains("4183 callback budget"), "{fault:?}");
     let mut w = start();
     w.poll_status4183(100).unwrap();
     assert!(w.poll_status4183(99).is_err());
+}
+fn second_put(w: &World) -> Vec<u8> {
+    let mut b = put(w);
+    b[5..9].copy_from_slice(&(ID - 1).to_le_bytes());
+    b
+}
+fn overflow(w: &mut World, at: u64) {
+    while w.status4183.live.contains_key(&ID) {
+        w.accept_at(&put(w), at, at).unwrap();
+    }
+}
+#[test]
+fn budget_fault_does_not_reject_current_frames_or_freeze_other_objects() {
+    let mut w = start();
+    w.accept_at(&second_put(&w), 0, 0).unwrap();
+    // A snapshot taken before the fault must still be retired.
+    let stale = w.status4183.leases();
+    overflow(&mut w, 1);
+    assert!(stale.iter().any(|l| !l.load(Ordering::Acquire)));
+    // Leases a freshly drawn Frame captures are all current (Frame::status4183_current).
+    let current = w.status4183.leases();
+    assert_eq!(current.len(), 1);
+    assert!(current.iter().all(|l| l.load(Ordering::Acquire)));
+    // The other 4183 keeps its own native clock; nothing is silently frozen.
+    w.poll_status4183(584).unwrap();
+    let other = &w.status4183.live[&(ID - 1)];
+    assert!(other.active_action);
+    assert_eq!(other.frame, 1);
+    assert_eq!(w.status4183.sounds.len(), 1);
+    w.poll_status4183(752).unwrap();
+    assert_eq!(w.status4183.live[&(ID - 1)].frame, 2);
+    assert!(w.status4183.faults.contains_key(&ID));
+    assert!(current.iter().all(|l| l.load(Ordering::Acquire)));
+}
+#[test]
+fn faulted_object_is_rebuilt_by_a_new_put_or_cleared_by_removal() {
+    let mut w = start();
+    overflow(&mut w, 1);
+    // Isolated object is excluded from ordinary actor drawing and from 4183 drawing.
+    assert!(is_object(&w, &w.actors[&ID]));
+    w.poll_status4183(10).unwrap();
+    assert!(w.status4183.faults.contains_key(&ID));
+    // Same ID rebuilt by a fresh S0B: explicit recovery, new queue, fault cleared.
+    w.accept_at(&put(&w), 20, 20).unwrap();
+    assert!(w.status4183.faults.is_empty());
+    assert_eq!(w.status4183.recovered, 1);
+    assert_eq!(due(&w), 604);
+    assert_eq!(w.status4183.live[&ID].callbacks.len(), 1);
+    w.poll_status4183(604).unwrap();
+    assert_eq!(frame(&w), 1);
+    // Fault on removal: removing the actor clears the fault without a recovery.
+    overflow(&mut w, 700);
+    assert!(w.status4183.faults.contains_key(&ID));
+    remove(&mut w, 800);
+    assert!(w.status4183.faults.is_empty());
+    assert_eq!(w.status4183.recovered, 1);
+    w.accept_at(&put(&w), 900, 900).unwrap();
+    assert_eq!(due(&w), 1484);
+    assert_eq!(w.status4183.recovered, 1);
+}
+#[test]
+fn callback_fault_during_poll_isolates_only_that_object() {
+    let mut w = start();
+    w.accept_at(&second_put(&w), 0, 0).unwrap();
+    w.poll_status4183(584).unwrap();
+    // A poll callback pops before it schedules, so the budget cannot trip
+    // here; drive the arithmetic guard of one object instead.
+    w.status4183.live.get_mut(&ID).unwrap().ideal = u64::MAX - 100;
+    let stale = w.status4183.live[&ID].lease.clone();
+    let revision = w.visual_revision;
+    // Runtime-wide Ok: the fault is per object, not a silent global stop.
+    w.poll_status4183(752).unwrap();
+    assert!(w.visual_revision > revision);
+    assert!(!stale.load(Ordering::Acquire));
+    assert!(!w.status4183.live.contains_key(&ID));
+    assert!(w.status4183.faults[&ID].error.contains("overflow"));
+    assert!(w.status4183.sounds.iter().all(|s| s.lease.load(Ordering::Acquire)));
+    assert_eq!(w.status4183.live[&(ID - 1)].frame, 2);
+    w.poll_status4183(920).unwrap();
+    assert_eq!(w.status4183.live[&(ID - 1)].frame, 3);
+    assert!(w.status4183.leases().iter().all(|l| l.load(Ordering::Acquire)));
 }
 
 #[test]
