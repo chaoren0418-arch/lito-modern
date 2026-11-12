@@ -68,7 +68,8 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 2490 filtered ou
 - 修正：`native_teleport_controller_tests.rs` 的 `FaultPeer` 交握後改為非阻塞模式輪詢（WouldBlock 時 sleep 1 ms），寫入改為帶 2 秒期限的非阻塞寫入迴圈；不再使用 read／write timeout。只改測試輔助，不改產品程式。
 - 合併 `origin/main`（9a5b887）：`native_login.rs` 衝突，main 新增 `accept_game_received`（ingress epoch 檢查）；解法為保留 main 的 ingress 檢查在前，本張租裝返回 fence 接在其後。
 - 已驗證：合併後 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 0（`Finished dev profile`）。
-- 待驗證：依 2026-11-09 本機限制，本次未在本機執行 `cargo test`；測試結果以 push 後 PR #218 的 CI 為準。
+- 依 2026-11-09 本機限制，本次未在本機執行 `cargo test`；測試交給 CI。
+- 已驗證（CI run 43145011407，commit 62c383b，結論 pass）：`test result: ok. 2030 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 10.86s`；本張 5 個 `rental_lifecycle_tests::*` 與先前失敗的 `teleport_wire_tests::malformed_and_misordered_teleport_replies_over_tcp_retire_pending_owner` 均為 `ok`。單次通過不能證明 flake 已根除（推測已根除，待後續 CI 持續觀察）。
 
 ## 推測
 
