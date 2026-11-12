@@ -91,8 +91,14 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 PR #347 CI run 43210992211（commit ffb2778）：通過。cargo test --locked --lib --no-fail-fast：
 test result: ok. 2326 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.51s
 
+第三輪：合併 origin/main（3a81fc2，含批 8 #158）。衝突三處，兩邊保留：
+- native_skills.rs：selector_only（189／190／191／195 與 215／220）、reuse_millis、client_clock_millis。
+- native_skill_selection.rs：189–195 與 211–220 的選單標籤。
+- 維護工具/test-whitelist/tests.tsv：native_skills_189_195 與 native_skills_211_220 兩組。
+合併後同一條 cargo check：結束碼 0。這一輪的 CI 結果以 PR #347 最新 commit 為準（寫報告時尚未跑完）。
+
 python -B 維護工具/test_native_skill_coverage.py
-結束碼 0；Ran 12 tests in 0.295s；OK
+結束碼 0；Ran 13 tests；OK（合併後含批 8 的 1 案）
 ```
 
 ## 推測

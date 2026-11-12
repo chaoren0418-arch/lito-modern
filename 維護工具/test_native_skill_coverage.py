@@ -108,6 +108,16 @@ class SkillCoverageTests(unittest.TestCase):
         self.assertFalse(set(range(167, 177)) & set(result['text_request_ids']))
         self.assertFalse(set(range(167, 177)) & set(result['ground_request_ids']))
 
+    def test_current_source_covers_eighth_batch(self):
+        result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
+        batch = set(range(189, 196))
+        self.assertTrue(batch <= set(result['actor_or_selector_request_ids']))
+        self.assertFalse(batch & set(result['text_request_ids']))
+        self.assertFalse(batch & set(result['inventory_request_ids']))
+        self.assertFalse(batch & set(result['ground_request_ids']))
+        # 196–200 do not exist in the catalog and must not be reported as wired.
+        self.assertFalse(set(range(196, 201)) & set(result['all_request_ids']))
+
     def test_current_source_covers_seventh_batch(self):
         result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
         self.assertTrue(set(range(181, 189)) <= set(result['actor_or_selector_request_ids']))
