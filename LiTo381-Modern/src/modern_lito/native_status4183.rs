@@ -15,11 +15,17 @@ use std::{
     time::Instant,
 };
 
-pub(crate) fn now_ms() -> u64 {
+fn origin() -> Instant {
     static ORIGIN: OnceLock<Instant> = OnceLock::new();
-    ORIGIN
-        .get_or_init(Instant::now)
-        .elapsed()
+    *ORIGIN.get_or_init(Instant::now)
+}
+pub(crate) fn now_ms() -> u64 {
+    ms_at(Instant::now())
+}
+/// Same process-relative millisecond axis as `now_ms`, for a recorded instant
+/// (packet decode). Instants before the origin saturate to zero.
+pub(crate) fn ms_at(at: Instant) -> u64 {
+    at.saturating_duration_since(origin())
         .as_millis()
         .min(u128::from(u64::MAX)) as u64
 }

@@ -37,6 +37,7 @@ struct Payload {
     group:NativeAudioGroup,
     selection:u32,
     finite_event:Option<FiniteEventKey>,
+    occurrence:Option<u64>,
     scope:OnceLock<Scope>,
     consumed:AtomicBool,
     status_lease:OnceLock<Arc<AtomicBool>>,
@@ -81,12 +82,19 @@ impl PreparedCue {
         Self::build(bank,group,selection,Some(event))
     }
     fn build(bank:Arc<SoundBank>,group:NativeAudioGroup,selection:u32,finite_event:Option<FiniteEventKey>)->Result<Self> {
+        Self::build_occurrence(bank,group,selection,finite_event,None)
+    }
+    pub(crate) fn from_callback_event(bank:Arc<SoundBank>,group:NativeAudioGroup,selection:u32,event:FiniteEventKey,occurrence:u64)->Result<Self> {
+        ensure!(event.sequence!=0 && event.graphics!=0 && occurrence!=0,"callback event identity missing");
+        Self::build_occurrence(bank,group,selection,Some(event),Some(occurrence))
+    }
+    fn build_occurrence(bank:Arc<SoundBank>,group:NativeAudioGroup,selection:u32,finite_event:Option<FiniteEventKey>,occurrence:Option<u64>)->Result<Self> {
         ensure!(group.mode!=NativeAudioMode::LegacyCaretDistanceMode,"unported distance audio");
         ensure!((1..=3).contains(&group.candidates().len()),"native audio candidate count");
         ensure!(group.candidates().iter().all(|id|*id<10_000),"native shared audio namespace");
         ensure!(group.candidates().iter().all(|id|*id==0 || bank.get(*id).is_some()),"incomplete native audio group bank");
         ensure!(bank.file_bytes()<=MAX_BANK_BYTES && bank.pcm_bytes()<=MAX_BANK_BYTES,"native prepared audio budget");
-        Ok(Self(Arc::new(Payload{bank,group,selection,finite_event,scope:OnceLock::new(),consumed:AtomicBool::new(false),status_lease:OnceLock::new()})))
+        Ok(Self(Arc::new(Payload{bank,group,selection,finite_event,occurrence,scope:OnceLock::new(),consumed:AtomicBool::new(false),status_lease:OnceLock::new()})))
     }
     pub(crate) fn finite_event(&self)->Option<FiniteEventKey> {self.0.finite_event}
     pub fn group(&self)->&NativeAudioGroup {&self.0.group}
@@ -127,9 +135,28 @@ impl PreparedCue {
 #[derive(Default)]
 pub(crate) struct FiniteDeliveryHistory {
     world:Option<(u64,u64,u16)>,
-    seen:std::collections::BTreeSet<FiniteEventKey>,
+    seen:std::collections::BTreeSet<(FiniteEventKey,Option<u64>)>,
 }
 pub(crate) const MAX_FINITE_DELIVERY_HISTORY_KEYS:usize=4096;
+#[cfg(test)]
+mod batch1_callback_tests {
+    use super::*;
+    #[test]
+    fn distinct_callback_occurrences_survive_but_republished_occurrences_do_not() {
+        let bank=Arc::new(SoundBank::playback_subset(Default::default()).unwrap());
+        let group=crate::modern_lito::combat_animation::classify_native_cues(
+            &[crate::modern_lito::sprite_actions::FrameEvent::Sound(0)]).unwrap().audio.unwrap();
+        let key=FiniteEventKey{sequence:9,graphics:171,action:0,source_frame:1};
+        let cue=|n|PreparedCue::from_callback_event(bank.clone(),group.clone(),0,key,n).unwrap();
+        let mut history=FiniteDeliveryHistory::default();history.select_world((1,2,3));
+        let mut first=vec![cue(1),cue(1),cue(6)];
+        let report=history.filter_frame(&mut first).unwrap();assert_eq!((report.kept,report.duplicates),(2,1));
+        let mut again=vec![cue(6)];assert_eq!(history.filter_frame(&mut again).unwrap().duplicates,1);
+        assert!(PreparedCue::from_callback_event(bank.clone(),group.clone(),0,key,0).is_err());
+        history.select_world((1,3,3));let mut next=vec![cue(1)];
+        assert_eq!(history.filter_frame(&mut next).unwrap().kept,1);
+    }
+}
 #[derive(Clone,Copy,Debug,Default,serde::Serialize)]
 pub(crate) struct FiniteHistoryReport {pub kept:usize,pub duplicates:usize,pub retained_keys:usize}
 impl FiniteDeliveryHistory {
@@ -138,10 +165,10 @@ impl FiniteDeliveryHistory {
     }
     pub(crate) fn is_world(&self,world:(u64,u64,u16))->bool {self.world==Some(world)}
     pub(crate) fn retain_sequences(&mut self,sequences:&std::collections::BTreeSet<u64>) {
-        self.seen.retain(|event|sequences.contains(&event.sequence));
+        self.seen.retain(|(event,_)|sequences.contains(&event.sequence));
     }
     pub(crate) fn filter_frame(&mut self,cues:&mut Vec<PreparedCue>)->Result<FiniteHistoryReport> {
-        let keys=cues.iter().map(|cue|cue.finite_event().ok_or_else(||anyhow::anyhow!("finite native cue provenance absent")))
+        let keys=cues.iter().map(|cue|cue.finite_event().map(|event|(event,cue.0.occurrence)).ok_or_else(||anyhow::anyhow!("finite native cue provenance absent")))
             .collect::<Result<Vec<_>>>()?;
         let unique:std::collections::BTreeSet<_>=keys.iter().copied().collect();
         let additional=unique.iter().filter(|key|!self.seen.contains(*key)).count();

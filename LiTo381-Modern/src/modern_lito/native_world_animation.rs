@@ -179,6 +179,23 @@ impl Animator {
         }
         Ok(&self.clips[&(id, action)])
     }
+    /// Keep received action admission behind an explicitly owned source walk.
+    /// When it ends, the ordinary combat player must not restart the same walk
+    /// from elapsed zero just because its images were supplied by callbacks.
+    pub(crate) fn source_motion(&mut self, catalog:&SpriteActionCatalog, actor:&Actor,
+        now:u64, complete:bool)->Result<()> {
+        let duration=self.clip(catalog,u32::from(actor.graphics),actor.walk_action)?.duration_ns();
+        let signature=(actor.incarnation,actor.motion_revision,actor.graphics,actor.x,actor.y,actor.walk_action);
+        if complete && self.tracks.get(&actor.id).is_some_and(|t|t.signature==signature
+            && t.virtual_units>=u128::from(duration)*126) {return Ok(());}
+        self.tracks.insert(actor.id,Track {
+            signature,
+            last:now,virtual_units:if complete {u128::from(duration)*126} else {0},
+            speed:actor.speed,brave:actor.brave,from:actor.motion_from,object_emitted:0,
+        });
+        if !complete {self.combat.hold_for_motion(actor,now)?;}
+        Ok(())
+    }
     pub fn pose(&mut self, catalog: &SpriteActionCatalog, actor: &Actor, now: u64) -> Result<Pose> {
         let id = u32::from(actor.graphics);
         let row = catalog

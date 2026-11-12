@@ -51,6 +51,8 @@ pub(crate) fn frame(world: &World, arrived: bool) -> Frame {
     let a = world.own_actor().unwrap();
     Frame {
         status4183_leases: Vec::new(),
+        player_walk_plan: None,
+        static2941: Default::default(),
         ground_items: vec![],
         hits: vec![],
         visibility: vec![],

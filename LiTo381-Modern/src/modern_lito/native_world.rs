@@ -72,6 +72,8 @@ pub struct Actor {
 pub struct World {
     #[serde(skip)]
     pub(crate) status4183: super::native_status4183::Runtime,
+    #[serde(skip)]
+    pub(crate) player_walk: Option<super::native_player_callbacks::WalkPose>,
     /// GAME-owned clan context survives scene replacement, not reconnection.
     pub relations: super::native_actor_relations::Context,
     /// Role comes from S_E5, never inferred from the bounds sent to all peers.
@@ -82,6 +84,9 @@ pub struct World {
     pub completed_portals:u64,
     pub resurrection_packets: u64,
     pub last_resurrection: Option<Resurrection>,
+    /// S_RESURRECT may be followed by a spawn relocation before HP/ratio.
+    /// Honor and spell revivals close this window with vitals, without moving.
+    pub resurrection_relocations: BTreeSet<u32>,
     /// Server-supplied half-open observer area. This does not enable observer mode
     /// or impose spectator rules on ordinary player movement.
     pub observer_bounds: Option<ObserverBounds>,
@@ -89,6 +94,9 @@ pub struct World {
     pub emblems: super::native_emblems::Cache,
     pub learned_skills: BTreeSet<u16>,
     pub effects: Vec<super::native_skills::Effect>,
+    /// Local decode binding; snapshots share irreversible lease retirement.
+    #[serde(skip)]
+    pub static_effect_receipts: BTreeMap<u64, super::native_static2941::Receipt>,
     pub effects_dropped: u64,
     /// Direct S4A cues, scoped to this world. No inferred spell or expiry.
     pub wire_sounds: Vec<WireSound>,
@@ -291,6 +299,25 @@ pub fn actor(b: &[u8]) -> Result<Actor> {
     Ok(a)
 }
 impl World {
+    pub fn death_confirmation_ready(&self) -> bool {
+        self.ready() && !self.observer_mode && self.battle_result.is_none()
+            && self.death_confirmation_pending && self.hp.is_some_and(|hp| hp[0] == 0)
+            && self.own_actor().is_some_and(|a| a.dead
+                && Some(a.action_sequence) != self.last_death_confirmed_action)
+    }
+
+    /// Commit only after the bounded transport accepts CE0. A failed enqueue
+    /// leaves the request available; no local clock decides the next life.
+    pub fn acknowledge_death(&mut self, send: impl FnOnce(&[u8]) -> Result<()>) -> Result<()> {
+        ensure!(self.death_confirmation_ready(), "death authority no longer pending");
+        let count = self.death_confirmations_sent.checked_add(1).context("death confirmation counter exhausted")?;
+        send(&[0xe0])?;
+        self.death_confirmation_pending = false;
+        self.death_confirmations_sent = count;
+        self.last_death_confirmed_action = self.own_actor().map(|a| a.action_sequence);
+        Ok(())
+    }
+
     pub fn set_observer_mode(&mut self, enabled:bool) {
         if self.observer_mode!=enabled {self.visual_revision+=1;}
         self.observer_mode=enabled;
@@ -320,7 +347,26 @@ impl World {
     }
     /// Empty authority without reusing the identity of any previously rendered
     /// world. The next map packet advances this generation, including reconnects.
+    pub(crate) fn retire_static_effects(&mut self) {
+        for receipt in self.static_effect_receipts.values() { receipt.retire(); }
+        self.static_effect_receipts.clear();
+    }
+    pub(crate) fn accept_received(&mut self, body: &[u8], ingress: super::native_connection::IngressReceipt) -> Result<bool> {
+        ensure!(ingress.connection_epoch() != 0, "static receipt without connection");
+        let before = self.visual_revision;
+        // 4183 keeps wire receipt (decode) and model dispatch as distinct samples.
+        let handled = self.accept_at(body,
+            super::native_status4183::ms_at(ingress.decoded_at()), super::native_status4183::now_ms())?;
+        if handled && body.first() == Some(&0x37) && self.visual_revision != before {
+            if let Some(cue) = self.effects.last().filter(|cue| cue.graphics == 2941 && cue.sequence == self.visual_revision) {
+                let receipt = super::native_static2941::Receipt::received(self, cue, ingress);
+                self.static_effect_receipts.insert(cue.sequence, receipt);
+            }
+        }
+        Ok(handled)
+    }
     pub fn clear_preserving_generation(&mut self) {
+        self.retire_static_effects();
         *self = Self { generation: self.generation,
             relations:std::mem::take(&mut self.relations), ..Default::default() };
     }
@@ -354,6 +400,7 @@ impl World {
         super::native_combat::attack_request(target, other.x, other.y, ranged)
     }
     fn action(&mut self, id: u32, action: u8, source: &'static str) {
+        if action == 8 { self.resurrection_relocations.remove(&id); }
         if let Some(a) = self.actors.get_mut(&id) {
             if action == 8 { a.draw_state.native_light_dead = true; }
             // Guardian damage uses persistent S_ACTION 32..35 states, not
@@ -502,6 +549,7 @@ impl World {
         if op==0x5a{
             let destination=super::native_portal::parse(b)?;ensure!(self.ready(),"portal before ready world or repeated pending portal");
             let object_id=self.own_actor().unwrap().id;let generation=self.generation.checked_add(1).context("portal generation")?;
+            self.retire_static_effects();
             *self=Self{portal:Some(super::native_portal::Pending{destination,object_id}),completed_portals:self.completed_portals,
                 map_id:Some(destination.map),generation,started:true,learned_skills:std::mem::take(&mut self.learned_skills),
                 relations:std::mem::take(&mut self.relations),..Default::default()};
@@ -539,6 +587,7 @@ impl World {
             let underwater = r.c()?;
             r.end()?;
             let generation = self.generation.checked_add(1).context("world generation")?;
+            self.retire_static_effects();
             *self = Self {
                 observer_mode: self.observer_mode,
                 learned_skills: std::mem::take(&mut self.learned_skills),
@@ -593,10 +642,14 @@ impl World {
                 let event = Resurrection { target: r.d()?, action: r.c()?, source: r.d()?, graphics: r.h()? };
                 r.end()?;
                 ensure!(event.target != 0 && event.source != 0, "zero resurrection identity");
+                // Settlement is terminal for this world, even if a scheduled
+                // revival was already queued by the server.
+                if self.battle_result.is_some() { return Ok(true); }
+                let count = self.resurrection_packets.checked_add(1).context("resurrection counter exhausted")?;
+                let revision = self.visual_revision.checked_add(1).context("resurrection revision exhausted")?;
                 if let Some(a) = self.actors.get_mut(&event.target) {
                     // A new life retires held death, old selections and projectile
                     // arrivals. HP and ratio still await their own server packets.
-                    let revision = self.visual_revision + 1;
                     a.incarnation = revision;
                     a.target_revision = revision;
                     a.action_sequence = revision;
@@ -608,6 +661,7 @@ impl World {
                     a.draw_state.native_light_dead = false;
                     a.graphics = event.graphics;
                     a.walk_action = event.action;
+                    self.resurrection_relocations.insert(event.target);
                     self.projectiles.retain(|p| p.attacker != event.target && p.target != event.target);
                     if self.status.is_some_and(|s| s.object_id == event.target) {
                         self.death_confirmation_pending = false;
@@ -617,7 +671,7 @@ impl World {
                 } else {
                     self.orphan_updates += 1;
                 }
-                self.resurrection_packets += 1;
+                self.resurrection_packets = count;
                 self.last_resurrection = Some(event);
             }
             0xe2 => {
@@ -722,7 +776,7 @@ impl World {
                 r.end()?;
                 self.message_count += 1;
                 self.last_message = Some((code, args));
-                if matches!(code, 276 | 278 | 280 | 285 | 299 | 316 | 352) {
+                if matches!(code, 276 | 278 | 280 | 285 | 299 | 316 | 319 | 352) {
                     self.last_skill_rejection = Some((self.message_count, code));
                 }
             }
@@ -748,7 +802,8 @@ impl World {
                     .map(|id| [self.actors[&id].x, self.actors[&id].y])
                     .unwrap_or(position);
                 if self.effects.len() == 128 {
-                    self.effects.remove(0);
+                    let retired = self.effects.remove(0);
+                    if let Some(receipt) = self.static_effect_receipts.remove(&retired.sequence) { receipt.retire(); }
                     self.effects_dropped += 1;
                 }
                 self.effects.push(super::native_skills::Effect {
@@ -781,6 +836,8 @@ impl World {
                 ensure!(matches!(result, -1..=1), "invalid battle result");
                 ensure!(self.battle_result.is_none(), "duplicate battle result");
                 self.battle_result = Some(result);
+                self.death_confirmation_pending = false;
+                self.resurrection_relocations.clear();
                 self.visual_revision += 1;
             }
             0xdb => {
@@ -807,7 +864,7 @@ impl World {
                 if let Some(actor)=self.actors.get(&attack.caster).filter(|a|!a.dead) {
                     if self.many_attacks.len()==128 {self.many_attacks.remove(0);self.many_attacks_dropped+=1;}
                     let targets=attack.targets.iter().map(|t|(t.id,t.hit,self.actors.get(&t.id).map(|a|a.incarnation))).collect();
-                    self.many_attacks.push(super::native_attack_many::Cue{attack:attack.clone(),caster_incarnation:actor.incarnation,action_sequence:actor.action_sequence,targets});
+                    self.many_attacks.push(super::native_attack_many::Cue{target_origin:super::native_attack_many::capture_target_origin(&attack,&self.actors),attack:attack.clone(),caster_incarnation:actor.incarnation,action_sequence:actor.action_sequence,targets});
                 }
                 if let Some(a)=self.actors.get_mut(&attack.caster){a.heading=attack.heading;}
                 self.attack_packets+=1;
@@ -904,6 +961,7 @@ impl World {
                 let ratio = r.c()?;
                 r.end()?;
                 ensure!(id != 0 && ratio <= 100, "invalid HP ratio");
+                self.resurrection_relocations.remove(&id);
                 if let Some(a) = self.actors.get_mut(&id) {
                     a.hp_ratio = ratio;
                     self.visual_revision += 1;
@@ -957,6 +1015,7 @@ impl World {
                 );
                 self.door_attributes.retain(|_,r|r.owner.is_none_or(|(id,_)|id!=a.id));
                 if self.actors.contains_key(&a.id) {self.minimap.remove(a.id);}
+                self.resurrection_relocations.remove(&a.id);
                 self.actors.insert(a.id, a);
                 self.visual_revision += 1;
             }
@@ -972,8 +1031,9 @@ impl World {
                 // authoritative destination is one step in the wire heading.
                 let (x, y) = destination(x, y, heading)?;
                 if let Some(a) = self.actors.get_mut(&id) {
-                    a.motion_from = if self.status.is_some_and(|s| s.object_id == id) {
-                        None // Own S_MOVE_OBJECT is authoritative correction, not a new prediction.
+                    let respawn = self.resurrection_relocations.remove(&id);
+                    a.motion_from = if respawn || self.status.is_some_and(|s| s.object_id == id) {
+                        None // Respawn and own corrections relocate, without a predicted step.
                     } else {
                         Some(source) // Original4E1870 starts at the received source cell, including corrections.
                     };
@@ -1006,6 +1066,7 @@ impl World {
                 let id = r.d()?;
                 r.end()?;
                 ensure!(id != 0, "zero removed actor");
+                self.resurrection_relocations.remove(&id);
                 if self.minimap.remove(id) {self.visual_revision += 1;}
                 if self.actors.remove(&id).is_some() {
                     self.door_attributes.retain(|_,r|r.owner.is_none_or(|(owner,_)|owner!=id));
@@ -1078,6 +1139,7 @@ impl World {
                     self.visual_revision += 1;
                 }
                 self.hp = Some([s.current_hp, s.maximum_hp]);
+                self.resurrection_relocations.remove(&s.object_id);
                 self.mp = Some([s.current_mp, s.maximum_mp]);
                 self.status = Some(s);
             }
@@ -1107,7 +1169,8 @@ impl World {
                 if op == 0x4d {
                     self.mp = Some(value)
                 } else {
-                    self.hp = Some(value)
+                    self.hp = Some(value);
+                    if let Some(s) = self.status { self.resurrection_relocations.remove(&s.object_id); }
                 }
             }
             _ => {
