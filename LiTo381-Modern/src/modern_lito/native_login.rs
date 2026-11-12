@@ -385,6 +385,7 @@ pub struct LoginController {
     skill_pending: Option<super::native_skills::Pending>,
     skill_item_pending: bool,
     skill_summon_pending: bool,
+    skill_clan_pending: bool,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
@@ -437,6 +438,7 @@ impl Default for LoginController {
             skill_pending: None,
             skill_item_pending: false,
             skill_summon_pending: false,
+            skill_clan_pending: false,
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
@@ -665,6 +667,7 @@ impl LoginController {
                 if self.player_callbacks.pending() { super::native_skills::Feedback::Pending }
                 else if self.skill_summon_pending { pending.observe_summon(&self.state.world, now) }
                 else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
+                else if self.skill_clan_pending { pending.observe_clan(&self.state.world, now) }
                 else { pending.observe(&self.state.world, now) }
             } else {
                 super::native_skills::Feedback::Interrupted
@@ -751,6 +754,12 @@ impl LoginController {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),"等待目前物品操作回覆");
         self.cast_request(51,None,None,None,None,Some(choice),frame,CombatInput::default())
     }
+    /// 113 True Target annotation (may be empty) or 116／118 clan member name.
+    pub fn cast_text(&mut self, skill: u16, target: Option<u32>, text: &str,
+        frame: &super::native_world_scene::Frame, input: CombatInput) -> Result<()> {
+        ensure!(super::native_skills::text_skill(skill), "此技能不帶文字欄位");
+        self.cast_request_text(skill, target, None, None, None, None, Some(text), frame, input, Instant::now())
+    }
     fn cast_request(
         &mut self,
         skill: u16,
@@ -791,6 +800,22 @@ impl LoginController {
         input: CombatInput,
         now: Instant,
     ) -> Result<()> {
+        self.cast_request_text(skill, target, ground, item, teleport, summon, None, frame, input, now)
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn cast_request_text(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        ground: Option<[u16; 2]>,
+        item: Option<&super::native_skills::ItemTarget>,
+        teleport: Option<&super::native_teleport_spell::Choice>,
+        summon: Option<&super::native_skills::SummonTarget>,
+        text: Option<&str>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+        now: Instant,
+    ) -> Result<()> {
         self.observe_skill(now);
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot cast");
@@ -804,13 +829,15 @@ impl LoginController {
             self.skill_gates_open(now)
                 && (frame.movement_ready(&self.state.world)
                     || (self.presentation_callbacks && self.player_callbacks.moving()
-                        && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none() && !matches!(skill,60|131)
+                        && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none() && text.is_none() && !matches!(skill,60|131)
                         && frame.input_ready(&self.state.world))),
             "等待施法動作完成"
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
         ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
         ensure!(summon.is_none() || (skill==51 && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none()),"混合召喚目標");
+        ensure!(text.is_none() || (super::native_skills::text_skill(skill) && ground.is_none()
+            && item.is_none() && teleport.is_none() && summon.is_none()), "混合文字施法目標");
         let mut body = if let Some(choice)=summon {super::native_skills::summon_request(&self.state,self.transport.snapshot().epoch,choice)?}
         else if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
@@ -820,6 +847,8 @@ impl LoginController {
             }
             None => if let Some(item) = item {
                 super::native_skills::item_request(&self.state, self.transport.snapshot().epoch, skill, item)?
+            } else if let Some(text) = text {
+                super::native_skills::text_request(&self.state.world, skill, target, text)?
             } else { super::native_skills::request(&self.state.world, skill, target)? },
         }};
         native_forced_combat::append(&mut body, input, &self.state);
@@ -830,6 +859,7 @@ impl LoginController {
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
         self.skill_item_pending = item.is_some() || skill==48;
         self.skill_summon_pending = summon.is_some();
+        self.skill_clan_pending = matches!(skill, 116 | 118);
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
             casts: self.state.world.own_cast_packets,
@@ -2611,6 +2641,7 @@ impl LoginController {
         self.state.companions.clear();
         self.teleport_spell = None;
         self.skill_item_pending = false;
+        self.skill_clan_pending = false;
         self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;

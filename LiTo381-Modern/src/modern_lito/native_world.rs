@@ -130,6 +130,8 @@ pub struct World {
     pub last_summon_rejection: Option<(u64, u16)>,
     /// Message sequence of the last S10 code 79; read only by item-targeted casts.
     pub last_item_skill_rejection: Option<u64>,
+    /// Sequenced S10 73／414／629／647／1192; read only by Call／Run Clan casts.
+    pub last_clan_skill_rejection: Option<(u64, u16)>,
     pub death_confirmation_pending: bool,
     pub death_confirmations_sent: u64,
     pub last_death_confirmed_action: Option<u64>,
@@ -870,6 +872,9 @@ impl World {
                 }
                 if code == 79 {
                     self.last_item_skill_rejection = Some(self.message_count);
+                }
+                if matches!(code, 73 | 414 | 629 | 647 | 1192) {
+                    self.last_clan_skill_rejection = Some((self.message_count, code));
                 }
             }
             0x37 | 0x53 => {

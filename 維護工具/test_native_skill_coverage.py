@@ -58,6 +58,25 @@ class SkillCoverageTests(unittest.TestCase):
             self.parse(self.source('pub fn selector_only(skill:u16)->bool { skill == 101 }',
                                    'id if selector_only(id) => {}'))
 
+    def test_text_helper_is_recognized_only_when_wired(self):
+        helper = ('pub fn text_skill(skill: u16) -> bool { matches!(skill, 113 | 116 | 118) }\n'
+                  'pub fn text_request() {}')
+        result = self.parse(self.source(helper, 'id if text_skill(id) => {}'))
+        self.assertEqual(result['text_request_ids'], [113, 116, 118])
+        self.assertEqual(result['all_request_ids'], [1, 4, 58, 63, 113, 116, 118])
+        with self.assertRaises(RuntimeError):
+            self.parse(self.source(helper))
+        with self.assertRaises(RuntimeError):
+            self.parse(self.source('pub fn text_skill(skill:u16)->bool { skill == 113 }',
+                                   'id if text_skill(id) => {}'))
+
+    def test_current_source_covers_second_batch(self):
+        result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
+        self.assertTrue(set(range(110, 119)) <= set(result['all_request_ids']))
+        self.assertEqual(result['text_request_ids'], [113, 116, 118])
+        self.assertTrue({110, 111, 112, 114, 115, 117}
+                        <= set(result['actor_or_selector_request_ids']))
+
     def test_current_source_covers_legacy_and_first_batch(self):
         result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
         previous = {1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19,
