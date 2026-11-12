@@ -102,6 +102,8 @@ pub struct World {
     /// or impose spectator rules on ordinary player movement.
     pub observer_bounds: Option<ObserverBounds>,
     pub door_attributes: BTreeMap<u64, super::native_doors::Record>,
+    /// Qualified by the controller's authoritative room, cleared on world reset.
+    pub encounter_mode: Option<super::native_obstacles::EncounterMode>,
     pub emblems: super::native_emblems::Cache,
     pub learned_skills: BTreeSet<u16>,
     pub effects: Vec<super::native_skills::Effect>,
@@ -332,7 +334,10 @@ impl World {
     }
 
     pub fn set_observer_mode(&mut self, enabled:bool) {
-        if self.observer_mode!=enabled {self.visual_revision+=1;}
+        if self.observer_mode!=enabled {
+            self.visual_revision+=1;
+            self.control_interruptions+=1;
+        }
         self.observer_mode=enabled;
         if !enabled {self.observer_camera=None;}
         self.refresh_observer_camera();
@@ -477,7 +482,7 @@ impl World {
         let a = self.own_actor().context("local actor missing")?;
         ensure!(!a.dead, "dead actor cannot move");
         let (x,y)=destination(a.x, a.y, heading)?;
-        ensure!(!super::native_obstacles::blocks(self,x,y),"門或守護塔擋住去路");
+        ensure!(!super::native_obstacles::blocks(self,x,y),"動態物件擋住去路");
         let mut b = vec![0x0a];
         b.extend(a.x.to_le_bytes());
         b.extend(a.y.to_le_bytes());
@@ -494,7 +499,8 @@ impl World {
         ensure!(self.map_id.map(u32::from) == Some(navigation.map_id), "movement map mismatch");
         let body = self.move_request(heading)?;
         let own = self.own_actor().context("local actor absent")?;
-        ensure!(navigation.can_step(i32::from(own.x), i32::from(own.y), heading),
+        ensure!(navigation.can_step_with_edges(i32::from(own.x), i32::from(own.y), heading,
+            |x, y, direction| super::native_doors::edge_override(self, x, y, direction)),
             "map edge blocks movement");
         Ok(body)
     }
