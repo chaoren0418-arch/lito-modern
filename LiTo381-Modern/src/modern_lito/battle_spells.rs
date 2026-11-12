@@ -203,7 +203,10 @@ impl Assets {
             None
         };
         let disintegrate = if enabled(Kind::Disintegrate) {
-            Some(Arc::new(DisintegrateAssets::load(root, cancel)?))
+            // #165: installed clients keep TW13081901 only under `launcher/`;
+            // the legacy root-pack loader failed there. Same exact profile
+            // as the native path, with no legacy root fallback.
+            Some(Arc::new(DisintegrateAssets::load_current_tw(root, cancel)?))
         } else {
             None
         };
