@@ -214,6 +214,8 @@ fn lifecycle_tests_attack_wait_retires_on_target_or_attacker_replacement() {
     assert_eq!(pending.observe(&rebuilt, start), Feedback::Interrupted);
     // A counted reply is still the reply, even if a new life followed it.
     replaced.own_attack_packets += 1;
+    // #168: an own reply only acknowledges when its logged target matches.
+    replaced.own_attack_log.push((replaced.own_attack_packets, id));
     assert_eq!(pending.observe(&replaced, start), Feedback::Acknowledged);
     // Unrelated peers joining and leaving do not cancel the wait.
     let mut peers = w.clone();

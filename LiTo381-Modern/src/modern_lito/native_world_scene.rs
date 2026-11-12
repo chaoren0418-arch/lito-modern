@@ -197,6 +197,14 @@ impl Frame {
             && self.navigation.contains(cell.x, cell.y))
         .then_some(cell)
     }
+    /// Selected-target ring in this frame's camera; only for the rendered
+    /// authority (no ring over a stale frame).
+    pub fn target_ring(&self, world: &World, target: Option<u32>)
+        -> Option<(super::native_combat_ops::TargetRing, [i32; 4])> {
+        if !self.input_ready(world) { return None; }
+        let ring = super::native_combat_ops::target_ring(world, target)?;
+        Some((ring, super::native_combat_ops::ring_bounds(self.projection, ring.cell)?))
+    }
     fn identity(&self)->FrameIdentity {
         FrameIdentity{map:self.navigation.map_id,generation:self.movement_generation,
             caster_incarnation:self.caster_incarnation,movement_key:self.movement_key,observer_key:self.observer_key}
@@ -1340,6 +1348,8 @@ impl Model {
             .iter()
             .find(|(id, _, _, _, _)| *id == local_id)
             .map_or(400, |(_, _, _, center, _)| center.x);
+        let hp_bars = super::native_hp_meter::layout(world, &hits);
+        let hp_meter_receipt = super::native_hp_meter::draw(&mut canvas, &hp_bars)?;
         let label_lines =
             super::native_world_labels::layout(world, &self.names, &hits, own_x, hover);
         let mut label_receipt = super::native_world_labels::draw(
@@ -1444,6 +1454,7 @@ impl Model {
         let bgra_us = bgra_start.elapsed().as_micros();
         receipt["minimap"] = minimap_receipt;
         receipt["world_labels"] = label_receipt;
+        receipt["hp_meter"] = hp_meter_receipt;
         receipt["status4183"] = status4183_receipt;
         receipt["emblems"] = emblem_receipt;
         receipt["clan_markers"] = marker_receipt;
