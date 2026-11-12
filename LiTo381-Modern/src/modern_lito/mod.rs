@@ -382,6 +382,7 @@ pub mod native_combat_ops;
 pub mod native_forced_combat;
 pub mod native_target_policy;
 pub mod native_combat_animation;
+pub mod native_hurt;
 pub mod native_combat_probe;
 pub mod native_peer_probe;
 pub mod native_peer_room_probe;

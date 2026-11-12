@@ -26,13 +26,13 @@ fn npc_damage_bursts_preserve_spell_events_authority_and_death_preemption() {
         events.extend(playback.sample(&catalog, &w.actors[&1], n * 1_000_000).unwrap().1);
     }
     // A second acknowledged spell separates the two hurt bursts. Its Hit
-    // must survive coalescing, including synthetic projectile arrivals.
+    // must survive the native 4E63C0 threshold. Synthetic arrivals are not
+    // part of this case: native 44ECCE..44ED59 interrupts a standing body
+    // (4E45F0), covered by native_combat_animation unit tests (#162).
     w.accept(&action(1, 19)).unwrap();
     for _ in 0..80 {w.accept(&action(1, 2)).unwrap();}
     assert_eq!(w.actors[&1].actions.iter().filter(|c| c.action == 19).count(), 2);
     events.extend(playback.sample(&catalog, &w.actors[&1], 81_000_000).unwrap().1);
-    assert!(!playback.impact(&w.actors[&1], 100_000));
-    assert!(!playback.impact(&w.actors[&1], 100_001));
     for n in 82..=160 {
         w.accept(&action(1, 2)).unwrap();
         events.extend(playback.sample(&catalog, &w.actors[&1], n * 1_000_000).unwrap().1);
