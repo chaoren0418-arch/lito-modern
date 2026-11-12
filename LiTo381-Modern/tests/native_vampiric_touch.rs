@@ -34,7 +34,10 @@ fn all_eight_banks_frozen_heading_offset_once_sound_and_effect_hit() {
         assert!(fx.update(&w,std::iter::once(&event),0).is_empty());let mut canvas=Canvas::new(800,600).unwrap();
         let (r,e)=fx.draw(&mut canvas,projection(),0);assert!(r["load_error"].is_null());assert_eq!(r["omitted"],0);assert_eq!(e[0].sound,Some(103));
         assert_eq!(r["effects"][0]["sprite"],format!("236-{heading}.spr"));
-        assert_eq!(r["effects"][0]["position"],serde_json::to_value(lito_modern::modern_lito::native_class1::position([32730,32797],heading).map(|p|[p.x,p.y]).unwrap()).unwrap());
+        // PE4271D92F 44F350: this gfx starts at loc_45001A, i.e. at the absolute S23
+        // wire destination for every heading (only 2483/2484 take two heading steps).
+        assert_eq!(r["effects"][0]["position"],serde_json::json!([32730,32797]));
+        assert_eq!(lito_modern::modern_lito::native_class1::position([32730,32797],heading).unwrap(),WorldCell{x:32730,y:32797});
         // Dispatch the original finite callbacks; a late callback starts a fresh dwell.
         for ms in [41,124,249] { assert!(fx.update(&w,std::iter::empty(),ms*1_000_000).is_empty()); }
         assert!(fx.update(&w,std::iter::once(&event),400_000_000).is_empty());

@@ -221,7 +221,10 @@ pub(super) fn advance(
         "area caster retired"
     );
     let flight = a.flight.as_mut().context("fireball flight absent")?;
-    let (arrived, sound) = flight.step(now.saturating_sub(a.start))?;
+    // Class5 42F300/42F550 runs on the global integer-millisecond timer: floor
+    // both endpoints first, so a fractional-ms launch cannot delay a 60ms step.
+    let (arrived, sound) =
+        flight.step(super::super::native_effect_timing::native_elapsed_ns(now, a.start))?;
     let mut impacts = Vec::new();
     if arrived {
         flight.arrival = Some(now);
@@ -310,6 +313,18 @@ mod tests {
         let copy = f.clone();
         assert_eq!(copy.next_ms, f.next_ms);
         assert_eq!(copy.callbacks, f.callbacks);
+    }
+    #[test]
+    fn fireball_fractional_launch_origin_does_not_delay_the_sixty_ms_step() {
+        use crate::modern_lito::native_effect_timing::native_elapsed_ns;
+        let mut f = flight(WorldCell { x: 100, y: 100 }, WorldCell { x: 104, y: 100 });
+        let start = 500_000; // launched half a millisecond into global ms 0
+        assert_eq!(f.step(native_elapsed_ns(start, start)).unwrap(), (false, true));
+        assert_eq!(f.step(native_elapsed_ns(59_999_999, start)).unwrap(), (false, false));
+        assert_eq!(f.callbacks, 1);
+        // Global ms 60 is due although only 59.5ms of wall time has elapsed.
+        assert_eq!(f.step(native_elapsed_ns(60_000_000, start)).unwrap(), (false, false));
+        assert_eq!((f.callbacks, f.position.x, f.next_ms), (2, 102, Some(120)));
     }
     #[test]
     fn fireball_arrival_is_once_and_fallback_preserves_unsigned_edges() {

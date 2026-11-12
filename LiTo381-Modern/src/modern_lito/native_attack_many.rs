@@ -138,7 +138,7 @@ impl Effects {
                 }
                 continue;
             }
-            match a.playback.advance((now / 1_000_000).saturating_sub(a.start / 1_000_000) * 1_000_000) {
+            match a.playback.advance(super::native_effect_timing::native_elapsed_ns(now,a.start)) {
             Ok(sample)=>{a.frame=sample.source_frame;a.finished=sample.finished;
                 for cue in sample.crossed_cues {match cue.event {
                     FrameEvent::Sound(125) if a.cue.attack.graphics==758=>{

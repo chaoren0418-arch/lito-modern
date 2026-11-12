@@ -1,5 +1,6 @@
-//! Qualified native class1 #252 and #236. Frozen wire destination, two heading steps
-//! on launch, no flight/secondary. The effect Hit releases presentation hurt.
+//! Qualified native class1 #252, #236, #1801 and #1811. They start at the frozen
+//! S23 wire destination with no heading offset (see `position`), no
+//! flight/secondary. The effect Hit releases presentation hurt.
 use super::{native_combat::ProjectileCue, native_combat_animation::EnteredEvent,
     native_effect_timing::{Clip,Playback}, native_projectiles::Impact, native_world::World,
     shared_action_catalog::SharedActionCatalog, sprite_actions::{ActionKey,Animation,Directionality,FrameEvent,SpriteActionCatalog},
@@ -49,10 +50,15 @@ fn qualify_one(c:&SpriteActionCatalog,gfx:u32,sound:u32)->super::tower_assets::R
     }
     Ok(vec![(gfx,0,a.clone())])
 }
+/// Class1 start position. PE4271D92F sub_44F350 compares the object's gfx:
+/// only 0x9B3/0x9B4 (2483/2484) enter loc_44FFFB, which moves two heading steps
+/// through sub_4B9390 (push 2). 252/236/1801/1811 fall through the 0x2F6,
+/// 0x71B, 0x2F5 and 0x8D5 comparisons to loc_45001A and start where they were
+/// constructed, i.e. at the S23 wire destination. An invalid heading is still
+/// refused because it selects the direction bank.
 pub fn position(to:[u16;2],heading:u8)->anyhow::Result<WorldCell> {
     anyhow::ensure!(heading<8,"class1 heading");
-    let delta=[(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)][heading as usize];
-    Ok(WorldCell{x:i32::from(to[0])+2*delta.0,y:i32::from(to[1])+2*delta.1})
+    Ok(WorldCell{x:i32::from(to[0]),y:i32::from(to[1])})
 }
 #[derive(Clone)]
 struct Active {cue:ProjectileCue,position:WorldCell,heading:u8,start:u64,playback:Playback,frame:usize,finished:bool}
@@ -100,7 +106,7 @@ impl Effects {
         }
         let mut impacts=Vec::new();
         for a in &mut self.active {
-            match a.playback.advance((now / 1_000_000).saturating_sub(a.start / 1_000_000) * 1_000_000) {
+            match a.playback.advance(super::native_effect_timing::native_elapsed_ns(now,a.start)) {
                 Ok(sample)=>{a.frame=sample.source_frame;a.finished=sample.finished;
                     for cue in sample.crossed_cues {match cue.event {
                         FrameEvent::Sound(sound)=>{
@@ -190,4 +196,29 @@ impl History {
 impl Effects {
     pub(crate) fn history(&self)->History{History{generation:self.generation,seen:self.seen.clone(),active:self.active.clone(),started:self.started,hits:self.hits,omitted:self.omitted}}
     pub(crate) fn restore(&mut self,h:History){self.generation=h.generation;self.seen=h.seen;self.active=h.active;self.started=h.started;self.hits=h.hits;self.omitted=h.omitted;}
+}
+
+#[cfg(test)]
+mod origin_tests {
+    use super::*;
+    #[test]
+    fn class1_starts_at_the_wire_destination_for_every_heading_and_u16_edge() {
+        for heading in 0..8 {
+            for to in [[32730u16,32797u16],[0,0],[65535,65535],[0,65535],[65535,0]] {
+                // An independent expectation: the absolute wire cell, never a
+                // value derived from `position` itself or from the heading.
+                assert_eq!(position(to,heading).unwrap(),WorldCell{x:i32::from(to[0]),y:i32::from(to[1])});
+            }
+        }
+        assert_eq!(position([32730,32797],2).unwrap(),WorldCell{x:32730,y:32797});
+        assert!(position([32730,32797],8).is_err());
+        assert!(position([32730,32797],255).is_err());
+    }
+    #[test]
+    fn only_the_direct_start_profiles_are_supported() {
+        for gfx in [252,236,1801,1811] {assert!(supports_graphics(gfx));}
+        // 0x9B3/0x9B4 are the only native 44FFFB two-step profiles; neither is
+        // admitted here, so no supported class1 effect may move from the wire cell.
+        for gfx in [0x9B3,0x9B4,758,1819,757,2261] {assert!(!supports_graphics(gfx));}
+    }
 }
