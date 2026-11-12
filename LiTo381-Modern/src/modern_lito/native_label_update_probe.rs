@@ -13,9 +13,9 @@ pub struct Probe {
     target: Option<Target>,
 }
 impl Probe {
-    fn root() -> PathBuf {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("target/current/native-label-updates/room-world-labels")
+    fn root() -> Result<PathBuf> {
+        Ok(super::native_startup::diagnostic_project_root()?
+            .join("target/current/native-label-updates/room-world-labels"))
     }
     pub fn hover(&mut self, w: &World) -> Option<Hover> {
         // Setup S0B deliberately replaces the fixture bot before step zero.
@@ -30,7 +30,7 @@ impl Probe {
         frame: &Frame,
         rows: &mut Vec<serde_json::Value>,
     ) -> Result<bool> {
-        let root = Self::root();
+        let root = Self::root()?;
         let w = &c.snapshot().world;
         let own = w.own_actor().context("label own")?;
         let bot = w.actors.get(&2).context("label bot")?;

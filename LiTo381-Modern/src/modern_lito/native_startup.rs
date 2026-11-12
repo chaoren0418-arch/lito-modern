@@ -325,3 +325,98 @@ pub fn default_path(executable: &Path) -> Result<PathBuf> {
     ensure!(local_absolute(executable), "程式路徑必須是本機絕對路徑");
     Ok(executable.parent().context("程式缺少目錄")?.join(FILE_NAME))
 }
+
+/// Names the read-only client resource root for the loopback-only development
+/// diagnostics (`--probe-native-*`). Same variable as `tools/build.ps1` and
+/// `啟動現代客戶端.ps1`.
+pub const DIAGNOSTIC_ROOT_ENV: &str = "LITO_CLIENT_ROOT";
+
+/// Resource root for the development diagnostics. No path is compiled into the
+/// player: the explicit environment variable wins, otherwise the settings saved
+/// beside this executable are used, otherwise the diagnostic is refused.
+pub fn diagnostic_resource_root() -> Result<PathBuf> {
+    let executable = std::env::current_exe().context("無法取得程式路徑")?;
+    diagnostic_resource_root_from(std::env::var_os(DIAGNOSTIC_ROOT_ENV), &executable)
+}
+
+fn diagnostic_resource_root_from(
+    explicit: Option<std::ffi::OsString>,
+    executable: &Path,
+) -> Result<PathBuf> {
+    if let Some(value) = explicit.filter(|value| !value.is_empty()) {
+        let root = PathBuf::from(value);
+        ensure!(
+            local_absolute(&root),
+            "{DIAGNOSTIC_ROOT_ENV} 必須是本機絕對路徑"
+        );
+        return Ok(root);
+    }
+    let settings = Settings::load(&default_path(executable)?).with_context(|| {
+        format!("診斷需要資源根目錄：請設定環境變數 {DIAGNOSTIC_ROOT_ENV}，或先以 --configure-native 儲存設定")
+    })?;
+    Ok(settings.resource_root().to_owned())
+}
+
+/// Development checkout that owns the evidence written by the development
+/// diagnostics (`<project>/target/current/...`). It is found at run time from
+/// the executable location (`<project>/target/**/LiToModern.exe`), never from a
+/// path compiled into the player; a portable package has no such checkout, so
+/// those diagnostics refuse to run there.
+pub fn diagnostic_project_root() -> Result<PathBuf> {
+    let executable = std::env::current_exe().context("無法取得程式路徑")?;
+    diagnostic_project_root_from(&executable)
+}
+
+fn diagnostic_project_root_from(executable: &Path) -> Result<PathBuf> {
+    executable
+        .ancestors()
+        .skip(1)
+        .filter(|directory| directory.file_name().is_some_and(|name| name == "target"))
+        .filter_map(Path::parent)
+        .find(|project| project.join("Cargo.toml").is_file())
+        .map(Path::to_owned)
+        .context("開發診斷只能從開發建置目錄（<專案>/target/…）執行；可攜包不提供診斷輸出目錄")
+}
+
+#[cfg(all(test, windows))]
+mod diagnostic_root_tests {
+    use super::*;
+
+    #[test]
+    fn diagnostic_project_is_found_from_the_running_image_not_compiled_in() {
+        // Test images live in <project>/target/**/deps; a packaged player does not.
+        let project = diagnostic_project_root().unwrap();
+        assert!(project.join("Cargo.toml").is_file() && project.join("src").is_dir());
+        let inside = project.join(r"target\current\x86_64-pc-windows-msvc\release\LiToModern.exe");
+        assert_eq!(diagnostic_project_root_from(&inside).unwrap(), project);
+        for outside in [MISSING_EXE, r"C:\target\LiToModern.exe"] {
+            assert!(diagnostic_project_root_from(Path::new(outside)).is_err(), "{outside}");
+        }
+    }
+
+    const MISSING_EXE: &str = r"C:\lito-modern-absent-diagnostic-fixture\LiToModern.exe";
+
+    #[test]
+    fn explicit_environment_root_is_used_verbatim_and_must_be_local_absolute() {
+        let root = r"E:\任意位置\client root";
+        assert_eq!(
+            diagnostic_resource_root_from(Some(root.into()), Path::new(MISSING_EXE)).unwrap(),
+            PathBuf::from(root)
+        );
+        for invalid in ["relative\\client", r"E:\client\..\other", r"\\server\share\client"] {
+            assert!(
+                diagnostic_resource_root_from(Some(invalid.into()), Path::new(MISSING_EXE)).is_err(),
+                "{invalid}"
+            );
+        }
+    }
+
+    #[test]
+    fn without_environment_or_saved_settings_no_compiled_in_root_is_assumed() {
+        for explicit in [None, Some(std::ffi::OsString::new())] {
+            let error = diagnostic_resource_root_from(explicit, Path::new(MISSING_EXE))
+                .unwrap_err();
+            assert!(format!("{error:#}").contains(DIAGNOSTIC_ROOT_ENV));
+        }
+    }
+}

@@ -3400,7 +3400,7 @@ fn probe_flow(
                         if route_model.is_none() {
                             let load_start = Instant::now();
                             let model = super::native_world_scene::Model::load(
-                                std::path::Path::new(r"D:\lineage開發\0-客戶端"),
+                                &super::native_startup::diagnostic_resource_root()?,
                                 &c.snapshot().world,
                                 &std::sync::atomic::AtomicBool::new(false),
                             )?;
@@ -3598,12 +3598,12 @@ fn probe_flow(
     let world_render = if world_mode && !combat_mode {
         let cancel = std::sync::atomic::AtomicBool::new(false);
         let mut model = super::native_world_scene::Model::load(
-            std::path::Path::new(r"D:\lineage開發\0-客戶端"),
+            &super::native_startup::diagnostic_resource_root()?,
             &snapshot.world,
             &cancel,
         )?;
         let output =
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current/verification");
+            super::native_startup::diagnostic_project_root()?.join("target/current/verification");
         super::resources::reject_reparse_chain(&output)?;
         let save =
             |frame: super::native_world_scene::Frame, name: &str| -> Result<serde_json::Value> {
@@ -3657,9 +3657,7 @@ fn probe_flow(
         None
     };
     let inventory_names = if matches!(lobby, Some("inventory" | "inventory-reselect")) {
-        let mut names = super::native_inventory_names::Service::start(std::path::PathBuf::from(
-            r"D:\lineage開發\0-客戶端",
-        ))?;
+        let mut names = super::native_inventory_names::Service::start(super::native_startup::diagnostic_resource_root()?)?;
         let deadline = Instant::now() + Duration::from_secs(15);
         while !names.quiescent() {
             names.poll();
@@ -3687,9 +3685,7 @@ fn probe_flow(
         None
     };
     let inventory_icons = if matches!(lobby, Some("inventory" | "inventory-reselect")) {
-        let mut icons = super::native_inventory_icons::Service::new(std::path::PathBuf::from(
-            r"D:\lineage開發\0-客戶端",
-        ));
+        let mut icons = super::native_inventory_icons::Service::new(super::native_startup::diagnostic_resource_root()?);
         let mut views = Vec::new();
         for h in &lobby_history {
             let ids: Vec<_> = h.inventory.items.values().map(|i| i.icon).collect();

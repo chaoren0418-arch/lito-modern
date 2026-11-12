@@ -25,7 +25,7 @@ pub fn run(peer: SocketAddr, account: &str, password: &str, source: usize, role:
     let withdrawal=std::env::var("LITO_NATIVE_BATTLE_WITHDRAWAL").ok().as_deref()==Some("1");
     ensure!(!withdrawal||profile=="melee","withdrawal only in ordinary battle probe");
     let root = PathBuf::from(std::env::var("LITO_NATIVE_PEER_ROOT").context("peer fixture directory required")?).canonicalize()?;
-    let allowed = Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current/native-real-peers").canonicalize()?;
+    let allowed = super::native_startup::diagnostic_project_root()?.join("target/current/native-real-peers").canonicalize()?;
     ensure!(root.starts_with(allowed), "peer fixture output outside owned target");
     if profile=="room-admin" {return super::native_peer_room_probe::run(peer,account,password,source,role,&root);}
     if profile=="classic-entry" {return super::native_peer_classic_probe::run(peer,account,password,source,role,&root);}
@@ -141,7 +141,7 @@ pub fn run(peer: SocketAddr, account: &str, password: &str, source: usize, role:
                             && w.own_attack_packets==0 && w.death_confirmations_sent==0,"stale state in next round");
                         ensure!(w.hp.is_some_and(|hp|hp[0]>0 && hp[0]==hp[1]),"peer initial HP");
                         generation=w.generation;
-                        model=Some(Model::load(Path::new(r"D:\lineage開發\0-客戶端"),w,&cancel)?);
+                        model=Some(Model::load(&super::native_startup::diagnostic_resource_root()?,w,&cancel)?);
                         clock=Instant::now();
                         attack.clear();pressed=false;attacks=0;steps=0;result_since=None;withdrawal_requested=false;
                     }

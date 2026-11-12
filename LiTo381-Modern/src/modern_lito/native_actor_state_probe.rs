@@ -23,9 +23,9 @@ impl Probe {
         self.hover
     }
 
-    fn root() -> PathBuf {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("target/current/native-actor-states/room-world-states")
+    fn root() -> Result<PathBuf> {
+        Ok(super::native_startup::diagnostic_project_root()?
+            .join("target/current/native-actor-states/room-world-states"))
     }
     pub fn tick(
         &mut self,
@@ -33,7 +33,7 @@ impl Probe {
         frame: &Frame,
         rows: &mut Vec<serde_json::Value>,
     ) -> Result<bool> {
-        let root = Self::root();
+        let root = Self::root()?;
         let w = &c.snapshot().world;
         let own = w.own_actor().context("state fixture own")?;
         let bot = w.actors.get(&2).context("state fixture bot")?;

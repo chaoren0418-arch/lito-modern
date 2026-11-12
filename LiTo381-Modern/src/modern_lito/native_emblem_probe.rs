@@ -12,7 +12,7 @@ impl Probe {
         frame: &Frame,
         rows: &mut Vec<serde_json::Value>,
     ) -> Result<bool> {
-        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        let root = super::native_startup::diagnostic_project_root()?
             .join("target/current/native-emblems/room-world-emblems");
         let w = &c.snapshot().world;
         if !root.join("emblem-ready").exists() {
