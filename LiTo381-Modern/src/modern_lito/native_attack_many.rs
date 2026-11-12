@@ -10,6 +10,8 @@ use std::{collections::{BTreeMap,BTreeSet},path::Path,sync::{Arc,atomic::AtomicB
 use serde_json::{json,Value};
 #[path = "native_batch1_area.rs"]
 mod batch1;
+#[path="native_tornado.rs"]
+mod tornado;
 #[path = "native_earth_jail.rs"]
 pub(crate) mod earth_jail;
 pub fn capture_target_origin(attack:&Attack,actors:&BTreeMap<u32,super::native_world::Actor>)->Option<[i32;2]> {
@@ -31,7 +33,7 @@ pub fn decode(b:&[u8])->Result<Option<Attack>> {
     let count=h(end+1) as usize;ensure!(count<=128&&b.len()==end+3+count*5,"attack-many target count/tail");
     let mut targets=Vec::with_capacity(count);
     for n in 0..count {let at=end+3+n*5;let id=d(at);ensure!(id!=0&&matches!(b[at+4],0|0x20),"invalid attack-many target/marker");targets.push(TargetHit{id,hit:b[at+4]!=0});}
-    let profile=(matches!(h(15),170|171|1804|1805)&&b[17]==8&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
+    let profile=(matches!(h(15),170|171|1804|1805)&&b[17]==8&&b[1]==18)||(h(15)==758&&b[17]==0&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
     if !profile||end!=19{return Ok(None);}
     Ok(Some(Attack{action:b[1],caster:d(2),position:[h(6),h(8)],heading:b[10],sequence:d(11),graphics:h(15),targets}))
 }
@@ -55,7 +57,7 @@ pub fn qualify(c:&SpriteActionCatalog)->super::tower_assets::Result<Vec<(u32,u8,
 /// Accepted finite callback metadata; no sprite or PCM owner is retained.
 #[derive(Clone)]pub(crate) struct History {generation:Option<u64>,seen:BTreeSet<(u32,u64)>,active:Vec<Active>,started:u64,hits:u64,omitted:u64}
 #[derive(Default)]
-pub struct Effects {generation:Option<u64>,bank:Option<SharedEffectBank>,selector_bank:Option<SharedEffectBank>,area_bank:Option<SharedEffectBank>,earth_jail_bank:Option<earth_jail::Bank>,clips:BTreeMap<u16,Clip>,error:Option<String>,seen:BTreeSet<(u32,u64)>,active:Vec<Active>,events:Vec<EnteredEvent>,non_audio:Vec<Value>,started:u64,hits:u64,omitted:u64}
+pub struct Effects {generation:Option<u64>,bank:Option<SharedEffectBank>,tornado_bank:Option<SharedEffectBank>,selector_bank:Option<SharedEffectBank>,area_bank:Option<SharedEffectBank>,earth_jail_bank:Option<earth_jail::Bank>,clips:BTreeMap<u16,Clip>,error:Option<String>,seen:BTreeSet<(u32,u64)>,active:Vec<Active>,events:Vec<EnteredEvent>,non_audio:Vec<Value>,started:u64,hits:u64,omitted:u64}
 impl Effects {
     pub(crate) fn history(&self)->History {History{generation:self.generation,seen:self.seen.clone(),active:self.active.clone(),started:self.started,hits:self.hits,omitted:self.omitted}}
     pub(crate) fn restore_history(&mut self,h:History){self.generation=h.generation;self.seen=h.seen;self.active=h.active;self.started=h.started;self.hits=h.hits;self.omitted=h.omitted;}
@@ -65,6 +67,14 @@ impl Effects {
     pub(crate) fn prepare_with_catalog(&mut self,root:&Path,w:&World,cancel:&AtomicBool,
         shared:&mut Option<super::shared_action_catalog::SharedActionCatalog>) {
         if self.error.is_some(){return;}
+        if self.tornado_bank.is_none() && (w.learned_skills.contains(&53)||w.many_attacks.iter().any(|c|c.attack.graphics==758)||self.active.iter().any(|a|a.cue.attack.graphics==758)) {
+            let loaded=(||->Result<_>{
+                let catalog=SharedActionCatalog::reuse_for_model(root,cancel,shared)?;
+                let bank=SharedEffectBank::load_directional(&catalog,cancel,tornado::qualify)?;
+                let clip=Clip::new(Arc::clone(bank.animation(758,0)?))?;Ok((bank,clip))
+            })();
+            match loaded {Ok((bank,clip))=>{self.tornado_bank=Some(bank);self.clips.insert(758,clip);},Err(e)=>{self.error=Some(format!("{e:#}"));return;}}
+        }
         if self.earth_jail_bank.is_none() && (w.learned_skills.contains(&30)
             || w.many_attacks.iter().any(|c|c.attack.graphics==1805)
             || self.active.iter().any(|a|a.cue.attack.graphics==1805)) {
@@ -106,7 +116,7 @@ impl Effects {
     pub fn update<'a>(&mut self,w:&World,events:impl Iterator<Item=&'a EnteredEvent>,now:u64)->Vec<Impact> {
         self.events.clear();self.non_audio.clear();
         if self.generation!=Some(w.generation){self.generation=Some(w.generation);self.seen.clear();self.active.clear();self.started=0;self.hits=0;self.omitted=0;}
-        let live:BTreeSet<_>=w.many_attacks.iter().map(|c|(c.attack.caster,c.action_sequence)).collect();self.seen.retain(|k|live.contains(k));
+        let live:BTreeSet<_>=w.many_attacks.iter().map(|c|(c.attack.caster,c.action_sequence)).collect();self.seen.retain(|k|live.contains(k)||self.active.iter().any(|a|(a.cue.attack.caster,a.cue.action_sequence)==*k));
         for e in events.filter(|e|e.event=="Hit") {
             let key=(e.actor,e.sequence);let Some(c)=w.many_attacks.iter().find(|c|(c.attack.caster,c.action_sequence)==key)else{continue;};
             if !self.seen.insert(key){continue;}
@@ -120,7 +130,7 @@ impl Effects {
         let mut impacts=Vec::new();
         for a in &mut self.active {
             if a.finished {continue;}
-            if w.actors.get(&a.cue.attack.caster).is_none_or(|actor|actor.incarnation!=a.cue.caster_incarnation) {a.finished=true;continue;}
+            if a.cue.attack.graphics!=758 && w.actors.get(&a.cue.attack.caster).is_none_or(|actor|actor.incarnation!=a.cue.caster_incarnation) {a.finished=true;continue;}
             if a.flight.is_some() {
                 match self.area_bank.as_ref().context("area bank absent").and_then(|bank|batch1::advance(a,w,bank,now,&mut self.events)) {
                     Ok(values)=>{self.hits+=values.len() as u64;impacts.extend(values);},
@@ -131,6 +141,11 @@ impl Effects {
             match a.playback.advance((now / 1_000_000).saturating_sub(a.start / 1_000_000) * 1_000_000) {
             Ok(sample)=>{a.frame=sample.source_frame;a.finished=sample.finished;
                 for cue in sample.crossed_cues {match cue.event {
+                    FrameEvent::Sound(125) if a.cue.attack.graphics==758=>{
+                        match self.tornado_bank.as_ref().context("tornado bank missing").and_then(|bank|batch1::audio(bank,&a.cue,758,cue.source_frame,125,1)) {
+                            Ok(event)=>self.events.push(event),Err(e)=>{self.omitted+=1;self.error=Some(format!("{e:#}"));a.finished=true;}
+                        }
+                    },
                     FrameEvent::Sound(718) if a.cue.attack.graphics==1805=>{
                         match self.earth_jail_bank.as_ref().context("earth jail bank absent")
                             .and_then(|bank|batch1::audio(&bank.bank,&a.cue,1805,cue.source_frame,718,1)) {
@@ -160,6 +175,12 @@ impl Effects {
     pub fn draw_to<'s>(&'s mut self,target:&mut Target<'_,'s>,projection:ViewProjection,now:u64)->(Value,Vec<EnteredEvent>) {
         let mut rows=Vec::new();
         for a in &self.active {
+            if a.cue.attack.graphics==758 {
+                match self.tornado_bank.as_ref().context("tornado bank missing").and_then(|bank|tornado::draw(bank,a,target,projection)) {
+                    Ok(row)=>rows.push(row),Err(e)=>{self.omitted+=1;rows.push(json!({"error":e.to_string()}));}
+                }
+                continue;
+            }
             if a.cue.attack.graphics==1805 {
                 let rendered=self.earth_jail_bank.as_ref().context("earth jail bank absent")
                     .and_then(|bank|bank.draw(a,target,projection));

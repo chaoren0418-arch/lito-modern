@@ -86,3 +86,5 @@
 - 2026-11-12 — #178 T044-3: T044（M2 3/3）: src/：移動正確性與 G04 剩餘項（code，claude-local，PR 已合併）→ [報告](reports/issue-178.md)
 - 2026-11-12 — #170 T023-2: T023（M2 2/4）: src/、tests/native_teleport_failure.rs：G06.3d 傳送與失敗（code，claude-local，PR 已合併）→ [報告](reports/issue-170.md)
 - 2026-11-12 — #151 T022-1: T022（M2 1/10）: src/：未接的 91 個技能（code，claude-local，PR 已合併）→ [報告](reports/issue-151.md)
+- 2026-11-12 — #147 T027-3: T027（M2 3/6）: src/：候選獨有的 48 個技能重做進 src（code，claude-local，PR 已合併）→ [報告](reports/issue-147.md)
+- 2026-11-12 — #173 T041-1: T041（M2 1/1）: 維護工具/run-local-test-suite.ps1（code，claude-local，PR #226 已合併）→ [報告](reports/issue-173.md)
