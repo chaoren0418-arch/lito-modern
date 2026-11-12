@@ -2,9 +2,12 @@ name: portable
 
 # Builds the Release player with the stable MSVC toolchain, packages it and runs
 # the windowless package checks. Only runs when packaging inputs change (the
-# Release build is slow), or on demand.
+# Release build is slow), or on demand. Triggered by pushes to task branches so
+# the result exists before the pull request is opened; it shows on the pull
+# request through the head commit.
 on:
-  pull_request:
+  push:
+    branches: ['task/**']
     paths:
       - '.github/workflows/portable.yml'
       - 'LiTo381-Modern/packaging/**'
