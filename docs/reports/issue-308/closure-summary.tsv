@@ -2,9 +2,9 @@
 native_light_spell	direct_sound_cursor_consumes_once_bounds_bursts_and_does_not_replay_across_worlds	no	P	ct	224	42		LiTo381-Modern/tests/native_light_spell.rs:59
 native_light_spell	formal_change_light_is_atomic_unsigned_actor_scoped_and_does_not_change_motion_owner	no	P	ct	220	41		LiTo381-Modern/tests/native_light_spell.rs:33
 native_light_spell	formal_direct_sound_is_bounded_atomic_and_cleared_with_the_world	no	P	ct	220	41		LiTo381-Modern/tests/native_light_spell.rs:47
-native_light_spell	light_uses_self_selector_without_predicting_authority_and_scopes_UI_choice	no	R	Tcgt	1465	101	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_light_spell.rs:15
+native_light_spell	light_uses_self_selector_without_predicting_authority_and_scopes_UI_choice	no	R	Tcgt	1466	101	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_light_spell.rs:15
 native_light_spell	original_light_single_bitmap_retires_on_166ms_callback_without_embedded_sound	no	R	ct	621	61	ro-root=23	LiTo381-Modern/tests/native_light_spell.rs:71
-native_light_spell	scene_prepares_the_original_direct_145_WAV_once_without_inventing_light_duration	no	R	Tcgt	1782	107	gdi=14,ro-root=40,thread=1	LiTo381-Modern/tests/native_light_spell.rs:88
+native_light_spell	scene_prepares_the_original_direct_145_WAV_once_without_inventing_light_duration	no	R	Tcgt	1790	109	gdi=14,ro-root=40,thread=1	LiTo381-Modern/tests/native_light_spell.rs:88
 native_lightning	many_hits_reject_miss_replacement_removal_death_and_new_world	no	R	ct	585	58	ro-root=23	LiTo381-Modern/tests/native_lightning.rs:61
 native_lightning	many_packet_is_atomic_bounded_and_preserves_each_unsigned_target_marker	no	P	ct	221	41		LiTo381-Modern/tests/native_lightning.rs:20
 native_lightning	request_clock_reuse_range_and_target_guard_preserve_authority	no	P	ct	255	42		LiTo381-Modern/tests/native_lightning.rs:30
@@ -25,7 +25,7 @@ native_reagent_skills	formal_action19_effect_and_mana_keep_authority_atomic	no	P
 native_reagent_skills	formal_reagent_request_self_screen_boundary_and_no_prediction	no	P	ct	256	42		LiTo381-Modern/tests/native_reagent_skills.rs:83
 native_reagent_skills	life_stream_choice_is_owned_ground_and_invalidated_by_correction	no	P	ct	281	45		LiTo381-Modern/tests/native_reagent_skills.rs:144
 native_reagent_skills	reagent_effect_is_fixed_bounded_reset_and_not_an_actor_effect	no	R	ct	627	60	ro-root=23	LiTo381-Modern/tests/native_reagent_skills.rs:264
-native_skill_selection	actual_render_camera_ground_cells_and_object_hits_reject_stale_worlds	no	R	Tcgt	1788	106	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_skill_selection.rs:175
+native_skill_selection	actual_render_camera_ground_cells_and_object_hits_reject_stale_worlds	no	R	Tcgt	1796	108	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_skill_selection.rs:175
 native_skill_selection	all_learned_rows_visible_but_unsupported_and_invalid_choices_cannot_cast	no	P	ct	282	44		LiTo381-Modern/tests/native_skill_selection.rs:89
 native_skill_selection	learned_insert_remove_preserves_id_never_retargets_combo_row	no	P	ct	283	44		LiTo381-Modern/tests/native_skill_selection.rs:44
 native_skill_selection	owner_change_fences_selection_before_and_after_refresh	no	P	ct	282	44		LiTo381-Modern/tests/native_skill_selection.rs:64
@@ -57,8 +57,8 @@ native_wind_cutter	formal_attack_spell_layout_and_request_guards	no	P	ct	285	44	
 native_ranged	e149_resource_mapping_preserves_arrow_and_throwing_vectors	no	P	ct	222	41		LiTo381-Modern/tests/native_ranged.rs:443
 native_ranged	interleaved_arrow_and_sting_keep_separate_resources_and_arrivals	no	R	ct	540	49	ro-root=19	LiTo381-Modern/tests/native_ranged.rs:570
 native_ranged	malformed_ranged_packets_are_atomic_for_every_flight_type	no	P	ct	222	41		LiTo381-Modern/tests/native_ranged.rs:64
-native_ranged	original_stone_and_energy_resources_reach_model_arrival_and_retirement	no	W	Tcgt	1777	106	gdi=14,ro-root=39,thread=1,write-owned=3	LiTo381-Modern/tests/native_ranged.rs:155
-native_ranged	original_throwing_action63_launches_sting2989_through_world_model	no	W	Tcgt	1777	106	gdi=14,ro-root=39,thread=1,write-owned=3	LiTo381-Modern/tests/native_ranged.rs:150
+native_ranged	original_stone_and_energy_resources_reach_model_arrival_and_retirement	no	W	Tcgt	1785	108	gdi=14,ro-root=39,thread=1,write-owned=3	LiTo381-Modern/tests/native_ranged.rs:155
+native_ranged	original_throwing_action63_launches_sting2989_through_world_model	no	W	Tcgt	1785	108	gdi=14,ro-root=39,thread=1,write-owned=3	LiTo381-Modern/tests/native_ranged.rs:150
 native_ranged	physical_class3_types_launch_once_and_release_hurt_only_at_arrival	no	R	ct	487	46	ro-root=19	LiTo381-Modern/tests/native_ranged.rs:462
 native_ranged	throwing_flights_retire_on_identity_change_and_do_not_hurt_misses_or_dead_targets	no	R	ct	487	46	ro-root=19	LiTo381-Modern/tests/native_ranged.rs:526
 native_ranged	throwing_stance_preloads_its_own_resources_before_any_attack_cue	no	R	ct	519	49	ro-root=19	LiTo381-Modern/tests/native_ranged.rs:493

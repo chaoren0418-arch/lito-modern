@@ -112,7 +112,7 @@ def main():
         if origin == "new":
             continue
         old = RENAMED.get((target, name), name)
-        row = by_key[(target, old)]
+        row = by_key.get((target, old)) or by_key[(target, name)]  # second form: rename already applied
         if row[4] == "covered":
             continue
         if row[4] != "excluded" or row[6] != ISSUE or not row[7].startswith("helper-pending"):
