@@ -42,6 +42,8 @@
 - `維護工具/test-whitelist/tests.tsv`：`native_skills_156_166` 9 列在前、`native_skills_167_176` 8 列在後，維持 LF。
 - `維護工具/test_native_skill_coverage.py`：批 5 的測試原本斷言「167 尚未接上」，本張接上 167 後這個斷言不再成立，已刪除那兩行（註解與 `assertNotIn(167, …)`），其餘保留。
 
+第二次合併 `origin/main`（`a573a02`，含 T027 批 5／#149）時只有 `native_skills.rs` 衝突，同樣兩邊保留：`selector_only`（main 的 70）、④ 分支（main 的 67）、⑩ 攻擊分支與射程（main 的 71、74＋本張的 167、173、174）、`reuse_millis` 與 `client_clock_millis`（main 的 70／71／73／74＋本張的 167–176）。
+
 ## 已驗證
 
 ### 來源（唯讀）
@@ -68,22 +70,24 @@
   - `BattleSpellCatalog.java` 897 起（167）、952（168）、1155（169）、1173（176）、1194（170）、1401／1415（171／175）、1432（172）、2311（173，`maximumRange` 3）、2329（174，`clientClickRange` 10、`maximumRange()` 回傳 19）。
 - E149 catalog：原專案唯讀 `驗證紀錄/current/native-E149-skill-catalog-audit/20261024-040044-690336/catalog-facts.json`，重算 SHA256 `1EE2338D209CE41154B42B9B51B2A564261AB07FF1340EC7BCCBB188E216B996`（與 #154 相同）。reuseDelayMillis（167–176）：100、0、100、100、100、0、1000、3000、300、100。`clientCastClockMillis` 有記錄的 167／169／170／173／174／176 與 PE 的值一致。
 
-### 命令與結果（合併 main `2d7f018` 之後重跑）
+### 命令與結果（合併 main `a573a02` 之後重跑）
 
 依 2026-11-09 的本機限制，本機只編譯，不執行測試執行檔。Cargo 命令都在 `LiTo381-Modern/` 執行。
 
 ```text
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
-結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 24s；只有既存警告，本張改動的檔案沒有警告）
+結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 08s；只有既存警告，本張改動的檔案沒有警告）
 
 cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_167_176 --test native_skills_156_166 --test native_skills_145_155 --test native_selector_only --test native_skill_selection --no-run
 結束碼 0（五個測試執行檔都編譯成功，未執行；沒有 test result: 行）
 
 python -B 維護工具/test_native_skill_coverage.py
-結束碼 0；Ran 10 tests in 0.053s；OK
+結束碼 0；Ran 10 tests in 0.041s；OK
 ```
 
-合併前在 `71dddaf` 也跑過同樣的 `cargo check`（結束碼 0，3m 45s）與 `--no-run`（結束碼 0）。
+合併前在 `71dddaf`（3m 45s）與第一次合併後（1m 24s）也跑過同樣的 `cargo check` 與 `--no-run`，結束碼都是 0。
+
+截至本報告最後一次更新，`task/156` 還沒有 PR，分支上也沒有 CI run（`gh run list --branch task/156` 為空）；PR 由調度器開啟後才會有 CI 結果。
 
 ## 推測
 

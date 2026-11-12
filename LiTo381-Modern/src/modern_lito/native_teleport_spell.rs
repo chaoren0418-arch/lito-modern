@@ -1,4 +1,6 @@
-//! Skill 5 destinations: authoritative S30 bookmarks or explicit random travel.
+//! Skill 5／69 destinations: authoritative S30 bookmarks or explicit random travel.
+//! The choice is bound to the skill it was made for; 69 (#149) sends the same
+//! `h(map) h(x) h(y)` tail under C14/8/4 and never reuses a skill-5 choice.
 use super::{
     native_inventory::Owner, native_login::Snapshot, native_navigation::InputStamp,
     native_portal::Destination,
@@ -109,6 +111,10 @@ impl Bookmarks {
         labels
     }
     pub fn choose(&self, s: &Snapshot, epoch: u64, index: usize) -> Result<Choice> {
+        self.choose_for(s, epoch, 5, index)
+    }
+    pub fn choose_for(&self, s: &Snapshot, epoch: u64, skill: u16, index: usize) -> Result<Choice> {
+        ensure!(super::native_skills::destination_skill(skill), "此技能不以目的地施放");
         let owner = character(s, epoch).context("尚未取得角色背包")?;
         let (destination, bookmark) = if index == 0 {
             (
@@ -129,6 +135,7 @@ impl Bookmarks {
             (row.destination, Some((self.revision, row)))
         };
         let choice = Choice {
+            skill,
             owner,
             stamp: InputStamp::capture(epoch, &s.world),
             source_map: s.world.map_id,
@@ -141,6 +148,7 @@ impl Bookmarks {
 }
 #[derive(Clone, Debug)]
 pub struct Choice {
+    skill: u16,
     owner: Character,
     stamp: InputStamp,
     source_map: Option<u16>,
@@ -150,6 +158,9 @@ pub struct Choice {
 impl Choice {
     pub fn destination(&self) -> Destination {
         self.destination
+    }
+    pub fn skill(&self) -> u16 {
+        self.skill
     }
     pub fn request(&self, s: &Snapshot, epoch: u64, book: &Bookmarks) -> Result<Vec<u8>> {
         ensure!(
@@ -167,6 +178,10 @@ impl Choice {
                 "書籤已更新，請重新選擇"
             );
         }
-        super::native_skills::teleport_request(&s.world, self.destination)
+        if self.skill == 69 {
+            super::native_skills::mass_teleport_request(&s.world, self.destination)
+        } else {
+            super::native_skills::teleport_request(&s.world, self.destination)
+        }
     }
 }

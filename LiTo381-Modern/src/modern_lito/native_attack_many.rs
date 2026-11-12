@@ -37,7 +37,9 @@ pub fn decode(b:&[u8])->Result<Option<Attack>> {
     // earthquake62 1812/type0 and lightning-storm65 3924/type8 (all action18).
     // Their finite presentations are not qualified yet: Effects omits them
     // (no generic substitute), while the cast action and target list are kept.
-    let profile=(matches!(h(15),170|171|1804|1805|3924)&&b[17]==8&&b[1]==18)||(matches!(h(15),757|758|1812)&&b[17]==0&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
+    // T027 batch 5 (#149) likewise admits fire-storm70 1819/type0 and
+    // meteor-strike74 762/type8 (action18); both presentations stay omitted.
+    let profile=(matches!(h(15),170|171|762|1804|1805|3924)&&b[17]==8&&b[1]==18)||(matches!(h(15),757|758|1812|1819)&&b[17]==0&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
     if !profile||end!=19{return Ok(None);}
     Ok(Some(Attack{action:b[1],caster:d(2),position:[h(6),h(8)],heading:b[10],sequence:d(11),graphics:h(15),targets}))
 }
