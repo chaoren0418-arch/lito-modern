@@ -23,7 +23,7 @@
 - main 前進 59 個 commit，再次 `git merge origin/main`。衝突在 `native_login.rs`（5 處）與 `native_skills.rs`（1 處）。
 - main 把技能 pending 觀察抽成 `observe_skill()`，並新增 `skill_context: CastContext`。處理方式：兩個欄位都保留；所有重設點（登出、重選角色、場景 `0x5a`、`interrupt_world_actions`）同時清 `skill_context` 與 `skill_target_pending`；`observe_skill()` 在 main 的 `CastContext::interrupted` 判斷外再加上「68 目標 token 必須還能 resolve」，結束時一併清 `skill_target_pending`。
 - `reuse_millis`：採用 main 的版本（新增 `97=>9990,98..=100=>0`），再補回本張的 `68=>1500`。
-- 合併後 `cargo check ... --all-targets` 結束碼 `0`（`Finished dev profile ... in 4m 06s`）。合併後的 CI 結果看 PR #257 最新 commit。
+- 合併後 `cargo check ... --all-targets` 結束碼 `0`（`Finished dev profile ... in 4m 06s`）。GitHub Actions run `43162498529`（commit `d4bd0fe`）job `cargo check (x86_64-pc-windows-msvc)` 結果 `pass`（5m17s），9 個 `target_policy_*` 測試皆 `ok`，`cargo test --locked --lib --no-fail-fast` 原文：`test result: ok. 2169 passed; 0 failed; 591 ignored; 0 measured; 0 filtered out; finished in 22.68s`（591 個 ignored 未執行，不算通過）。
 
 ## 怎麼驗證
 
