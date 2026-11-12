@@ -121,3 +121,4 @@
 - 2026-11-12 — #307 T036-2: T036（M3 2/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #351 已合併）→ [報告](reports/issue-307.md)
 - 2026-11-12 — #302 T035-2: T035（M3 2/2）: src/、維護工具/：已知 GUI 與輸入缺陷（code，claude-local，PR #352 已合併）→ [報告](reports/issue-302.md)
 - 2026-11-12 — #159 T022-9: T022（M2 9/10）: src/：未接的 91 個技能（code，claude-local，PR #343 已合併）→ [報告](reports/issue-159.md)
+- 2026-11-12 — #319 T036-14: T036（M3 14/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #353 已合併）→ [報告](reports/issue-319.md)
