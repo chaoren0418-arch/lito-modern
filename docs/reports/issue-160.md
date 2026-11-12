@@ -85,7 +85,11 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 沒有另外跑 cargo test：--all-targets 的 check 已涵蓋新測試檔的型別檢查。測試執行檔未執行，沒有 `test result:` 可附。
 
 第二輪（改 native_skillbook_tests.rs 之後）同一條 cargo check 命令：結束碼 0（輸出未保留）。
-`cargo test --lib` 本機不執行，以 PR #347 push 後的 CI 結果為準。
+`cargo test --lib` 本機不執行，以 PR #347 的 CI 為準。
+
+合併 origin/main（f8ed20e；`native_skills.rs` 的 selector_only／reuse_millis 兩行衝突，兩邊保留）後同一條 cargo check：結束碼 0。
+PR #347 CI run 43210992211（commit ffb2778）：通過。cargo test --locked --lib --no-fail-fast：
+test result: ok. 2326 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.51s
 
 python -B 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 12 tests in 0.295s；OK
