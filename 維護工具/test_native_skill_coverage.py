@@ -93,6 +93,14 @@ class SkillCoverageTests(unittest.TestCase):
         self.assertFalse(set(range(145, 156)) & set(result['inventory_request_ids']))
         self.assertFalse(set(range(145, 156)) & set(result['text_request_ids']))
 
+    def test_current_source_covers_fifth_batch(self):
+        result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
+        batch = set(range(156, 167))
+        self.assertTrue(batch <= set(result['actor_or_selector_request_ids']))
+        self.assertFalse(batch & set(result['text_request_ids']))
+        self.assertFalse(batch & set(result['inventory_request_ids']))
+        self.assertFalse(batch & set(result['ground_request_ids']))
+
     def test_current_source_covers_sixth_batch(self):
         result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
         self.assertTrue(set(range(167, 177)) <= set(result['actor_or_selector_request_ids']))

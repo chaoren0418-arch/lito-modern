@@ -56,7 +56,7 @@ impl Target {
     /// A living selection cannot become a corpse authorization after death,
     /// and a captured corpse cannot become a living authorization on revival.
     pub fn resolve_for_skill(self, world: &World, skill: u16) -> Option<u32> {
-        if !matches!(skill, 41 | 61) { return self.resolve(world); }
+        if !native_skills::corpse_targeted(skill) { return self.resolve(world); }
         (world.generation == self.generation && world.actor_visible(self.id)
             && world.actors.get(&self.id).is_some_and(|a|
                 a.incarnation == self.incarnation && a.target_revision == self.target_revision
@@ -129,7 +129,7 @@ impl Ground {
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
     let named = matches!(skill, 116 | 118);
-    let target = if native_skills::selector_only(skill) || native_skills::self_object(skill) || named || matches!(skill,2|3|13|60|131) {
+    let target = if native_skills::selector_only(skill) || native_skills::self_object(skill) || native_skills::self_bound(skill) || named || matches!(skill,2|3|13|60|131) {
         None
     } else {
         target
@@ -281,6 +281,17 @@ impl Model {
                         153 => "#153 魔法消除（選取目標，十格內；消耗精靈玉）".into(),
                         154 => "#154 召喚屬性精靈（自己，消耗精靈玉）".into(),
                         155 => "#155 烈炎氣息（自己與周圍隊員）".into(),
+                        156 => "#156 暴風之眼（自己與周圍隊員）".into(),
+                        157 => "#157 大地屏障（選取目標，畫面內；消耗精靈玉）".into(),
+                        158 => "#158 生命之泉（選取目標／自己，畫面內）".into(),
+                        159 => "#159 大地的祝福（自己與周圍隊員）".into(),
+                        160 => "#160 水之防護（選取目標／自己，畫面內）".into(),
+                        161 => "#161 封印禁地（自己周圍；消耗精靈玉）".into(),
+                        162 => "#162 召喚強力屬性精靈（自己；消耗精靈玉）".into(),
+                        163 => "#163 烈炎武器（自己；限火屬性）".into(),
+                        164 => "#164 生命的祝福（自己與周圍隊員；限水屬性）".into(),
+                        165 => "#165 生命呼喚（選取屍體，十格內；限水屬性，消耗精靈玉）".into(),
+                        166 => "#166 暴風神射（自己）".into(),
                         167 => "#167 風之枷鎖（選取目標，八格內；消耗精靈玉）".into(),
                         168 => "#168 鋼鐵防護（自己）".into(),
                         169 => "#169 體能激發（自己，消耗精靈玉）".into(),

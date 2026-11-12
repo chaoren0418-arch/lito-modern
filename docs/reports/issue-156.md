@@ -27,12 +27,20 @@
   - `reuse_millis` 與 `client_clock_millis` 補上十個技能的值。
 - **`native_skill_selection.rs`**：選單加上 167–176 的中文標籤。172 的標籤直接寫明「伺服器只扣 MP，沒有動作與效果」（原因見下一節）。
 - **`tests/native_skills_145_155.rs`**：`self_object` 的全域檢查原本寫死只有 148／149／151，加入 168（只改這一行的過濾條件與一行註解）。
-- **coverage parser**：`維護工具/audit-native-E149-skill-catalog.py` 不用改（新技能都落在它認得的明確 arm 或 `selector_only`）。`維護工具/test_native_skill_coverage.py` 加 1 案（合計 9 案），確認 167–176 全部被辨識。
+- **coverage parser**：`維護工具/audit-native-E149-skill-catalog.py` 不用改（新技能都落在它認得的明確 arm 或 `selector_only`）。`維護工具/test_native_skill_coverage.py` 加 1 案（合併批 5 後合計 10 案），確認 167–176 全部被辨識。
 - **測試**：新增 `LiTo381-Modern/tests/native_skills_167_176.rs` 共 8 案，已登錄到 `維護工具/test-whitelist/tests.tsv`（LF、無 BOM）。
 
 ### 172 暴風疾走的行為
 
 伺服器 `useOtherNoEffectSpell` 受理後只扣 MP 並送 `S_MANA_POINT`，不送施法動作、特效或訊息。客戶端沒有任何可以當成「施法成功」的封包，所以送出兩秒後回饋會顯示「未收到施法回覆，可重新施放」。本張沒有把 MP 變動當成受理依據（自然回魔也會讓 MP 變動），只在選單標籤上說明這個技能沒有效果。
+
+### 同步 main
+
+合併 `origin/main`（`2d7f018`，含批 5／#155）時有四個檔案衝突，兩邊的內容都保留：
+- `native_skills.rs`：`selector_only`（main 的 156、159、161、162、164＋本張的 169、171、172、175、176）、④「目標或自己」分支（main 的 158、160＋本張的 170）、`reuse_millis`（兩邊的值都在）。批 5 另外新增了 `self_bound`（163／166），與本張沿用的 `self_object`（148／149／151／168）是兩個功能相同的分類，本張沒有合併它們。
+- `native_skill_selection.rs`：選單標籤 156–166 在前、167–176 在後。
+- `維護工具/test-whitelist/tests.tsv`：`native_skills_156_166` 9 列在前、`native_skills_167_176` 8 列在後，維持 LF。
+- `維護工具/test_native_skill_coverage.py`：批 5 的測試原本斷言「167 尚未接上」，本張接上 167 後這個斷言不再成立，已刪除那兩行（註解與 `assertNotIn(167, …)`），其餘保留。
 
 ## 已驗證
 
@@ -60,20 +68,22 @@
   - `BattleSpellCatalog.java` 897 起（167）、952（168）、1155（169）、1173（176）、1194（170）、1401／1415（171／175）、1432（172）、2311（173，`maximumRange` 3）、2329（174，`clientClickRange` 10、`maximumRange()` 回傳 19）。
 - E149 catalog：原專案唯讀 `驗證紀錄/current/native-E149-skill-catalog-audit/20261024-040044-690336/catalog-facts.json`，重算 SHA256 `1EE2338D209CE41154B42B9B51B2A564261AB07FF1340EC7BCCBB188E216B996`（與 #154 相同）。reuseDelayMillis（167–176）：100、0、100、100、100、0、1000、3000、300、100。`clientCastClockMillis` 有記錄的 167／169／170／173／174／176 與 PE 的值一致。
 
-### 命令與結果
+### 命令與結果（合併 main `2d7f018` 之後重跑）
 
 依 2026-11-09 的本機限制，本機只編譯，不執行測試執行檔。Cargo 命令都在 `LiTo381-Modern/` 執行。
 
 ```text
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
-結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 45s；只有既存警告，本張改動的檔案沒有警告）
+結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 24s；只有既存警告，本張改動的檔案沒有警告）
 
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_167_176 --test native_skills_145_155 --test native_selector_only --test native_skill_selection --no-run
-結束碼 0（四個測試執行檔都編譯成功，未執行；沒有 test result: 行）
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_167_176 --test native_skills_156_166 --test native_skills_145_155 --test native_selector_only --test native_skill_selection --no-run
+結束碼 0（五個測試執行檔都編譯成功，未執行；沒有 test result: 行）
 
 python -B 維護工具/test_native_skill_coverage.py
-結束碼 0；Ran 9 tests in 0.032s；OK
+結束碼 0；Ran 10 tests in 0.053s；OK
 ```
+
+合併前在 `71dddaf` 也跑過同樣的 `cargo check`（結束碼 0，3m 45s）與 `--no-run`（結束碼 0）。
 
 ## 推測
 
@@ -109,6 +119,6 @@ python -B 維護工具/test_native_skill_coverage.py
   - 172 送出後一定顯示「未收到施法回覆」，只靠選單標籤說明；是否要另外做「只扣 MP」的回饋。
   - 167 不允許選自己、晚到的 280 不另外等待。
   - 175 的 5 秒客戶端施法時鐘（PE 值）會擋住所有技能 5 秒，與 33 木乃伊的詛咒同樣做法。
-- 需要 Codex 本機執行 `native_skills_167_176`（8 案）與回歸 `native_skills_145_155`、`native_selector_only`、`native_skill_selection`，回報 `test result:` 原文。
+- 需要 Codex 本機執行 `native_skills_167_176`（8 案）與回歸 `native_skills_156_166`、`native_skills_145_155`、`native_selector_only`、`native_skill_selection`，回報 `test result:` 原文。
 - 批 5（#155，`task/155`）與本張同時進行，兩邊都會改 `selector_only`、`self_object`（批 5 可能加 163）、⑩ 攻擊分支、`reuse_millis`、選單標籤、`tests.tsv`，以及 `native_skills_145_155.rs` 第 121 行的 `self_object` 清單。後合併的一方保留兩邊內容即可。
 - 後續批次：`self_object` 每加一個技能，都要同步改 `native_skills_145_155.rs` 的全域檢查清單。
