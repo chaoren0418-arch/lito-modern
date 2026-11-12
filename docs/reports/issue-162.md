@@ -55,8 +55,8 @@ LTlist.spr 的來源：`0-客戶端\Text.pak` 用 PakViewer CLI（`D:\lineage開
 - 失敗的 2 案是 `server_hurts_queue_until_more_than_three_pending_then_drop_consecutive_action2`（:59）和 `exempt_bodies_never_take_server_or_arrival_hurt`（:98）。兩案都是 `left: "action"`、`right: "attack"`。
 - 原因出在測試本身：`ActionPose.phase` 看的是 `cue.source`（`"attack"` 才回 `"attack"`），不是看動作編號。合成 cue 的 source 是 `"action"`，所以 phase 本來就該是 `"action"`。產品邏輯沒有錯。
 - 修正：兩處斷言改成 `(pose.action, pose.phase) == (1, "action")`，只改 `native_combat_animation_tests.rs`。
-- 這兩案在失敗的斷言之後還有其他斷言，CI 沒有跑到。修正後這些斷言是否通過，以新 CI 結果為準。
-- 修正後 `cargo check --all-targets` 結束碼 0。
+- 修正後本機 `cargo check --all-targets` 結束碼 0。
+- **CI 已驗證**：run `43167897400`（head `717de35`）的 `cargo check` job 結果 pass。lib 測試原文是 `test result: ok. 2217 passed; 0 failed; 591 ignored; 0 measured; 0 filtered out; finished in 22.42s`。本張新增的 14 案（`native_hurt::tests` 8 案、`native_combat_animation::tests` 6 案）全部 `... ok`。
 
 ## 已驗證
 - base＝5894：依 4D3FF0 原指令重算，CRC 相符，筆數和宣告值相同。
@@ -72,7 +72,7 @@ LTlist.spr 的來源：`0-客戶端\Text.pak` 用 PakViewer CLI（`D:\lineage開
 - 4E8750 在排隊數 ≥2 時會讓影格時間減半（`native_event_scheduler::nonplayer_duration` 已有研究函式），但沒有接進 Playback。純 hurt 爆量時，佇列最多 4＋1 筆；攻擊和 hurt 交錯時，目前靠現代端的 16 筆上限。
 
 ## 待驗證／未完成
-- **依 2026-11-09 規定，本機沒有執行任何 `cargo test`**。新增的 14 案與既有 lib 測試，以 PR 的 GitHub Actions `cargo test --locked --lib --no-fail-fast` 的 `test result:` 為準（0 tests、failed>0、解析失敗都不算通過）。
+- **依 2026-11-09 規定，本機沒有執行任何 `cargo test`**。lib 測試只在 CI 跑，結果是 2217 passed／0 failed（見上方「第 2 次嘗試」）。
 - `tests/native_combat.rs` 是整合測試，需要 `D:\lineage開發\0-客戶端`，CI 不跑；要交給 Codex 本機執行。修改後要確認 spell Hit 仍是 `expected_hits*2`，最大 pending 推算是 6，不會觸發 16 上限。
 - 特殊變身的 effect 生成（`0x4E0`、5908、5921）**沒有接上**：`landed_hit` 只做分類，Playback 對這些 gfx 只是不顯示受擊。
 - 伺服器的 S20／S23 hurt 是否也該走中斷分支沒有接：4237xx／42F3xx 是哪個封包的 handler 還沒綁定，所以伺服器 cue 仍然排隊。
