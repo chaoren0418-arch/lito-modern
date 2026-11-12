@@ -77,3 +77,5 @@
 - 2026-11-12 — #177 T044-2: T044（M2 2/3）: src/：移動正確性與 G04 剩餘項（code，claude-local，PR 已合併）→ [報告](reports/issue-177.md)
 - 2026-11-12 — #163 T028-1: T028（M2 1/4）: src/、tests/：main 已接 38 技能的當版補驗（code，claude-local，PR 已合併）→ [報告](reports/issue-163.md)
 - 2026-11-12 — #161 T024-1: T024（M2 1/2）: src/（code，claude-local，PR 已合併）→ [報告](reports/issue-161.md)
+- 2026-11-12 — #189 T054-2: T054（M2 2/2）: src/：房間分支正式整合（G06.1、G06.2）（code，claude-local，PR #268 已合併）→ [報告](reports/issue-189.md)
+- 2026-11-12 — #144 T021-1: T021（M2 1/1）: src/：#98 附加劇毒、#99 影之防護、#100 提煉魔石（code，claude-local，PR #264 已合併）→ [報告](reports/issue-144.md)
