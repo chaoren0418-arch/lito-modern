@@ -1340,6 +1340,8 @@ impl Model {
             .iter()
             .find(|(id, _, _, _, _)| *id == local_id)
             .map_or(400, |(_, _, _, center, _)| center.x);
+        let hp_bars = super::native_hp_meter::layout(world, &hits);
+        let hp_meter_receipt = super::native_hp_meter::draw(&mut canvas, &hp_bars)?;
         let label_lines =
             super::native_world_labels::layout(world, &self.names, &hits, own_x, hover);
         let mut label_receipt = super::native_world_labels::draw(
@@ -1444,6 +1446,7 @@ impl Model {
         let bgra_us = bgra_start.elapsed().as_micros();
         receipt["minimap"] = minimap_receipt;
         receipt["world_labels"] = label_receipt;
+        receipt["hp_meter"] = hp_meter_receipt;
         receipt["status4183"] = status4183_receipt;
         receipt["emblems"] = emblem_receipt;
         receipt["clan_markers"] = marker_receipt;
