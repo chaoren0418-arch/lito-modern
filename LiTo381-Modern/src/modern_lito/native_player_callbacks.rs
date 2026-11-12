@@ -43,7 +43,15 @@ impl WalkPlan {
         self.animation.frames.len()
     }
     pub(crate) fn load(catalog: &SpriteActionCatalog, actor: &Actor) -> Result<Self> {
-        let clip = resolve(catalog, u32::from(actor.graphics), actor.walk_action)?;
+        let clip = resolve(
+            catalog,
+            u32::from(actor.graphics),
+            super::native_world_animation::weapon_family_action(
+                catalog,
+                u32::from(actor.graphics),
+                actor.walk_action,
+            ),
+        )?;
         ensure!(
             matches!(clip.animation.frames.len(), 4 | 6 | 8 | 12),
             "player source walk frame count"
