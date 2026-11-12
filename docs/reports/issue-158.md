@@ -58,6 +58,20 @@ python -B 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 10 tests in 0.058s；OK
 ```
 
+### 同步 origin/main（`77c4eed`，#149 T027 批 5 合併後）
+
+`native_skills.rs` 有 4 處衝突（`selector_only`、⑩ 分支清單與射程表、`reuse_millis`、`client_clock_millis`），兩邊都保留：main 的 70、71、73、74 與本張的 189–195。其餘檔案自動合併，`docs/REPORT.md` 是 main 版本。同步後重跑：
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+結束碼 0（只有既存警告，0 個 error）
+
+python -B 維護工具/test_native_skill_coverage.py
+結束碼 0；Ran 10 tests in 0.055s；OK
+```
+
+同步前的 commit `67866b9` 在 PR #294 的 CI 只有 `cargo check` 一項，結果 SUCCESS；CI 沒有執行 `cargo test`，所以仍然沒有 `test result:` 可附。
+
 ## 推測
 
 - 194 加上畫面菱形是取 BATTLE 與 WORLD 兩個 handler 的交集：BATTLE 只看十格，WORLD 還看菱形。差別只在十格內但菱形外的角落（例如 dx＝10、dy＝9），這些位置的物件是否會出現在客戶端物件表沒有確認。

@@ -10,7 +10,8 @@ pub(super) fn origin(
 ) -> Option<[i32; 2]> {
     // 3924 (#148): original class1 freezes the first listed target (even a miss)
     // at receipt; an absent first target falls back one heading step, never the second.
-    if !matches!(attack.graphics, 1804 | 1805 | 171 | 3924) {
+    // 762 (#149 meteor strike) uses the same original class1 first-target receipt.
+    if !matches!(attack.graphics, 1804 | 1805 | 171 | 3924 | 762) {
         return None;
     }
     if let Some(actor) = attack.targets.first().and_then(|t| actors.get(&t.id)) {
