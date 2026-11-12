@@ -68,6 +68,10 @@
 - Layer4 群組序號與靜態參照的對齊：`static_draw_list` 的順序是 8192 個 floor、overlay、再依群組順序的物件；載入器的 `groups` 是同樣順序，長度一定相等（本張另外加了 `ensure!`）。
 - 屋頂觸發格用本地角色的 `x`／`y`；`World::predict_step` 在送出移動時就更新這兩個欄位，與原版 `4E2F2F` 在步進開始時呼叫 `48AFC0` 的時機一致（原版顯示內插不影響）。
 
+**E. PR #368 的 CI（第 2 次嘗試補記）**
+- commit `5a56a90`（合併 `origin/main` 之後）的 GitHub Actions run `43266519016`：`test result: ok. 2383 passed; 0 failed; 597 ignored`。下方「待驗證」列的 8 個新 lib 測試（`native_actor_switch::tests::` 5 個、`native_world_occlusion_tests::` 3 個）在 log 裡都是 `... ok`。
+- 這只涵蓋不需要客戶端資源的 lib 測試；`tests/native_world_roofs.rs` 的測試 CI 不執行，仍在待驗證。補記本段的 commit 只改這份報告，它自己的 CI 結果以 PR 頁面為準。
+
 ### 推測
 
 - `actor+84`／`+88`／`+8C` 分別是本體、陰影、附件：`+88` 是陰影有既有註解佐證（`compositor.rs` 的 `blit_native_shadow_rgb555`：「Native actor+0x88 shadow callers add draw flags 5」），`+8C` 是「數量＋指標陣列」的形狀與 `105` 附件上限 8 相符；沒有另外追建構點。
@@ -79,7 +83,7 @@
 
 ### 待驗證
 
-**交給 PR 的 GitHub Actions CI（`cargo test --locked --lib --no-fail-fast`）**——本機沒有執行，以下 8 個新測試以 CI 的 `test result:` 為準，沒跑或失敗都不算通過：
+**交給 PR 的 GitHub Actions CI（`cargo test --locked --lib --no-fail-fast`）**——本機沒有執行，以下 8 個新測試以 CI 的 `test result:` 為準，沒跑或失敗都不算通過（**已在 PR #368 的 CI 通過，見上方 E 節**；清單保留供對照）：
 - `modern_lito::native_actor_switch::tests::`
   - `pinned_rows_parse_to_native_rectangles_and_absent_rows_stay_unlisted`
   - `malformed_tables_are_rejected_instead_of_partially_applied`
