@@ -89,9 +89,11 @@ fn owner_change_fences_selection_before_and_after_refresh() {
 fn all_learned_rows_visible_but_unsupported_and_invalid_choices_cannot_cast() {
     let mut w = world();
     w.learned_skills = (1..=220).collect();
-    let mut m = selected(&w, 220);
+    // 200 is not an E149 skill (196–200 have no catalog row); 220 is wired since #160.
+    let mut m = selected(&w, 200);
     assert_eq!(m.rows().len(), 220);
-    assert!(m.rows()[219].label.contains("尚未支援"));
+    assert!(m.rows()[199].label.contains("尚未支援"));
+    assert!(!m.rows()[219].label.contains("尚未支援"));
     assert!(m.choice(7, &w, None).is_err());
     assert!(m.select(Some(0)).is_err());
     assert_eq!(m.selected(), None);

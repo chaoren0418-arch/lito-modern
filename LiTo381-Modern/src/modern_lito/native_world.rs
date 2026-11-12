@@ -897,7 +897,8 @@ impl World {
                 self.message_count += 1;
                 self.last_message = Some((code, args));
                 if matches!(code,353|743) {self.last_summon_rejection=Some((self.message_count,code));}
-                if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352) {
+                // 1412: only the formal cube handlers (205／210／215／220) send it, when placement is refused.
+                if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352 | 1412) {
                     self.last_skill_rejection = Some((self.message_count, code));
                 }
                 if code == 79 {
