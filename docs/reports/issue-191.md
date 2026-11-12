@@ -52,6 +52,14 @@ ExitCode=0
 
 我的變更檔沒有新增編譯警告。
 
+PR #280 CI（run 43166273202，commit 878db72，結論 success）：
+
+```text
+test result: ok. 2178 passed; 0 failed; 591 ignored; 0 measured; 0 filtered out; finished in 22.29s
+```
+
+本張新增 5 案（`native_rental_source::tests::*` 2 案、`native_login::rental_source_tests::*` 3 案），以及修改 fixture 後的 `rental_lifecycle_tests` 5 案，在 CI log 中都是 `ok`。ignored 的 591 案（含正式 harness 探針）沒有執行，不算通過。
+
 ## 推測
 
 - 正式 rental-source 伺服器（`rental-source` profile）下，職業 0..4 的角色選擇範圍內的配裝，送出的 wire 和改動前相同；只有超出範圍時不再送出 C_CA。
@@ -60,7 +68,7 @@ ExitCode=0
 
 ## 待驗證／未完成
 
-- **`cargo test` 結果交給 PR CI**：本機沒有執行測試。新增的 5 案（2 單元＋3 loopback）與修改過的 `rental_lifecycle_tests` 要看 CI 的 `test result:` 原文；CI 結果出來前不算通過。
+- 本機沒有執行測試；lib 測試結果以上面的 CI 為準。這次 push 報告更新後的 CI 也需要確認。
 - 預設不跑的正式 harness（`native_peer_rental_probe`、`native_map_portal`、hotel 相關探針）需要 E149 JAR 與本機 owned runner，交給 Codex／本機執行。
 - map500 其餘 22 處原圖入口（24 處只驗過 1 組雙向）的實際往返、map560 入口、旅館入住／返回的 GUI 都還沒在實機驗證。
 - 配裝名稱（平衡型／攻擊型等）應該從客戶端 `LTItemSet<class>-<selection>-c.tbl` 讀取；本張只顯示「配裝 n」，沒有查 pak，也**沒有**主張缺資源。
