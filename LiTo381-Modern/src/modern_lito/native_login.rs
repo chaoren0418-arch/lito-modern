@@ -2165,6 +2165,10 @@ impl LoginController {
         } else {super::native_clock::sample().and_then(|sample|
             self.static2941.drain_due(&mut self.state.world, connection, sample).map(|_|()))};
         if let Err(error) = drain { self.fail(format!("native callback: {error:#}")); }
+        // Runtime-wide 4183 errors only; per-object faults are isolated in the receipt.
+        if let Err(error)=self.state.world.poll_status4183(super::native_status4183::now_ms()) {
+            self.fail(format!("4183 visual clock: {error:#}"));
+        }
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);
             if let Err(error)=self.state.environment.water_poll(epoch,generation) {
