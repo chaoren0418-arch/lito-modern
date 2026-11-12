@@ -53,14 +53,27 @@ impl FaultPeer {
             ensure!(version==crate::modern_lito::native_version::version_request(0),"version request changed");
             let mut outgoing=CipherState::new(seed); let mut accepted=bytes("version"); outgoing.encrypt(&mut accepted);
             socket.write_all(&native_wire::frame(&accepted)?)?;
-            socket.set_read_timeout(Some(Duration::from_millis(10)))?;
+            // Windows leaves a socket indeterminate after an SO_RCVTIMEO expiry
+            // (later I/O may fail with os error 997). Poll in nonblocking mode instead.
+            socket.set_read_timeout(None)?; socket.set_write_timeout(None)?; socket.set_nonblocking(true)?;
             let mut decoder=FrameDecoder::new(native_wire::MAX_FRAME)?;
             while !ending.load(Ordering::Acquire) {
                 while let Ok(e)=rx.try_recv() {
                     let mut wire=Vec::new();
                     for mut body in e.bodies { outgoing.encrypt(&mut body); wire.extend(native_wire::frame(&body)?); }
                     if let Some(raw)=e.raw { wire.extend(raw); }
-                    socket.write_all(&wire)?; let _=e.done.send(());
+                    let (mut at,until)=(0,Instant::now()+Duration::from_secs(2));
+                    while at<wire.len() {
+                        match socket.write(&wire[at..]) {
+                            Ok(0) => anyhow::bail!("synthetic peer write returned zero"),
+                            Ok(n) => at+=n,
+                            Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::Interrupted) => {
+                                ensure!(Instant::now()<until,"synthetic peer write deadline"); thread::sleep(Duration::from_millis(1));
+                            }
+                            Err(e) => return Err(e.into()),
+                        }
+                    }
+                    let _=e.done.send(());
                     if e.close { return Ok(()) }
                 }
                 let mut buf=[0;512];
@@ -74,7 +87,7 @@ impl FaultPeer {
                             ensure!(used>0,"synthetic frame decoder stalled");
                         }
                     }
-                    Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::TimedOut|std::io::ErrorKind::Interrupted) => {}
+                    Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::TimedOut|std::io::ErrorKind::Interrupted) => thread::sleep(Duration::from_millis(1)),
                     Err(e) if matches!(e.kind(),std::io::ErrorKind::ConnectionReset|std::io::ErrorKind::ConnectionAborted) => return Ok(()),
                     Err(e) => return Err(e.into()),
                 }
