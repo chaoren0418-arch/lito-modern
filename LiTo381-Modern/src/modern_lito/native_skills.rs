@@ -33,7 +33,8 @@ pub struct Effect {
 }
 fn can_cast(world: &World, skill: u16) -> Result<()> {
     ensure!(
-        world.ready() && world.battle_result.is_none() && world.hp.is_some_and(|v| v[0] > 0),
+        world.ready() && !world.observer_mode && world.battle_result.is_none()
+            && world.hp.is_some_and(|v| v[0] > 0),
         "目前不能施法"
     );
     ensure!(world.movement_blocks.is_empty(), "目前狀態限制施法");
@@ -44,7 +45,7 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     Ok(())
 }
 /// Item object IDs must never pass through the actor-target request path.
-pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 100 | 107) }
+pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 73 | 100 | 107) }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemTarget {
@@ -204,19 +205,25 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     let own = world.own_actor().unwrap();
     let mut b = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
     match skill {
-        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 57 => {
+        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 57 | 68 => {
             let id = target.unwrap_or(own.id);
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
                     && world.actor_visible(id)
-                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48) {
+                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 68) {
                         in_native_screen([own.x, own.y], [actor.x, actor.y])
                     } else {
                         own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 19
                     },
                 "技能目標不可用"
             );
+            // Displayed clans can reject a known mismatch, but cannot authorize
+            // the server's source-character clan membership or material commit.
+            if matches!(skill, 26 | 42 | 68) && id != own.id {
+                ensure!(!own.clan.is_empty() && own.clan == actor.clan,
+                    "此技能只能指定自己或同血盟角色");
+            }
             b.extend_from_slice(&id.to_le_bytes());
         }
         id if selector_only(id) => {ensure!(target.is_none(), "此技能不接受指定目標");}
@@ -283,7 +290,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118=>0,112=>2000,102=>2990,103=>990,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118=>0,112=>2000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]

@@ -5,6 +5,18 @@ use std::collections::BTreeMap;
 
 pub const MAX_ITEMS: usize = 4096;
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize)]
+pub struct Mail {
+    pub id: u32,
+    pub icon: u16,
+    pub code: u16,
+    pub sender: String,
+    pub receiver: String,
+    pub subject: String,
+    pub content: String,
+    pub template: u8,
+    pub date: String,
+}
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize)]
 pub struct Owner {
     pub connection: u64,
     pub selection: u64,
@@ -31,7 +43,7 @@ impl Item {
             .chars()
             .map(|c| if c.is_control() { ' ' } else { c })
             .collect();
-        format!(
+        let label = format!(
             "{} × {}",
             if name.is_empty() {
                 "未命名物品"
@@ -39,7 +51,12 @@ impl Item {
                 &name
             },
             self.count
-        )
+        );
+        if matches!(self.use_type, 3 | 4) {
+            if (1..=127).contains(&self.charge) {
+                format!("{label}（剩餘次數 {}）", self.charge)
+            } else { format!("{label}（無可用次數）") }
+        } else { label }
     }
 }
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -50,6 +67,8 @@ pub struct Inventory {
     pub batches: u64,
     pub revision: u64,
     pub orphan_updates: u64,
+    pub mail: Option<Mail>,
+    pub mail_revision: u64,
     selection: u64,
     /// Same-socket reselect does not replay S7C. Keep one inactive character
     /// store while the selector is open, including authoritative late deltas.
@@ -64,6 +83,7 @@ enum Update {
     Count(u32, u32),
     Blessing(u32, u8),
     Extended(u32, String, u32, Vec<u8>),
+    ReadMail(Mail),
 }
 struct Reader<'a> {
     bytes: &'a [u8],
@@ -115,6 +135,18 @@ impl<'a> Reader<'a> {
         let n = usize::from(self.byte()?);
         Ok(self.take(n)?.to_vec())
     }
+    fn wide(&mut self, max: usize) -> Result<String> {
+        let mut units = Vec::new();
+        loop {
+            let unit = self.word()?;
+            if unit == 0 { break; }
+            ensure!(units.len() < max, "mail UTF16 bound");
+            units.push(unit);
+        }
+        let text = String::from_utf16(&units)?;
+        ensure!(!text.chars().any(|c| c.is_control() && !matches!(c, '\r' | '\n' | '\t')), "mail control code");
+        Ok(text)
+    }
     fn item(&mut self) -> Result<Item> {
         let id = self.id()?;
         let use_type = self.byte()?;
@@ -139,12 +171,25 @@ impl<'a> Reader<'a> {
 }
 fn parse(body: &[u8]) -> Result<Option<Update>> {
     let op = *body.first().context("empty inventory packet")?;
-    if !matches!(op, 0x0e | 0x16..=0x1a | 0x6f | 0x7c) {
+    if !matches!(op, 0x0e | 0x16..=0x1a | 0x5e | 0x6f | 0x7c) {
         return Ok(None);
     }
     ensure!(body.len() <= 65533, "inventory packet bound");
     let mut r = Reader { bytes: body, at: 1 };
     let update = match op {
+        0x5e => {
+            let mail = Mail { id: r.id()?, icon: r.word()?, code: r.word()?,
+                sender: r.string()?, receiver: r.string()?, subject: r.wide(20)?,
+                content: r.wide(256)?, template: r.byte()?, date: r.string()? };
+            for name in [&mail.sender, &mail.receiver] {
+                ensure!(!name.is_empty() && !name.chars().any(char::is_control), "mail name");
+                super::native_login::encode_text(name, 27)?;
+            }
+            let date = mail.date.as_bytes();
+            ensure!(date.len() == 8 && date.iter().enumerate().all(|(i, b)|
+                if i == 2 || i == 5 { *b == b'/' } else { b.is_ascii_digit() }), "mail date");
+            Update::ReadMail(mail)
+        }
         0x16 => Update::Add(vec![r.item()?], false),
         0x7c => {
             let count = r.byte()?;
@@ -215,6 +260,8 @@ impl Inventory {
         self.batches = 0;
         self.revision = 0;
         self.orphan_updates = 0;
+        self.mail = None;
+        self.mail_revision = 0;
     }
     pub fn suspend(&mut self) {
         if self.owner.is_some() {
@@ -252,7 +299,16 @@ impl Inventory {
         let mut next = self.items.clone();
         let mut batches = self.batches;
         let mut orphan = false;
+        let mut mail = self.mail.clone();
+        let mut mail_revision = self.mail_revision;
         match update {
+            Update::ReadMail(value) => {
+                if let Some(item) = next.get_mut(&value.id).filter(|i| i.use_type == 13) {
+                    item.icon = value.icon;
+                    mail_revision = mail_revision.checked_add(1).context("mail revision exhausted")?;
+                    mail = Some(value);
+                } else { orphan = true; }
+            }
             Update::Add(rows, batch) => {
                 for item in rows {
                     next.insert(item.id, item);
@@ -266,6 +322,7 @@ impl Inventory {
             }
             Update::Remove(id) => {
                 orphan = next.remove(&id).is_none();
+                if mail.as_ref().is_some_and(|m| m.id == id) { mail = None; }
             }
             Update::Name(id, name) => {
                 if let Some(i) = next.get_mut(&id) {
@@ -313,6 +370,8 @@ impl Inventory {
         self.revision = revision;
         self.batches = batches;
         self.orphan_updates = orphans;
+        self.mail = mail;
+        self.mail_revision = mail_revision;
         Ok(true)
     }
 }

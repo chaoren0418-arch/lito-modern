@@ -448,8 +448,9 @@ impl Probe {
                 }
                 return Ok(false);
             }
-            if mode == "room-world-item-heal" {
-                if self.item_probe.heal(c, &frame, self.hp)? {
+            if matches!(mode,"room-world-item-heal"|"room-world-item-heal-194"|"room-world-item-heal-197") {
+                let graphics = if mode.ends_with("194") {194} else if mode.ends_with("197") {197} else {189};
+                if self.item_probe.heal(c, &frame, self.hp, graphics)? {
                     self.result = Some(c.snapshot().clone());
                     return Ok(true);
                 }

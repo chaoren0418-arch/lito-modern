@@ -88,3 +88,8 @@
 - 2026-11-12 — #151 T022-1: T022（M2 1/10）: src/：未接的 91 個技能（code，claude-local，PR 已合併）→ [報告](reports/issue-151.md)
 - 2026-11-12 — #147 T027-3: T027（M2 3/6）: src/：候選獨有的 48 個技能重做進 src（code，claude-local，PR 已合併）→ [報告](reports/issue-147.md)
 - 2026-11-12 — #173 T041-1: T041（M2 1/1）: 維護工具/run-local-test-suite.ps1（code，claude-local，PR #226 已合併）→ [報告](reports/issue-173.md)
+- 2026-11-12 — #183 T046-3: T046（M2 3/3）: src/：快捷列、技能書與狀態 UI（code，claude-local，PR #279 已合併）→ [報告](reports/issue-183.md)
+- 2026-11-12 — #168 T029-2: T029（M2 2/2）: src/：非技能的戰鬥基礎（code，claude-local，PR 已合併）→ [報告](reports/issue-168.md)
+- 2026-11-12 — #193 T061-2: T061（M2 2/2）: src/：Ctrl 強制目標與目標選取政策（code，claude-local，PR #257 已合併）→ [報告](reports/issue-193.md)
+- 2026-11-12 — #191 T055-2: T055（M2 2/2）: src/：租裝來源整合（G06.3）（code，claude-local，PR 已合併）→ [報告](reports/issue-191.md)
+- 2026-11-12 — #179 T045-1: T045（M2 1/2）: src/：物品系統缺口（code，claude-local，PR #265 已合併）→ [報告](reports/issue-179.md)

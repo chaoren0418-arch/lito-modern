@@ -22,6 +22,10 @@ fn character_row() -> Vec<u8> {
     let mut row = hex(fixture["packets"]["row"].as_str().unwrap());
     let end = row[1..].iter().position(|b| *b == 0).unwrap() + 1;
     row.splice(1..end, b"TestKnight".iter().copied());
+    // S_CB 數值區第一個位元組是職業；租裝配裝表只提供職業 0..4（T055-2），騎士=1。
+    let name_end = row[1..].iter().position(|b| *b == 0).unwrap() + 1;
+    let clan_end = row[name_end + 1..].iter().position(|b| *b == 0).unwrap() + name_end + 1;
+    row[clan_end + 1] = 1;
     row
 }
 
