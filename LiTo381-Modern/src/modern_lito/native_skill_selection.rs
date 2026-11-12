@@ -109,7 +109,7 @@ impl Ground {
 /// Shared by the actual native window and isolated ClientSession probes.
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
-    let target = if matches!(skill,2|3|13|14|31|32|49|52|54|60|72|78|131|206) {
+    let target = if matches!(skill,2|3|13|14|31|32|49|52|54|60|72|78|97|98|99|131|206) {
         None
     } else {
         target
@@ -164,6 +164,10 @@ impl Model {
                     id,
                     label: match id {
                         1 => "#1 治癒術（選取目標／自己）".into(),
+                        97 => "#97 暗隱術（自己）".into(),
+                        98 => "#98 附加劇毒（自己）".into(),
+                        99 => "#99 影之防護（自己）".into(),
+                        100 => "#100 提煉魔石（選取背包物品）".into(),
                         2 => "#2 日光術（自己）".into(),
                         3 => "#3 護盾（自己）".into(),
                         4 => "#4 光箭（選取目標）".into(),

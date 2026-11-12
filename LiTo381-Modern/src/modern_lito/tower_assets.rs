@@ -190,7 +190,7 @@ pub(crate) struct SharedEffectBank {
     rgba: usize,
 }
 #[derive(Clone, Copy)]
-enum ReferencedFramePolicy { NonEmpty, TwHealingFamily, ReviewedSelectors, ReviewedAdditionalFinite, ReviewedEarthJail }
+enum ReferencedFramePolicy { NonEmpty, TwHealingFamily, ReviewedSelectors, ReviewedAdditionalFinite, ReviewedEarthJail, ReviewedDarkElf }
 // Each tuple pins the actual SPR and its last visible original subframe.
 const TW_HEALING_SPRS: &[(&str,usize,[u8;32],usize)]=&[
     ("11722-0.spr",30637,[0x85, 0xf6, 0x87, 0x20, 0x52, 0xfa, 0x33, 0x5c, 0xab, 0x1e, 0xe5, 0x65, 0xc3, 0xe1, 0x84, 0xe2, 0xd4, 0xe7, 0x18, 0xa6, 0x13, 0x7c, 0x87, 0xd2, 0x88, 0x50, 0xc8, 0x8e, 0xcc, 0xa6, 0xf8, 0xe5],12),
@@ -251,6 +251,9 @@ impl SharedEffectBank {
         qualify: fn(&SpriteActionCatalog) -> Result<Vec<(u32, u8, Animation)>>,
     ) -> Result<Self> {
         Self::load_profile(context, cancel, qualify, &[], true, ReferencedFramePolicy::NonEmpty)
+    }
+    pub(crate) fn load_reviewed_dark_elf(context: &SharedActionCatalog, cancel: &AtomicBool) -> Result<Self> {
+        Self::load_profile(context, cancel, super::native_dark_elf_effects::qualify, &[], false, ReferencedFramePolicy::ReviewedDarkElf)
     }
     pub(crate) fn load_reviewed_earth_jail(
         context: &SharedActionCatalog, cancel: &AtomicBool,
@@ -458,6 +461,10 @@ impl SharedEffectBank {
                 && !super::native_attack_many::earth_jail::source_matches(&name,&bytes,&decoded) {
                 return Err(HonorAssetError::Unsupported("earth jail original SPR/blank slots changed"));
             }
+            if matches!(frame_policy, ReferencedFramePolicy::ReviewedDarkElf)
+                && !super::native_dark_elf_effects::source_matches(&name, &bytes, &decoded) {
+                return Err(HonorAssetError::Unsupported("dark elf original SPR/blank slots changed"));
+            }
             let decoded_bytes = decoded
                 .retained_rgba_bytes()
                 .ok_or(HonorAssetError::Bound("decoded SPR"))?;
@@ -490,7 +497,9 @@ impl SharedEffectBank {
                         .ok_or(HonorAssetError::Unsupported(
                             "referenced SPR subframe missing",
                         ))?;
-                    let reviewed_blank = matches!(frame_policy,ReferencedFramePolicy::TwHealingFamily)
+                    let reviewed_blank = matches!(frame_policy,ReferencedFramePolicy::ReviewedDarkElf)
+                        && super::native_dark_elf_effects::is_blank(&asset.file_name(),asset.subframe as usize,frame)
+                        || matches!(frame_policy,ReferencedFramePolicy::TwHealingFamily)
                         && is_tw_healing_blank(&asset.file_name(),asset.subframe as usize,frame)
                         || matches!(frame_policy,ReferencedFramePolicy::ReviewedSelectors)
                             && is_reviewed_selector_blank(&asset.file_name(),asset.subframe as usize,frame)

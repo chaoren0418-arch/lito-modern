@@ -1,1 +1,3 @@
 modern_lito::compositor::tests::measure_full_frame_clear_and_dib_conversion
+modern_lito::native_skill_effects::t021_tests::original_dark_elf_layers_audio_history_and_natural_finite_retirement
+modern_lito::native_login::player_callbacks::tests::t021_controller_sends_four_skills_and_keeps_rejection_authority

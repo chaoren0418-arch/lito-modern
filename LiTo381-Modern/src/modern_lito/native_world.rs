@@ -809,7 +809,7 @@ impl World {
                 r.end()?;
                 self.message_count += 1;
                 self.last_message = Some((code, args));
-                if matches!(code, 276 | 278 | 280 | 285 | 299 | 316 | 319 | 352) {
+                if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352) {
                     self.last_skill_rejection = Some((self.message_count, code));
                 }
             }
