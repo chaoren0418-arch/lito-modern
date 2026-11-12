@@ -40,3 +40,18 @@ PNG已檢視；正式十格目標與抵達效果位於右側視野邊緣，完�
 FD1D504C／BBC59308新增C14 row0/column5及S23 gfx1797，MP4與十格範圍由正式來源核對。原Text/list.spr SHA523C61AD：1797八方向、109.effect(5 1798)，719／713與次級Hit；不能套用class4折疊四方向。唯讀4271D92F recovered PE獨立解碼42F1F0／42F300／42F570等6個範圍，證明發射時凍結路徑、立即第一步與60ms步進，抵達後在當前目標位置建立次級，Miss無次級。
 
 36相關Rust通過，1個既有全caster golden測試仍ignored；兩正式ClientSession情境共8連線完成：成功兩次施法、雙端一次性飛行／命中與聲音，MP2正式278拒絕。PNG已檢視，但不當真人GUI／音效裝置／Release驗收。資料見ice-arrow-qualified.json。首輪metadata用全量嚴格parser遇既有614行錯誤，改用既有inspection入口並僅嚴格核對1797／1798；另修正測試loader名與過時『6未支援』前提，未降低其他技能拒絕門檻。
+## 2026-11-12 T028-4（#166）：S23／class1／火球的原生回呼時序
+
+以下取代上文「跨影格只發出一次 Sound97」「一次性飛行」的舊 rational 時間軸敘述；舊 `start_effect`／`effect_frame` 只保留給 inspection 與 battle presentation。
+
+- **S23 class4（167→219、1583→218、1799→1800、756→219）與冰箭 class5（1797→1798）** 改由 `NativeSpellClock` 驅動（`light_arrow_effect.rs`、`native_spell_projectiles.rs`）。依據同一份 4271D92F 反組譯（`ida-client-oep-v2/full-disassembly.asm`）：
+  - `sub_424780+AD`／`sub_42F570+9A` 直接呼叫移動函式，首步立即；未抵達時以 `mov ecx,3Ch; call sub_4D65F0` 重排 60ms 回呼。延遲的 dispatch 只前進一格，下一個期限從該次 dispatch 起算，不追趕 wall time。
+  - 每次移動都呼叫 `sub_4E5B50`：來源影格 +1、到影格數歸 0，再進 `sub_4E5C00`。飛行影格是依移動循環的 1..N-1,0，不依 catalog 的 24Hz ticks，也不停在 source0；source1 的音效 cue 每 N 次移動重入一次（實際是否發聲由 same-ID 抑制政策決定）。
+  - class4 先 `4E5B50`（4246CD）再建立次級（…42473A）；class5 先在目標迴圈建立次級（…42F4CB）再 `4E5B50`（42F500）。相鄰目標的 cue 順序因此是 1583：97→99、1799：719→711、冰箭：713→719。
+  - 抵達以實際到達終點的那次移動回呼為準，不用 `path.impact_at()`。class4 爆炸固定在飛行終點；冰箭在抵達當下解析同 incarnation 目標的座標後固定，無目標不建立次級。次級沿用 native finite `Clip`，保留 source0 的獨立停留（218／219 為 41ms、1800 為 166ms、1798 為 125ms）。
+  - 音效改為 `PreparedCue::from_callback_event`（真實 graphics／source slot／cast sequence＋回呼 occurrence），由 `FiniteDeliveryHistory` 依 (event, occurrence) 去重；仍在飛行的 S23 sequence 併入 `active_finite_sequences`，raw ring 淘汰後不提早釋放去重鍵。
+- **全域整數毫秒起點**：`native_effect_timing::native_elapsed_ns` 先對 now 與 start 各自 floor 到毫秒再相減。S23 飛行與 S39 火球 171 的移動步進原本是先相減再 floor，已改用同一函式；class1、S39 有限特效沿用同一函式。
+- **class1 啟動位置**：`sub_44F350` 只有 gfx 0x9B3／0x9B4（2483／2484）進 `loc_44FFFB`（`push 2` 經 `sub_4B9390` 走兩格）；252／236／1801／1811 依序比過 0x2F6、0x71B、0x2F5、0x8D5 後到 `loc_45001A` 直接啟動。`native_class1::position` 因此回傳 S23 wire destination，不再沿 heading 加兩格。2483／2484 沒有加入支援清單。
+- **共享 latch**：`FiniteDeliveryHistory` 以 `Weak` 記住每個 key 的 canonical payload；重複項若與 canonical 是同一個 `Arc`，只移除重複排程，不消耗 canonical 的 latch；不同 payload 同 key 仍 discard。
+
+驗證範圍與未驗證項目見 `docs/reports/issue-166.md`；本段只記來源與行為，不代表 E149 實際施法、GUI 或實體音效已驗收。

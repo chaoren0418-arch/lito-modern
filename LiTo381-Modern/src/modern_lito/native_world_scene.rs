@@ -422,9 +422,12 @@ impl FiniteHistory {
         self.static2941.merge(&other.static2941);self.spells.merge(&other.spells);self.class1.merge(&other.class1);self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();
         for (mine,late) in self.skills.iter_mut().zip(&other.skills) {mine.merge_admission(late);}
     }
-    /// Sequences of four-profile finite cues still playing in this history.
+    /// Sequences of four-profile finite cues still playing in this history,
+    /// plus S23 flights whose movement callback can still re-enter a sound
+    /// source after the raw World ring evicted the cast. `for_source(false)`
+    /// retires those flights, so a retired source releases their keys.
     pub(crate) fn active_finite_sequences(&self)->std::collections::BTreeSet<u64> {
-        self.skills.iter().flat_map(|h|h.active_sequences()).collect()
+        self.skills.iter().flat_map(|h|h.active_sequences()).chain(self.spells.active_sequences()).collect()
     }
     #[cfg(test)]
     pub(crate) fn from_profiles(skills:[super::native_skill_effects::History;4])->Self {

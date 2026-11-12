@@ -4,6 +4,31 @@ use super::{combat_animation::CrossedCue, sprite_actions::Animation};
 use anyhow::{ensure, Result};
 use std::sync::Arc;
 
+/// Native timers compare the one global integer-millisecond clock. Quantize
+/// BOTH endpoints before subtracting: floor(now/1ms) - floor(origin/1ms).
+/// Subtracting first and flooring afterwards would let a fractional-millisecond
+/// birth instant postpone every native deadline of that effect by up to 1ms.
+pub fn native_elapsed_ns(now_ns: u64, origin_ns: u64) -> u64 {
+    (now_ns / 1_000_000).saturating_sub(origin_ns / 1_000_000) * 1_000_000
+}
+
+#[cfg(test)]
+mod native_origin_tests {
+    use super::native_elapsed_ns;
+    #[test]
+    fn global_millisecond_origin_is_quantized_before_subtraction() {
+        assert_eq!(native_elapsed_ns(500_000, 500_000), 0);
+        // Subtract-then-floor would report 59ms here and also at the next line.
+        assert_eq!(native_elapsed_ns(59_999_999, 500_000), 59_000_000);
+        assert_eq!(native_elapsed_ns(60_000_000, 500_000), 60_000_000);
+        // 0.999999ms -> 1.000123ms crosses a global millisecond boundary.
+        assert_eq!(native_elapsed_ns(1_000_123, 999_999), 1_000_000);
+        assert_eq!(native_elapsed_ns(101_000_000, 1_999_999), 100_000_000);
+        // A regressed poll saturates; the playback's own monotonic guard decides.
+        assert_eq!(native_elapsed_ns(999_999, 5_000_000), 0);
+    }
+}
+
 /// Stateless inspection of a rational 24Hz timeline, not native timer dispatch.
 pub fn sample_ticks(ticks: &[u64], elapsed_ns: u64) -> (usize, bool) {
     let tick = u128::from(elapsed_ns) * 24 / 1_000_000_000;

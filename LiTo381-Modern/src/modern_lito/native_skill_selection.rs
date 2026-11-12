@@ -56,7 +56,7 @@ impl Target {
     /// A living selection cannot become a corpse authorization after death,
     /// and a captured corpse cannot become a living authorization on revival.
     pub fn resolve_for_skill(self, world: &World, skill: u16) -> Option<u32> {
-        if skill != 41 { return self.resolve(world); }
+        if !matches!(skill, 41 | 61) { return self.resolve(world); }
         (world.generation == self.generation && world.actor_visible(self.id)
             && world.actors.get(&self.id).is_some_and(|a|
                 a.incarnation == self.incarnation && a.target_revision == self.target_revision
@@ -228,6 +228,14 @@ impl Model {
                         50 => "#50 冰矛圍籬（選取目標，六格內）".into(),
                         51 => "#51 召喚術（選擇召喚種類）".into(),
                         53 => "#53 龍捲風（自己周圍四格）".into(),
+                        55 => "#55 狂暴術（選取角色／自己，畫面內；同盟資格由伺服器判定）".into(),
+                        56 => "#56 疾病術（選取目標，三格內；消耗 1 顆魔法寶石）".into(),
+                        59 => "#59 冰雪暴（自己周圍十格）".into(),
+                        61 => "#61 返生術（選取屍體，畫面內；對方須同意）".into(),
+                        62 => "#62 震裂術（自己周圍三格）".into(),
+                        64 => "#64 魔法封印（選取目標，三格內；消耗 1 顆魔法寶石）".into(),
+                        65 => "#65 雷霆風暴（選取目標，十格內；周圍三格）".into(),
+                        66 => "#66 沉睡之霧（選取目標，十格內；消耗 1 顆魔法寶石）".into(),
                         49 => "#49 集體治癒術（周圍角色）".into(),
                         52 => "#52 神聖疾走（自己）".into(),
                         54 => "#54 強力加速術（自己）".into(),

@@ -343,6 +343,8 @@ pub struct Effects {
     selector_error: Option<String>,
     additional_bank: Option<SharedEffectBank>,
     additional_error: Option<String>,
+    batch4_bank: Option<SharedEffectBank>,
+    batch4_error: Option<String>,
     finite_banks: BTreeMap<u16, SharedEffectBank>,
     finite_over: BTreeSet<u16>,
     finite_errors: BTreeMap<u16, String>,
@@ -463,6 +465,25 @@ impl Effects {
                 Err(e)=>self.additional_error=Some(format!("{e:#}")),
             }
         }
+        // T027 batch 4 (#148): own lazy bank, loaded only for a real 2230／760／230 cue.
+        // Kept out of the generic received-finite path: 2230's attr128 is Multiply.
+        if self.profile==Profile::Skills && self.batch4_bank.is_none() && self.batch4_error.is_none()
+            && world.effects.iter().chain(self.active.iter().map(|a|&a.cue))
+                .any(|e|super::native_additional_finite_effects::BATCH4_GRAPHICS.contains(&e.graphics)) {
+            let loaded=(||->anyhow::Result<_>{
+                let context=SharedActionCatalog::reuse_for_model(root,cancel,shared)?;
+                let bank=SharedEffectBank::load_reviewed_batch4_finite(context,cancel)?;
+                let mut clips=BTreeMap::new();
+                for &gfx in super::native_additional_finite_effects::BATCH4_GRAPHICS {
+                    clips.insert(gfx,Clip::new(Arc::clone(bank.animation(u32::from(gfx),0)?))?);
+                }
+                Ok((bank,clips))
+            })();
+            match loaded {
+                Ok((bank,clips))=>{self.clips.extend(clips);self.batch4_bank=Some(bank);},
+                Err(e)=>self.batch4_error=Some(format!("{e:#}")),
+            }
+        }
         // Exact T021 definitions, including shadow armor's inherited clothing slots.
         if self.profile == Profile::Skills && self.dark_elf_bank.is_none() && self.dark_elf_error.is_none()
             && world.effects.iter().chain(self.active.iter().map(|a| &a.cue))
@@ -506,6 +527,7 @@ impl Effects {
                     && !self.profile.graphics().contains(gfx)
                     && !super::native_selector_effects::GRAPHICS.contains(gfx)
                     && !super::native_additional_finite_effects::GRAPHICS.contains(gfx)
+                    && !super::native_additional_finite_effects::BATCH4_GRAPHICS.contains(gfx)
                     && !super::native_dark_elf_effects::GRAPHICS.contains(gfx))
                 .collect();
             self.finite_clock += 1;
@@ -657,7 +679,7 @@ impl Effects {
             for active in &mut self.active {
                 let cue = &active.cue;
                 let result = (|| -> anyhow::Result<_> {
-                    let bank = if let Some(bank) = self.finite_banks.get(&cue.graphics) { Some(bank) } else if super::native_dark_elf_effects::GRAPHICS.contains(&cue.graphics) { self.dark_elf_bank.as_ref() } else if matches!(cue.graphics,11722..=11725) { self.tw_heal_bank.as_ref() } else if self.profile==Profile::Skills && super::native_additional_finite_effects::GRAPHICS.contains(&cue.graphics) {self.additional_bank.as_ref()} else if self.profile==Profile::Skills && super::native_selector_effects::GRAPHICS.contains(&cue.graphics) {self.selector_bank.as_ref()} else { self.bank.as_ref() }
+                    let bank = if let Some(bank) = self.finite_banks.get(&cue.graphics) { Some(bank) } else if super::native_dark_elf_effects::GRAPHICS.contains(&cue.graphics) { self.dark_elf_bank.as_ref() } else if matches!(cue.graphics,11722..=11725) { self.tw_heal_bank.as_ref() } else if self.profile==Profile::Skills && super::native_additional_finite_effects::GRAPHICS.contains(&cue.graphics) {self.additional_bank.as_ref()} else if self.profile==Profile::Skills && super::native_additional_finite_effects::BATCH4_GRAPHICS.contains(&cue.graphics) {self.batch4_bank.as_ref()} else if self.profile==Profile::Skills && super::native_selector_effects::GRAPHICS.contains(&cue.graphics) {self.selector_bank.as_ref()} else { self.bank.as_ref() }
                         .ok_or_else(|| anyhow::anyhow!("effect bank absent"))?;
                     let elapsed = now.saturating_sub(active.start);
                     // Native timers quantize the common clock, not each
@@ -736,7 +758,7 @@ impl Effects {
                         ]));
                         drawn|=clothing_drawn;
                     } else if drawn {
-                        let mix=if cue.graphics==2510 || self.finite_over.contains(&cue.graphics) {super::native_world_effects::Mix::Over}else if matches!(cue.graphics,2175|2228) {super::native_world_effects::Mix::Multiply}else{super::native_world_effects::Mix::Screen};
+                        let mix=if cue.graphics==2510 || self.finite_over.contains(&cue.graphics) {super::native_world_effects::Mix::Over}else if matches!(cue.graphics,2175|2228|2230) {super::native_world_effects::Mix::Multiply}else{super::native_world_effects::Mix::Screen};
                         target.submit(frame.frame,position,projection,mix)?;
                     }
                     let mut row=serde_json::json!({"sequence":cue.sequence,"graphics":cue.graphics,"target":cue.target,"position":cue.position,"action":self.profile.action(),"source_frame":frame.source_frame,"sprite":frame.sprite_name,"subframe":frame.subframe,"drawn":drawn,"finished":sample.finished,"elapsed_ns":elapsed,"native_clock_elapsed_ms":if self.profile==Profile::Reagent {None}else{Some(clock_elapsed_ms)},"next_callback_ms":active.playback.next_callback_millis(),"callback_count":active.playback.callback_count()});
@@ -747,7 +769,7 @@ impl Effects {
             }
         }
         self.active.retain(|a| !finished.contains(&a.cue.sequence));
-        let mut receipt = serde_json::json!({"presentation":if self.profile==Profile::Reagent {"modern_explicit_action3_once"} else {"qualified_native_class0"},"started":self.started,"omitted":self.omitted,"active":self.active.len(),"effects":rows,"load_error":self.error.as_ref().or(self.tw_heal_error.as_ref()).or(self.additional_error.as_ref()).or(self.dark_elf_error.as_ref()),"sources":self.bank.as_ref().or(self.tw_heal_bank.as_ref()).map(|_|self.bank.iter().chain(self.tw_heal_bank.iter()).flat_map(|b|b.sources()).map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),"entered_events":events,"complete":false});
+        let mut receipt = serde_json::json!({"presentation":if self.profile==Profile::Reagent {"modern_explicit_action3_once"} else {"qualified_native_class0"},"started":self.started,"omitted":self.omitted,"active":self.active.len(),"effects":rows,"load_error":self.error.as_ref().or(self.tw_heal_error.as_ref()).or(self.additional_error.as_ref()).or(self.batch4_error.as_ref()).or(self.dark_elf_error.as_ref()),"sources":self.bank.as_ref().or(self.tw_heal_bank.as_ref()).map(|_|self.bank.iter().chain(self.tw_heal_bank.iter()).flat_map(|b|b.sources()).map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),"entered_events":events,"complete":false});
         receipt["finite_banks"] = serde_json::json!({
             "loaded": self.finite_banks.keys().collect::<Vec<_>>(),
             "errors": self.finite_errors,
@@ -783,6 +805,15 @@ impl Effects {
                 "load_error":self.additional_error});
         } else if self.additional_error.is_some() {
             receipt["additional_bank"]=serde_json::json!({"lazy":true,"loaded":false,"load_error":self.additional_error});
+        }
+        if let Some(bank)=&self.batch4_bank {
+            receipt["batch4_bank"]=serde_json::json!({"lazy":true,"loaded":true,
+                "graphics":super::native_additional_finite_effects::BATCH4_GRAPHICS,
+                "sources":bank.sources().map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,
+                    "sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>(),
+                "load_error":self.batch4_error});
+        } else if self.batch4_error.is_some() {
+            receipt["batch4_bank"]=serde_json::json!({"lazy":true,"loaded":false,"load_error":self.batch4_error});
         }
         if let Some(bank) = &self.tw_heal_bank {
             receipt["tw_catalog"] = serde_json::json!({"namespace":"launcher/TW13081901.pak","supported_wire_graphics":[11722,11723,11724,11725],

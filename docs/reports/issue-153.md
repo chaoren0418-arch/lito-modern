@@ -62,7 +62,20 @@ python -B 維護工具/test_native_skill_coverage.py
 
 合併 `origin/main`（`316c4d5`，含 #185 變身接收；無衝突）之後重跑同樣的 `cargo check`（結束碼 0）與 `--no-run`（結束碼 0）。
 
-### CI（PR #289，commit `b6ba291`，run 43176762570）
+第二次同步：合併 `origin/main`（`9ab5362`，含 #148 T027 批 4 與 #166）。`native_skills.rs` 有三處衝突（`selector_only`、`request()` 的 `132 | 133` 與 `41 | 61` 分支、`reuse_millis`），`維護工具/test-whitelist/tests.tsv` 有一處，全部兩邊保留；`docs/REPORT.md` 用 main 版本。合併後重跑：
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+結束碼 0
+
+cargo test ...（同上五個測試檔，另加 --test native_t027_batch4）--no-run
+結束碼 0（六個測試執行檔都編譯成功，未執行）
+
+python -B 維護工具/test_native_skill_coverage.py
+結束碼 0；Ran 7 tests in 0.051s；OK
+```
+
+### CI（PR #289，commit `b6ba291`，run 43176762570；第二次同步前）
 
 CI 只跑兩步：`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast`。兩步都通過，lib 測試原文：
 
