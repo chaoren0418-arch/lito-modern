@@ -45,6 +45,8 @@ runner：claude-local。分支：`task/336`。本張只做 G07.1；G07.4（失�
 **已驗證**
 - `resource_matrix.py --self-test` 通過（本機）。
 - 完整重產一次後立刻跑 `--check`，結果 `check ok`、exit 0：同一份資源重跑得到相同位元組。單次約 4 分 20 秒。
+- 2026-11-13 合併 `origin/main` 後再跑一次：`--self-test` 通過、`--check` 為 `check ok`（客戶端資源自上次重產後沒有變）。
+- 矩陣輸出只取決於客戶端資源與工具規則：原本的「src 字面引用」欄已移除，`src/` 的一般改動不會讓 `--check` 失敗。
 - 逐成員覆蓋：工具內的加總核對通過（322,822 == 322,822）。
 - `cargo check --locked --offline -j1 --test resource_matrix_exhaustive` 通過（只編譯，沒有執行）。
 - 上面各項數字都是 Python 關卡逐成員執行的結果，可用 `members.tsv`／`exceptions.tsv` 逐筆回查。
