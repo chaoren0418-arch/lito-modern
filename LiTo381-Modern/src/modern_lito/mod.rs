@@ -464,6 +464,8 @@ pub mod native_object_dispatch;
 pub mod native_startup;
 #[cfg(windows)]
 pub mod native_startup_window;
+#[cfg(windows)]
+pub(crate) mod window_presentation;
 
 pub mod native_selector_effects;
 pub mod native_audio_delivery;

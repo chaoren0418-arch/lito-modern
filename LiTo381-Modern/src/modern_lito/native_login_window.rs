@@ -2770,13 +2770,11 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 SetTimer(Some(hwnd), 1, 20, None) != 0,
                 "native login UI timer"
             );
-            let _ = ShowWindow(hwnd, SW_SHOW);
-            // A launcher using STARTF_USESHOWWINDOW/SW_HIDE overrides the first
-            // ShowWindow call. This explicitly requested interactive route must
-            // still present its window when launched by the hidden shell helper.
-            if !IsWindowVisible(hwnd).as_bool() {
-                let _ = ShowWindow(hwnd, SW_SHOW);
-            }
+            // A launcher's STARTF_USESHOWWINDOW command (SW_HIDE, or a minimized
+            // variant) overrides the first ShowWindow call. This explicitly
+            // requested interactive route must still end with a restored,
+            // on-screen window: an iconic one cannot be captured or clicked.
+            super::window_presentation::present(hwnd);
             let _ = SetFocus(Some(state.0.borrow().control(CONNECT)));
             let mut message = MSG::default();
             loop {
