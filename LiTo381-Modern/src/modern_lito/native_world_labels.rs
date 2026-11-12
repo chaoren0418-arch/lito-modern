@@ -51,9 +51,61 @@ pub fn lawful_color(lawful: i16) -> u16 {
         (low << 10) | (low << 5) | 31
     }
 }
+/// Native 48A631: this body keeps the fixed colour while its 1F flag is clear.
+pub const FIXED_HOVER_COLOR_GRAPHICS: u16 = 0x0a9b;
+/// Native hover name colour, 48A624..48A6F1. `side` is actor+0x128 as returned
+/// by 4E9220 (the S_PUT_OBJECT tail byte); `flag_1f` is the relation flag that
+/// S0B, S36 and the S69 clan setter (4E7690) maintain while the war gate
+/// 834F14 is active. Maps 500/560 always use the lawful colour (actor+0x28).
+pub fn hover_color(a: &Actor, flag_1f: bool, special: bool) -> u16 {
+    if !flag_1f && a.graphics == FIXED_HOVER_COLOR_GRAPHICS {
+        return 0x7c00;
+    }
+    match a.tail_byte {
+        0 if !special => 0x7c00,
+        1 if !special => 0x001f,
+        _ => lawful_color(a.lawful),
+    }
+}
 fn width(text: &str) -> Result<i32> {
     let bytes = super::native_login::encode_text(text, 256)?;
     Ok(bytes.len() as i32 * 6)
+}
+/// Native 4318E0 writes a name as colour runs: `\fX` inside the resolved text
+/// (monster, NPC or ground-item names from desc-c) switches the palette entry
+/// and is not drawn. The first run keeps `kind`; later runs are `"run"`. The
+/// six-pixel-per-byte advance between runs is inferred from the positioning
+/// code, 4315B0 itself was not decoded. Placement still uses the byte length
+/// of the whole text, escapes included, as the original does.
+/// `badge` goes on the first run, whose `x` is the start of the name.
+fn push_runs(
+    lines: &mut Vec<Line>,
+    id: u32,
+    kind: &'static str,
+    text: &str,
+    mut x: i32,
+    y: i32,
+    color: u16,
+    mut badge: Option<String>,
+) {
+    for (n, run) in super::native_text_format::runs(text, color)
+        .into_iter()
+        .enumerate()
+    {
+        let Ok(advance) = width(&run.text) else {
+            return;
+        };
+        lines.push(Line {
+            id,
+            kind: if n == 0 { kind } else { "run" },
+            text: run.text,
+            x,
+            y,
+            color: run.color,
+            badge: badge.take(),
+        });
+        x += advance;
+    }
 }
 /// Native 48A1E6: base class bodies never receive the `773.img` suffix in the
 /// all-name pass.
@@ -128,15 +180,16 @@ fn owner_text(master: &str, title: &str) -> Option<String> {
 fn all_name_lines(
     a: &Actor,
     catalog: &Catalog,
+    who: Option<&str>,
     b: [i32; 4],
     policy: &Policy,
     lines: &mut Vec<Line>,
 ) {
-    let Ok(name) = catalog.resolve(&a.name) else {
+    let Ok(name) = catalog.expand(&a.name, who) else {
         return;
     };
     let Ok(nw) = width(&name) else { return };
-    let title = catalog.resolve(&a.title).ok().filter(|s| !s.is_empty());
+    let title = catalog.expand(&a.title, who).ok().filter(|s| !s.is_empty());
     let tw = title.as_deref().and_then(|s| width(s).ok());
     // 4E7200 sizes the rectangle from the title, although this pass prints the
     // owner line instead of the title.
@@ -154,15 +207,16 @@ fn all_name_lines(
         let owner = owner_text(&a.master, title.as_deref().unwrap_or(""))
             .and_then(|text| width(&text).ok().map(|w| (text, w)));
         if let Some((text, ow)) = owner {
-            lines.push(Line {
-                id: a.id,
-                kind: "owner",
-                text,
-                x: left + (rect_width - ow) / 2,
+            push_runs(
+                lines,
+                a.id,
+                "owner",
+                &text,
+                left + (rect_width - ow) / 2,
                 y,
                 color,
-                badge: None,
-            });
+                None,
+            );
         }
         y += 13;
     }
@@ -171,19 +225,16 @@ fn all_name_lines(
     if !flag && a.master.is_empty() {
         return;
     }
-    let text = visible_name(&name);
-    if text.is_empty() {
-        return;
-    }
-    lines.push(Line {
-        id: a.id,
-        kind: "all",
-        text,
-        x: left + (rect_width - nw) / 2 + if a.emblem != 0 { 10 } else { 0 },
+    push_runs(
+        lines,
+        a.id,
+        "all",
+        &visible_name(&name),
+        left + (rect_width - nw) / 2 + if a.emblem != 0 { 10 } else { 0 },
         y,
         color,
-        badge: (!flag && !ALL_NAME_PLAIN_GRAPHICS.contains(&a.graphics)).then_some(name),
-    });
+        (!flag && !ALL_NAME_PLAIN_GRAPHICS.contains(&a.graphics)).then_some(name),
+    );
 }
 /// Byte-width layout follows native 4E7200 / 489EAF / 48A2A1. The canvas origin
 /// replaces the original 48px window margin. Widths intentionally do not use GDI
@@ -227,8 +278,12 @@ pub fn layout_with(
         let Some(a) = world.actors.get(id) else {
             continue;
         };
+        // `%i` entries take the runtime name; the entered character's own
+        // name is used for it (see `Catalog::expand`).
+        let who = Some(own.name.as_str())
+            .filter(|n| !n.is_empty() && !n.chars().any(char::is_control));
         if all && !is_own {
-            all_name_lines(a, catalog, *b, policy, &mut lines);
+            all_name_lines(a, catalog, who, *b, policy, &mut lines);
             continue;
         }
         if !(is_own && !special || hovered == Some(*id)) {
@@ -236,13 +291,13 @@ pub fn layout_with(
         }
         // 48A309: the hover block handles the own actor only on maps 500/560.
         let as_hover = hovered == Some(*id) && (!is_own || special);
-        let Ok(name) = catalog.resolve(&a.name) else {
+        let Ok(name) = catalog.expand(&a.name, who) else {
             continue;
         };
         let Ok(nw) = width(&name) else { continue };
         let title = if as_hover {
             catalog
-                .resolve(&a.title)
+                .expand(&a.title, who)
                 .ok()
                 .filter(|s| !s.is_empty() && width(s).is_ok())
         } else {
@@ -259,20 +314,21 @@ pub fn layout_with(
         let left = ((b[0] + b[2] - rect_width) / 2).clamp(0, (800 - rect_width).max(0));
         let mut y = top - 3;
         if let Some(text) = title {
-            lines.push(Line {
-                id: *id,
-                kind: "title",
-                text,
+            push_runs(
+                &mut lines,
+                *id,
+                "title",
+                &text,
                 // 48A36C: the own actor keeps its own-label horizontal anchor.
-                x: if is_own {
+                if is_own {
                     own_x - 24 - tw / 2
                 } else {
                     left + (rect_width - tw) / 2
                 },
                 y,
-                color: lawful_color(a.lawful),
-                badge: None,
-            });
+                lawful_color(a.lawful),
+                None,
+            );
             y += 13;
         }
         let x = if is_own {
@@ -280,9 +336,10 @@ pub fn layout_with(
         } else {
             left + (rect_width - nw) / 2
         } + if a.emblem != 0 { 10 } else { 0 };
-        let color = if special || (!is_own && a.tail_byte > 1) {
-            lawful_color(a.lawful)
+        let color = if as_hover {
+            hover_color(a, policy.flag_1f.contains(id), special)
         } else if a.tail_byte != 0 {
+            // 489EFD: the own label only distinguishes zero from nonzero.
             0x001f
         } else {
             0x7c00
@@ -299,17 +356,16 @@ pub fn layout_with(
             && !a.title.is_empty()
             && !HOVER_PLAIN_GRAPHICS.contains(&a.graphics))
         .then_some(name);
-        if !text.is_empty() {
-            lines.push(Line {
-                id: *id,
-                kind: if is_own { "own" } else { "hover" },
-                text,
-                x,
-                y,
-                color,
-                badge,
-            });
-        }
+        push_runs(
+            &mut lines,
+            *id,
+            if is_own { "own" } else { "hover" },
+            &text,
+            x,
+            y,
+            color,
+            badge,
+        );
     }
     // The native own label precedes the hover overlay regardless of actor ID.
     lines.sort_by_key(|l| if l.id == own.id { 0 } else { 1 });
@@ -340,6 +396,37 @@ pub fn draw(
     Ok(
         serde_json::json!({"lines":rows,"font_height":12,"charset":136,"ownership":"click_through","viewport_adaptation":"800x600 origin replaces native 48px margin","cache_entries":cache.len(),"cache_bytes":cache.bytes(),"all_names":lines.iter().any(|l| matches!(l.kind, "all" | "owner")),"full_native_equivalence":false}),
     )
+}
+
+#[cfg(test)]
+mod run_tests {
+    use super::*;
+    #[test]
+    fn colour_runs_advance_six_pixels_per_cp950_byte() {
+        let mut lines = Vec::new();
+        push_runs(&mut lines, 9, "hover", "\\fT試煉\\f2ab", 100, 20, 0x7c00, None);
+        assert_eq!(lines.len(), 2);
+        assert_eq!(
+            (lines[0].kind, &*lines[0].text, lines[0].x, lines[0].y, lines[0].color),
+            ("hover", "試煉", 100, 20, 0x3e8c)
+        );
+        assert_eq!(
+            (lines[1].kind, &*lines[1].text, lines[1].x, lines[1].y, lines[1].color),
+            ("run", "ab", 124, 20, 0x03e0)
+        );
+        // A name without format codes is one line, exactly as before.
+        let mut lines = Vec::new();
+        push_runs(&mut lines, 9, "own", " Sword", 7, 8, 31, None);
+        assert_eq!(lines.len(), 1);
+        assert_eq!(
+            (lines[0].kind, &*lines[0].text, lines[0].x, lines[0].color),
+            ("own", " Sword", 7, 31)
+        );
+        // Only format codes: nothing to draw.
+        let mut lines = Vec::new();
+        push_runs(&mut lines, 9, "hover", "\\fT\\f2", 0, 0, 31, None);
+        assert!(lines.is_empty());
+    }
 }
 
 #[cfg(test)]
@@ -451,6 +538,47 @@ mod tests {
             kinds(&layout_with(&w, &c, &h, 424, hover, &policy)),
             ["own", "hover"]
         );
+    }
+    #[test]
+    fn hover_colour_follows_side_byte_war_flag_and_fixed_body() {
+        let mut w = world();
+        let own = w.own_actor().unwrap().id;
+        let c = catalog();
+        let h = hits(&w);
+        let hover = Hover::capture(&w, 2);
+        let mut policy = Policy::default();
+        let colour = |w: &World, policy: &Policy, id: u32| {
+            layout_with(w, &c, &h, 424, hover, policy)
+                .into_iter()
+                .find(|l| l.id == id && l.kind != "title")
+                .unwrap()
+                .color
+        };
+        w.actors.get_mut(&2).unwrap().lawful = 1000;
+        let lawful = lawful_color(1000);
+        for (side, expected) in [(0, 0x7c00), (1, 0x001f), (2, lawful)] {
+            w.actors.get_mut(&2).unwrap().tail_byte = side;
+            assert_eq!(colour(&w, &policy, 2), expected, "side {side}");
+        }
+        // 48A631: the fixed body ignores the side byte until 1F is set.
+        w.actors.get_mut(&2).unwrap().graphics = FIXED_HOVER_COLOR_GRAPHICS;
+        assert_eq!(colour(&w, &policy, 2), 0x7c00);
+        policy.flag_1f.insert(2);
+        assert_eq!(colour(&w, &policy, 2), lawful);
+        w.actors.get_mut(&2).unwrap().tail_byte = 1;
+        assert_eq!(colour(&w, &policy, 2), 0x001f);
+        // Maps 500/560 use the lawful colour for both sides, except the fixed body.
+        w.map_id = Some(500);
+        assert_eq!(colour(&w, &policy, 2), lawful);
+        policy.flag_1f.clear();
+        assert_eq!(colour(&w, &policy, 2), 0x7c00);
+        // The own label (489EFD) is unaffected by 1F and the fixed body.
+        w.map_id = Some(564);
+        policy.flag_1f.insert(own);
+        for (side, expected) in [(0, 0x7c00), (1, 0x001f), (2, 0x001f)] {
+            w.actors.get_mut(&own).unwrap().tail_byte = side;
+            assert_eq!(colour(&w, &policy, own), expected, "own side {side}");
+        }
     }
     #[test]
     fn hover_suffix_needs_title_without_flag_or_class_body() {
