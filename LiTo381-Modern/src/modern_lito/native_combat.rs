@@ -26,6 +26,11 @@ pub struct Pending {
     pub count: u64,
     pub target: u32,
     pub generation: u64,
+    /// Object lives at send time: `(own id, own incarnation)` and the target's
+    /// incarnation. Removal plus same-ID re-entry (Return-to-Nature release,
+    /// rental portal rebuild, corpse re-put) is a different life, like S11.
+    pub attacker: Option<(u32, u64)>,
+    pub target_incarnation: Option<u64>,
 }
 /// One physical press owns a target and world. Cancellation requires a fresh press.
 #[derive(Default)]
@@ -90,6 +95,16 @@ impl HeldAttack {
     }
 }
 impl Pending {
+    pub fn capture(world: &super::native_world::World, target: u32, since: std::time::Instant) -> Self {
+        Self {
+            since,
+            count: world.own_attack_packets,
+            target,
+            generation: world.generation,
+            attacker: world.own_actor().map(|a| (a.id, a.incarnation)),
+            target_incarnation: world.actors.get(&target).map(|a| a.incarnation),
+        }
+    }
     pub fn observe(&self, world: &super::native_world::World, now: std::time::Instant) -> Feedback {
         if world.generation != self.generation {
             return Feedback::Interrupted;
@@ -98,8 +113,10 @@ impl Pending {
             return Feedback::Acknowledged;
         }
         if world.battle_result.is_some()
-            || world.own_actor().is_none_or(|a| a.dead)
-            || !world.actors.contains_key(&self.target)
+            || world.own_actor().is_none_or(|a| a.dead
+                || self.attacker.is_some_and(|life| life != (a.id, a.incarnation)))
+            || world.actors.get(&self.target).is_none_or(|a|
+                self.target_incarnation.is_some_and(|life| life != a.incarnation))
         {
             return Feedback::Interrupted;
         }
