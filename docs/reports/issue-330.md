@@ -112,5 +112,6 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 
 - 第 1 次：結束碼 **101**。`native_equipment.rs` 的測試模組少匯入 `Item`（E0425／E0422 兩個錯誤，只影響 lib test 目標）。補上匯入後重跑。
 - 第 2 次（目前的程式）：結束碼 **0**，原文 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 46s``。`native_equipment.rs` 與 `native_login_window.rs` 改動的區段沒有新的 warning；其餘是原本就有的 warnings。
+- 合併 `origin/main`（30 個 commit，無衝突，合併 commit `35903d3`；main 這段只動了 `native_skills.rs` 等 3 個 src 檔，沒有碰本張改的檔案）之後再跑一次：結束碼 **0**，``Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 32s``。
 - `Cargo.lock` 沒有變動。
 - 沒有執行 `cargo test`、沒有執行任何編譯出來的程式、沒有啟動遊戲、沒有連正式服務或 DB。
