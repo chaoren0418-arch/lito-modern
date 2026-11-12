@@ -76,3 +76,4 @@
 - 2026-11-12 — #181 T046-1: T046（M2 1/3）: src/：快捷列、技能書與狀態 UI（code，claude-local，PR 已合併）→ [報告](reports/issue-181.md)
 - 2026-11-12 — #177 T044-2: T044（M2 2/3）: src/：移動正確性與 G04 剩餘項（code，claude-local，PR 已合併）→ [報告](reports/issue-177.md)
 - 2026-11-12 — #163 T028-1: T028（M2 1/4）: src/、tests/：main 已接 38 技能的當版補驗（code，claude-local，PR 已合併）→ [報告](reports/issue-163.md)
+- 2026-11-12 — #161 T024-1: T024（M2 1/2）: src/（code，claude-local，PR 已合併）→ [報告](reports/issue-161.md)
