@@ -1017,7 +1017,7 @@ impl Ui {
             ensure!(*painted==epoch,"世界畫面已更新，請稍候");
             let world=&self.controller.snapshot().world;
             let own=world.own_actor().context("角色尚未就緒")?.id;
-            surface.cycle_target(world,own,self.target,self.skills.selected()==Some(41))
+            surface.cycle_target(world,own,self.target,self.skills.selected().is_some_and(super::native_skills::corpse_targeted))
                 .context("畫面內沒有可選取的目標")?
         };
         self.target=Some(next);self.ground=None;self.held_attack.clear();

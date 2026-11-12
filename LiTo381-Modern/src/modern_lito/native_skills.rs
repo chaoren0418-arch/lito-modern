@@ -172,8 +172,20 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 156 | 159 | 161 | 162 | 164 | 206)
 }
+/// ④ requests whose only accepted object is the caster: formal
+/// `useFireWeaponSpell`／`useStormShotSpell` answer 280 for any other ID, so the
+/// client always sends its own ID and never a hovered actor.
+pub fn self_bound(skill: u16) -> bool { matches!(skill, 163 | 166) }
+/// Skills that take a corpse: 41 Create Zombie and 165 Call of Nature.
+pub fn corpse_targeted(skill: u16) -> bool { matches!(skill, 41 | 165) }
+/// 165 Call of Nature: E149 catalog `maximumRange`, Chebyshev tiles
+/// (`useCallOfNatureSpell`); no screen-diamond check on the server.
+pub const CALL_OF_NATURE_RANGE: u16 = 10;
+/// Casts whose map rejection (S10 353) may follow the cast action: 51 Summon
+/// Monster and 162 Greater Elemental (`mapFailureMessage`).
+pub fn summon_feedback(skill: u16) -> bool { matches!(skill, 51 | 162) }
 /// Requests whose tail ends in one MS950 `s` field: ⑪ True Target (113) and
 /// ⑦／⑧ Call／Run Clan (116／118).
 pub fn text_skill(skill: u16) -> bool { matches!(skill, 113 | 116 | 118) }
@@ -226,13 +238,13 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     let own = world.own_actor().unwrap();
     let mut b = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
     match skill {
-        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 57 | 68 => {
+        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 57 | 68 | 158 | 160 => {
             let id = target.unwrap_or(own.id);
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
                     && world.actor_visible(id)
-                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 68) {
+                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 68 | 158 | 160) {
                         in_native_screen([own.x, own.y], [actor.x, actor.y])
                     } else {
                         own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 19
@@ -267,6 +279,38 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
             b.extend_from_slice(&id.to_le_bytes());
             b.extend_from_slice(&actor.x.to_le_bytes());
             b.extend_from_slice(&actor.y.to_le_bytes());
+        }
+        163 | 166 => {
+            // ④ d(target) with the caster as the only formal target. Elf
+            // attribute, MP and the weapon buff stay server-owned.
+            ensure!(target.is_none_or(|id| id == own.id), "此技能只能對自己施放");
+            b.extend_from_slice(&own.id.to_le_bytes());
+        }
+        157 => {
+            // ⑩ d(target) h(x) h(y). The server re-resolves the target and only
+            // logs stale coordinates; probability, Counter Magic, safety zones,
+            // MP and the two-crystal debit stay server-owned.
+            let id = target.context("請先選取大地屏障目標")?;
+            let actor = world.actors.get(&id).context("技能目標已離開")?;
+            ensure!(id != own.id && !actor.dead && world.actor_visible(id)
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && in_native_screen([own.x, own.y], [actor.x, actor.y]),
+                "大地屏障目標不可用或超出畫面");
+            b.extend_from_slice(&id.to_le_bytes());
+            b.extend_from_slice(&actor.x.to_le_bytes());
+            b.extend_from_slice(&actor.y.to_le_bytes());
+        }
+        165 => {
+            // ④ d(target): a corpse other than the caster within ten tiles.
+            // Water attribute, corpse eligibility, the occupied-tile check (592),
+            // MP and the crystal debit stay server-owned.
+            let id = target.context("請先選取屍體")?;
+            let actor = world.actors.get(&id).context("屍體已離開")?;
+            ensure!(id != own.id && actor.dead && world.actor_visible(id)
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= CALL_OF_NATURE_RANGE,
+                "屍體不可用或超出十格");
+            b.extend_from_slice(&id.to_le_bytes());
         }
         41 => {
             let id = target.context("請先選取屍體")?;
@@ -311,7 +355,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118=>0,112=>2000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,112=>2000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]

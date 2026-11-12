@@ -982,7 +982,7 @@ impl LoginController {
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
         self.teleport_released = false;
         self.skill_item_pending = item.is_some() || skill==48;
-        self.skill_summon_pending = summon.is_some();
+        self.skill_summon_pending = summon.is_some() || super::native_skills::summon_feedback(skill);
         self.skill_clan_pending = matches!(skill, 116 | 118);
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
