@@ -83,6 +83,22 @@ impl LoginController {
         }
         Ok(())
     }
+    /// #120 N1 client half: a skill-68 body deferred to the frame-zero suffix
+    /// is bound to the selected target's exact incarnation/revision. If that
+    /// target retired or was replaced while the walk finished, the body is
+    /// dropped before it can reach the transport; `poll` then reports
+    /// `Interrupted`. Self-targets are also covered here, because a revision
+    /// change does not always change the movement `InputStamp`.
+    pub(super) fn discard_stale_deferred_target(&mut self) -> bool {
+        let stale = self.player_callbacks.pending()
+            && self
+                .skill_target_pending
+                .is_some_and(|target| target.resolve(&self.state.world).is_none());
+        if stale {
+            self.player_callbacks.cancel_pending();
+        }
+        stale
+    }
     pub(crate) fn player_input(&mut self, heading: Option<u8>, cancel: bool) {
         self.sync_player_control();
         self.player_callbacks.held(heading);
@@ -115,6 +131,7 @@ impl LoginController {
         pump_only: bool,
     ) -> Result<()> {
         self.sync_player_control();
+        self.discard_stale_deferred_target();
         let connection = self.transport.snapshot().epoch;
         let mut driver = DrawHost {
             root,

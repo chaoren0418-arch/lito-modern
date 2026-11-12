@@ -11,14 +11,14 @@ pub struct Input {
 
 /// Mirrors native/forced_combat.h object layouts. A seven-byte body alone is
 /// insufficient: coordinates, clocks, selectors and item IDs are not actors.
-fn object_target(body: &[u8]) -> Option<u32> {
+pub(crate) fn object_target(body: &[u8]) -> Option<u32> {
     let offset = match (body.first().copied()?, body.len()) {
         (0x17 | 0x18 | 0x7a, 9) => 1,
         (0x14, 7 | 11) => {
             let skill = u16::from(body[1]) * 8 + u16::from(body[2]) + 1;
             if body[2] > 7
                 || skill > 220
-                || matches!(skill, 5 | 12 | 21 | 51 | 58 | 60 | 63 | 69 | 100 | 116 | 118)
+                || matches!(skill, 5 | 12 | 21 | 51 | 58 | 60 | 63 | 69 | 100 | 107 | 116 | 118)
             {
                 return None;
             }

@@ -74,8 +74,8 @@ impl Ui{
             (LIST,w!("LISTBOX"),"",LBS_NOTIFY as u32|LBS_NOINTEGRALHEIGHT as u32|WS_VSCROLL.0|WS_HSCROLL.0),
             (QUANTITY,w!("EDIT"),"1",ES_NUMBER as u32|WS_BORDER.0),(MONEY,w!("STATIC"),"",0),(HELP,w!("STATIC"),"租裝服務：選擇配裝，再確認服務入口",0),
         ]{let text=wide(label);let h=CreateWindowExW(WINDOW_EX_STYLE(0),class,PCWSTR(text.as_ptr()),WS_CHILD|WS_TABSTOP|WINDOW_STYLE(style),0,0,0,0,Some(self.parent),Some(HMENU(id as usize as *mut _)),Some(instance),None)?;self.controls.push((id,h));}
-        for n in 1..=4{let label=wide(&format!("配裝 {n}"));send(self.control(SETS),CB_ADDSTRING,WPARAM(0),LPARAM(label.as_ptr() as isize));}
-        send(self.control(SETS),CB_SETCURSEL,WPARAM(0),LPARAM(0));send(self.control(QUANTITY),EM_SETLIMITTEXT,WPARAM(10),LPARAM(0));Ok(())
+        // 配裝列數依所選職業於 refresh_rental 填入（T055-2）。
+        send(self.control(QUANTITY),EM_SETLIMITTEXT,WPARAM(10),LPARAM(0));Ok(())
     }
     pub(super) unsafe fn layout_rental(&self){
         let dpi=GetDpiForWindow(self.parent).max(96) as i32;let px=|n:i32|n*dpi/96;let mut area=RECT::default();let _=GetClientRect(self.parent,&mut area);
@@ -110,7 +110,11 @@ impl Ui{
         if !rental(self.controller.snapshot())||self.closing||self.inventory_view{self.rental.open=false;}
         if !entry(self.controller.snapshot()){self.rental.set_attempt=None;}
         let s=self.controller.snapshot();let current=if entry(s){Some((self.controller.transport().snapshot().epoch,s.selected_character.clone(),s.services.as_ref().unwrap().rooms.clone()))}else{None};
-        if self.rental.entry!=current{self.rental.entry=current;send(self.control(SERVICES),CB_RESETCONTENT,WPARAM(0),LPARAM(0));if let Some((_,_,rooms))=&self.rental.entry{for r in rooms{let text=wide(&format!("{}（{} 人）",r.name,r.users));send(self.control(SERVICES),CB_ADDSTRING,WPARAM(0),LPARAM(text.as_ptr() as isize));}send(self.control(SERVICES),CB_SETCURSEL,WPARAM(0),LPARAM(0));}}
+        if self.rental.entry!=current{self.rental.entry=current;
+            // 原生配裝選單只列所選職業可租的組數（職業 0/1/4 三組、2/3 兩組、其餘不提供）。
+            send(self.control(SETS),CB_RESETCONTENT,WPARAM(0),LPARAM(0));
+            if self.rental.entry.is_some(){for n in 1..=self.controller.rental_set_choices(){let label=wide(&format!("配裝 {n}"));send(self.control(SETS),CB_ADDSTRING,WPARAM(0),LPARAM(label.as_ptr() as isize));}send(self.control(SETS),CB_SETCURSEL,WPARAM(0),LPARAM(0));}
+            send(self.control(SERVICES),CB_RESETCONTENT,WPARAM(0),LPARAM(0));if let Some((_,_,rooms))=&self.rental.entry{for r in rooms{let text=wide(&format!("{}（{} 人）",r.name,r.users));send(self.control(SERVICES),CB_ADDSTRING,WPARAM(0),LPARAM(text.as_ptr() as isize));}send(self.control(SERVICES),CB_SETCURSEL,WPARAM(0),LPARAM(0));}}
         let targets:Vec<_>=self.controller.snapshot().world.actors.keys().filter_map(|id|Target::capture(&self.controller,*id)).take(128).collect();
         if targets!=self.rental.targets{self.rental.targets=targets;send(self.control(NEARBY),CB_RESETCONTENT,WPARAM(0),LPARAM(0));for t in &self.rental.targets{let text=wide(&t.name);send(self.control(NEARBY),CB_ADDSTRING,WPARAM(0),LPARAM(text.as_ptr() as isize));}}
         let s=self.controller.snapshot();let session=&s.merchant;

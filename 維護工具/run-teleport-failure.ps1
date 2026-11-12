@@ -3,7 +3,7 @@
 param(
  [Parameter(Mandatory)][string]$TestBinary,
  [Parameter(Mandatory)][string]$ReferenceJar,
- [ValidateSet('timeout','cancel-expiry','cancel-expiry-source','cancel-retry','refused','wrong-service')][string]$Scenario='timeout',
+ [ValidateSet('timeout','cancel-expiry','cancel-expiry-source','cancel-retry','cancel-repeat','refused','refused-cancel-repeat','wrong-service')][string]$Scenario='timeout',
  [switch]$WhatIf
 )
 $ErrorActionPreference='Stop'
@@ -37,11 +37,15 @@ $javaArgs=@(('-Djava.io.tmpdir='+$tmp),'-Dfile.encoding=UTF-8','-Xverify:all','-
 $testNames=@{
  'timeout'='destination_timeout_retires_old_authority_and_allows_fresh_login'
  'cancel-expiry'='cancellation_retires_destination_and_expired_handoff_requires_fresh_selection'
- 'cancel-expiry-source'='source_handoff_expiry_confirms_c8_before_manual_selection'
+ 'cancel-expiry-source'='expired_stage_and_source_handoff_require_the_requested_source_directory'
  'cancel-retry'='cancellation_then_immediate_retry_consumes_staged_character_once'
+ 'cancel-repeat'='repeated_cancellation_preserves_only_one_authenticated_recovery'
  'refused'='refused_destination_retires_authority_and_allows_fresh_login'
+ 'refused-cancel-repeat'='failed_handoff_then_repeated_cancel_preserves_the_authenticated_recovery'
  'wrong-service'='wrong_service_destination_retires_authority_and_allows_fresh_login'
 }
+# Both refusal scenarios use a previously owned, closed loopback destination.
+$refusedDestination=$Scenario -in @('refused','refused-cancel-repeat')
 $testArgs=@($testNames[$Scenario],'--exact','--ignored','--nocapture')
 $bindingArgs=@('recovery_registry::source_binding_matches_compiled_checkout','--exact','--nocapture')
 $removedEnvironment=@('JAVA_TOOL_OPTIONS','_JAVA_OPTIONS','JDK_JAVA_OPTIONS','CLASSPATH')
@@ -238,13 +242,13 @@ function Assert-Ready($Ready,$Server){
  if($Ready.scenario -cne $Scenario -or $Ready.requested_source -cne '測試乙' -or $Ready.default_source -cne '測試甲'){throw 'ready source/scenario binding mismatch'}
  if($Ready.jar_sha256 -ne $jarSha -or $Ready.jar_sha256 -ne $e149){throw 'ready JAR binding mismatch'}
  if($Server.process.HasExited -or $Ready.pid -ne $Server.entry.pid){throw 'ready PID binding mismatch'}
- if($Ready.login_host -cne '127.0.0.1' -or $Ready.town_host -cne '127.0.0.2' -or $Ready.destination_host -cne $(if($Scenario -eq 'refused'){'127.0.0.1'}else{'127.0.0.3'})){throw 'Unexpected ready loopback address'}
- if($Ready.destination_refused -ne ($Scenario -eq 'refused') -or $Ready.destination_wrong_service -ne ($Scenario -eq 'wrong-service')){throw 'ready scenario mismatch'}
+ if($Ready.login_host -cne '127.0.0.1' -or $Ready.town_host -cne '127.0.0.2' -or $Ready.destination_host -cne $(if($refusedDestination){'127.0.0.1'}else{'127.0.0.3'})){throw 'Unexpected ready loopback address'}
+ if($Ready.destination_refused -ne $refusedDestination -or $Ready.destination_wrong_service -ne ($Scenario -eq 'wrong-service')){throw 'ready scenario mismatch'}
  foreach($endpoint in @(@{host=$Ready.login_host;port=$Ready.port;name='login'},@{host=$Ready.town_host;port=$Ready.town_port;name='town'},@{host=$Ready.destination_host;port=$Ready.destination_port;name='destination'})){
   $port=$endpoint.port
   if($port -isnot [long] -and $port -isnot [int]){throw 'Non-integer listener port'}
   if($port -lt 1024 -or $port -gt 65535 -or $port -in @(2000,3306)){throw "Forbidden listener port: $port"}
-  $absent=$endpoint.name -eq 'destination' -and $Scenario -eq 'refused'
+  $absent=$endpoint.name -eq 'destination' -and $refusedDestination
   if($absent){
    # Enumerate successfully before filtering, so an absent destination is not
    # confused with a failed exact query. Wildcard binds also violate refusal.
@@ -353,6 +357,13 @@ try {
   foreach($role in @('a','b')){
    $player=Get-Content -LiteralPath (Join-Path $runtime ($role+'-failure.json')) -Raw -Encoding utf8|ConvertFrom-Json
    if($player.scenario -cne $Scenario -or $player.requested_source -cne '測試乙' -or $player.expiry_wait_ms -lt 33000 -or $player.source_wait_ms -lt 31000 -or $player.manual_selection -ne $true -or $player.full_game_reentry_verified -ne $true){throw 'Natural stage/source expiry evidence missing'}
+  }
+ }
+ if($Scenario -in @('cancel-repeat','refused-cancel-repeat')){
+  $minimumCalls=if($Scenario -eq 'cancel-repeat'){6}else{2}
+  foreach($role in @('a','b')){
+   $player=Get-Content -LiteralPath (Join-Path $runtime ($role+'-failure.json')) -Raw -Encoding utf8|ConvertFrom-Json
+   if($player.scenario -cne $Scenario -or $player.requested_source -cne '測試乙' -or $player.cancellation_calls -lt $minimumCalls -or $player.full_game_reentry_verified -ne $true){throw 'Repeated cancellation evidence missing'}
   }
  }
 } catch {$failure=$_.Exception.Message;$receipt.status=if(@($receipt.processes|Where-Object {$null -ne $_.identity_error}).Count){'blocked'}else{'failed'};$receipt.error=$failure}

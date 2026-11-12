@@ -19,8 +19,8 @@ pub(super) fn run(peer:SocketAddr,account:&str,password:&str,source:usize,role:&
                 P::ReadyForLogin if !logged=>{c.login(account,password)?;logged=true;},P::ReadyForLogin=>bail!("rental LOGIN rejected"),
                 P::SourcesReady=>c.select_source(source)?,P::RedirectReady=>{ensure!(c.snapshot().redirect.context("GAME redirect")?.ip().is_loopback(),"nonloopback GAME");c.begin_game()?;},
                 P::CharactersReady=>c.select_character(0)?,
-                P::CharacterSelected if stage==0=>{c.select_rental_set(3)?;stage=1;},
-                P::CharacterSelected if stage==1=>{ensure!(c.snapshot().channel_result.is_some_and(|v|v!=0)&&c.snapshot().rental_set.is_none(),"invalid rental set not rejected");refused=json!(c.snapshot());c.select_rental_set(0)?;stage=2;},
+                // T055-2：超出職業配裝表的 C_CA 由客戶端本地拒絕、不送出；伺服器端拒絕路徑不再由本探針觸發。
+                P::CharacterSelected if stage==0=>{ensure!(c.select_rental_set(3).is_err()&&c.snapshot().phase==P::CharacterSelected&&c.snapshot().rental_set.is_none(),"invalid rental set not refused locally");refused=json!(c.snapshot());c.select_rental_set(0)?;stage=2;},
                 P::RentalReady if stage==2=>{selected=json!(c.snapshot());c.join_rental_room(0)?;stage=3;},
                 P::BattlePending if stage==3=>{
                     let w=&c.snapshot().world;
@@ -73,6 +73,8 @@ pub(super) fn observe_return(c:&mut LoginController,root:&Path,role:&str,other:&
     if after.phase!=P::CharactersReady {
         return Ok(json!({"before":before,"after":after,"phases":phases,"observed_ms":observed_ms,"characters_ready":false,"reentry_verified":false}));
     }
+    ensure!(after.rental_return_outcome==Some(super::native_login::RentalReturnOutcome::Normal),
+        "reconnected directory is recovery, not verified normal rental return");
     ensure!(after.joined_room.is_none()&&after.world.map_id.is_none()&&after.inventory.items.is_empty()
         &&after.merchant.dialog.is_none()&&after.rental_set.is_none(),"rental source refresh retained retired state");
     c.select_character(0)?;wait(c,|s|s.phase==P::CharacterSelected)?;

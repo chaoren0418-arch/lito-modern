@@ -88,3 +88,13 @@ PR #271 在閘門通過後落後 main 62 個 commit，合併時有 6 個檔案�
 1. 主控：先裁定 6983 的範圍（見待驗證第一項）。若拆出，本張其餘項目可依 CI 結果送審。
 2. Codex（本機測試）：執行 `cargo test --lib modern_lito::native_t047_tests -- --include-ignored`，以及 `native_combat`、`native_ranged`、`native_actor_states`、`native_effect_lifecycle` 的回歸。產出的 PNG 在 `target/current/issue-184/`。
 3. 伺服器端：匯出 proc_spr 使用的 castGraphics 清單，客戶端再逐一跑 `qualify_finite`。
+
+## 第 4 次同步 origin/main（CI 失敗修正）
+
+- 已驗證：PR #271 的 CI（run 43162779710）失敗原因是 `error[E0063]: missing field 'heading' in initializer of 'native_skill_effects::Active'`，位置在 main 新增的 `native_finite_history_tests.rs:19`。CI 跑的是 PR 與最新 main 的合併結果，本機上一輪還沒有這個檔案，所以本機檢查會通過。
+- 已驗證：已再次合併 origin/main（ea6c7ef）。`native_skill_effects.rs` 有一處衝突，已解掉：
+  - 本分支的 `finite_over` 判斷保留，mix 用 Over。
+  - main 新增的 2228 Multiply 也保留。
+- 已驗證：`native_finite_history_tests.rs` 已補上 `heading: 0`。
+- 已驗證：`cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 的結束碼是 0，最後一行輸出是 `Finished dev profile ... in 3m 07s`。
+- 待驗證：`cargo test` 依規定不在本機執行，結果看 PR #271 的 CI。

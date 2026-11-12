@@ -18,6 +18,9 @@ use std::{
     path::Path,
     sync::{atomic::AtomicBool, Arc},
 };
+#[cfg(test)]
+#[path = "native_finite_history_tests.rs"]
+mod finite_history_tests;
 
 fn qualify(
     catalog: &SpriteActionCatalog,
@@ -300,6 +303,33 @@ fn finite_bank_bytes(bank: &SharedEffectBank) -> usize {
 #[derive(Clone)]
 pub(crate) struct History {
     generation:Option<u64>,seen:BTreeSet<u64>,active:Vec<Active>,started:u64,omitted:u64,
+}
+impl History {
+    /// Source retirement drops the accepted graph (and so its future audio),
+    /// but keeps generation/seen/counters: the same S37 ring must not relaunch.
+    pub(crate) fn retired(&self)->Self {
+        Self{generation:self.generation,seen:self.seen.clone(),active:Vec::new(),started:self.started,omitted:self.omitted}
+    }
+    /// A late worker of the same World generation contributes admission only.
+    /// It never imports its graph, and another generation contributes nothing.
+    pub(crate) fn merge_admission(&mut self,other:&Self) {
+        if other.generation.is_none() || self.generation!=other.generation {
+            if self.generation.is_none() && self.active.is_empty() && self.seen.is_empty() {
+                // An empty stored history adopts only the late admission.
+                *self=other.retired();
+            }
+            return;
+        }
+        self.seen.extend(other.seen.iter().copied());
+        self.started=self.started.max(other.started);self.omitted=self.omitted.max(other.omitted);
+    }
+    /// Accepted, still-playing cue sequences; their audio keys stay reserved
+    /// even after the World raw ring evicts the S37 that started them.
+    pub(crate) fn active_sequences(&self)->impl Iterator<Item=u64>+'_ {self.active.iter().map(|a|a.cue.sequence)}
+    #[cfg(test)]
+    pub(crate) fn admission(&self)->(Option<u64>,&BTreeSet<u64>,usize,u64,u64) {
+        (self.generation,&self.seen,self.active.len(),self.started,self.omitted)
+    }
 }
 #[derive(Default)]
 pub struct Effects {
@@ -706,7 +736,8 @@ impl Effects {
                         ]));
                         drawn|=clothing_drawn;
                     } else if drawn {
-                        target.submit(frame.frame,position,projection,if cue.graphics==2510 || self.finite_over.contains(&cue.graphics) {super::native_world_effects::Mix::Over}else if cue.graphics==2175 {super::native_world_effects::Mix::Multiply}else{super::native_world_effects::Mix::Screen})?;
+                        let mix=if cue.graphics==2510 || self.finite_over.contains(&cue.graphics) {super::native_world_effects::Mix::Over}else if matches!(cue.graphics,2175|2228) {super::native_world_effects::Mix::Multiply}else{super::native_world_effects::Mix::Screen};
+                        target.submit(frame.frame,position,projection,mix)?;
                     }
                     let mut row=serde_json::json!({"sequence":cue.sequence,"graphics":cue.graphics,"target":cue.target,"position":cue.position,"action":self.profile.action(),"source_frame":frame.source_frame,"sprite":frame.sprite_name,"subframe":frame.subframe,"drawn":drawn,"finished":sample.finished,"elapsed_ns":elapsed,"native_clock_elapsed_ms":if self.profile==Profile::Reagent {None}else{Some(clock_elapsed_ms)},"next_callback_ms":active.playback.next_callback_millis(),"callback_count":active.playback.callback_count()});
                     if let Some(layers)=layers {row["layers"]=layers;}

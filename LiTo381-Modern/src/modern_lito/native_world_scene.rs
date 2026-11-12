@@ -198,6 +198,14 @@ impl Frame {
             && self.navigation.contains(cell.x, cell.y))
         .then_some(cell)
     }
+    /// Selected-target ring in this frame's camera; only for the rendered
+    /// authority (no ring over a stale frame).
+    pub fn target_ring(&self, world: &World, target: Option<u32>)
+        -> Option<(super::native_combat_ops::TargetRing, [i32; 4])> {
+        if !self.input_ready(world) { return None; }
+        let ring = super::native_combat_ops::target_ring(world, target)?;
+        Some((ring, super::native_combat_ops::ring_bounds(self.projection, ring.cell)?))
+    }
     fn identity(&self)->FrameIdentity {
         FrameIdentity{map:self.navigation.map_id,generation:self.movement_generation,
             caster_incarnation:self.caster_incarnation,movement_key:self.movement_key,observer_key:self.observer_key}
@@ -386,14 +394,40 @@ pub(crate) fn read_pin(path: &Path, limit: u64, cancel: &AtomicBool) -> Result<n
 pub(crate) struct FiniteHistory {
     static2941: super::native_static2941::History,
     animation:super::native_world_animation::History,
+    spells:super::native_spell_projectiles::History,class1:super::native_class1::History,
     skills:[super::native_skill_effects::History;4],many:super::native_attack_many::History,
     disintegrate:super::native_disintegrate::History,call_lightning:super::native_call_lightning::History,cone_cold:super::native_cone_cold::History,restore_other_effects:bool,
 }
 impl FiniteHistory {
     pub(crate) fn for_source(&self,same_source:bool)->Self {
-        let mut history=self.clone();history.restore_other_effects &= same_source;history.static2941=history.static2941.for_source(same_source);history
+        let mut history=self.clone();history.restore_other_effects &= same_source;history.static2941=history.static2941.for_source(same_source);
+        if !history.restore_other_effects {history.spells.retire();history.class1.retire();}
+        // G06 four-profile (Skills/Items/Reagent/Travel) source continuation:
+        // a retired source loses its graph/audio, never its admission cursor.
+        if !same_source {for h in &mut history.skills {*h=h.retired();}}
+        history
     }
-    pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){self.static2941.merge(&other.static2941);self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();}
+    /// Permanent retirement used at root change. `restore_other_effects` is
+    /// one-way, so an A→B→A return cannot revive A's graph.
+    pub(crate) fn retire_source(&mut self){*self=self.for_source(false);}
+    pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){
+        self.static2941.merge(&other.static2941);self.spells.merge(&other.spells);self.class1.merge(&other.class1);self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();
+        for (mine,late) in self.skills.iter_mut().zip(&other.skills) {mine.merge_admission(late);}
+    }
+    /// Sequences of four-profile finite cues still playing in this history.
+    pub(crate) fn active_finite_sequences(&self)->std::collections::BTreeSet<u64> {
+        self.skills.iter().flat_map(|h|h.active_sequences()).collect()
+    }
+    #[cfg(test)]
+    pub(crate) fn from_profiles(skills:[super::native_skill_effects::History;4])->Self {
+        Self{static2941:Default::default(),spells:super::native_spell_projectiles::Projectiles::default().history(),class1:super::native_class1::Effects::default().history(),animation:super::native_world_animation::Animator::default().history(),skills,
+            many:super::native_attack_many::Effects::default().history(),disintegrate:super::native_disintegrate::Effects::default().history(),
+            call_lightning:super::native_call_lightning::Effects::default().history(),cone_cold:super::native_cone_cold::Effects::default().history(),restore_other_effects:true}
+    }
+    #[cfg(test)]
+    pub(crate) fn profiles(&self)->&[super::native_skill_effects::History;4] {&self.skills}
+    #[cfg(test)]
+    pub(crate) fn restores_other_effects(&self)->bool {self.restore_other_effects}
 }
 pub struct Model {
     status4183: super::native_status4183::Stage,
@@ -466,13 +500,16 @@ struct NativeTerrainSources {
 }
 impl Model {
     pub(crate) fn finite_history(&self)->FiniteHistory {
-        FiniteHistory{static2941:self.static2941.history(),animation:self.animator.history(),skills:[self.skill_effects.history(),self.item_effects.history(),self.reagent_effects.history(),self.travel_effects.history()],many:self.many_effects.history(),disintegrate:self.disintegrate_effects.history(),call_lightning:self.call_lightning_effects.history(),cone_cold:self.cone_cold_effects.history(),restore_other_effects:true}
+        FiniteHistory{static2941:self.static2941.history(),spells:self.spell_projectiles.history(),class1:self.class1_effects.history(),animation:self.animator.history(),skills:[self.skill_effects.history(),self.item_effects.history(),self.reagent_effects.history(),self.travel_effects.history()],many:self.many_effects.history(),disintegrate:self.disintegrate_effects.history(),call_lightning:self.call_lightning_effects.history(),cone_cold:self.cone_cold_effects.history(),restore_other_effects:true}
     }
     fn restore_finite_history(&mut self,history:FiniteHistory) {
         self.static2941.restore(&history.static2941);
         self.animator.restore(history.animation);
+        self.spell_projectiles.restore(history.spells);self.class1_effects.restore(history.class1);
+        // Four-profile admission survives source retirement; for_source(false)
+        // has already removed their graphs, so restoring cannot relaunch them.
+        for (effect,h) in [&mut self.skill_effects,&mut self.item_effects,&mut self.reagent_effects,&mut self.travel_effects].into_iter().zip(history.skills) {effect.restore_history(h);}
         if history.restore_other_effects {
-            for (effect,h) in [&mut self.skill_effects,&mut self.item_effects,&mut self.reagent_effects,&mut self.travel_effects].into_iter().zip(history.skills) {effect.restore_history(h);}
             self.many_effects.restore_history(history.many);
         }
         self.disintegrate_effects.restore_history(history.disintegrate);
@@ -480,7 +517,7 @@ impl Model {
         self.cone_cold_effects.restore_history(history.cone_cold);
     }
     pub(crate) fn ambient_source_floor(&self,world:&World)->u64 {
-        world.projectiles.iter().map(|cue|cue.action_sequence).chain(self.call_lightning_effects.oldest_active_sequence()).chain(self.cone_cold_effects.oldest_active_sequence()).min().unwrap_or_else(||world.visual_revision.saturating_add(1)).max(1)
+        world.projectiles.iter().map(|cue|cue.action_sequence).chain(self.spell_projectiles.history().oldest()).chain(self.class1_effects.history().oldest()).chain(self.call_lightning_effects.oldest_active_sequence()).chain(self.cone_cold_effects.oldest_active_sequence()).min().unwrap_or_else(||world.visual_revision.saturating_add(1)).max(1)
     }
     pub fn light_remap(&self) -> super::native_light_color::Remap {self.lighting.remap()}
     pub fn water_history_for(&self,owner:u64)->Option<super::native_water_clock::History> {self.lighting.water_history_for(owner)}
@@ -1315,6 +1352,8 @@ impl Model {
             .iter()
             .find(|(id, _, _, _, _)| *id == local_id)
             .map_or(400, |(_, _, _, center, _)| center.x);
+        let hp_bars = super::native_hp_meter::layout(world, &hits);
+        let hp_meter_receipt = super::native_hp_meter::draw(&mut canvas, &hp_bars)?;
         let label_lines =
             super::native_world_labels::layout(world, &self.names, &hits, own_x, hover);
         let mut label_receipt = super::native_world_labels::draw(
@@ -1419,6 +1458,7 @@ impl Model {
         let bgra_us = bgra_start.elapsed().as_micros();
         receipt["minimap"] = minimap_receipt;
         receipt["world_labels"] = label_receipt;
+        receipt["hp_meter"] = hp_meter_receipt;
         receipt["status4183"] = status4183_receipt;
         receipt["emblems"] = emblem_receipt;
         receipt["clan_markers"] = marker_receipt;
