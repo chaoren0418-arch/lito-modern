@@ -60,6 +60,8 @@ python -B 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 7 tests in 0.060s；OK
 ```
 
+合併 `origin/main`（`316c4d5`，含 #185 變身接收；無衝突）之後重跑同樣的 `cargo check`（結束碼 0）與 `--no-run`（結束碼 0）。
+
 `cargo test` 的 `test result:` 原文本機沒有，以 PR 的 CI 為準（見下方「待驗證」）。
 
 ## 推測
