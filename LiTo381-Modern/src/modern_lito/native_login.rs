@@ -23,11 +23,20 @@ mod battle_withdrawal_tests;
 #[path = "native_return_server_negative_tests.rs"]
 mod return_server_negative_tests;
 #[cfg(test)]
+#[path = "native_teleport_recovery_tests.rs"]
+mod teleport_recovery_tests;
+#[cfg(test)]
 #[path = "native_login_movement_tests.rs"]
 mod movement_tests;
 #[cfg(test)]
+#[path = "native_skill_controller_tests.rs"]
+mod skill_ui_tests;
+#[cfg(test)]
 #[path = "native_room_admin_tests.rs"]
 mod room_admin_tests;
+#[cfg(test)]
+#[path = "native_room_flow_tests.rs"]
+mod room_flow_tests;
 #[path = "native_companion_controller.rs"]
 mod companion_controller;
 #[cfg(test)]
@@ -330,6 +339,7 @@ pub struct Snapshot {
     pub inventory: super::native_inventory::Inventory,
     pub companions: super::native_companions::Session,
     pub room_result: Option<u8>,
+    pub room_system_message: Option<String>,
     pub observer: bool,
     pub room_kick_result: Option<bool>,
     pub last_room_kick: Option<String>,
@@ -374,6 +384,7 @@ pub struct LoginController {
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
+    skill_context: Option<super::native_skills::CastContext>,
     world_tree_request: Option<(super::native_navigation::InputStamp,Instant)>,
     attack_pending: Option<super::native_combat::Pending>,
     transport: Controller,
@@ -389,6 +400,7 @@ pub struct LoginController {
     requested_room: Option<u32>,
     kick_pending: Option<(u32,String,bool)>,
     observer_return: Option<LoginPhase>,
+    room_mode_received: bool,
     rental_set_pending: Option<u8>,
     rental_restart_quit_pending: bool,
     retired_departures: super::native_room::RetiredDepartures,
@@ -423,6 +435,7 @@ impl Default for LoginController {
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
+            skill_context: None,
             world_tree_request: None,
             transport: Controller::default(),
             state: Snapshot {
@@ -459,6 +472,7 @@ impl Default for LoginController {
                 inventory: Default::default(),
                 companions: Default::default(),
                 room_result: None,
+                room_system_message: None,
                 observer: false,
                 room_kick_result: None,
                 last_room_kick: None,
@@ -475,6 +489,7 @@ impl Default for LoginController {
             requested_room: None,
             kick_pending: None,
             observer_return: None,
+            room_mode_received: false,
             rental_set_pending: None,
             rental_restart_quit_pending: false,
             retired_departures: Default::default(),
@@ -638,6 +653,45 @@ impl LoginController {
         held.sent(&self.state.world);
         Ok(true)
     }
+    fn observe_skill(&mut self, now: Instant) {
+        if let Some(pending) = &self.skill_pending {
+            let feedback = if self.state.phase.active_world() && self.skill_context.as_ref().is_none_or(|c|
+                !c.interrupted(self.transport.snapshot().epoch, &self.state.world)) {
+                if self.player_callbacks.pending() { super::native_skills::Feedback::Pending }
+                else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
+                else { pending.observe(&self.state.world, now) }
+            } else {
+                super::native_skills::Feedback::Interrupted
+            };
+            self.state.skill_feedback = feedback;
+            if feedback != super::native_skills::Feedback::Pending {
+                self.player_callbacks.cancel_pending();
+                self.skill_pending = None;
+                self.skill_context = None;
+                if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;self.teleport_spell=None;}
+            }
+        }
+    }
+    /// Shared by native UI enablement and the final send preflight. Reuse is
+    /// independent of the resource-clock body animation (including 1480ms clips).
+    pub fn skill_action_ready(&self, frame: &super::native_world_scene::Frame, now: Instant) -> bool {
+        self.skill_gates_open(now) && frame.movement_ready(&self.state.world)
+    }
+    /// Remaining server-paced reuse window for the HUD; `None` when ready.
+    pub fn skill_cooldown_ms(&self, now: Instant) -> Option<u64> {
+        self.skill_ready
+            .map(|deadline| deadline.saturating_duration_since(now).as_millis().min(u128::from(u64::MAX)) as u64)
+            .filter(|ms| *ms > 0)
+    }
+    /// Every admission gate except body-animation completion; the send path
+    /// adds main's moving-callback exception for untargeted casts.
+    fn skill_gates_open(&self, now: Instant) -> bool {
+        self.state.phase.active_world() && !self.state.observer
+            && self.world_tree_request.is_none() && self.teleport_spell.is_none()
+            && self.attack_pending.is_none()
+            && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none()
+            && self.skill_ready.is_none_or(|deadline| now >= deadline)
+    }
     pub fn cast(
         &mut self,
         skill: u16,
@@ -696,6 +750,21 @@ impl LoginController {
         frame: &super::native_world_scene::Frame,
         input: CombatInput,
     ) -> Result<()> {
+        self.cast_request_at(skill, target, ground, item, teleport, frame, input, Instant::now())
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn cast_request_at(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        ground: Option<[u16; 2]>,
+        item: Option<&super::native_skills::ItemTarget>,
+        teleport: Option<&super::native_teleport_spell::Choice>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+        now: Instant,
+    ) -> Result<()> {
+        self.observe_skill(now);
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot cast");
         ensure!(
@@ -704,9 +773,8 @@ impl LoginController {
                 && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
             "等待目前動作回覆"
         );
-        let now = Instant::now();
         ensure!(
-            self.skill_ready.is_none_or(|deadline| now >= deadline)
+            self.skill_gates_open(now)
                 && (frame.movement_ready(&self.state.world)
                     || (self.presentation_callbacks && self.player_callbacks.moving()
                         && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none() && !matches!(skill,60|131)
@@ -727,6 +795,8 @@ impl LoginController {
         }};
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
+        self.skill_context = Some(super::native_skills::CastContext::capture(
+            self.transport.snapshot().epoch, &self.state.world, skill, target));
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
         self.skill_item_pending = item.is_some();
@@ -784,8 +854,10 @@ impl LoginController {
         Ok(())
     }
     pub fn request_battle_withdrawal(&mut self) -> Result<()> {
+        // The current server routes observer D0/D9 through whole-room settlement.
+        ensure!(!self.state.observer, "觀戰單獨離場尚待伺服器支援");
         ensure!(self.state.phase==LoginPhase::BattlePending
-            && !self.state.battle_withdrawal_pending && !self.state.observer
+            && !self.state.battle_withdrawal_pending
             && self.state.rental_set.is_none()
             && self.state.joined_room.as_ref().is_some_and(|r|r.mode!=6)
             && self.state.world.ready(),"目前無法申請退出戰鬥");
@@ -806,6 +878,41 @@ impl LoginController {
         self.state.phase = LoginPhase::ResultReturning;
         self.deadline = Some(Instant::now() + Duration::from_secs(8));
         Ok(())
+    }
+    /// One held press waits for animation, but is retired by authority changes
+    /// or a rejected next step. Opening a door later cannot resume that press.
+    pub fn continue_movement(
+        &mut self,
+        held: &mut super::native_navigation::HeldInput,
+        frame: Option<&super::native_world_scene::Frame>,
+    ) -> Result<bool> {
+        let w = &self.state.world;
+        held.synchronize_action(w);
+        held.synchronize(Some(super::native_navigation::InputStamp::capture(
+            self.transport.snapshot().epoch, w,
+        )));
+        if let Some(frame) = frame { held.synchronize_impact(frame.local_impacts); }
+        if !self.state.phase.active_world() || !w.ready()
+            || w.hp.is_none_or(|hp| hp[0] == 0)
+            || w.own_actor().is_none_or(|a| a.dead)
+            || w.battle_result.is_some() || !w.movement_blocks.is_empty()
+            || w.movement_lock != super::native_world::MovementLock::Open
+        {
+            held.clear();
+            return Ok(false);
+        }
+        let (Some(heading), Some(frame)) = (held.direction(), frame) else {
+            return Ok(false);
+        };
+        if !frame.movement_ready(w) || self.attack_pending.is_some() {
+            return Ok(false);
+        }
+        if let Err(error) = self.move_presented(heading, frame) {
+            held.clear();
+            return Err(error);
+        }
+        held.sent();
+        Ok(true)
     }
     /// Interactive movement requires the latest arrived presentation. A previous
     /// frame cannot authorize a second step after predict_step changes its key.
@@ -916,6 +1023,7 @@ impl LoginController {
         self.requested_room = None;
         self.kick_pending = None;
         self.observer_return = None;
+        self.room_mode_received = false;
         self.rental_set_pending = None;
         self.rental_restart_quit_pending = false;
         self.pending_rooms = None;
@@ -923,6 +1031,7 @@ impl LoginController {
         self.pending_roster_forces.clear();self.early_roster.clear();
         self.attack_pending = None;
         self.skill_pending = None;
+        self.skill_context = None;
         self.world_tree_request=None;self.teleport_spell=None;
         self.skill_ready = None;
         self.readiness_acked = false;
@@ -973,12 +1082,9 @@ impl LoginController {
             self.transport.snapshot().epoch,
             source_request(&source.name)?,
         )?;
-        self.state.selected_source = Some(source.name.clone());
-        if let Some(recovery)=self.teleport_recovery.take(){
-            if recovery.source==source.name && self.credentials.as_ref().is_some_and(|(account,_)|**account==recovery.account) {
-                self.recovery_character=Some(recovery.character);
-            }
-        }
+        let source_name = source.name.clone();
+        self.state.selected_source = Some(source_name.clone());
+        self.recovery_character = self.take_teleport_recovery(&source_name);
         self.state.phase = LoginPhase::RedirectPending;
         self.deadline = Some(Instant::now() + Duration::from_secs(8));
         Ok(())
@@ -1081,6 +1187,7 @@ impl LoginController {
             self.state.selected_character.as_deref().unwrap(),
         )?;
         self.skill_pending = None;
+        self.skill_context = None;
         self.world_tree_request=None;self.teleport_spell=None;
         self.skill_ready = None;
         self.state.skill_feedback = Default::default();
@@ -1165,16 +1272,17 @@ impl LoginController {
     pub fn set_observer(&mut self,enabled:bool)->Result<()> {
         ensure!(matches!(self.state.phase,LoginPhase::CharacterSelected|LoginPhase::LobbyReady|LoginPhase::RoomReady),"observer selection unavailable");
         self.transport.send(self.transport.snapshot().epoch,super::native_room::observer_request(enabled))?;
+        self.state.room_system_message = None;
         self.observer_return=Some(self.state.phase);self.state.phase=LoginPhase::ObserverPending;
         self.deadline=Some(Instant::now()+Duration::from_secs(8));Ok(())
     }
     pub fn set_force(&mut self, force: u8) -> Result<()> {
         ensure!(self.state.phase == LoginPhase::RoomReady, "force selection requires room");
         let room = self.state.joined_room.as_ref().context("force selection missing room")?;
-        let own = room.members.iter().find(|m| Some(m.name.as_str()) == self.state.selected_character.as_deref())
-            .context("force selection missing participant")?;
-        ensure!(own.state == 0, "cancel readiness before changing force");
+        ensure!(room.members.iter().any(|m| Some(m.name.as_str()) == self.state.selected_character.as_deref()),
+            "force selection missing participant");
         self.transport.send(self.transport.snapshot().epoch, super::native_room::force_request(force)?)?;
+        self.state.room_system_message = None;
         self.state.phase = LoginPhase::ForcePending;
         self.deadline = Some(Instant::now() + Duration::from_secs(8));
         Ok(())
@@ -1183,8 +1291,11 @@ impl LoginController {
         ensure!(self.state.phase==LoginPhase::RoomReady,"mode selection requires room");
         let room=self.state.joined_room.as_ref().context("mode selection missing room")?;
         ensure!(self.state.selected_character.as_deref()==Some(room.owner.as_str()),"only room owner may change mode");
-        ensure!(room.members.iter().all(|m|m.state==0),"cancel readiness before changing mode");
+        // The server resets readiness after an accepted settings change. Bot
+        // and peer readiness cannot locally veto the owner's request.
         self.transport.send(self.transport.snapshot().epoch,super::native_room::mode_step(direction)?)?;
+        self.room_mode_received = false;
+        self.state.room_system_message = None;
         self.state.phase=LoginPhase::ModePending;
         self.deadline=Some(Instant::now()+Duration::from_secs(8));Ok(())
     }
@@ -1192,8 +1303,8 @@ impl LoginController {
         ensure!(self.state.phase==LoginPhase::RoomReady,"map selection requires room");
         let room=self.state.joined_room.as_ref().context("map selection missing room")?;
         ensure!(self.state.selected_character.as_deref()==Some(room.owner.as_str()),"only room owner may change map");
-        ensure!(room.members.iter().all(|m|m.state==0),"cancel readiness before changing map");
         self.transport.send(self.transport.snapshot().epoch,super::native_room::map_selection(room.mode,map)?)?;
+        self.state.room_system_message = None;
         self.state.phase=LoginPhase::MapPending;
         self.deadline=Some(Instant::now()+Duration::from_secs(8));Ok(())
     }
@@ -1208,6 +1319,7 @@ impl LoginController {
             Zeroizing::new(vec![0xd2, u8::from(ready)]),
         )?;
         self.state.phase = LoginPhase::ReadyPending;
+        self.state.room_system_message = None;
         self.deadline = Some(Instant::now() + Duration::from_secs(8));
         Ok(())
     }
@@ -1253,11 +1365,19 @@ impl LoginController {
             }
             R::Info { room, update } => {
                 let map_complete=matches!(update,native_room::Info::Map(_));
-                let complete=map_complete||matches!(update,native_room::Info::Summary{..});
+                let mode_received=matches!(update,native_room::Info::Mode(_));
+                let summary=matches!(update,native_room::Info::Summary{..});
                 let configuration=matches!(update,native_room::Info::Configuration{..});
                 native_room::apply_info(self.state.joined_room.as_mut().context("game info without room")?,room,update)?;
-                if (self.state.phase==LoginPhase::ModePending && complete) || (self.state.phase==LoginPhase::MapPending && map_complete) {
+                // Successful mode changes publish D5/2 then D5/3. A refusal
+                // publishes D5/0, which contains both authoritative fields.
+                if self.state.phase==LoginPhase::ModePending && mode_received {
+                    self.room_mode_received=true;
+                }
+                if (self.state.phase==LoginPhase::ModePending && (summary || (map_complete && self.room_mode_received)))
+                    || (self.state.phase==LoginPhase::MapPending && (map_complete || summary)) {
                     self.state.phase=LoginPhase::RoomReady;self.deadline=None;
+                    self.room_mode_received=false;
                 }
                 if self.state.phase==LoginPhase::RoomEditing && configuration {
                     // A refusal also returns the unchanged authoritative snapshot.
@@ -1272,6 +1392,7 @@ impl LoginController {
                 );
                 let early=self.early_roster.take(self.transport.snapshot().epoch,room.id)?;
                 self.state.room_result = Some(0);
+                self.state.room_system_message = None;
                 self.state.room_kick_result = None;
                 self.state.last_room_kick = None;
                 self.requested_room=Some(room.id);
@@ -1364,6 +1485,7 @@ impl LoginController {
                     self.requested_room = None;
                     self.pending_roster_forces.clear();self.early_roster.clear();
                     self.kick_pending=None;self.observer_return=None;
+                    self.room_mode_received=false;self.state.room_system_message=None;
                     self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
                     if self.state.phase==LoginPhase::ReturningCharacters {
                         if self.state.rental_restart_acks>0 {
@@ -1767,6 +1889,12 @@ impl LoginController {
                 }
             }
             self.state.world.set_observer_mode(self.state.observer);
+            if body.first()==Some(&0x0f) && self.state.joined_room.is_some()
+                && super::native_room_ui::room_page(&self.state) {
+                if let Some((9, text))=&self.state.world.last_system_message {
+                    self.state.room_system_message=Some(text.clone());
+                }
+            }
             if body.first()==Some(&0x0f) && self.state.battle_withdrawal_pending
                 && self.state.world.last_system_message.as_ref().is_some_and(|(kind,text)|
                     *kind==9 && text.starts_with("戰鬥中無法退出，請停止攻擊並等待 ") && text.ends_with(" 秒。")) {
@@ -1779,7 +1907,7 @@ impl LoginController {
                     .map(|p|p.observe(&self.state,Instant::now()))
                     .filter(|f|*f==super::native_item_actions::Feedback::SceneUpdated)
                     .unwrap_or(super::native_item_actions::Feedback::Interrupted);
-                self.state.merchant.clear();self.attack_pending=None;self.skill_pending=None;self.item_pending=None;self.pickup_pending=None;self.door_pending=None;self.skill_ready=None;
+                self.state.merchant.clear();self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.item_pending=None;self.pickup_pending=None;self.door_pending=None;self.skill_ready=None;
                 self.state.attack_feedback=super::native_combat::Feedback::Interrupted;self.state.skill_feedback=super::native_skills::Feedback::Interrupted;
                 self.transport.send(self.transport.snapshot().epoch,Zeroizing::new(super::native_portal::ACK.to_vec()))?;
                 self.deadline=Some(Instant::now()+Duration::from_secs(8));
@@ -1840,6 +1968,9 @@ impl LoginController {
                 self.deadline = None;
                 self.attack_pending = None;
             }
+            self.state.world.encounter_mode = self.state.joined_room.as_ref()
+                .filter(|_| matches!(self.state.phase, LoginPhase::BattlePending | LoginPhase::BattleResult))
+                .and_then(|room| super::native_obstacles::EncounterMode::from_room_mode(room.mode));
             return Ok(());
         }
         if self.accept_room(body)? {
@@ -1962,7 +2093,15 @@ impl LoginController {
                 self.deadline = Some(Instant::now() + Duration::from_secs(8));
                 return Ok(());
             }
-            self.state.characters = self.directory.view()?;
+            let characters = self.directory.view()?;
+            if self.teleport.is_none() && self.recovery_character.as_ref()
+                .is_some_and(|name| !characters.iter().any(|row| row.name == *name)) {
+                // The LOGIN source handoff may have expired before GAME opened.
+                // Do not publish its default-source directory as our selection.
+                self.refresh_recovery_source()?;
+                return Ok(());
+            }
+            self.state.characters = characters;
             self.state.directory_generation = self
                 .state
                 .directory_generation
@@ -1996,7 +2135,11 @@ impl LoginController {
         // Cancellation closes transport and clears credentials/authority. Keep
         // only one correlation for a later explicit authenticated LOGIN: the
         // server may still have the loadout staged after C_D9 was written.
-        self.teleport_recovery=self.teleport_recovery_candidate();
+        if let Some(recovery) = self.teleport_recovery_candidate() {
+            self.teleport_recovery = Some(recovery);
+        }
+        // A repeated cancel has no pending teleport left. Preserve an unused
+        // identity correlation, without restarting transport or retaining secrets.
         self.retire_teleport_scene();
         self.teleport=None;self.recovery_character=None;
         self.state.battle_withdrawal_pending=false;
@@ -2172,6 +2315,11 @@ impl LoginController {
         } else {super::native_clock::sample().and_then(|sample|
             self.static2941.drain_due(&mut self.state.world, connection, sample).map(|_|()))};
         if let Err(error) = drain { self.fail(format!("native callback: {error:#}")); }
+        // Runtime-wide 4183 errors only; per-object faults are isolated in the receipt.
+        if let Err(error)=self.state.world.poll_status4183(super::native_status4183::now_ms()) {
+            self.fail(format!("4183 visual clock: {error:#}"));
+        }
+        self.state.world.poll_status_icons(super::native_status4183::now_ms());
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);
             if let Err(error)=self.state.environment.water_poll(epoch,generation) {
@@ -2215,21 +2363,7 @@ impl LoginController {
                 self.item_pending = None;
             }
         }
-        if let Some(pending) = &self.skill_pending {
-            let feedback = if self.state.phase.active_world() {
-                if self.player_callbacks.pending() {super::native_skills::Feedback::Pending}
-                else if self.skill_item_pending { pending.observe_item(&self.state.world, Instant::now()) }
-                else { pending.observe(&self.state.world, Instant::now()) }
-            } else {
-                super::native_skills::Feedback::Interrupted
-            };
-            self.state.skill_feedback = feedback;
-            if feedback != super::native_skills::Feedback::Pending {
-                self.player_callbacks.cancel_pending();
-                self.skill_pending = None;
-                if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;self.teleport_spell=None;}
-            }
-        }
+        self.observe_skill(Instant::now());
         if let Some(pending) = &self.attack_pending {
             let feedback = if self.state.phase.active_world() {
                 pending.observe(&self.state.world, Instant::now())
@@ -2253,14 +2387,9 @@ impl LoginController {
             } else if self.state.phase==LoginPhase::CharacterPending
                 && self.teleport.is_none() && self.recovery_character.is_some()
                 && self.state.character_result.is_none() && self.state.inventory.batches==0 {
-                // A fresh LOGIN can outlive the server's staged handoff. The
-                // protocol has no explicit "stage expired" response. With no
-                // selection ack or inventory, retire this one expectation and
-                // return to the current directory; do not invent authority or
-                // send a second C_C9 while server continuation is pending.
-                self.recovery_character=None;self.state.selected_character=None;
-                self.state.inventory.clear();self.deadline=None;
-                self.state.phase=LoginPhase::CharactersReady;
+                if let Err(error) = self.refresh_recovery_source() {
+                    self.fail(format!("recovery source confirmation: {error:#}"));
+                }
             } else {self.fail("native login response deadline exceeded".into());}
         }
         if self.state.phase.active_world() && self.state.world.ready() {
@@ -2369,6 +2498,45 @@ impl LoginController {
         }
         Ok(())
     }
+    /// One explicit authenticated source choice consumes the correlation,
+    /// including mismatches. A subsequent cancel cannot recreate that choice.
+    fn take_teleport_recovery(&mut self, source: &str) -> Option<String> {
+        let recovery = self.teleport_recovery.take()?;
+        (self.login_peer == Some(recovery.login_peer) && recovery.source == source
+            && self.credentials.as_ref().is_some_and(|(account, _)| **account == recovery.account))
+            .then_some(recovery.character)
+    }
+
+    /// Confirm the selected source after an unused continuation expires or a
+    /// complete bootstrap directory lacks its character. Partial admission is
+    /// never retried. C8 requests a new directory; it does not select a character.
+    fn refresh_recovery_source(&mut self) -> Result<()> {
+        let character = self.recovery_character.as_ref().context("missing recovery character")?;
+        let waiting = self.state.phase == LoginPhase::CharacterPending
+            && self.state.selected_character.as_ref() == Some(character);
+        let absent = self.state.phase == LoginPhase::LoadingCharacters
+            && self.directory.complete() && self.state.selected_character.is_none()
+            && !self.directory.view()?.iter().any(|row| row.name == *character);
+        ensure!((waiting || absent) && self.game && self.state.game_connected
+            && self.readiness_acked && self.teleport.is_none()
+            && self.state.character_result.is_none() && self.state.inventory.batches == 0
+            && self.state.notice.is_none(), "source confirmation outside unused recovery");
+        let source = self.state.selected_source.as_ref().context("missing recovery source")?;
+        ensure!(self.state.sources.iter().any(|row| row.name == *source), "recovery source not advertised");
+        self.transport.send(self.transport.snapshot().epoch, source_request(source)?)?;
+        self.recovery_character = None;
+        self.state.selected_character = None;
+        self.state.inventory.clear();
+        self.state.characters.clear();
+        self.directory = Default::default();
+        self.state.character_result = None;
+        self.state.classic_entry_result = None;
+        self.confirm_initial_source = false;
+        self.state.phase = LoginPhase::LoadingCharacters;
+        self.deadline = Some(Instant::now() + Duration::from_secs(8));
+        Ok(())
+    }
+
     fn teleport_recovery_candidate(&self)->Option<TeleportRecovery> {
         let teleport=self.teleport.as_ref().filter(|t|t.destination.is_some())?;
         Some(TeleportRecovery{login_peer:self.login_peer?,account:self.credentials.as_ref()?.0.as_str().to_owned(),
@@ -2411,7 +2579,7 @@ impl LoginController {
         self.state.companions.clear();
         self.teleport_spell = None;
         self.skill_item_pending = false;
-        self.attack_pending=None;self.skill_pending=None;self.skill_ready=None;self.world_tree_request=None;
+        self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;
         self.state.skill_feedback=super::native_skills::Feedback::Interrupted;
@@ -2429,6 +2597,7 @@ impl LoginController {
         self.state.services=None;self.state.rental_set=None;self.state.shop_points=None;
         self.state.selected_character=None;self.state.characters.clear();
         self.state.notice=None;self.state.character_result=None;self.state.observer=false;
+        self.state.room_system_message=None;self.room_mode_received=false;
         self.state.game_connected=false;self.state.acknowledgement_opcodes.clear();
         self.state.battle_withdrawal_pending=false;
         self.requested_channel=None;self.requested_room=None;self.kick_pending=None;

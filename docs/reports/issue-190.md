@@ -70,6 +70,7 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 2490 filtered ou
 - 已驗證：合併後 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 0（`Finished dev profile`）。
 - 依 2026-11-09 本機限制，本次未在本機執行 `cargo test`；測試交給 CI。
 - 已驗證（CI run 43145011407，commit 62c383b，結論 pass）：`test result: ok. 2030 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 10.86s`；本張 5 個 `rental_lifecycle_tests::*` 與先前失敗的 `teleport_wire_tests::malformed_and_misordered_teleport_replies_over_tcp_retire_pending_owner` 均為 `ok`。單次通過不能證明 flake 已根除（推測已根除，待後續 CI 持續觀察）。
+- 再次同步（分支落後 main 55 個 commit）：合併 `origin/main`，`native_teleport_controller_tests.rs` 衝突——main 把 `FaultPeer::new` 拆成 `at`／`waiting_at`（可指定位址與 accept 期限）；解法為採用 main 的建構函式，保留本分支 `pub(super)` 可見性（`rental_lifecycle_tests` 需要）與交握後非阻塞輪詢。合併後 `cargo check ... --all-targets` 結束碼 0。測試結果以此次 push 後的 PR CI 為準（待驗證）。
 
 ## 推測
 

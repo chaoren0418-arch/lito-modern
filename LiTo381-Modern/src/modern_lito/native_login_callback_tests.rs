@@ -294,3 +294,55 @@ fn controller_sent_action_and_accepted_169_execute_the_real_nested_draw_pump() {
     assert!(view.frame.as_ref().unwrap().input_ready(&c.state.world));
     close(&mut c);
 }
+
+#[test]
+#[ignore = "T021 original map/SPR memory composition and owned encrypted loopback"]
+fn t021_controller_sends_four_skills_and_keeps_rejection_authority() {
+    use crate::modern_lito::{native_inventory::Item, native_skills::{ItemTarget, Feedback}};
+    let root = std::path::Path::new(r"D:\lineage開發\0-客戶端");
+    for skill in 97..=100 {
+        let (mut c, mut peer) = connected();
+        let epoch = c.transport.snapshot().epoch;
+        c.state.game_connected = true;
+        c.game = true;
+        c.state.world.learned_skills.insert(skill);
+        c.state.world.hp = Some([1, 100]);
+        c.state.world.mp = Some([1, 100]);
+        c.state.inventory.begin(epoch, "T021").unwrap();
+        c.state.inventory.items.insert(0x12345678, Item {
+            id:0x12345678,use_type:0,charge:0,icon:1,blessing:0,count:1,identified:1,
+            name:"stone".into(),detail:vec![],
+        });
+        let authority = (c.state.world.hp, c.state.world.mp, c.state.inventory.clone());
+        let mut view = Presentation::default();
+        view.callback_draw(root, epoch, &c.state.world, &c.state.environment).unwrap();
+        let frame = view.frame.as_ref().unwrap();
+        let mut expected = vec![0x14,12,(skill-97) as u8];
+        if skill == 100 {
+            let target = ItemTarget::capture(&c.state, epoch, 0x12345678).unwrap();
+            c.cast_item(skill, &target, frame).unwrap();
+            expected.extend(0x12345678u32.to_le_bytes());
+            assert!(c.cast_item(skill, &target, frame).is_err());
+        } else {
+            c.cast(skill, None, frame).unwrap();
+            assert!(c.cast(skill, None, frame).is_err());
+        }
+        assert_eq!(peer.read(), expected);
+        assert_eq!(c.state.skill_feedback, Feedback::Pending);
+        assert_eq!((c.state.world.hp,c.state.world.mp,c.state.inventory.clone()),authority);
+        let rejection = match skill {97=>278u16,98=>299,99=>279,_=>280};
+        let mut packet=vec![0x10];packet.extend(rejection.to_le_bytes());packet.push(0);
+        peer.send(packet);
+        let until=Instant::now()+Duration::from_secs(10);
+        while c.state.skill_feedback != Feedback::Rejected(rejection) {
+            c.poll();
+            assert!(c.state.error.is_none(),"{:?}",c.state.error);
+            assert!(Instant::now()<until,"T021 rejection timeout");
+            thread::sleep(Duration::from_millis(2));
+        }
+        assert_eq!((c.state.world.hp,c.state.world.mp,c.state.inventory.clone()),authority);
+        assert!(c.skill_pending.is_none());
+        if skill==97 {assert!(c.cast(skill,None,frame).is_err());}
+        close(&mut c);
+    }
+}
