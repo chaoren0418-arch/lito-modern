@@ -86,7 +86,11 @@ test result: FAILED. 2175 passed; 1 failed; 591 ignored; 0 measured; 0 filtered 
 ```
 
   原因：main 新增的這個測試只把 `own_attack_packets` 加 1 來模擬回覆；本張規則要求回覆在 `own_attack_log` 裡指名同一目標才算確認（避免把他目標的延遲回覆當成確認）。已在測試補一行 `own_attack_log.push((count, id))`，和本張先前對 `tests/native_combat.rs` 的處理一致；程式行為不改。
-- 修正後的 CI 結果以下一次 push 的 PR #278 CI 為準（待驗證，會補在 PR 留言）。
+- 修正後 CI（run 43165163989，commit `7c3ef7f`）**通過**：`cargo check` 綠；16 個 `native_combat_ops::tests` 全部 `ok`；PR 狀態 MERGEABLE。
+
+```text
+test result: ok. 2180 passed; 0 failed; 591 ignored; 0 measured; 0 filtered out; finished in 21.45s
+```
 
 ## 推測
 
