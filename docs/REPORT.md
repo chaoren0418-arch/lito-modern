@@ -115,3 +115,4 @@
 - 2026-11-12 — #299 T040-1: T040（M3 1/1）: lito-launcher-server Issue：修補提案四項交給伺服器 repo（code，claude-local，PR #346 已合併）→ [報告](reports/issue-299.md)
 - 2026-11-12 — #150 T027-6: T027（M2 6/6）: src/：候選獨有的 48 個技能重做進 src（code，claude-local，PR 已合併）→ [報告](reports/issue-150.md)
 - 2026-11-12 — #324 T037-1: T037（M3 1/2）: docs/G01-G12-AUDIT.md：G12 稽核（code，claude-local，PR #348 已合併）→ [報告](reports/issue-324.md)
+- 2026-11-12 — #301 T035-1: T035（M3 1/2）: src/、維護工具/：已知 GUI 與輸入缺陷（code，claude-local，PR #349 已合併）→ [報告](reports/issue-301.md)
