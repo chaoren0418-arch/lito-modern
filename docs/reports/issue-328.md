@@ -106,4 +106,6 @@ PR #360 與 main 衝突，已 `git merge origin/main` 並解決兩個檔案：
 - 名稱只有控制碼、沒有可見文字時不會有列，`badge` 也就不畫。
 - 後綴圖的位置用完整名稱（含 `\fX` 控制碼）量寬度。原版 432330 是否把控制碼算進寬度沒有查，列為推測。
 
-合併後本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，4 分 17 秒）。合併後的測試結果以 PR 最新 commit 的 CI 為準，本機未執行。
+合併後本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，4 分 17 秒）。本機未執行測試。
+
+合併 commit `8415b0d` 的 CI（run 43261597940）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2363 passed／0 failed／597 ignored；`native_world_labels` 的 `run_tests`（本張）與 `tests`（main 的全部名稱、主人列、後綴圖 4 個）都在通過清單內。之後只改了本報告這一段。
