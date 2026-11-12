@@ -233,7 +233,14 @@ impl Playback {
                 });
             }
             let active = state.active.as_mut().unwrap();
-            let key = (u32::from(actor.graphics), active.cue.action);
+            let key = (
+                u32::from(actor.graphics),
+                super::native_world_animation::weapon_family_action(
+                    catalog,
+                    u32::from(actor.graphics),
+                    active.cue.action,
+                ),
+            );
             if !self.clips.contains_key(&key) {
                 ensure!(self.clips.len() < 256, "combat clip budget");
                 self.clips.insert(key, resolve(catalog, key.0, key.1)?);

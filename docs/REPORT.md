@@ -99,3 +99,5 @@
 - 2026-11-12 — #165 T028-3: T028（M2 3/4）: src/、tests/：main 已接 38 技能的當版補驗（code，claude-local，PR 已合併）→ [報告](reports/issue-165.md)
 - 2026-11-12 — #172 T023-4: T023（M2 4/4）: src/、tests/native_teleport_failure.rs：G06.3d 傳送與失敗（code，claude-local，PR 已合併）→ [報告](reports/issue-172.md)
 - 2026-11-12 — #180 T045-2: T045（M2 2/2）: src/：物品系統缺口（code，claude-local，PR 已合併）→ [報告](reports/issue-180.md)
+- 2026-11-12 — #152 T022-2: T022（M2 2/10）: src/：未接的 91 個技能（code，claude-local，PR 已合併）→ [報告](reports/issue-152.md)
+- 2026-11-12 — #185 T047-2: T047（M2 2/2）: src/（code，claude-local，PR 已合併）→ [報告](reports/issue-185.md)
