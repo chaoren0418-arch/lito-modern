@@ -10,6 +10,15 @@
 - **修正 [P2] 79 被覆蓋**：`native_world::World` 新增 `last_item_skill_rejection: Option<u64>`，S10 收到 code 79 時記錄當下 `message_count` 序號；`Pending::observe_item` 改看此序號是否大於 pending 建立時的 `messages`，不再讀 `last_message`。同一輪 poll 依序收到 79 與其他 S10 時仍回傳 `Rejected(79)`；一般施法 `observe` 不讀此欄位，因此不會誤用 79；新 pending 不繼承舊的 79。此修正同時套用到 main 既有的 12／21。
 - **補回歸測試** `item_rejection_survives_later_messages_in_the_same_receive_batch`（已登錄白名單）：先 79、再 161、308，最後才 observe → `Rejected(79)`（含兩秒逾時後）；同狀態的一般 `observe` 為 Pending／NoResponse；新 pending 不繼承舊 79；新 pending 期間 79 後接普通訊息仍為 `Rejected(79)`。
 
+### 再同步 main（2026-11-12，`8810ade`）
+
+PR #228 閘門通過後 main 又前進 52 個 commit（含 #97–#100 與 T028），產生 3 個衝突，解法：
+- `native_skills.rs`：`selector_only` 併入 main 的 97／98／99；`item_targeted` 改為 `12 | 21 | 100 | 107`；`reuse_millis` 保留 main 的 `97=>9990,98..=100=>0` 與本張 101–109；`Feedback` 保留 main 新增的 `Rejected(279)`，`Rejected(280)` 只留一份。
+- `native_skill_selection.rs`：沿用 `selector_only(skill) || matches!(skill,2|3|13|60|131)`（97–99 已由 helper 涵蓋）。
+- `tests.tsv`：保留 main 的 T028 列與本張 10 列，行尾與 main 一致（LF；main 原有的 1 個 CRLF 未動）。
+- `native_forced_combat.rs`：main 把物品目標 12／21／100 排除於 actor 目標解析外，107 同為物品目標，一併加入排除（避免把物品 ID 當成 actor）。
+- 驗證：`cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 0；`python 維護工具/test_native_skill_coverage.py` `Ran 4 tests … OK`。`cargo test` 依本機規定不在本機執行，交 CI。
+
 | 技能 | 選擇器 row／column | 封包 body | 本機目標檢查 | reuse 毫秒 |
 |---|---|---|---|---|
 | 101 行走加速 | 12／4 | 3 bytes | 自施 | 0 |

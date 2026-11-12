@@ -44,7 +44,7 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     Ok(())
 }
 /// Item object IDs must never pass through the actor-target request path.
-pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 107) }
+pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 100 | 107) }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemTarget {
@@ -66,17 +66,17 @@ impl ItemTarget {
     }
     pub fn validate(&self, s: &super::native_login::Snapshot, epoch: u64) -> Result<()> {
         ensure!(s.game_connected && s.phase.active_world() && !s.observer
-            && !s.world.observer_mode && s.world.ready(), "目前不能選取附魔物品");
+            && !s.world.observer_mode && s.world.ready(), "目前不能選取施法物品");
         self.choice.validate(s)?;
         ensure!(self.choice.owner.connection == epoch && self.revision == s.inventory.revision
             && self.map == s.world.map_id
             && self.stamp == super::native_navigation::InputStamp::capture(epoch, &s.world),
-            "背包或場景已更新，請重新選取附魔物品");
+            "背包或場景已更新，請重新選取施法物品");
         Ok(())
     }
 }
 pub fn item_request(s: &super::native_login::Snapshot, epoch: u64, skill: u16, target: &ItemTarget) -> Result<Vec<u8>> {
-    ensure!(item_targeted(skill), "此技能不是物品附魔");
+    ensure!(item_targeted(skill), "此技能不是物品目標技能");
     target.validate(s, epoch)?;
     can_cast(&s.world, skill)?;
     // Eligibility, duration, durability, cost and inventory updates are server-owned.
@@ -154,7 +154,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 101 | 102 | 104 | 105 | 106 | 109 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 206)
 }
 
 pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>> {
@@ -239,7 +239,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109=>0,102=>2990,103=>990,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109=>0,102=>2990,103=>990,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -262,6 +262,7 @@ impl Feedback {
             Self::Interrupted => "施法已中止",
             Self::Rejected(276) => "目前地圖無法使用此技能",
             Self::Rejected(278) => "MP 不足",
+            Self::Rejected(279) => "HP 不足",
             Self::Rejected(79) => "伺服器拒絕此物品附魔",
             Self::Rejected(280) => "法術未生效",
             Self::Rejected(299) => "施法材料不足",
@@ -277,8 +278,44 @@ pub struct Pending {
     pub generation: u64,
     pub incarnation: u64,
 }
+/// Captured only after a request was queued. Counters also catch a restriction
+/// inserted and removed in the same transport poll; no cancellation is sent.
+pub(crate) struct CastContext {
+    connection: u64,
+    generation: u64,
+    caster: Option<(u32, u64)>,
+    corrections: u64,
+    interruptions: u64,
+    skill: u16,
+    casts: u64,
+    target: Option<super::native_skill_selection::Target>,
+}
+impl CastContext {
+    pub(crate) fn capture(connection: u64, world: &World, skill: u16, target: Option<u32>) -> Self {
+        Self { connection, generation: world.generation,
+            caster: world.own_actor().map(|a| (a.id, a.incarnation)),
+            corrections: world.local_corrections, interruptions: world.control_interruptions,
+            skill, casts: world.own_cast_packets,
+            target: target.and_then(|id| super::native_skill_selection::Target::capture(world, id)) }
+    }
+    pub(crate) fn interrupted(&self, connection: u64, world: &World) -> bool {
+        self.connection != connection || self.generation != world.generation
+            || self.caster != world.own_actor().map(|a| (a.id, a.incarnation))
+            || self.corrections != world.local_corrections
+            || self.interruptions != world.control_interruptions
+            || !world.ready() || world.battle_result.is_some()
+            || !world.hp.is_some_and(|hp| hp[0] > 0)
+            || world.own_actor().is_none_or(|a| a.dead)
+            || !world.movement_blocks.is_empty()
+            || world.movement_lock != super::native_world::MovementLock::Open
+            || !world.learned_skills.contains(&self.skill)
+            // An accepted cast may itself kill/remove its target in this batch.
+            || (world.own_cast_packets == self.casts
+                && self.target.is_some_and(|t| t.resolve(world).is_none()))
+    }
+}
 impl Pending {
-    /// Item casts (12/21/107) accept a sequenced S10 code 79 received after the
+    /// Item casts (12/21/100/107) accept a sequenced S10 code 79 received after the
     /// request, even if later S10 messages in the same poll replace last_message.
     /// Ordinary casts never consult this field.
     pub fn observe_item(&self, world: &World, now: Instant) -> Feedback {
@@ -294,6 +331,9 @@ impl Pending {
     pub fn observe(&self, world: &World, now: Instant) -> Feedback {
         if world.generation != self.generation
             || world.battle_result.is_some()
+            || !world.hp.is_some_and(|hp| hp[0] > 0)
+            || !world.movement_blocks.is_empty()
+            || world.movement_lock != super::native_world::MovementLock::Open
             || world
                 .own_actor()
                 .is_none_or(|a| a.incarnation != self.incarnation || a.dead)
