@@ -269,6 +269,11 @@ impl SharedEffectBank {
         Self::load_profile(context,cancel,super::native_additional_finite_effects::qualify,
             super::native_additional_finite_effects::GRAPHICS_BINDINGS,false,ReferencedFramePolicy::ReviewedAdditionalFinite)
     }
+    /// T027 batch 4 exact finite definitions (2230／760／230); no extra blank slots.
+    pub(crate) fn load_reviewed_batch4_finite(context:&SharedActionCatalog,cancel:&AtomicBool)->Result<Self>{
+        Self::load_profile(context,cancel,super::native_additional_finite_effects::qualify_batch4,
+            &[],false,ReferencedFramePolicy::ReviewedAdditionalFinite)
+    }
     fn load_profile(
         context: &SharedActionCatalog,
         cancel: &AtomicBool,
