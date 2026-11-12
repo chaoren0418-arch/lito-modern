@@ -90,3 +90,4 @@
 - 2026-11-12 — #173 T041-1: T041（M2 1/1）: 維護工具/run-local-test-suite.ps1（code，claude-local，PR #226 已合併）→ [報告](reports/issue-173.md)
 - 2026-11-12 — #183 T046-3: T046（M2 3/3）: src/：快捷列、技能書與狀態 UI（code，claude-local，PR #279 已合併）→ [報告](reports/issue-183.md)
 - 2026-11-12 — #168 T029-2: T029（M2 2/2）: src/：非技能的戰鬥基礎（code，claude-local，PR 已合併）→ [報告](reports/issue-168.md)
+- 2026-11-12 — #193 T061-2: T061（M2 2/2）: src/：Ctrl 強制目標與目標選取政策（code，claude-local，PR #257 已合併）→ [報告](reports/issue-193.md)
