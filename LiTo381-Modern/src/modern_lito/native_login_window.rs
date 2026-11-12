@@ -26,6 +26,8 @@ use zeroize::Zeroizing;
 use super::native_game::pages::{Pages, Turn};
 #[path="native_rental_window.rs"]
 mod rental;
+#[path = "native_skill_window.rs"]
+mod skill_ui;
 #[path="native_companion_window.rs"]
 mod companions;
 const CREATE_ROOM:u16=119;
@@ -103,6 +105,8 @@ struct Ui {
     target: Option<super::native_skill_selection::Target>,
     ground: Option<super::native_skill_selection::Ground>,
     skills: super::native_skill_selection::Model,
+    skill_book_open: bool,
+    skill_icons: super::native_inventory_icons::Service,
     painted: Option<(u64, u64, super::compositor::Viewport)>,
     painted_input: Option<(u64, super::native_world_scene::InputSurface)>,
     voices: super::combat_audio::CombatVoicePool,
@@ -238,11 +242,21 @@ impl Ui {
             (SKILL_LABEL, w!("STATIC"), "技能".into(), 0),
             (
                 SKILLS,
-                w!("COMBOBOX"),
+                w!("LISTBOX"),
                 String::new(),
-                CBS_DROPDOWNLIST as u32 | WS_VSCROLL.0,
+                WS_VSCROLL.0 | LBS_OWNERDRAWFIXED as u32 | LBS_HASSTRINGS as u32
+                    | LBS_NOINTEGRALHEIGHT as u32 | LBS_NOTIFY as u32,
             ),
             (CAST_SKILL, w!("BUTTON"), "施放技能".into(), 0),
+            (skill_ui::BOOK, w!("BUTTON"), "技能書".into(), 0),
+            (skill_ui::FIRST + 0, w!("BUTTON"), "F5".into(), BS_OWNERDRAW as u32),
+            (skill_ui::FIRST + 1, w!("BUTTON"), "F6".into(), BS_OWNERDRAW as u32),
+            (skill_ui::FIRST + 2, w!("BUTTON"), "F7".into(), BS_OWNERDRAW as u32),
+            (skill_ui::FIRST + 3, w!("BUTTON"), "F8".into(), BS_OWNERDRAW as u32),
+            (skill_ui::FIRST + 4, w!("BUTTON"), "F9".into(), BS_OWNERDRAW as u32),
+            (skill_ui::FIRST + 5, w!("BUTTON"), "F10".into(), BS_OWNERDRAW as u32),
+            (skill_ui::FIRST + 6, w!("BUTTON"), "F11".into(), BS_OWNERDRAW as u32),
+            (skill_ui::FIRST + 7, w!("BUTTON"), "F12".into(), BS_OWNERDRAW as u32),
             (TELEPORT_DEST, w!("COMBOBOX"), String::new(), CBS_DROPDOWNLIST as u32 | WS_VSCROLL.0),
             (INVENTORY_TOGGLE, w!("BUTTON"), "背包".into(), 0),
             (GROUND_TOGGLE, w!("BUTTON"), "附近物品".into(), 0),
@@ -549,7 +563,8 @@ impl Ui {
                 px(32),
                 true,
             );
-            let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),area.bottom-px(130),area.right-px(32),px(220),true);
+            // Above the F5–F12 hotbar (bottom-155..-97); a closed combo is ~24px.
+            let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),area.bottom-px(190),area.right-px(32),px(220),true);
             let _ = MoveWindow(
                 self.control(SCORES),
                 px(16),
@@ -570,7 +585,8 @@ impl Ui {
                 self.control(STATUS),
                 px(16),
                 area.bottom
-                    - px(if self.inventory_view { if self.ground_view {286} else {326} } else if self.result_view { 250 } else if self.skills.selected()==Some(5) {225} else { 185 }),
+                    // World rows: book/cast -90, hotbar -155, teleport -190.
+                    - px(if self.inventory_view { if self.ground_view {286} else {326} } else if self.result_view { 250 } else if self.skills.selected()==Some(5) {290} else { 250 }),
                 area.right - px(32),
                 px(if self.inventory_view { 80 } else if self.result_view { 45 } else { 90 }),
                 true,
@@ -596,6 +612,7 @@ impl Ui {
             self.inventory_rows.iter().map(|r| r.1.as_str()),
         );
         self.layout_rental();
+        self.layout_skill_book(area, dpi);
         self.layout_companions();
     }
     unsafe fn score_extent(&self) {
@@ -781,7 +798,7 @@ impl Ui {
             let dpi = GetDpiForWindow(parent).max(96) as i32;
             let view = super::compositor::Viewport::fit(
                 area.right,
-                area.bottom - (if self.result_view { 260 } else { 185 }) * dpi / 96,
+                area.bottom - (if self.result_view { 260 } else { 250 }) * dpi / 96,
                 800,
                 600,
             )?;
@@ -881,20 +898,10 @@ impl Ui {
             let frame=self.world_presentation.frame.as_ref().context("等待世界畫面")?;
             return self.controller.cast_teleport(choice,frame);
         }
-        let choice = if matches!(skill, 58 | 63) {
-            self.skills.choice_at(
-                self.controller.transport().snapshot().epoch,
-                &self.controller.snapshot().world,
-                self.target,
-                self.ground,
-            )?
-        } else {
-            super::native_skill_selection::choice(
-                &self.controller.snapshot().world,
-                skill,
-                self.target,
-            )?
-        };
+        // Hotbar slots and the book share one ID-keyed admission path.
+        let choice = self.skills.choice_id_at(
+            self.controller.transport().snapshot().epoch,
+            &self.controller.snapshot().world, skill, self.target, self.ground)?;
         let frame = self
             .world_presentation
             .frame
@@ -1074,34 +1081,18 @@ impl Ui {
         let epoch = self.controller.transport().snapshot().epoch;
         let active = snapshot.phase.active_world() && !self.closing;
         if self.skills.sync(epoch, &snapshot.world, active) {
-            send(self.control(SKILLS), CB_RESETCONTENT, WPARAM(0), LPARAM(0));
-            let prompt = wide("請選擇已學會的技能");
-            send(
-                self.control(SKILLS),
-                CB_ADDSTRING,
-                WPARAM(0),
-                LPARAM(prompt.as_ptr() as isize),
-            );
+            let list = self.control(SKILLS);
+            let top = send(list, LB_GETTOPINDEX, WPARAM(0), LPARAM(0)).0.max(0) as usize;
+            send(list, LB_RESETCONTENT, WPARAM(0), LPARAM(0));
             for row in self.skills.rows() {
                 let label = wide(&row.label);
-                send(
-                    self.control(SKILLS),
-                    CB_ADDSTRING,
-                    WPARAM(0),
-                    LPARAM(label.as_ptr() as isize),
-                );
+                send(list, LB_ADDSTRING, WPARAM(0), LPARAM(label.as_ptr() as isize));
             }
-            let selected = self
-                .skills
-                .selected()
-                .and_then(|id| self.skills.rows().iter().position(|r| r.id == id))
-                .map_or(0, |i| i + 1);
-            send(
-                self.control(SKILLS),
-                CB_SETCURSEL,
-                WPARAM(selected),
-                LPARAM(0),
-            );
+            let selected = self.skills.selected().and_then(|id| self.skills.rows().iter().position(|r| r.id == id))
+                .unwrap_or(usize::MAX);
+            send(list, LB_SETCURSEL, WPARAM(selected), LPARAM(0));
+            send(list, LB_SETTOPINDEX, WPARAM(top.min(self.skills.rows().len().saturating_sub(1))), LPARAM(0));
+            for id in skill_ui::FIRST..=skill_ui::LAST { let _ = InvalidateRect(Some(self.control(id)), None, true); }
         }
         if !self.inventory_view || self.ground_view || self.closing
             || self.skill_item_target.as_ref().is_some_and(|item| item.validate(snapshot, epoch).is_err()) {
@@ -1118,21 +1109,12 @@ impl Ui {
         } else {
             !self.inventory_view && self.skills.choice_at(epoch, &snapshot.world, self.target, self.ground).is_ok()
         };
-        let enabled = active
-            && choice_valid
-            && snapshot.skill_feedback != super::native_skills::Feedback::Pending
-            && snapshot.attack_feedback != super::native_combat::Feedback::Pending
-            && self
-                .world_presentation
-                .frame
-                .as_ref()
-                .is_some_and(|f| f.movement_ready(&snapshot.world));
+        let enabled = active && choice_valid && self.world_presentation.frame.as_ref()
+            .is_some_and(|f| self.controller.skill_action_ready(f, std::time::Instant::now()));
         let _ = EnableWindow(self.control(CAST_SKILL), enabled);
         let _ = EnableWindow(self.control(TELEPORT_DEST), active && self.skills.selected()==Some(5));
-        let _ = EnableWindow(
-            self.control(SKILLS),
-            active && !self.skills.rows().is_empty(),
-        );
+        let _ = EnableWindow(self.control(SKILLS), active && !self.skills.rows().is_empty());
+        self.refresh_skill_art();
     }
     unsafe fn sync_item_choice(&mut self) {
         let index = send(
@@ -1903,6 +1885,14 @@ impl Ui {
         }
         if self.rental_action(id)? {return Ok(());}
         match id {
+            skill_ui::BOOK => {
+                self.skill_book_open = !self.skill_book_open;
+                self.held.clear(); self.held_attack.clear();
+                self.layout(self.parent, false);
+                let _ = SetFocus(Some(if self.skill_book_open { self.control(SKILLS) } else { self.parent }));
+                let _ = InvalidateRect(Some(self.parent), None, true);
+            }
+            skill_ui::FIRST..=skill_ui::LAST => self.skill_slot(usize::from(id - skill_ui::FIRST))?,
             CREATE_ROOM|EDIT_ROOM=>{
                 let d=super::native_room_ui::Draft::capture(self.controller.transport().snapshot().epoch,self.controller.snapshot(),id==EDIT_ROOM)?;
                 self.close_room_editor();self.text(ROOM_NAME,d.name());self.text(ROOM_CAPACITY,&d.capacity().to_string());
@@ -2119,7 +2109,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     }
     if msg == WM_MEASUREITEM {
         let measure = &mut *(lparam.0 as *mut MEASUREITEMSTRUCT);
-        if measure.CtlID == u32::from(INVENTORY_LIST) {
+        if matches!(measure.CtlID, id if id == u32::from(INVENTORY_LIST) || id == u32::from(SKILLS)) {
             measure.itemHeight = 40 * GetDpiForWindow(hwnd).max(96) / 96;
             return LRESULT(1);
         }
@@ -2135,6 +2125,11 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
             match msg {
                 WM_DRAWITEM => {
                     let draw = &*(lparam.0 as *const DRAWITEMSTRUCT);
+                    if draw.CtlID == u32::from(SKILLS)
+                        || (u32::from(skill_ui::FIRST)..=u32::from(skill_ui::LAST)).contains(&draw.CtlID) {
+                        ui.draw_skill_control(draw);
+                        return LRESULT(1);
+                    }
                     if draw.CtlID == u32::from(INVENTORY_LIST) {
                         ui.draw_inventory(draw);
                         return LRESULT(1);
@@ -2154,7 +2149,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     if let (Some(view), Some((epoch,surface)), Some(own)) = (
                         super::compositor::Viewport::fit(
                             area.right,
-                            area.bottom - (if ui.result_view { 260 } else { 185 }) * dpi / 96,
+                            area.bottom - (if ui.result_view { 260 } else { 250 }) * dpi / 96,
                             800,
                             600,
                         ),
@@ -2255,14 +2250,12 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                 }
                 WM_COMMAND
                     if (wparam.0 & 0xffff) == SKILLS as usize
-                        && (wparam.0 >> 16) == CBN_SELCHANGE as usize =>
+                        && (wparam.0 >> 16) == LBN_SELCHANGE as usize =>
                 {
                     ui.held.clear();
                     ui.held_attack.clear();
-                    let index = send(ui.control(SKILLS), CB_GETCURSEL, WPARAM(0), LPARAM(0)).0;
-                    let id = index
-                        .checked_sub(1)
-                        .and_then(|i| usize::try_from(i).ok())
+                    let index = send(ui.control(SKILLS), LB_GETCURSEL, WPARAM(0), LPARAM(0)).0;
+                    let id = usize::try_from(index).ok()
                         .and_then(|i| ui.skills.rows().get(i))
                         .map(|row| row.id);
                     if let Err(error) = ui.skills.select(id) {
@@ -2298,6 +2291,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                         && ui.world_presentation.quiescent()
                         && ui.inventory_names.quiescent()
                         && ui.inventory_icons.quiescent()
+                        && ui.skill_icons.quiescent()
                         && ui.rental.documents.quiescent()
                     {
                         let _ = DestroyWindow(hwnd);
@@ -2325,12 +2319,14 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     ui.world_presentation.cancel();
                     ui.inventory_names.cancel();
                     ui.inventory_icons.cancel();
+                    ui.skill_icons.cancel();
                     ui.rental.documents.cancel();
                     ui.refresh();
                     if ui.controller.is_quiescent()
                         && ui.world_presentation.quiescent()
                         && ui.inventory_names.quiescent()
                         && ui.inventory_icons.quiescent()
+                        && ui.skill_icons.quiescent()
                         && ui.rental.documents.quiescent()
                     {
                         let _ = DestroyWindow(hwnd);
@@ -2432,6 +2428,8 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 target: None,
                 ground: None,
                 skills: Default::default(),
+                skill_book_open: false,
+                skill_icons: super::native_inventory_icons::Service::spells(resource_root.clone()),
                 painted: None,
                 painted_input: None,
                 voices: super::combat_audio::CombatVoicePool::new(4)?,
@@ -2545,6 +2543,19 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                         continue;
                     }
                 }
+                if matches!(message.message, WM_KEYDOWN | WM_SYSKEYDOWN) {
+                    if let Some((slot, first)) = skill_ui::hotbar_key(message.message, message.wParam.0, message.lParam.0) {
+                        let mut ui = state.0.borrow_mut();
+                        if ui.skill_input_focus(GetFocus()) && ui.world_view && !ui.inventory_view && !ui.rental.open {
+                            if first {
+                                let result = ui.skill_slot(slot);
+                                ui.refresh();
+                                if let Err(e) = result { ui.text(STATUS, &format!("{e:#}")); }
+                            }
+                            continue;
+                        }
+                    }
+                }
                 if world_focus && message.message == WM_KEYDOWN && message.wParam.0 == 0x1b {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
@@ -2655,6 +2666,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 state.0.borrow().controller.is_quiescent()
                     && state.0.borrow().inventory_names.quiescent()
                     && state.0.borrow().inventory_icons.quiescent()
+                    && state.0.borrow().skill_icons.quiescent()
                     && state.0.borrow().rental.documents.quiescent(),
                 "native login closed before worker cleanup"
             );

@@ -272,6 +272,42 @@ pub struct Pending {
     pub generation: u64,
     pub incarnation: u64,
 }
+/// Captured only after a request was queued. Counters also catch a restriction
+/// inserted and removed in the same transport poll; no cancellation is sent.
+pub(crate) struct CastContext {
+    connection: u64,
+    generation: u64,
+    caster: Option<(u32, u64)>,
+    corrections: u64,
+    interruptions: u64,
+    skill: u16,
+    casts: u64,
+    target: Option<super::native_skill_selection::Target>,
+}
+impl CastContext {
+    pub(crate) fn capture(connection: u64, world: &World, skill: u16, target: Option<u32>) -> Self {
+        Self { connection, generation: world.generation,
+            caster: world.own_actor().map(|a| (a.id, a.incarnation)),
+            corrections: world.local_corrections, interruptions: world.control_interruptions,
+            skill, casts: world.own_cast_packets,
+            target: target.and_then(|id| super::native_skill_selection::Target::capture(world, id)) }
+    }
+    pub(crate) fn interrupted(&self, connection: u64, world: &World) -> bool {
+        self.connection != connection || self.generation != world.generation
+            || self.caster != world.own_actor().map(|a| (a.id, a.incarnation))
+            || self.corrections != world.local_corrections
+            || self.interruptions != world.control_interruptions
+            || !world.ready() || world.battle_result.is_some()
+            || !world.hp.is_some_and(|hp| hp[0] > 0)
+            || world.own_actor().is_none_or(|a| a.dead)
+            || !world.movement_blocks.is_empty()
+            || world.movement_lock != super::native_world::MovementLock::Open
+            || !world.learned_skills.contains(&self.skill)
+            // An accepted cast may itself kill/remove its target in this batch.
+            || (world.own_cast_packets == self.casts
+                && self.target.is_some_and(|t| t.resolve(world).is_none()))
+    }
+}
 impl Pending {
     pub fn observe_item(&self, world: &World, now: Instant) -> Feedback {
         let feedback = self.observe(world, now);
@@ -284,6 +320,9 @@ impl Pending {
     pub fn observe(&self, world: &World, now: Instant) -> Feedback {
         if world.generation != self.generation
             || world.battle_result.is_some()
+            || !world.hp.is_some_and(|hp| hp[0] > 0)
+            || !world.movement_blocks.is_empty()
+            || world.movement_lock != super::native_world::MovementLock::Open
             || world
                 .own_actor()
                 .is_none_or(|a| a.incarnation != self.incarnation || a.dead)
