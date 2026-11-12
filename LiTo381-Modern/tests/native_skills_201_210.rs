@@ -100,7 +100,8 @@ fn selectors_clear_stale_hover_and_emit_exact_three_bytes_without_spending() {
 fn wrapper_skills_always_send_eleven_bytes_and_are_never_selector_only() {
     // Formal `IllusionSkillRequests.dispatch` drops every length except 11.
     let state = snapshot();
-    let wrapped: Vec<u16> = (1..=220).filter(|id| skills::illusion_targeted(*id)).collect();
+    // 211..=220 (#160) share `illusion_targeted`; this file only owns 201..=210.
+    let wrapped: Vec<u16> = (201..=210).filter(|id| skills::illusion_targeted(*id)).collect();
     assert_eq!(wrapped, [202, 203, 204, 207, 208, 209]);
     for skill in wrapped {
         assert!(!skills::selector_only(skill) && !skills::self_object(skill), "skill={skill}");
