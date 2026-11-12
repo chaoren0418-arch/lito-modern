@@ -1,0 +1,1531 @@
+{
+ "tool": "map_domains.py",
+ "tool_version": 1,
+ "sources": {
+  "LiTo/LTtext.idx": "B8C0BB8C43AFFE59A90EBD2D26182269B6D60AF388C80963EAAEEDC8D8AE23C8",
+  "LiTo/LTtext.pak": "517D853E3FE91B504953FF4B9B2EED682A3612D063F2D18E75E39FD5580F342D",
+  "LiTo/LTsurf.idx": "C699CCF22C5F59EB37E8936D939D2632C15AC381980A6FE3F26F2565185193BF",
+  "LiTo/LTmap directories": 62,
+  "map directories": 717
+ },
+ "client_policy": {
+  "classic_domain_maps": [
+   4
+  ],
+  "arena_domain": "every other map id: LiTo/LTmap + LTtile, no fallback to map/"
+ },
+ "arena_maps": [
+  {
+   "map_id": 500,
+   "arena": {
+    "s32": 18,
+    "other_files": 0,
+    "s32_bytes": 2289125,
+    "s32_set_sha256": "610BC0477C547D3CC94F5AD083C0423BC3B718EB11D4CEA4C64409172917556C"
+   },
+   "classic": {
+    "s32": 5,
+    "other_files": 0,
+    "s32_bytes": 425079,
+    "s32_set_sha256": "A90C6D304695E58FC2A4B3E736680D8F20B756E7F841814575547FE6122566DD"
+   },
+   "same_name_sectors": 5,
+   "same_name_identical": 0,
+   "arena_only_sectors": 13,
+   "classic_only_sectors": 0
+  },
+  {
+   "map_id": 501,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 61595,
+    "s32_set_sha256": "4DC1C34D3E66427AB43E8BF88865D32320F688CB8204A077D0534F269EECBB49"
+   },
+   "classic": {
+    "s32": 36,
+    "other_files": 2,
+    "s32_bytes": 4834894,
+    "s32_set_sha256": "A75CC6A7F5B277970AE35780AE28ADBF5F0089CE4B7CE4CDEC2B7A456C9459F5"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 35
+  },
+  {
+   "map_id": 502,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 60893,
+    "s32_set_sha256": "38D8A9FC5EBF784F784A1B312798A03D1D8A616523006FF2EE0A9E5788195A48"
+   },
+   "classic": {
+    "s32": 31,
+    "other_files": 7,
+    "s32_bytes": 4588269,
+    "s32_set_sha256": "B8EDBA2A5A2A28BDCD24B702982B74011C79D551CE3C43B9DFABB2964382A3DE"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 30
+  },
+  {
+   "map_id": 503,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 64418,
+    "s32_set_sha256": "3E2A0B73013F5F3D6ED2B4B128B437813E369A6AB91869164BC7ECE0E986D4D5"
+   },
+   "classic": {
+    "s32": 33,
+    "other_files": 0,
+    "s32_bytes": 4306520,
+    "s32_set_sha256": "5FCDAEA748E4A0404AC9B963618A918319F159FEFC766384A8E07C9E2B5A8E85"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 32
+  },
+  {
+   "map_id": 504,
+   "arena": {
+    "s32": 7,
+    "other_files": 0,
+    "s32_bytes": 780293,
+    "s32_set_sha256": "788EFCE0800729C8CC7A6AFF75E99C974A0F9C50B87D32FB1C70C925E42E5345"
+   },
+   "classic": {
+    "s32": 31,
+    "other_files": 0,
+    "s32_bytes": 4389601,
+    "s32_set_sha256": "7A9DF12B5C780D4D2EFBB34205B4E7F73934E2F1F76904BDAA5E4A4312A50381"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 1,
+   "classic_only_sectors": 25
+  },
+  {
+   "map_id": 505,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 71870,
+    "s32_set_sha256": "91844B9DC5FBD9F96CC25B7821EF8AB058A92BE2AD19633FFDE69B4AC33AC3E0"
+   },
+   "classic": {
+    "s32": 31,
+    "other_files": 0,
+    "s32_bytes": 4702404,
+    "s32_set_sha256": "F9680D100BFCFC52417E400D7FA712522288E9C4B6ABD0B58B90FAC2C7A2CA8D"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 30
+  },
+  {
+   "map_id": 506,
+   "arena": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 525204,
+    "s32_set_sha256": "8939C89E3BC4D9FFA1A1E78B375B0499D452C41AD4B930760FB276D147E20DD0"
+   },
+   "classic": {
+    "s32": 35,
+    "other_files": 2,
+    "s32_bytes": 4617655,
+    "s32_set_sha256": "DE4C95DF1730F1FA7B1FBE5372BD65FF7FA32EA597E4E28F792DBD5F40D8D159"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 29
+  },
+  {
+   "map_id": 507,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 66846,
+    "s32_set_sha256": "C618EFBCEE08306F61A2256F10CA19CAED316816183B81D419ECB152C5E918A6"
+   },
+   "classic": {
+    "s32": 15,
+    "other_files": 0,
+    "s32_bytes": 2536793,
+    "s32_set_sha256": "E52F6E5C2DE6A3C47C93861E34EF1E3795F75D0FBFA105AEC2DDC9EBE26AEA02"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 14
+  },
+  {
+   "map_id": 508,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 87415,
+    "s32_set_sha256": "8DCEC346AB925630171781F34AC728DDF7857A5ACED1B79784CFC924D092C28C"
+   },
+   "classic": {
+    "s32": 4,
+    "other_files": 4,
+    "s32_bytes": 431778,
+    "s32_set_sha256": "50A587B4D912D9AF66776F462401E9808EB2CAC6F4515D8231E5E370C040B217"
+   },
+   "same_name_sectors": 0,
+   "same_name_identical": 0,
+   "arena_only_sectors": 1,
+   "classic_only_sectors": 4
+  },
+  {
+   "map_id": 509,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 86253,
+    "s32_set_sha256": "BD016698CC6FFB3BAC18E8AB684297F63B22738E5F815FA958F8AE16A04B87B8"
+   },
+   "classic": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 106355,
+    "s32_set_sha256": "C32F0707D90658182EDCA32D88A85D1119F702E83118402078AE95A32B0FCAC4"
+   },
+   "same_name_sectors": 0,
+   "same_name_identical": 0,
+   "arena_only_sectors": 1,
+   "classic_only_sectors": 1
+  },
+  {
+   "map_id": 510,
+   "arena": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 773884,
+    "s32_set_sha256": "6203F3EDD801421F462650AE89FC13D2B5423F2FA369D9B9FA0D7CE12C54635F"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 512,
+   "arena": {
+    "s32": 9,
+    "other_files": 1,
+    "s32_bytes": 796977,
+    "s32_set_sha256": "56D26A1E824F308BB33013DC7C2B9BCC7777FEBA8C365BB0A2513FEA1FAAFE63"
+   },
+   "classic": {
+    "s32": 20,
+    "other_files": 0,
+    "s32_bytes": 2673335,
+    "s32_set_sha256": "03CE5E30362876865F090DF2890838186E12A46592BE79A6B15987C0BBD82B4D"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 3,
+   "classic_only_sectors": 14
+  },
+  {
+   "map_id": 513,
+   "arena": {
+    "s32": 14,
+    "other_files": 0,
+    "s32_bytes": 1576593,
+    "s32_set_sha256": "CE61DCCDB0075AB6FFB7858815AA8F0F6DBB1C77E63C2AF0CAEE43A8A7D5996D"
+   },
+   "classic": {
+    "s32": 20,
+    "other_files": 0,
+    "s32_bytes": 2673335,
+    "s32_set_sha256": "13D8A05BA61D57B8275E6FE3A632AAF9A1BA82C37DDCC02D8DB586B1A19F10E5"
+   },
+   "same_name_sectors": 7,
+   "same_name_identical": 0,
+   "arena_only_sectors": 7,
+   "classic_only_sectors": 13
+  },
+  {
+   "map_id": 514,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 76380,
+    "s32_set_sha256": "84A905A6AB038BDC09A238FFCE43DD0B7DA4C5D01A3C31DE410FE14539CF9A64"
+   },
+   "classic": {
+    "s32": 20,
+    "other_files": 0,
+    "s32_bytes": 2673337,
+    "s32_set_sha256": "96A86BA1E7DC020DD08069E8A32683700DBAA3FAF923D1D9C1572C7A5640A4A1"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 19
+  },
+  {
+   "map_id": 516,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 134052,
+    "s32_set_sha256": "4EBABD11AA4B83B27A8FF93963E07682C05E254F3D87E2CF88635E3BDAD9E7A3"
+   },
+   "classic": {
+    "s32": 20,
+    "other_files": 0,
+    "s32_bytes": 2673337,
+    "s32_set_sha256": "19AE9EA759C292B40ACF396327F149ECD2CCBE455328F4296902F46A676BCD2E"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 19
+  },
+  {
+   "map_id": 517,
+   "arena": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 707415,
+    "s32_set_sha256": "24D098FCBE5400BAFB59277829928C1E18E16E2E43BECABB9089B2164DCD0C50"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 518,
+   "arena": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 1092801,
+    "s32_set_sha256": "1B24441FC9EE9C8D6582435DA1B71C24D604692101C71B3AEF52BB94DC130413"
+   },
+   "classic": {
+    "s32": 5,
+    "other_files": 0,
+    "s32_bytes": 404475,
+    "s32_set_sha256": "09B4F9D0DF2B840B98A601AA5C7B11B90684A5B6B8B2DE589EEB087FD3F26DFA"
+   },
+   "same_name_sectors": 3,
+   "same_name_identical": 0,
+   "arena_only_sectors": 6,
+   "classic_only_sectors": 2
+  },
+  {
+   "map_id": 519,
+   "arena": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 1043627,
+    "s32_set_sha256": "A0D0C4D4615F61F3CE355BC5B0DC2DF08883B2771E4404F28012057F8B0D344F"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 520,
+   "arena": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 1043627,
+    "s32_set_sha256": "A0D0C4D4615F61F3CE355BC5B0DC2DF08883B2771E4404F28012057F8B0D344F"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 521,
+   "arena": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 486478,
+    "s32_set_sha256": "7FCAEAAB243B72FD7B2C80EBD32BFE4B48A087367DEDE7711C54B993DB6FDF0A"
+   },
+   "classic": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 789857,
+    "s32_set_sha256": "BB93660250A7C6B5286AC0A69DA6294A2724E6A5D935F9CE5B41370514F2D90E"
+   },
+   "same_name_sectors": 0,
+   "same_name_identical": 0,
+   "arena_only_sectors": 6,
+   "classic_only_sectors": 8
+  },
+  {
+   "map_id": 522,
+   "arena": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 486506,
+    "s32_set_sha256": "97E57CDA3F13BFD41607D581BD9559A8CCDA4C39B97E7C70C70A78F8E0C69EDF"
+   },
+   "classic": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 627722,
+    "s32_set_sha256": "35A639B1351BF24F22791F3B4794BF7EE573D8905010EC8D4484694B627C622C"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 5,
+   "classic_only_sectors": 7
+  },
+  {
+   "map_id": 524,
+   "arena": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 484761,
+    "s32_set_sha256": "1E5FD78BF39D3B34F90F517C086320D27FCE47C5DDA87E0E331DE07375565DA4"
+   },
+   "classic": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 689681,
+    "s32_set_sha256": "5E71BDF41CAA2A3AFF4A886779C402212696F3E072A69F4431E251FE80A32925"
+   },
+   "same_name_sectors": 2,
+   "same_name_identical": 0,
+   "arena_only_sectors": 6,
+   "classic_only_sectors": 6
+  },
+  {
+   "map_id": 525,
+   "arena": {
+    "s32": 11,
+    "other_files": 0,
+    "s32_bytes": 906688,
+    "s32_set_sha256": "510E4E2DEAB059C0C3D1FD6915E9882184E5CCF34A52AAD0489068C4086DC6E2"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 526,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 281158,
+    "s32_set_sha256": "6B8CD73BC9EED7CD973493C68123586F740CC7C9AC880E96EACF9A439F7EE6A3"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 527,
+   "arena": {
+    "s32": 18,
+    "other_files": 0,
+    "s32_bytes": 2287462,
+    "s32_set_sha256": "601DA738AA4187230068C648A97928FA804D3477DE045FCFCEF11AF2FDE4E748"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 528,
+   "arena": {
+    "s32": 5,
+    "other_files": 0,
+    "s32_bytes": 324421,
+    "s32_set_sha256": "B900CBCF19AB71A183A0BD5061610BABD4B3EED17E0CE01F04544000BE9BE6AC"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 529,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 287228,
+    "s32_set_sha256": "586D20A2B5E36325CB54B38ECC84CDDFBE0EE4D69D49961B0D34A5A8E55F0287"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 530,
+   "arena": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 578106,
+    "s32_set_sha256": "658CDD046E34BA4340DE1EEB87E64D5222EC5512CF3704BD531CA8905DD58DFD"
+   },
+   "classic": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 831325,
+    "s32_set_sha256": "822290BD639954F6DE82847BE1E65A8D5BAF84C284140EF86C0112289C751FD2"
+   },
+   "same_name_sectors": 4,
+   "same_name_identical": 0,
+   "arena_only_sectors": 5,
+   "classic_only_sectors": 4
+  },
+  {
+   "map_id": 531,
+   "arena": {
+    "s32": 5,
+    "other_files": 0,
+    "s32_bytes": 305105,
+    "s32_set_sha256": "4B1A0214BEA7FEEA185F077B1789D3A24D541B646F8617FCDC00EA5877DC71AE"
+   },
+   "classic": {
+    "s32": 10,
+    "other_files": 0,
+    "s32_bytes": 1089795,
+    "s32_set_sha256": "42943844D3BE2DD6FD678E1F34B634805F8495EA086B78B1573C4B1A89E6D3E6"
+   },
+   "same_name_sectors": 4,
+   "same_name_identical": 0,
+   "arena_only_sectors": 1,
+   "classic_only_sectors": 6
+  },
+  {
+   "map_id": 532,
+   "arena": {
+    "s32": 13,
+    "other_files": 0,
+    "s32_bytes": 1414213,
+    "s32_set_sha256": "AFA2646FC59E21E15ED5933A5C72FEED6D6D1E95DD19BEF500E61507273AF07D"
+   },
+   "classic": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 792055,
+    "s32_set_sha256": "0BD465CADE2B95F38791F5B2BEDA6A2D68D748394154E94B33FDA324A8E38AA3"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 7,
+   "classic_only_sectors": 0
+  },
+  {
+   "map_id": 534,
+   "arena": {
+    "s32": 16,
+    "other_files": 0,
+    "s32_bytes": 2265823,
+    "s32_set_sha256": "70D152E4578AE9F33CF60E90E44C2DC55A3D0E55BC42B8CDAE4228C57BCE5C48"
+   },
+   "classic": {
+    "s32": 8,
+    "other_files": 0,
+    "s32_bytes": 933348,
+    "s32_set_sha256": "9938A948C7364517A3B07EE78038D803E4D1398DE49CAD534CF719C2ABD236B8"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 10,
+   "classic_only_sectors": 2
+  },
+  {
+   "map_id": 535,
+   "arena": {
+    "s32": 25,
+    "other_files": 0,
+    "s32_bytes": 3656097,
+    "s32_set_sha256": "394E0200D0C3EC242807F86D6DA513CBEA1A99FDB54740C5AFD23433938A67F1"
+   },
+   "classic": {
+    "s32": 25,
+    "other_files": 0,
+    "s32_bytes": 3499062,
+    "s32_set_sha256": "A1DD308EE8819A6277E12796F9CCA8EFDB963E9A32B9257DAC528E58421F3924"
+   },
+   "same_name_sectors": 20,
+   "same_name_identical": 0,
+   "arena_only_sectors": 5,
+   "classic_only_sectors": 5
+  },
+  {
+   "map_id": 540,
+   "arena": {
+    "s32": 13,
+    "other_files": 0,
+    "s32_bytes": 1215525,
+    "s32_set_sha256": "7CB4EBDC3C00D4D329BEFAE1FC38A3E5AA0B51D87E754AC80EB59F25D87E4B59"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 541,
+   "arena": {
+    "s32": 13,
+    "other_files": 0,
+    "s32_bytes": 1215525,
+    "s32_set_sha256": "7CB4EBDC3C00D4D329BEFAE1FC38A3E5AA0B51D87E754AC80EB59F25D87E4B59"
+   },
+   "classic": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 491371,
+    "s32_set_sha256": "6E3AC4A8A052CBE3D1D20DCC95B2A5AAD5DDE5603793E7A46AD9003E15ABD7EC"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 7,
+   "classic_only_sectors": 0
+  },
+  {
+   "map_id": 542,
+   "arena": {
+    "s32": 13,
+    "other_files": 0,
+    "s32_bytes": 1215525,
+    "s32_set_sha256": "7CB4EBDC3C00D4D329BEFAE1FC38A3E5AA0B51D87E754AC80EB59F25D87E4B59"
+   },
+   "classic": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 475929,
+    "s32_set_sha256": "EC365CDA3A646175C24CB3A68CD9F2A71771DD232A0668BDA61298C231B4C7D9"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 7,
+   "classic_only_sectors": 0
+  },
+  {
+   "map_id": 543,
+   "arena": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 393721,
+    "s32_set_sha256": "05A5249273964E406218FBCF5DB2F9466ADC3D5760E0449B30B8B513A7A673A9"
+   },
+   "classic": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 1163957,
+    "s32_set_sha256": "E0A4E5777958BD6D5B6B0111A4CECCEF2BEC4CAB99C862C5BA36142D689246C1"
+   },
+   "same_name_sectors": 6,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 3
+  },
+  {
+   "map_id": 545,
+   "arena": {
+    "s32": 25,
+    "other_files": 0,
+    "s32_bytes": 2642749,
+    "s32_set_sha256": "C006983AE658F77D71D74D6D022A5DF5CA236993239A920EDDF169B84E09C22B"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 546,
+   "arena": {
+    "s32": 24,
+    "other_files": 0,
+    "s32_bytes": 1822888,
+    "s32_set_sha256": "1003CBB3DCC4D7281B0DA95C22E548B692B035647641B8B4AD6230DCAED35C44"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 547,
+   "arena": {
+    "s32": 12,
+    "other_files": 0,
+    "s32_bytes": 1437842,
+    "s32_set_sha256": "53195DBCFCB1EAEAD4D5503CFDB7C79ECD0A894C487489720CE6BCB4DD012378"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 548,
+   "arena": {
+    "s32": 13,
+    "other_files": 0,
+    "s32_bytes": 1532135,
+    "s32_set_sha256": "74662F301D09BE0C2A1C5C5A64E7405319903CA47D3E1BCD9494C5BB811F8A24"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 549,
+   "arena": {
+    "s32": 16,
+    "other_files": 0,
+    "s32_bytes": 2007512,
+    "s32_set_sha256": "073953A8F70D845145F548C435AF5A48A01CE41426194C143A04B327152B397D"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 550,
+   "arena": {
+    "s32": 16,
+    "other_files": 0,
+    "s32_bytes": 1999252,
+    "s32_set_sha256": "E76F0CF1C0A1F65B2DCB9C784377A7DF96E5053D4BF3B9E451364A8B6A0FAB28"
+   },
+   "classic": {
+    "s32": 64,
+    "other_files": 0,
+    "s32_bytes": 7595035,
+    "s32_set_sha256": "2B9F482758A92684BE8F90553B0A36D3C148744AA47208FADC256EDFEED9A5E8"
+   },
+   "same_name_sectors": 16,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 48
+  },
+  {
+   "map_id": 551,
+   "arena": {
+    "s32": 3,
+    "other_files": 0,
+    "s32_bytes": 208719,
+    "s32_set_sha256": "F0214D49F9D46574B8035354781302429CEA737B236B78C69C7EFDD714CAA818"
+   },
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 271601,
+    "s32_set_sha256": "57E59204293815A683EB75C7966490E20E5AB0E01B6175F8D731068F6339EB10"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 2,
+   "classic_only_sectors": 3
+  },
+  {
+   "map_id": 552,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 294517,
+    "s32_set_sha256": "3CC251D2419B659C3DA9A57500509A8E6D93FCF844909F27A99417D3E2FF2C2F"
+   },
+   "classic": {
+    "s32": 2,
+    "other_files": 0,
+    "s32_bytes": 123353,
+    "s32_set_sha256": "DE3F83371B31BAF1202F0CA9E2C7A3FA24E8D1A4EAFAFEDC13D60F5D30816605"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 3,
+   "classic_only_sectors": 1
+  },
+  {
+   "map_id": 553,
+   "arena": {
+    "s32": 15,
+    "other_files": 0,
+    "s32_bytes": 1115549,
+    "s32_set_sha256": "D35C8A5B0C18C54730466D1BD4ABFD502784ACF61C424E67232EEA8E73A08495"
+   },
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 311540,
+    "s32_set_sha256": "DF4D73BB2D2CAB4FD9F1E109AE5E7BFBB7972E91B5B94BE0293847372701D046"
+   },
+   "same_name_sectors": 2,
+   "same_name_identical": 0,
+   "arena_only_sectors": 13,
+   "classic_only_sectors": 2
+  },
+  {
+   "map_id": 554,
+   "arena": {
+    "s32": 6,
+    "other_files": 0,
+    "s32_bytes": 781517,
+    "s32_set_sha256": "3BC48FD644BA9AC968780894E8D7C2EE09ED483843D3C2AFFDC759C83EEA2601"
+   },
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 278836,
+    "s32_set_sha256": "5854014A0AB80E7CFA0D19FC3D140BF3F4E0F79DE2EA09562C13524E2AED8665"
+   },
+   "same_name_sectors": 4,
+   "same_name_identical": 0,
+   "arena_only_sectors": 2,
+   "classic_only_sectors": 0
+  },
+  {
+   "map_id": 555,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 101356,
+    "s32_set_sha256": "2C0958CBE5045B1A439ADDE87269E47DB3154D79C57B128E32F3B2195FFA7E24"
+   },
+   "classic": {
+    "s32": 2,
+    "other_files": 0,
+    "s32_bytes": 127257,
+    "s32_set_sha256": "E2CACA13A4CDC1EBEBEDF7E2EE13DE8A70B8DFEDB4B80FE9C95F78E5D0DEE6E3"
+   },
+   "same_name_sectors": 1,
+   "same_name_identical": 0,
+   "arena_only_sectors": 0,
+   "classic_only_sectors": 1
+  },
+  {
+   "map_id": 560,
+   "arena": {
+    "s32": 11,
+    "other_files": 0,
+    "s32_bytes": 1003580,
+    "s32_set_sha256": "CD6F70FC1398342E8D26E9A327199CA99DADA45AB54DD6854A9F5632C2F61721"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 562,
+   "arena": {
+    "s32": 19,
+    "other_files": 1,
+    "s32_bytes": 1970067,
+    "s32_set_sha256": "00C17227517C9E3821C53C7C1E3D1849166CB47977A02DB1A9463352F2D0A1A5"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 563,
+   "arena": {
+    "s32": 19,
+    "other_files": 0,
+    "s32_bytes": 1970067,
+    "s32_set_sha256": "21828E93ADE3F88BBB0A3D5D76268506AA9E37D25CBE1F4741D0B2D379AE8513"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 564,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 128028,
+    "s32_set_sha256": "8A63551AECD396A8B78AD4B6CB83B7B442E71747AF8AE84668A646601E848EC9"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 565,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 555057,
+    "s32_set_sha256": "FBA3CB52096DBDE7607230CD26DC1905C07334AF3B4337C49BA6BC53CAB679D9"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 566,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 625287,
+    "s32_set_sha256": "7E5FF5FC563C5434680D678AFCCD0D566FC61813413B3E70A697F9878F11070A"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 567,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 108958,
+    "s32_set_sha256": "E3EBE72F89A7DA8B1F0D3A20301D24B2442D07D5BD9A85C59106407048106D77"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 568,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 104948,
+    "s32_set_sha256": "06004BA1AE6BB637D765570BBC2E1B07634D39559C5A17A40B1A3AE4F7158229"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 569,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 638852,
+    "s32_set_sha256": "B340AF6BBD90FC292A11E1C623D9CC69CB8194B64001A12A1977781093121880"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 570,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 627810,
+    "s32_set_sha256": "29B0D90B29D1F62A9F83FD944F4F7CACEF3F6215364CC107789C2484021849AF"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 573,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 655523,
+    "s32_set_sha256": "0BBAFC62AE51224C8C63ADBCD84C118F90696EA20BD1580F6E84A8B733946A9A"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 574,
+   "arena": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 631555,
+    "s32_set_sha256": "63D1D1222688990111D9C4776EA1D5920A9578330E9D61E634A00F55D2956323"
+   },
+   "classic": null
+  },
+  {
+   "map_id": 16384,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 59284,
+    "s32_set_sha256": "8AAA82DE30076957C64E617362BC37A75ECE4D948BBA6FB8B96789EAF907723E"
+   },
+   "classic": {
+    "s32": 1,
+    "other_files": 1,
+    "s32_bytes": 60996,
+    "s32_set_sha256": "E4ED004BBF5F0B2ED1D3BA479065718969A1F0E9FC7459F285F3CDABF467010D"
+   },
+   "same_name_sectors": 0,
+   "same_name_identical": 0,
+   "arena_only_sectors": 1,
+   "classic_only_sectors": 1
+  },
+  {
+   "map_id": 16896,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 62728,
+    "s32_set_sha256": "8A0F7921F78DC53D099155F4C13954ED1CA46FAEFBB26E7D2FC379AC4D4606F7"
+   },
+   "classic": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 64562,
+    "s32_set_sha256": "EF3A654A97E6DA71371D6D96B34E31C7F0E70D549BFFEC70D5F6EF091C094756"
+   },
+   "same_name_sectors": 0,
+   "same_name_identical": 0,
+   "arena_only_sectors": 1,
+   "classic_only_sectors": 1
+  },
+  {
+   "map_id": 17408,
+   "arena": {
+    "s32": 1,
+    "other_files": 0,
+    "s32_bytes": 56469,
+    "s32_set_sha256": "1406BD2893705521B8F48BB452C3CAD4C8D6B78DA1A1892A38E96E3C7F0A8CAB"
+   },
+   "classic": {
+    "s32": 1,
+    "other_files": 1,
+    "s32_bytes": 65099,
+    "s32_set_sha256": "B702855027B4E36E99A139ED5DB8A60A10125CD645B848429FD7E7ED39659E12"
+   },
+   "same_name_sectors": 0,
+   "same_name_identical": 0,
+   "arena_only_sectors": 1,
+   "classic_only_sectors": 1
+  }
+ ],
+ "dual_domain_ids": [
+  500,
+  501,
+  502,
+  503,
+  504,
+  505,
+  506,
+  507,
+  508,
+  509,
+  512,
+  513,
+  514,
+  516,
+  518,
+  521,
+  522,
+  524,
+  530,
+  531,
+  532,
+  534,
+  535,
+  541,
+  542,
+  543,
+  550,
+  551,
+  552,
+  553,
+  554,
+  555,
+  16384,
+  16896,
+  17408
+ ],
+ "classic_refreshed": [
+  {
+   "map_id": 77,
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 484280,
+    "s32_set_sha256": "E4DAFFB92F7EB930E9F6C9CB2FDDAD408DF05FA66E4BD807B4501E2C65D71A59"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 78,
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 474806,
+    "s32_set_sha256": "E9E5A5DBFC33FDA32005097432017D01C186973BD6C4344F7BE4E0D9E0CC6A79"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 79,
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 471732,
+    "s32_set_sha256": "E7CF802C13AC73A130E8DDAAFE75B71320C6106E9C2D4B42B949212D62778CA2"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 80,
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 468679,
+    "s32_set_sha256": "E9779C3D6757EC0B84F4AD773834E0E09B1E397AE790D8547831C82BAEE9634D"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 81,
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 476371,
+    "s32_set_sha256": "56F7BF7118CD7FCA486A8F6FB186A05F683EC9E77E94AE52A0470717D28929FE"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 82,
+   "classic": {
+    "s32": 4,
+    "other_files": 0,
+    "s32_bytes": 471866,
+    "s32_set_sha256": "A95FA12A709779258DE84BA65EE9A25DFECA20DD03FFEBA13065A0DBA6C6277D"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 104,
+   "classic": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 1233926,
+    "s32_set_sha256": "8DCCB2ADF02FC995BB078C10A9691B80120621CF6B2C8ECEE5DA70995B3DFBF0"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 105,
+   "classic": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 1389190,
+    "s32_set_sha256": "A496DA30C6D8CF819F73A491AAC836A34727C79E541A9C268DB6A79D12A474D5"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 108,
+   "classic": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 1200558,
+    "s32_set_sha256": "6874809A54CA332F36B501FB6C331A7CEA38EB4C0149DEC39F454D0F72AAF792"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 109,
+   "classic": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 1217345,
+    "s32_set_sha256": "266D782C160ED395070296A7499211EF9317081A0623CBFBA69A39A21D29FD57"
+   },
+   "in_arena_root": false
+  },
+  {
+   "map_id": 110,
+   "classic": {
+    "s32": 9,
+    "other_files": 0,
+    "s32_bytes": 1341422,
+    "s32_set_sha256": "CAA010B5543BC6EA89756FD4859D3EE73BD835F306005E27403FC5D503F99DB0"
+   },
+   "in_arena_root": false
+  }
+ ],
+ "zone_tables": [
+  {
+   "member": "LTzone-c.tbl",
+   "archive": "LiTo/LTtext",
+   "records": 1,
+   "bytes": 125,
+   "decoded_sha256": "7DA1B04C1291A1220E1D8B1E30C3D8A578DA65B78B61A70850187F2BE0D0AD65",
+   "verdict": "zone.ok",
+   "declared_rows": 5,
+   "data_rows": 6,
+   "count_rule": "excludes_header_row",
+   "colors": [
+    [
+     45,
+     95,
+     209
+    ],
+    [
+     10,
+     173,
+     90
+    ]
+   ],
+   "zone_count": 2,
+   "whole_map_zones": 2,
+   "zones_in_arena_root": [
+    500,
+    560
+   ],
+   "arena_maps_without_zone": [
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    512,
+    513,
+    514,
+    516,
+    517,
+    518,
+    519,
+    520,
+    521,
+    522,
+    524,
+    525,
+    526,
+    527,
+    528,
+    529,
+    530,
+    531,
+    532,
+    534,
+    535,
+    540,
+    541,
+    542,
+    543,
+    545,
+    546,
+    547,
+    548,
+    549,
+    550,
+    551,
+    552,
+    553,
+    554,
+    555,
+    562,
+    563,
+    564,
+    565,
+    566,
+    567,
+    568,
+    569,
+    570,
+    573,
+    574,
+    16384,
+    16896,
+    17408
+   ],
+   "refreshed_classic_with_zone": [],
+   "has_zone_for_504": false,
+   "zones": [
+    {
+     "name_hex": "4C4F44554E",
+     "name_ascii": "LODUN",
+     "color": 0,
+     "map_id": 500,
+     "bounds": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "whole_map": true
+    },
+    {
+     "name_hex": "4C454E4F41",
+     "name_ascii": "LENOA",
+     "color": 1,
+     "map_id": 560,
+     "bounds": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "whole_map": true
+    }
+   ]
+  },
+  {
+   "member": "LTzone.tbl",
+   "archive": "LiTo/LTtext",
+   "records": 1,
+   "bytes": 278,
+   "decoded_sha256": "F915E8F109D1D4F8AE57F566738757132E0FCF94D35083C929C98960EE5724E6",
+   "verdict": "zone.ok",
+   "declared_rows": 5,
+   "data_rows": 6,
+   "count_rule": "excludes_header_row",
+   "colors": [
+    [
+     45,
+     95,
+     209
+    ],
+    [
+     10,
+     173,
+     90
+    ]
+   ],
+   "zone_count": 2,
+   "whole_map_zones": 2,
+   "zones_in_arena_root": [
+    500,
+    560
+   ],
+   "arena_maps_without_zone": [
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    512,
+    513,
+    514,
+    516,
+    517,
+    518,
+    519,
+    520,
+    521,
+    522,
+    524,
+    525,
+    526,
+    527,
+    528,
+    529,
+    530,
+    531,
+    532,
+    534,
+    535,
+    540,
+    541,
+    542,
+    543,
+    545,
+    546,
+    547,
+    548,
+    549,
+    550,
+    551,
+    552,
+    553,
+    554,
+    555,
+    562,
+    563,
+    564,
+    565,
+    566,
+    567,
+    568,
+    569,
+    570,
+    573,
+    574,
+    16384,
+    16896,
+    17408
+   ],
+   "refreshed_classic_with_zone": [],
+   "has_zone_for_504": false,
+   "zones": [
+    {
+     "name_hex": "B7CEB4F8",
+     "name_ascii": null,
+     "color": 0,
+     "map_id": 500,
+     "bounds": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "whole_map": true
+    },
+    {
+     "name_hex": "B7B9B3EBBEC6",
+     "name_ascii": null,
+     "color": 1,
+     "map_id": 560,
+     "bounds": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "whole_map": true
+    }
+   ]
+  },
+  {
+   "member": "zone2-c.tbl",
+   "archive": "LiTo/LTtext",
+   "records": 1,
+   "bytes": 16794,
+   "decoded_sha256": "7174BE0B35194832372333A4D0BB2168EC0AF1C1C15E403FF4AF2A3649B3C8F2",
+   "verdict": "zone.ok",
+   "declared_rows": 350,
+   "data_rows": 344,
+   "count_rule": "mismatch",
+   "colors": [
+    [
+     45,
+     95,
+     209
+    ],
+    [
+     10,
+     173,
+     90
+    ],
+    [
+     174,
+     157,
+     14
+    ],
+    [
+     213,
+     130,
+     23
+    ],
+    [
+     222,
+     60,
+     60
+    ],
+    [
+     133,
+     14,
+     189
+    ]
+   ],
+   "zone_count": 336,
+   "whole_map_zones": 296,
+   "zones_in_arena_root": [
+    509,
+    521,
+    522,
+    524
+   ],
+   "arena_maps_without_zone": [
+    500,
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    510,
+    512,
+    513,
+    514,
+    516,
+    517,
+    518,
+    519,
+    520,
+    525,
+    526,
+    527,
+    528,
+    529,
+    530,
+    531,
+    532,
+    534,
+    535,
+    540,
+    541,
+    542,
+    543,
+    545,
+    546,
+    547,
+    548,
+    549,
+    550,
+    551,
+    552,
+    553,
+    554,
+    555,
+    560,
+    562,
+    563,
+    564,
+    565,
+    566,
+    567,
+    568,
+    569,
+    570,
+    573,
+    574,
+    16384,
+    16896,
+    17408
+   ],
+   "refreshed_classic_with_zone": [
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    104,
+    105,
+    108,
+    109,
+    110
+   ],
+   "has_zone_for_504": false
+  }
+ ],
+ "map_pages": {
+  "pe_sha256": "4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9",
+  "table_va": "0x0062F7BC",
+  "table_entries": [
+   6700,
+   6701
+  ],
+  "wire_pages": 18,
+  "pages_without_image": [
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18
+  ],
+  "decode_budget": {
+   "max_side": 2048,
+   "max_pixels": 1048576
+  },
+  "pages": [
+   {
+    "wire_page": 1,
+    "image": 6700,
+    "archive": "LiTo/LTsurf",
+    "member": "6700.img",
+    "records": 1,
+    "width": 1536,
+    "height": 768,
+    "flag": 1,
+    "bytes": 2359304,
+    "verdict": "img.exceeds_decode_budget",
+    "sha256": "3882842A5B9E9BE90CC3B09845C24F1F00ACA3B883DDB4E2673D58F5D4F3177D"
+   },
+   {
+    "wire_page": 2,
+    "image": 6701,
+    "archive": "LiTo/LTsurf",
+    "member": "6701.img",
+    "records": 1,
+    "width": 1536,
+    "height": 768,
+    "flag": 0,
+    "bytes": 2359304,
+    "verdict": "img.exceeds_decode_budget",
+    "sha256": "613C7FF394894CDD95D4FCD36D506EFE9B7446F80B88F45B9DC074B5194A2E3C"
+   }
+  ]
+ }
+}

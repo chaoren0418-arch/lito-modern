@@ -495,6 +495,10 @@ pub struct Model {
     many_effects:super::native_attack_many::Effects,
     vitals_gate:super::native_combat::VitalsGate,
     local_impacts:super::native_navigation::ImpactStamp,
+    /// LTzone 區域名稱表；讀不到時保留原因，交給資源診斷（不影響世界載入）。
+    zones: std::result::Result<super::native_zone::Table, (super::resource_diagnostics::Kind, String)>,
+    /// G07.4：這個場景看過的資源失敗，跨影格去重。
+    diagnostics: super::resource_diagnostics::Ledger,
 }
 pub struct Completion {
     pub(crate) static2941_ready: Vec<super::native_static2941::Prepared>,
@@ -766,6 +770,10 @@ impl Model {
         mark("sprite_archive_us");
         let names = super::native_inventory_names::Catalog::load(root, cancel)?;
         mark("world_names_us");
+        // 區域名稱只是顯示用：讀不到就明確記錄原因並繼續，取消則照常中止。
+        let zones = super::native_zone::Table::load(root, cancel)
+            .map_err(|e| (super::resource_diagnostics::classify(&e), format!("{e:#}")));
+        check(cancel)?;
         stages.insert(
             "total_us".into(),
             serde_json::json!(u128::from(terrain_us)+load_start.elapsed().as_micros()),
@@ -820,6 +828,8 @@ impl Model {
             effect_source_owner:std::sync::Arc::new(()),
             many_effects:Default::default(),
             vitals_gate:Default::default(),
+            zones,
+            diagnostics: Default::default(),
         })
     }
     /// Native all-name switch (`byte_64BC14`). No input is bound to it here.
@@ -1141,9 +1151,9 @@ impl Model {
                         .prepare(&bindings, subframe as usize, cancel)
                 })();
                 check(cancel)?;
-                let (prepared, layer_error) = match layer_result {
-                    Ok(b) => (b, None),
-                    Err(e) => (Default::default(), Some(format!("{e:#}"))),
+                let (prepared, layer_error, layer_error_kind) = match layer_result {
+                    Ok(b) => (b, None, None),
+                    Err(e) => (Default::default(), Some(format!("{e:#}")), Some(super::resource_diagnostics::classify(&e))),
                 };
                 let bindings = prepared.bindings;
                 let missing_attachments = prepared.missing_attachments;
@@ -1187,7 +1197,7 @@ impl Model {
                 }
                 hits.push((actor.id, bounds));
                 Ok(
-                    serde_json::json!({"rendered":true,"id":actor.id,"draw_state":actor.draw_state,"draw_style":style,"body_presentation":presentation,"body_draw_style":presentation.body_style(),"occlusion_switch":occlusion_switch,"logical_graphics":actor.graphics,"resolved_graphics":graphics,"heading":actor.heading,"world":[actor.x,actor.y],"screen":[x-camera.x,y-camera.y],"archive":body_source.archive,"speed":actor.speed,"brave":actor.brave,"stance":actor.walk_action,"action":pose.action,"phase":pose.phase,"display_position":pose.position,"source_frame":pose.source_frame,"source_frame_events":pose.events,"action_complete":pose.action_complete,"entered_events":pose.entered_events,"sprite_member":name,"sprite_subframe":subframe,"body_source":body_source,"layers":layer_receipts,"layer_error":layer_error,"missing_attachments":missing_attachments,"missing_shadow":missing_shadow,"native_dynamic_draw_flags_complete":false}),
+                    serde_json::json!({"rendered":true,"id":actor.id,"draw_state":actor.draw_state,"draw_style":style,"body_presentation":presentation,"body_draw_style":presentation.body_style(),"occlusion_switch":occlusion_switch,"logical_graphics":actor.graphics,"resolved_graphics":graphics,"heading":actor.heading,"world":[actor.x,actor.y],"screen":[x-camera.x,y-camera.y],"archive":body_source.archive,"speed":actor.speed,"brave":actor.brave,"stance":actor.walk_action,"action":pose.action,"phase":pose.phase,"display_position":pose.position,"source_frame":pose.source_frame,"source_frame_events":pose.events,"action_complete":pose.action_complete,"entered_events":pose.entered_events,"sprite_member":name,"sprite_subframe":subframe,"body_source":body_source,"layers":layer_receipts,"layer_error":layer_error,"layer_error_kind":layer_error_kind,"missing_attachments":missing_attachments,"missing_shadow":missing_shadow,"native_dynamic_draw_flags_complete":false}),
                 )
             })();
             match draw_result {
@@ -1196,7 +1206,7 @@ impl Model {
                     if !observer && actor.id == local_id {
                         return Err(error.context("local actor rendering"));
                     }
-                    actor_receipts.push(serde_json::json!({"id":actor.id,"logical_graphics":actor.graphics,"action":actor.walk_action,"rendered":false,"error":format!("{error:#}")}));
+                    actor_receipts.push(serde_json::json!({"id":actor.id,"logical_graphics":actor.graphics,"action":actor.walk_action,"rendered":false,"error":format!("{error:#}"),"error_kind":super::resource_diagnostics::classify(&error)}));
                 }
             }
         }
@@ -1512,7 +1522,7 @@ impl Model {
                     }
                     audio_receipts.push(row);if !suppressed {legacy_audio.push(super::native_audio_delivery::legacy::PreparedLegacyCue::from_event(sound.clone(),event)?);sounds.push(sound);}
                 }
-                Err(error) => audio_receipts.push(serde_json::json!({"event":event,"prepared":false,"error":format!("{error:#}")})),
+                Err(error) => audio_receipts.push(serde_json::json!({"event":event,"prepared":false,"sound_id":id,"error":format!("{error:#}"),"error_kind":super::resource_diagnostics::classify(&error)})),
             }
         }
         let rgba_sha256 = format!("{:x}", Sha256::digest(canvas.rgba()));
@@ -1566,6 +1576,20 @@ impl Model {
             None => serde_json::json!({"bound":false,"scope":"resource-only unbound draw"}),
         };
         receipt["static2941"] = serde_json::json!({"sequences":static2941.sequences(),"flags":0,"direction6_alias":-1,"shadow":-1,"paint_advances_clock":false});
+        // 區域名稱與顯示色只來自 LTzone；表裡沒有安全區欄位，這裡也不推導。
+        receipt["zone"] = match &self.zones {
+            Ok(table) => {
+                let label = u16::try_from(self.map_id).ok()
+                    .and_then(|map| table.label(map, view_position[0], view_position[1]));
+                serde_json::json!({"source":super::native_zone::ARCHIVE,"member":super::native_zone::MEMBER,
+                    "zones":table.zones.len(),"label":label,"combat_rule_from_color":false})
+            }
+            Err((kind, reason)) => serde_json::json!({"source":super::native_zone::ARCHIVE,"member":super::native_zone::MEMBER,
+                "label":null,"table_error":reason,"table_error_kind":kind,"combat_rule_from_color":false}),
+        };
+        // G07.4：把這張影格的資源失敗收進場景清單；HUD 與報告都讀這一欄。
+        self.diagnostics.absorb(super::resource_diagnostics::collect(&receipt));
+        receipt["resource_diagnostics"] = self.diagnostics.receipt();
         Ok(Frame {
             vitals: {
                 let animator = &self.animator;

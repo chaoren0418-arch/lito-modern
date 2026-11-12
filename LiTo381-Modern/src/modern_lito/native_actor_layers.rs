@@ -191,6 +191,10 @@ pub struct Loaded {
     pub source: Source,
     pub sprite: DecodedSprite,
 }
+/// Sprite00～15 的分片編號：成員名稱的位元組總和取低 4 bits。
+pub fn shard_of(name: &str) -> u8 {
+    (name.bytes().map(u32::from).sum::<u32>() & 15) as u8
+}
 pub struct Bank {
     root: PathBuf,
     base: SharedArchive,
@@ -234,7 +238,7 @@ impl Bank {
             return Ok(());
         }
         ensure!(self.entries.len() < 1024, "actor member cache budget");
-        let shard = (name.bytes().map(u32::from).sum::<u32>() & 15) as u8;
+        let shard = shard_of(name);
         if !self.shards.contains_key(&shard) {
             let a = SharedArchive::open(&self.root, SharedArchiveKind::SpriteShard(shard))?;
             let records = self
