@@ -45,6 +45,9 @@ mod companion_controller;
 #[cfg(test)]
 #[path = "native_forced_combat_controller_tests.rs"]
 mod forced_combat_tests;
+#[cfg(test)]
+#[path = "native_target_policy_tests.rs"]
+mod target_policy_tests;
 
 pub fn decode_text(bytes: &[u8]) -> Result<String> {
     decode_message(bytes, false)
@@ -313,6 +316,8 @@ pub struct Snapshot {
     pub item_feedback: super::native_item_actions::Feedback,
     pub skill_feedback: super::native_skills::Feedback,
     pub attack_feedback: super::native_combat::Feedback,
+    /// Own S23 replies that did not acknowledge the pending request.
+    pub attack_replies: super::native_combat::Ledger,
     pub phase: LoginPhase,
     pub sources: Vec<Source>,
     pub selected_source: Option<String>,
@@ -383,7 +388,9 @@ pub struct LoginController {
     pickup_pending: Option<super::native_ground_pickup::Pending>,
     item_pending: Option<super::native_item_actions::Pending>,
     skill_pending: Option<super::native_skills::Pending>,
+    skill_target_pending: Option<super::native_skill_selection::Target>,
     skill_item_pending: bool,
+    skill_summon_pending: bool,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
@@ -395,6 +402,7 @@ pub struct LoginController {
     /// Exact `25 07` bodies that ended a pending teleport wait without S_PORTAL.
     teleport_unlocks_without_portal: u64,
     attack_pending: Option<super::native_combat::Pending>,
+    empty_attack_pacer: super::native_combat_ops::Pacer,
     transport: Controller,
     state: Snapshot,
     deadline: Option<Instant>,
@@ -438,8 +446,11 @@ impl Default for LoginController {
             pickup_pending: None,
             item_pending: None,
             attack_pending: None,
+            empty_attack_pacer: Default::default(),
             skill_pending: None,
+            skill_target_pending: None,
             skill_item_pending: false,
+            skill_summon_pending: false,
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
@@ -452,6 +463,7 @@ impl Default for LoginController {
                 pickup_feedback: Default::default(),
                 item_feedback: Default::default(),
                 attack_feedback: Default::default(),
+                attack_replies: Default::default(),
                 skill_feedback: Default::default(),
                 phase: LoginPhase::Disconnected,
                 sources: vec![],
@@ -666,8 +678,10 @@ impl LoginController {
     fn observe_skill(&mut self, now: Instant) {
         if let Some(pending) = &self.skill_pending {
             let feedback = if self.state.phase.active_world() && self.skill_context.as_ref().is_none_or(|c|
-                !c.interrupted(self.transport.snapshot().epoch, &self.state.world)) {
+                !c.interrupted(self.transport.snapshot().epoch, &self.state.world))
+                && self.skill_target_pending.is_none_or(|target| target.resolve(&self.state.world).is_some()) {
                 let observed = if self.player_callbacks.pending() { super::native_skills::Feedback::Pending }
+                    else if self.skill_summon_pending { pending.observe_summon(&self.state.world, now) }
                     else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
                     else { pending.observe(&self.state.world, now) };
                 // A coded rejection or cast action received in the same batch wins;
@@ -679,11 +693,13 @@ impl LoginController {
                 super::native_skills::Feedback::Interrupted
             };
             self.state.skill_feedback = feedback;
-            if feedback != super::native_skills::Feedback::Pending {
+            if feedback != super::native_skills::Feedback::Pending
+                && !(self.skill_summon_pending && pending.hold_summon(feedback, now)) {
                 self.player_callbacks.cancel_pending();
                 self.skill_pending = None;
                 self.skill_context = None;
                 self.teleport_released = false;
+                self.skill_target_pending = None;
                 if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;self.teleport_spell=None;}
             }
         }
@@ -723,7 +739,18 @@ impl LoginController {
         frame: &super::native_world_scene::Frame,
         input: CombatInput,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, None, None, frame, input)
+        self.cast_request(skill, target, None, None, None, None, frame, input)
+    }
+    /// Retained UI selections must resolve their original life at dispatch.
+    pub fn cast_selected_with_input(
+        &mut self,
+        skill: u16,
+        target: Option<super::native_skill_selection::Target>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+    ) -> Result<()> {
+        let choice = super::native_skill_selection::choice(&self.state.world, skill, target)?;
+        self.cast_with_input(choice.skill, choice.target, frame, input)
     }
     pub fn cast_ground(
         &mut self,
@@ -737,12 +764,12 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), None, None, frame, CombatInput::default())
+        self.cast_request(skill, None, Some(position), None, None, None, frame, CombatInput::default())
     }
     pub fn cast_item(&mut self, skill: u16, item: &super::native_skills::ItemTarget,
         frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "等待目前物品操作回覆");
-        self.cast_request(skill, None, None, Some(item), None, frame, CombatInput::default())
+        self.cast_request(skill, None, None, Some(item), None, None, frame, CombatInput::default())
     }
     pub fn teleport_labels(&self)->Vec<String> {
         self.teleport_bookmarks.labels(&self.state,self.transport.snapshot().epoch)
@@ -754,7 +781,11 @@ impl LoginController {
         choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks).is_ok()
     }
     pub fn cast_teleport(&mut self,choice:&super::native_teleport_spell::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
-        self.cast_request(5,None,None,None,Some(choice),frame,CombatInput::default())
+        self.cast_request(5,None,None,None,Some(choice),None,frame,CombatInput::default())
+    }
+    pub fn cast_summon(&mut self,choice:&super::native_skills::SummonTarget,frame:&super::native_world_scene::Frame)->Result<()> {
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),"等待目前物品操作回覆");
+        self.cast_request(51,None,None,None,None,Some(choice),frame,CombatInput::default())
     }
     fn cast_request(
         &mut self,
@@ -763,10 +794,11 @@ impl LoginController {
         ground: Option<[u16; 2]>,
         item: Option<&super::native_skills::ItemTarget>,
         teleport: Option<&super::native_teleport_spell::Choice>,
+        summon: Option<&super::native_skills::SummonTarget>,
         frame: &super::native_world_scene::Frame,
         input: CombatInput,
     ) -> Result<()> {
-        self.cast_request_at(skill, target, ground, item, teleport, frame, input, Instant::now())
+        self.cast_request_full(skill, target, ground, item, teleport, summon, frame, input, Instant::now())
     }
     #[allow(clippy::too_many_arguments)]
     fn cast_request_at(
@@ -780,9 +812,25 @@ impl LoginController {
         input: CombatInput,
         now: Instant,
     ) -> Result<()> {
+        self.cast_request_full(skill, target, ground, item, teleport, None, frame, input, now)
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn cast_request_full(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        ground: Option<[u16; 2]>,
+        item: Option<&super::native_skills::ItemTarget>,
+        teleport: Option<&super::native_teleport_spell::Choice>,
+        summon: Option<&super::native_skills::SummonTarget>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+        now: Instant,
+    ) -> Result<()> {
         self.observe_skill(now);
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
-        ensure!(!self.state.observer,"observer cannot cast");
+        ensure!(!self.state.observer && !self.state.world.observer_mode
+            && !self.state.battle_withdrawal_pending,"observer or withdrawing cannot cast");
         ensure!(
             self.state.phase.active_world()
                 && self.attack_pending.is_none()
@@ -799,7 +847,9 @@ impl LoginController {
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
         ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
-        let mut body = if let Some(choice)=teleport {
+        ensure!(summon.is_none() || (skill==51 && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none()),"混合召喚目標");
+        let mut body = if let Some(choice)=summon {super::native_skills::summon_request(&self.state,self.transport.snapshot().epoch,choice)?}
+        else if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
         } else {match ground {
             Some(position) => {
@@ -809,6 +859,12 @@ impl LoginController {
                 super::native_skills::item_request(&self.state, self.transport.snapshot().epoch, skill, item)?
             } else { super::native_skills::request(&self.state.world, skill, target)? },
         }};
+        super::native_target_policy::validate(&self.state, &body, input)?;
+        let pending_target = if skill == 68 {
+            let id = native_forced_combat::object_target(&body).context("聖結界目標缺失")?;
+            Some(super::native_skill_selection::Target::capture(&self.state.world, id)
+                .context("聖結界目標已失效")?)
+        } else { None };
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
         self.skill_context = Some(super::native_skills::CastContext::capture(
@@ -816,7 +872,8 @@ impl LoginController {
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
         self.teleport_released = false;
-        self.skill_item_pending = item.is_some();
+        self.skill_item_pending = item.is_some() || skill==48;
+        self.skill_summon_pending = summon.is_some();
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
             casts: self.state.world.own_cast_packets,
@@ -824,6 +881,7 @@ impl LoginController {
             generation: self.state.world.generation,
             incarnation: self.state.world.own_actor().unwrap().incarnation,
         });
+        self.skill_target_pending = pending_target;
         // Formal reuse, recovered client cast clock, body completion and
         // pending acknowledgement are separate admission gates.
         self.skill_ready = Some(now + Duration::from_millis(super::native_skills::reuse_millis(skill).max(super::native_skills::client_clock_millis(skill))));
@@ -836,7 +894,8 @@ impl LoginController {
     pub fn attack_with_input(&mut self, target: u32, input: CombatInput) -> Result<()> {
         ensure!(!self.player_callbacks.moving(),"等待目前步伐完成");
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
-        ensure!(!self.state.observer,"observer cannot attack");
+        ensure!(!self.state.observer && !self.state.world.observer_mode
+            && !self.state.battle_withdrawal_pending,"observer or withdrawing cannot attack");
         ensure!(
             self.state.phase.active_world()
                 && self.attack_pending.is_none()
@@ -844,10 +903,38 @@ impl LoginController {
             "attack unavailable or awaiting server"
         );
         let mut body = self.state.world.attack_request(target)?;
+        super::native_target_policy::validate(&self.state, &body, input)?;
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
-        self.attack_pending = Some(super::native_combat::Pending::capture(
-            &self.state.world, target, Instant::now()));
+        self.attack_pending = Some(super::native_combat::Pending::capture(&self.state.world, target, Instant::now()));
+        self.state.attack_feedback = super::native_combat::Feedback::Pending;
+        Ok(())
+    }
+    /// Native target-zero swing toward `heading` (C17 target 0, damage 0).
+    /// Local refusals mirror formal EmptyMelee and send nothing. `interval_ms`
+    /// is the attack-only interval when the attack clip duration is known.
+    pub fn empty_attack_with_input(&mut self, heading: u8, interval_ms: Option<u32>, input: CombatInput) -> Result<()> {
+        ensure!(!self.player_callbacks.moving(),"等待目前步伐完成");
+        ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
+        ensure!(
+            self.state.phase.active_world()
+                && self.attack_pending.is_none()
+                && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
+            "attack unavailable or awaiting server"
+        );
+        let now = Instant::now();
+        let mut body = match self.empty_attack_pacer.admit(now)
+            .and_then(|()| super::native_combat_ops::empty_melee_request(&self.state.world, self.state.observer, heading)) {
+            Ok(body) => body,
+            Err(refusal) => {
+                self.state.attack_feedback = super::native_combat::Feedback::Refused(refusal);
+                anyhow::bail!("{}", refusal.text());
+            }
+        };
+        native_forced_combat::append(&mut body, input, &self.state);
+        self.send_player_action(body)?;
+        if let Some(ms) = interval_ms { self.empty_attack_pacer.commit(now, ms); }
+        self.attack_pending = Some(super::native_combat::Pending::capture(&self.state.world, 0, now));
         self.state.attack_feedback = super::native_combat::Feedback::Pending;
         Ok(())
     }
@@ -1044,6 +1131,7 @@ impl LoginController {
         self.pending_roster_forces.clear();self.early_roster.clear();
         self.attack_pending = None;
         self.skill_pending = None;
+        self.skill_target_pending = None;
         self.skill_context = None;
         self.world_tree_request=None;self.teleport_spell=None;
         self.skill_ready = None;
@@ -1200,6 +1288,7 @@ impl LoginController {
             self.state.selected_character.as_deref().unwrap(),
         )?;
         self.skill_pending = None;
+        self.skill_target_pending = None;
         self.skill_context = None;
         self.world_tree_request=None;self.teleport_spell=None;
         self.skill_ready = None;
@@ -1935,7 +2024,7 @@ impl LoginController {
                     .map(|p|p.observe(&self.state,Instant::now()))
                     .filter(|f|*f==super::native_item_actions::Feedback::SceneUpdated)
                     .unwrap_or(super::native_item_actions::Feedback::Interrupted);
-                self.state.merchant.clear();self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.item_pending=None;self.pickup_pending=None;self.door_pending=None;self.skill_ready=None;
+                self.state.merchant.clear();self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_target_pending=None;self.item_pending=None;self.pickup_pending=None;self.door_pending=None;self.skill_ready=None;
                 self.state.attack_feedback=super::native_combat::Feedback::Interrupted;self.state.skill_feedback=super::native_skills::Feedback::Interrupted;
                 self.transport.send(self.transport.snapshot().epoch,Zeroizing::new(super::native_portal::ACK.to_vec()))?;
                 self.deadline=Some(Instant::now()+Duration::from_secs(8));
@@ -2392,6 +2481,7 @@ impl LoginController {
             }
         }
         self.observe_skill(Instant::now());
+        self.state.attack_replies.observe(&self.state.world, self.attack_pending.as_ref());
         if let Some(pending) = &self.attack_pending {
             let feedback = if self.state.phase.active_world() {
                 pending.observe(&self.state.world, Instant::now())
@@ -2607,7 +2697,7 @@ impl LoginController {
         self.state.companions.clear();
         self.teleport_spell = None;
         self.skill_item_pending = false;
-        self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_ready=None;self.world_tree_request=None;
+        self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_target_pending=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;
         self.state.skill_feedback=super::native_skills::Feedback::Interrupted;

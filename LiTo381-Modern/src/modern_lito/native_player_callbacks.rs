@@ -237,6 +237,11 @@ impl Control {
     pub(crate) fn cancel_pending(&mut self) {
         self.pending = None;
     }
+    /// Offline fixtures only: install a frame-zero deferred body without a walk.
+    #[cfg(test)]
+    pub(crate) fn defer_for_test(&mut self, body: Zeroizing<Vec<u8>>) {
+        self.pending = Some(body);
+    }
     pub(crate) fn take_deferred_sent(&mut self) -> Option<std::time::Instant> {
         self.deferred_sent.take()
     }

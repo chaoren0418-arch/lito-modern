@@ -372,12 +372,15 @@ pub mod native_world_animation;
 pub(crate) mod native_status4183;
 pub mod native_navigation;
 pub mod native_speed;
+pub mod native_hp_meter;
 pub mod native_status_icons;
 
 pub mod native_terrain_cache;
 
 pub mod native_combat;
+pub mod native_combat_ops;
 pub mod native_forced_combat;
+pub mod native_target_policy;
 pub mod native_combat_animation;
 pub mod native_combat_probe;
 pub mod native_peer_probe;
