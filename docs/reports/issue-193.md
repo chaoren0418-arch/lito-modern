@@ -25,7 +25,12 @@
 依使用者 2026-11-09 規定，本機**不執行**編譯出來的程式（含 `cargo test` 的測試執行檔），測試交 GitHub Actions CI（`.github/workflows/build.yml`：`cargo check --locked --all-targets`、`cargo test --locked --lib --no-fail-fast`）。新測試在 `native_login.rs` 的 `#[cfg(test)]` 模組內，屬 lib 測試，CI 會跑到。
 
 - `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：合併後與修改後各跑一次，結束碼皆 `0`（`Finished dev profile ... in 52.32s`）。觸及的三個檔案沒有新增 warning。
-- `cargo test`：**本機未執行**，以 PR #257 最新 commit 的 CI 結果為準（見 PR checks）。
+- `cargo test`：**本機未執行**。GitHub Actions run `43152811171`（commit `c7866d8`）job `cargo check (x86_64-pc-windows-msvc)` 結果 `pass`（4m46s），`cargo test --locked --lib --no-fail-fast` 原文：
+  ```text
+  test modern_lito::native_login::target_policy_tests::target_policy_68_deferred_body_is_dropped_when_receiver_retires_before_frame_zero ... ok
+  test result: ok. 2048 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 19.70s
+  ```
+  585 個 ignored 沒有執行，不算通過。
 
 ### 第 1 輪（2026-11-06，codex-local，當時規定允許本機測試；僅供參考）
 - `cargo test ... --lib --no-fail-fast` 結束碼 `0`：`test result: ok. 1982 passed; 0 failed; 577 ignored; 0 measured; 0 filtered out; finished in 9.63s`
@@ -45,13 +50,14 @@
 - 合併 main 後與本輪修改後，`cargo check --all-targets` 結束碼 `0`。
 - 程式碼閱讀：客戶端所有技能／攻擊送出點（`cast_with_input`、`attack_with_input`）都經過 `native_target_policy::validate`；68 的目標 token 在「送出前」「延後送出前」「回覆等待中」三處都會重新解析。
 
+- CI（run `43152811171`）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2048 passed／0 failed，含本輪新測試與第 1 輪的 `target_policy_*` 測試。
+
 ## 推測
-- 新測試與第 1 輪測試在合併後仍會通過（本機未執行，待 CI）。
 - 伺服器候選 JAR 的 N1 邏輯（上述第 35、43–47 行）能做到「扣料／安裝前目標退役就拒絕」「延後輸出 receiver 換世代就丟棄」「不扣錯世代材料」——只是靜態閱讀，未執行任何 harness。
 - `S_CD` 名稱與 actor 名稱一致即視為同一玩家；名稱不一致或重名時拒絕，尚未遇到跨伺服器例外。
 
 ## 待驗證／未完成
-1. **CI**：PR #257 最新 commit 的 `cargo check` 與 `cargo test --lib`（含新測試 `target_policy_68_deferred_body_is_dropped_when_receiver_retires_before_frame_zero`）。
+1. ignored 測試（585 個，需要本機資源或 loopback）沒有執行。
 2. **#120 N1 伺服器端（本 repo 無法完成）**：扣料或安裝前目標退役、延後輸出時 receiver 換世代、不扣錯世代材料——權威在伺服器。目前只有 lito-launcher-server 的**未資格驗證候選**，正式 `src/` 未併入。需要在 lito-launcher-server repo 開任務：完成 `de-native-pair-material-development` 的 qualification、併入正式原始碼，並跑伺服器 harness（交本機 Codex，依規定本機 Claude 不執行）。建議主控把 T061-2 的驗收範圍明確限縮為「客戶端那一半」，伺服器那一半另開 Issue。
 3. LOS、免疫、血盟權限的最終判定在伺服器；客戶端只擋已知的狀態（隱形、距離、血盟欄位），沒有 LOS 資料。
 4. 實機：前景視窗＋實體 Ctrl、Pet Race 中的行為、GUI 畫面；未連正式服務或 DB、未執行 Release／ignored 測試。
