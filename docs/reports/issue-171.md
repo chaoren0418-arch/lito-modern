@@ -68,7 +68,13 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 ## 已驗證
 
 - 上面的 `cargo check --all-targets` 結束碼 0。
-- CI 結果：見下方「CI」段（push 後補上）。
+- PR #281 的 GitHub Actions CI（run 43167902988，commit `369077d`，已含同步後的 main）：`cargo check` 和 `test (lib, no GUI)` 都通過。
+
+```text
+test result: ok. 2215 passed; 0 failed; 591 ignored; 0 measured; 0 filtered out; finished in 22.42s
+```
+
+本張新增的 12 案都顯示 `... ok`：`native_login::teleport_unlock_tests` 7 案、`native_npc_document::layout_tests` 2 案、`native_npc_images::layout_tests` 3 案。符合 `run-local-test-suite.ps1` 的門檻：passed > 0、failed 0、結束碼 0。591 個 ignored 不算通過。
 
 ## 推測
 
@@ -77,7 +83,7 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 
 ## 待驗證／未驗證什麼
 
-- `cargo test` 本機沒跑（規定）；以 CI 為準。
+- `cargo test` 本機沒跑（規定），結果以 CI 為準。integration `tests/native_npc_document.rs` 要讀客戶端資源，CI 不跑，所以新加的斷言還沒驗。
 - TeleportMe 新排版沒有實際開視窗看畫面、沒有截圖、沒有跟原客戶端畫面比對（要等 GUI 驗收／Codex 不連線截圖）。
 - 奪命之雷／技能 69 失敗的解鎖沒有接真的伺服器跑（只有離線重播）；技能 69 客戶端施放入口沒做。
 - 旅館自然到期、手動退房、同端點以外的 Presentation 與音效實際播放、完整 GUI：都沒做，維持 G06.3d `complete=false`。
