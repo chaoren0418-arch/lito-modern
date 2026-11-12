@@ -124,6 +124,11 @@ pub struct World {
     pub message_count: u64,
     pub system_message_count: u64,
     pub last_system_message: Option<(u8,String)>,
+    /// Recent S0F／S10 messages in arrival order, for the HUD. Kept across
+    /// scene replacement like the native chat lines. Not part of serialized
+    /// evidence: the counters and `last_*` fields already are.
+    #[serde(skip)]
+    pub message_log: super::native_messages::Log,
     /// Received SP/MR modifiers, not inferred total spell power or resistance.
     pub magic_modifiers: Option<[i8;2]>,
     /// Ability, experience, armor/resistance, and magic updates for the current local identity.
@@ -669,6 +674,7 @@ impl World {
             ensure!(!text.is_empty(), "empty system message");
             let revision = self.revision.checked_add(1).context("world revision")?;
             self.system_message_count += 1;
+            self.message_log.push(super::native_messages::Body::System { kind, text: text.clone() });
             self.last_system_message = Some((kind, text));
             self.revision = revision;
             return Ok(true);
@@ -900,6 +906,7 @@ impl World {
                 }
                 r.end()?;
                 self.message_count += 1;
+                self.message_log.push(super::native_messages::Body::Code { code, args: args.clone() });
                 self.last_message = Some((code, args));
                 if matches!(code,353|743) {self.last_summon_rejection=Some((self.message_count,code));}
                 // 1412: only the formal cube handlers (205／210／215／220) send it, when placement is refused.

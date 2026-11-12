@@ -81,7 +81,7 @@ EXE 7682F61B／正式 BBC59308 的兩次租裝入口及同檔雙場近戰回歸�
 
 ## 2026-10-13 商店交易與返回路徑
 
-EXE BBC84502 的雙端NPC Love_Start、17列正式租用清單、寶石不足拒絕、租用及歸還通過：20→20→17→20 顆宝石，新租用物件新增後移除，正式runtime物件ID／数量／到期與余额一致。同EXE近戰雙場回歸通過。S0F系統文字與S10模板訊息分開接收，255-byte MS950 上限明確檢查；GUI 尚未接線。證據 `rental-shop-qualified.json`。
+EXE BBC84502 的雙端NPC Love_Start、17列正式租用清單、寶石不足拒絕、租用及歸還通過：20→20→17→20 顆宝石，新租用物件新增後移除，正式runtime物件ID／数量／到期與余额一致。同EXE近戰雙場回歸通過。S0F系統文字與S10模板訊息分開接收，255-byte MS950 上限明確檢查；GUI 當時尚未接線（#329 已把最近的 S0F／S10 訊息接到 HUD 狀態區，見 [NATIVE-MESSAGES](NATIVE-MESSAGES.zh-TW.md)；實機顯示待驗）。證據 `rental-shop-qualified.json`。
 
 EXE 6CB3426B 實送兩端 C10→S65→CD9，6秒窗口內仍是 BATTLE／RESTART_AWAIT_QUIT_FIGHT，無 F5來源許可，背包沒有清理。靜態 quitFight 的 BATTLE 分支先於 pending restart，對合成租裝房60001進入空GameHub成員結算。此為該正式路徑缺口，其他退出／傳送分支尚未驗；不修改只讀正式核心，也不把斷線退出視為正常返回。新EXE的商店、5個既有來源返回情境與雙場近戰均通過，詳 `rental-return-boundary.json`。後續繼續 G05 角色屬性更新，保留 G06 返回未完成。
 

@@ -2030,12 +2030,20 @@ impl Ui {
             self.score_labels = score_labels;
             self.score_extent();
         }
+        // string-c／LTstring；與物品名稱同一個背景載入，載入前為 None。
+        let names = self.inventory_names.catalog();
+        let strings = names.and_then(|c| c.strings.as_ref());
         let status = if let Some(notice) = &snapshot.notice {
             notice.text.clone().unwrap_or_else(|| {
-                format!(
-                    "伺服器通知 #{}（文字資源對應尚未完成）",
-                    notice.message_id.unwrap_or(0)
-                )
+                // 原版 48F600：數字通知顯示 string-c 對應列。
+                let id = notice.message_id.unwrap_or(0);
+                match strings.and_then(|s| super::native_messages::notice_text(&s.base, id)) {
+                    Some(text) => text,
+                    None if strings.is_some() => {
+                        format!("伺服器通知 #{id}（Text 資源沒有可顯示的內容）")
+                    }
+                    None => format!("伺服器通知 #{id}（文字表尚未載入）"),
+                }
             })
         } else if let Some(error) = &snapshot.error {
             format!("連線失敗：{error}")
@@ -2071,10 +2079,18 @@ impl Ui {
                     if snapshot.characters.is_empty() {
                         "此來源目前沒有角色。".into()
                     } else {
-                        let refusal = match snapshot.character_result {
-                            Some(1) => "伺服器未接受角色選取，請重試。",
-                            Some(7) => "此角色目前不能參與，請選擇其他角色。",
-                            Some(8) => "伺服器未接受角色名稱，請重新選取。",
+                        // 原版 4A76D0：結果 7／8 顯示 LTstring 93／92。
+                        let native = snapshot.character_result.and_then(|r| {
+                            super::native_messages::lito_line(
+                                strings,
+                                super::native_messages::character_refusal_row(r),
+                            )
+                        });
+                        let refusal = match (native.as_deref(), snapshot.character_result) {
+                            (Some(text), _) => text,
+                            (None, Some(1)) => "伺服器未接受角色選取，請重試。",
+                            (None, Some(7)) => "此角色目前不能參與，請選擇其他角色。",
+                            (None, Some(8)) => "伺服器未接受角色名稱，請重新選取。",
                             _ => "請選擇角色。",
                         };
                         format!("{refusal}\r\n每頁 4 筆；PgUp／PgDn、滾輪或上一頁／下一頁翻頁。")
@@ -2221,14 +2237,24 @@ impl Ui {
                             frame.receipt["resource_diagnostics"]["hud"].as_str().map(str::to_owned),
                             snapshot.map_view.status(),
                         ].into_iter().flatten().map(|line| format!("\r\n{line}")).collect();
-                        format!("地圖 {}{zone}　HP {}{}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}{resource_notes}",
+                        // S0F／S10：最近幾則伺服器訊息的原文（S10 依 string-c／LTstring 模板展開）。
+                        let character = snapshot.inventory.owner.as_ref().map(|o| o.character.as_str());
+                        let messages = super::native_messages::hud_block(
+                            &snapshot.world.message_log,
+                            strings,
+                            &|argument: &str| match names {
+                                Some(catalog) => catalog.expand_argument(argument, character),
+                                None => argument.to_owned(),
+                            },
+                        );
+                        format!("地圖 {}{zone}　HP {}{}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}{}{resource_notes}",
                             snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),ammo,buffs,target,ground,
                             snapshot.attack_feedback.text(),
                             match self.controller.triple_arrow_receipt() {
                                 Some(receipt)=>format!("{}（{receipt}）",snapshot.skill_feedback.label()),
                                 None=>snapshot.skill_feedback.label().to_owned(),
                             },format!("{}　{}",guidance,self.controller.portal_entry_feedback().label()),omitted,
-                            self.audio_error.as_ref().map(|e|format!("音效：{e}")).or_else(||self.voices.status().device_unavailable.then(||"音效：找不到可用的音效輸出裝置，音效暫停；接上裝置後會自動恢復。".to_owned())).unwrap_or_default())
+                            self.audio_error.as_ref().map(|e|format!("音效：{e}")).or_else(||self.voices.status().device_unavailable.then(||"音效：找不到可用的音效輸出裝置，音效暫停；接上裝置後會自動恢復。".to_owned())).unwrap_or_default(),messages)
                     } else {
                         "正在載入伺服器指定的世界資源…".into()
                     }
@@ -2240,8 +2266,18 @@ impl Ui {
         let status = if phase == LoginPhase::CharacterSelected {
             match snapshot.channel_result {
                 Some(code) if code!=0 && self.rental.set_attempt.is_some()=>"伺服器未接受此次配裝，請選擇其他配裝再試。".into(),
-                Some(1) => "此頻道目前無法進入，請選擇其他頻道。".into(),
-                Some(10) => "此角色等級尚不能進入頻道。".into(),
+                // 原版 4A7850：結果 1／10 顯示 LTstring 94／95；表未載入時用原有文字。
+                Some(code @ (1 | 10)) => super::native_messages::lito_line(
+                    strings,
+                    super::native_messages::channel_refusal_row(code),
+                )
+                .unwrap_or_else(|| {
+                    if code == 1 {
+                        "此頻道目前無法進入，請選擇其他頻道。".into()
+                    } else {
+                        "此角色等級尚不能進入頻道。".into()
+                    }
+                }),
                 _ => status,
             }
         } else {
@@ -2249,9 +2285,16 @@ impl Ui {
         };
         let status = if phase == LoginPhase::LobbyReady {
             match snapshot.room_result {
-                Some(11) => "房間密碼不正確，請重試。".into(),
-                Some(10) => "此角色不能進入這個等級區間的房間。".into(),
-                Some(r) if r != 0 => format!("無法進入房間（伺服器結果 {}）。", r),
+                // 原版 4A8BA0：拒絕結果對應 LTstring 列；沒有對應列或表未載入時用原有文字。
+                Some(r) if r != 0 => super::native_messages::lito_line(
+                    strings,
+                    super::native_messages::room_refusal_row(r),
+                )
+                .unwrap_or_else(|| match r {
+                    11 => "房間密碼不正確，請重試。".into(),
+                    10 => "此角色不能進入這個等級區間的房間。".into(),
+                    r => format!("無法進入房間（伺服器結果 {}）。", r),
+                }),
                 _ => status,
             }
         } else {

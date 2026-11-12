@@ -10,7 +10,7 @@ runner：claude-local。分支：`task/337`。本張做 G07.4 與地圖相關四
 - 地圖頁：原版圖片表只有第 1、2 頁。開著地圖頁時 HUD 會說明這一頁為什麼看不到圖。
 - 新增可重跑的盤點工具與 `docs/MAP-DOMAINS.md`（雙域 35 張逐張比較、11 張經典地圖、三張區域表、兩張地圖頁圖片）。
 - 沒有放寬任何解碼器，也沒有開始繪製地圖頁圖片。
-- 本機只做了編譯檢查與 Python 工具；Rust 測試沒有在本機執行。CI 只在 PR 上跑，PR 由調度器在審查後開啟，所以寫報告時還沒有 CI 結果。
+- 本機只做了編譯檢查與 Python 工具；Rust 測試沒有在本機執行，以 PR #374 的 CI 為準。第二次合併 `origin/main` 之前的 commit `9e8d1d0`，CI 兩個工作（`cargo check`、`portable package`）都通過；第二次合併後的 CI 結果看 PR #374 最新一次執行。
 
 ## 做了什麼
 
@@ -84,6 +84,7 @@ runner：claude-local。分支：`task/337`。本張做 G07.4 與地圖相關四
 **編譯**
 - `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：結束碼 0（含測試目標的編譯）。
 - 合併 `origin/main`（落後 23 個 commit，`native_world_scene.rs` 一處衝突：取 main 的那一列再補回 `layer_error_kind`）後重跑同一個指令，結束碼 0；兩個 Python 自測也重跑通過。
+- 第二次合併 `origin/main`（再落後 10 個 commit，PR #374 顯示衝突）：`native_login_window.rs` 的世界 HUD 格式字串一處衝突。main 在字串最後加了伺服器訊息區塊（#339 的 `native_messages::hud_block`），本張加了區域名稱與資源診斷行；兩邊都保留，順序是音效 → 伺服器訊息 → 資源診斷與地圖頁狀態。合併後重跑同一個 `cargo check`，結束碼 0；`map_domains.py --self-test` 通過。
 
 **工具**
 - `map_domains.py --self-test`、`resource_matrix.py --self-test`：都印出 `self-test ok`。
@@ -128,13 +129,13 @@ runner：claude-local。分支：`task/337`。本張做 G07.4 與地圖相關四
 
 ## 待驗證
 
-- **Rust 測試**：新增 9 個測試（`resource_diagnostics` 5、`native_zone` 3、`native_map_item` 1），本機沒有執行，等 PR 開啟後 CI 的 `cargo test --lib`。新測試只編譯過；如果 CI 有測試失敗，先看這 9 個。
+- **Rust 測試**：新增 9 個測試（`resource_diagnostics` 5、`native_zone` 3、`native_map_item` 1），本機沒有執行。CI 的 `cargo check` 工作裡有 `cargo test --locked --lib --no-fail-fast` 這一步，commit `9e8d1d0` 的那次執行整個工作是通過的；第二次合併後的結果看 PR #374 最新一次 CI。如果有測試失敗，先看這 9 個與 HUD 格式字串。
 - **實機**（交給 Codex 或使用者）：
   1. 進地圖 500，HUD 第一行是「地圖 500（LODUN）」；進 504 沒有括號。
   2. 場上有 gfx 727 的角色時，HUD 出現「資源診斷…角色附件缺件：383-N.spr（SpriteXX→Sprite）」。
   3. 學了技能 77／34／38 之一時，HUD 出現「技能特效不可用…launcher/TW13081901.pak」。
   4. 使用地圖道具後，HUD 出現地圖頁那一行。
-  5. HUD 文字區有沒有被新增的行擠掉原有內容。
+  5. HUD 文字區有沒有被新增的行擠掉原有內容。#339 合併後，伺服器訊息區塊排在資源診斷行前面，兩者同時出現時行數更多，要一起看。
 - 伺服器那 11 張經典地圖更新後的通行資料，與客戶端 `map/` 的 S32 是否一致：沒有比對。伺服器的通行資料不在客戶端，客戶端目前也不載入這 11 張。
 - `resource_matrix_exhaustive`（#336 留下的 Rust 逐成員實跑）仍然沒有跑。
 

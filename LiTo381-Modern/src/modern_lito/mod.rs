@@ -446,12 +446,15 @@ pub mod native_actor_states;
 pub mod native_actor_switch;
 #[cfg(test)]
 mod native_world_occlusion_tests;
+#[cfg(test)]
+mod native_world_layer_order_tests;
 pub mod native_actor_relations;
 
 pub mod native_actor_state_probe;
 
 pub mod native_world_text;
 pub mod native_text_format;
+pub mod native_messages;
 pub mod native_world_labels;
 pub mod native_clan_markers;
 pub mod native_emblems;

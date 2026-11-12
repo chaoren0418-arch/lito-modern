@@ -376,7 +376,7 @@ fn next_line(bytes: &[u8], offset: usize, line: usize) -> Result<(&[u8], usize),
 }
 
 #[cfg(windows)]
-fn decode_cp950(bytes: &[u8], line: usize) -> Result<String, DescriptionError> {
+pub(crate) fn decode_cp950(bytes: &[u8], line: usize) -> Result<String, DescriptionError> {
     use windows::Win32::Globalization::{MultiByteToWideChar, MB_ERR_INVALID_CHARS};
     if bytes.is_empty() {
         return Ok(String::new());
@@ -395,7 +395,7 @@ fn decode_cp950(bytes: &[u8], line: usize) -> Result<String, DescriptionError> {
         .map_err(|_| DescriptionError::InvalidEncoding { line })
 }
 #[cfg(not(windows))]
-fn decode_cp950(_bytes: &[u8], _line: usize) -> Result<String, DescriptionError> {
+pub(crate) fn decode_cp950(_bytes: &[u8], _line: usize) -> Result<String, DescriptionError> {
     Err(DescriptionError::UnsupportedPlatform)
 }
 
