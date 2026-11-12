@@ -85,7 +85,7 @@ fn lfc1_controller_encrypted_loopback_held_repeat_spell_and_pet_race() {
     let ground = [own.x + 1, own.y];
     let ground_spell =
         super::super::native_skills::ground_request(&c.state.world, 58, ground).unwrap();
-    let expected = vec![
+    let mut expected = vec![
         extended(attack.clone()),
         attack.clone(),
         extended(spell.clone()),
@@ -96,6 +96,20 @@ fn lfc1_controller_encrypted_loopback_held_repeat_spell_and_pet_race() {
         ground_spell,
         extended(self_spell),
     ];
+    // Issue #147: object casts retain LFC1; selector and summon stay distinct.
+    c.state.world.learned_skills.extend([44, 45, 46, 47, 48, 50, 51, 53]);
+    for skill in [44u16, 45, 46, 47, 48, 50] {
+        let mut body = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
+        body.extend(target.to_le_bytes());
+        if matches!(skill, 45 | 46 | 47 | 50) {
+            let actor = &c.state.world.actors[&target];
+            body.extend(actor.x.to_le_bytes());
+            body.extend(actor.y.to_le_bytes());
+        }
+        expected.push(extended(body));
+    }
+    expected.push(vec![0x14, 6, 4]);
+    expected.push(vec![0x14, 6, 2, 7, 0, 0, 0]);
     let bytes: u64 = expected.iter().map(|body| body.len() as u64).sum();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let peer = listener.local_addr().unwrap();
@@ -217,6 +231,21 @@ fn lfc1_controller_encrypted_loopback_held_repeat_spell_and_pet_race() {
     c.skill_ready = None;
     c.cast_with_input(26, None, &f, CTRL).unwrap();
     received(&mut c);
+    for skill in [44, 45, 46, 47, 48, 50, 53] {
+        c.skill_pending = None;
+        c.skill_ready = None;
+        c.cast_with_input(skill, (skill != 53).then_some(target), &f, CTRL).unwrap();
+        received(&mut c);
+    }
+    c.skill_pending = None;
+    c.skill_ready = None;
+    c.state.game_connected = true;
+    let epoch = c.transport.snapshot().epoch;
+    c.state.inventory.begin(epoch, "Batch3").unwrap();
+    let summon = super::super::native_skills::SummonTarget::capture(&c.state, epoch, 7).unwrap();
+    c.cast_summon(&summon, &f).unwrap();
+    received(&mut c);
+    assert!(c.skill_summon_pending);
     assert_eq!(c.transport.queued_tx_counter(), Some(initial + bytes));
     finish_tx.send(()).unwrap();
     server.join().unwrap();
