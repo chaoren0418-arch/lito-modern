@@ -95,3 +95,4 @@
 - 2026-11-12 — #179 T045-1: T045（M2 1/2）: src/：物品系統缺口（code，claude-local，PR #265 已合併）→ [報告](reports/issue-179.md)
 - 2026-11-12 — #171 T023-3: T023（M2 3/4）: src/、tests/native_teleport_failure.rs：G06.3d 傳送與失敗（code，claude-local，PR 已合併）→ [報告](reports/issue-171.md)
 - 2026-11-12 — #162 T024-2: T024（M2 2/2）: src/（code，claude-local，PR 已合併）→ [報告](reports/issue-162.md)
+- 2026-11-12 — #184 T047-1: T047（M2 1/2）: src/（code，claude-local，PR #271 已合併）→ [報告](reports/issue-184.md)
