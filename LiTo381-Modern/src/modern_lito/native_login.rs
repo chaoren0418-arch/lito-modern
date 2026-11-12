@@ -17,6 +17,9 @@ mod rental_return_tests;
 #[path = "native_rental_lifecycle_tests.rs"]
 mod rental_lifecycle_tests;
 #[cfg(test)]
+#[path = "native_rental_source_tests.rs"]
+mod rental_source_tests;
+#[cfg(test)]
 #[path = "native_battle_withdrawal_tests.rs"]
 mod battle_withdrawal_tests;
 #[cfg(test)]
@@ -333,6 +336,8 @@ pub struct Snapshot {
     pub rental_set: Option<u8>,
     pub rental_restart_acks: u64,
     pub rental_return_outcome: Option<RentalReturnOutcome>,
+    /// 最近一次被接受的租裝村 S_PORTAL 種類（T055-2）；離開租裝流程即清除。
+    pub rental_town_transition: Option<super::native_rental_source::TownTransition>,
     pub battle_withdrawal_pending: bool,
     pub shop_points: Option<u32>,
     pub merchant: super::native_merchant::Session,
@@ -473,6 +478,7 @@ impl Default for LoginController {
                 rental_set: None,
                 rental_restart_acks: 0,
                 rental_return_outcome: None,
+                rental_town_transition: None,
                 battle_withdrawal_pending: false,
                 shop_points: None,
                 merchant: Default::default(),
@@ -519,6 +525,19 @@ impl LoginController {
         if self.state.phase!=LoginPhase::BattlePending||!self.state.world.ready()||self.state.observer||!self.state.joined_room.as_ref().is_some_and(|r|r.mode==6)
             ||self.state.world.battle_result.is_some()||!self.state.world.hp.is_some_and(|v|v[0]>0)||!self.state.world.own_actor().is_some_and(|a|!a.dead){return None;}
         Some(super::native_merchant::Owner{connection:self.transport.snapshot().epoch,generation:self.state.world.generation,incarnation:self.state.world.own_actor()?.incarnation,control_interruptions:self.state.world.control_interruptions,inventory:self.state.inventory.owner.clone()?})
+    }
+    /// 所選角色在目前 S_CB 目錄中的職業位元組；沒有目錄列時為 None。
+    pub fn selected_character_class(&self)->Option<u8>{
+        let name=self.state.selected_character.as_deref()?;
+        self.state.characters.iter().find(|c|c.name==name).map(|c|c.fields.class)
+    }
+    /// 已選配裝、未進入普通頻道：C_CF 屬於租裝村直連房，而不是 Tournament 房間。
+    fn rental_join_pending(&self)->bool{
+        self.state.rental_set.is_some()&&self.state.channel.is_none()
+    }
+    /// 所選角色可用的租裝配裝數（原生配裝選單列數）。
+    pub fn rental_set_choices(&self)->u8{
+        self.selected_character_class().map_or(0,super::native_rental_source::item_set_choices)
     }
     fn merchant_target(&self,npc:u32)->Result<super::native_merchant::Owner>{
         ensure!(self.portal_entry.is_none(),"等待地圖入口回覆");
@@ -1268,6 +1287,7 @@ impl LoginController {
         self.state.rental_restart_acks = 0;
         self.state.merchant.clear();
         self.state.rental_set=None;self.rental_set_pending=None;self.state.shop_points=None;
+        self.state.rental_town_transition=None;
         self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
         self.state.inventory.begin(
             self.transport.snapshot().epoch,
@@ -1316,7 +1336,8 @@ impl LoginController {
     pub fn select_rental_set(&mut self,index:u8)->Result<()> {
         ensure!(matches!(self.state.phase,LoginPhase::CharacterSelected|LoginPhase::RentalReady),"rental selection requires selected character");
         ensure!(self.state.services.as_ref().is_some_and(|d|!d.rooms.is_empty()),"no advertised rental service");
-        ensure!(index<=3,"rental selection wire index");
+        // 原生選單只列出所選職業的配裝；超出範圍的 C_CA 不送出（伺服器 selectRentalItemSet 同表）。
+        super::native_rental_source::admit_item_set(self.selected_character_class(),index)?;
         self.transport.send(self.transport.snapshot().epoch,Zeroizing::new(vec![0xca,index]))?;
         self.rental_set_pending=Some(index);self.state.rental_set=None;self.state.channel_result=None;
         self.state.phase=LoginPhase::RentalSetPending;self.deadline=Some(Instant::now()+Duration::from_secs(8));Ok(())
@@ -1478,6 +1499,9 @@ impl LoginController {
                         || (self.state.phase==LoginPhase::RoomCreating && self.requested_room.is_none()),
                     "unsolicited room acceptance"
                 );
+                if self.state.phase==LoginPhase::RoomJoining&&self.rental_join_pending() {
+                    super::native_rental_source::admit_join(&room,self.requested_room.context("rental room lost")?)?;
+                }
                 let early=self.early_roster.take(self.transport.snapshot().epoch,room.id)?;
                 self.state.room_result = Some(0);
                 self.state.room_system_message = None;
@@ -1787,6 +1811,7 @@ impl LoginController {
                 self.pending_roster_forces.clear();self.early_roster.clear();
                 self.state.joined_room=None;self.state.world.clear_preserving_generation();self.state.environment.retire_scene();self.state.merchant.clear();
                 self.state.rental_set=None;self.rental_set_pending=None;self.state.shop_points=None;
+                self.state.rental_town_transition=None;
                 self.state.classic_entry_result=None;
                 self.state.character_result = None;
                 self.state.channel = None;
@@ -1905,7 +1930,17 @@ impl LoginController {
             ensure!(self.state.selected_character.as_deref()==Some(name.as_str()),"points for a different character");
             self.state.shop_points=Some(points);return Ok(());
         }
-        if body.first()==Some(&0xfb){self.state.services=Some(super::native_services::parse(body)?);return Ok(());}
+        if body.first()==Some(&0xfb){
+            let directory=super::native_services::parse(body)?;
+            // 進村交接中（C_D9→S_F0→S_F5→C_CF→加入結果）目錄仍須提供已快取的房間 id。
+            let handoff=matches!(self.state.phase,LoginPhase::RentalArmPending|LoginPhase::RentalAwaitPermission)
+                ||(self.state.phase==LoginPhase::RoomJoining&&self.rental_join_pending());
+            if handoff {
+                let room=self.requested_room.context("rental room lost")?;
+                ensure!(super::native_rental_source::directory_retains(&directory,room),"租裝目錄已不再提供所選服務");
+            }
+            self.state.services=Some(directory);return Ok(());
+        }
         if body.first()==Some(&0xf0)&&self.state.phase==LoginPhase::RentalArmPending {
             ensure!(body==[0xf0,0],"rental arm acknowledgement");self.state.phase=LoginPhase::RentalAwaitPermission;return Ok(());
         }
@@ -1932,6 +1967,7 @@ impl LoginController {
             self.deadline = Some(Instant::now() + Duration::from_secs(8));
             return Ok(());
         }
+        let mut town_transition=None;
         if body.first()==Some(&0x5a){
             let destination=super::native_portal::parse(body)?;
             let teleport = self.teleport_spell.take().filter(|(stamp, since, _)|
@@ -1945,7 +1981,13 @@ impl LoginController {
                 self.state.phase=LoginPhase::WorldEntering;
             } else if let Some((_,_,map)) = teleport {
                 super::native_portal::admit_teleport_spell(&self.state, destination, map)?;
-            }else{super::native_portal::admit(&self.state,destination)?;}
+            }else{
+                super::native_portal::admit(&self.state,destination)?;
+                if self.state.joined_room.as_ref().is_some_and(|r|r.mode==super::native_rental_source::TOWN_MODE) {
+                    // 租裝村只接受原圖入口、旅館入住、旅館返回三種；其餘目的地不送 C08。
+                    town_transition=Some(super::native_rental_source::classify(self.state.world.map_id,destination,self.portal_entry.is_some())?);
+                }
+            }
         }
         if body.first() == Some(&0x28) {
             self.state.merchant.clear();
@@ -1996,6 +2038,7 @@ impl LoginController {
                 self.deadline=None;
             }
             if body.first()==Some(&0x5a){
+                if town_transition.is_some(){self.state.rental_town_transition=town_transition;}
                 if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::SceneUpdated;}
                 self.state.item_feedback = self.item_pending.as_ref()
                     .map(|p|p.observe(&self.state,Instant::now()))
@@ -2690,6 +2733,7 @@ impl LoginController {
         self.state.merchant.clear();self.interrupt_world_actions();
         self.state.joined_room=None;self.state.rooms.clear();self.state.channel=None;
         self.state.services=None;self.state.rental_set=None;self.state.shop_points=None;
+        self.state.rental_town_transition=None;
         self.state.selected_character=None;self.state.characters.clear();
         self.state.notice=None;self.state.character_result=None;self.state.observer=false;
         self.state.room_system_message=None;self.room_mode_received=false;
