@@ -41,11 +41,15 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     ensure!(world.learned_skills.contains(&skill), "尚未學會此技能");
     // 130 Body to Mind costs HP only (formal `useBodyToMindSpell` never reads
     // MP before the conversion), so an empty mana pool must not block it.
-    ensure!(skill == 130 || hp_paid(skill) || world.mp.is_some_and(|v| v[0] > 0), "MP 不足或尚未取得");
+    ensure!(skill == 130 || hp_paid(skill) || hp_cost_only(skill) || world.mp.is_some_and(|v| v[0] > 0), "MP 不足或尚未取得");
     let own = world.own_actor().context("own caster")?;
     ensure!(!own.dead, "角色已死亡");
     Ok(())
 }
+/// 189–195: E149 `mpCost` is 0 and the formal handlers charge `hpCost` only
+/// (S10 279 when `playerHp <= hpCost`), so an empty MP bar must not block the
+/// request. The HP amount and the 190／195 material (S10 299) are never predicted.
+pub fn hp_cost_only(skill: u16) -> bool { matches!(skill, 189..=195) }
 /// Dragon Knight 181–188: E149 `mpCost` is 0 and the formal handlers charge
 /// `hpCost` only (S10 279 when `playerHp <= hpCost`), so an empty MP bar must not
 /// block the request. The HP amount itself is never predicted here.
@@ -205,7 +209,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 80 | 88 | 89 | 90 | 91 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 169 | 171 | 172 | 175 | 176 | 181 | 182 | 185 | 186 | 201 | 205 | 206 | 210)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 80 | 88 | 89 | 90 | 91 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 169 | 171 | 172 | 175 | 176 | 181 | 182 | 185 | 186 | 189 | 190 | 191 | 195 | 201 | 205 | 206 | 210)
 }
 /// ④ requests whose only accepted object is the caster: formal
 /// `useFireWeaponSpell`／`useStormShotSpell` answer 280 for any other ID, so the
@@ -487,8 +491,8 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
         // when at least one target was slowed). 87 Shock Stun: range 1; damage,
         // probability and the 2–4 second stun (S0B 4183 object) are server-owned
         // and neither the attack action nor S37 4434 is a stun ACK.
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 71 | 74 | 76 | 77 | 87 | 103 | 108 | 152 | 153 | 167 | 173 | 174 | 183 | 184 | 187 | 188 => {
-            // 183／184／187／188: `DragonSkillRequests.TARGETED` requires the 11-byte
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 71 | 74 | 76 | 77 | 87 | 103 | 108 | 152 | 153 | 167 | 173 | 174 | 183 | 184 | 187 | 188 | 192 | 193 | 194 => {
+            // 183／184／187／188／192／193／194: `DragonSkillRequests.TARGETED` requires the 11-byte
             // explicit target and never guesses a nearby victim.
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
@@ -496,11 +500,12 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45|167=>8,33|187=>2,40|46|47|56|64|71|173=>3,50=>6,65|66|74|76=>10,10|103|183|188=>3,11|20|87|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
-                    // 152／153／184: formal range 10 and the native screen diamond both apply.
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45|167|192=>8,33|187=>2,40|46|47|56|64|71|173|193=>3,50=>6,65|66|74|76=>10,10|103|183|188=>3,11|20|87|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
+                    // 152／153／184／194: formal range 10 and the native screen diamond both apply
+                    // (194: the WORLD line-freeze handler checks the diamond, BATTLE only range).
                     // 167: original click range 8 (4CB78B, `sub_4CA6E0`); 173: formal
                     // range 3; 174: original click range 10 (4CB755) inside the diamond.
-                    && (!matches!(skill, 152 | 153 | 174 | 184) || in_native_screen([own.x, own.y], [actor.x, actor.y])),
+                    && (!matches!(skill, 152 | 153 | 174 | 184 | 194) || in_native_screen([own.x, own.y], [actor.x, actor.y])),
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -512,11 +517,11 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74|76|80|88|90|91=>3000,89=>5000,87=>8000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155|185=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,168|172=>0,146=>1200,153=>600,167|169|170|171|176=>100,173=>1000,174=>3000,175=>300,202|207=>3000,203=>600,204|208|209=>2000,205|210=>5000,112|182|187=>2000,130|132|133=>100,134|183|184|188=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74|76|80|88|90|91=>3000,89=>5000,87=>8000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155|185=>0,156|158|159|160|162|163|165|166|190|195=>0,189=>10,191|193=>1000,192=>4000,194=>500,157=>600,161=>9000,164=>300,168|172=>0,146=>1200,153=>600,167|169|170|171|176=>100,173=>1000,174=>3000,175=>300,202|207=>3000,203=>600,204|208|209=>2000,205|210=>5000,112|182|187=>2000,130|132|133=>100,134|183|184|188=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 /// 167..=176: recovered PE `word_635774[skill-1]` (600／0／100／400／300／0／1000／3000／5000／100).
 /// 201..=210: same table (1800／0／0／0／0／1200／0／0／64／0), equal to E149 `clientCastClockMillis`.
-pub fn client_clock_millis(skill:u16)->u64 {match skill {50|173=>1000,33|175=>5000,167=>600,169|176=>100,170=>400,171=>300,174=>3000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|71|72=>500,206|188=>1200,182=>3600,183=>1800,201=>1800,209=>64,_=>0}}
+pub fn client_clock_millis(skill:u16)->u64 {match skill {50|173=>1000,33|175=>5000,167=>600,169|176=>100,170=>400,171=>300,174=>3000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|71|72=>500,206|188=>1200,182=>3600,183|192|194=>1800,191=>30,201=>1800,209=>64,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub enum Feedback {
     #[default]

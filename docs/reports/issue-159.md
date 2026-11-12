@@ -74,7 +74,17 @@ python 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 12 tests in 0.056s；OK
 ```
 
-合併後同樣沒有執行任何測試執行檔，沒有 `test result:` 可附。
+批 8（#158）合併進 main 後 PR 再度衝突，第三次合併 `origin/main`（`3a81fc2`）。衝突在 `native_skills.rs` 的 `selector_only`、`reuse_millis`、`client_clock_millis`，`native_skill_selection.rs` 的選單標籤，以及 `tests.tsv`；兩邊內容都保留（main 的 189–195 加上本張的 201–210），`test_native_skill_coverage.py` 自動合併。`docs/REPORT.md` 取 main 版本。合併後重跑：
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 11s；只有既存警告）
+
+python -B 維護工具/test_native_skill_coverage.py
+結束碼 0；Ran 13 tests in 0.077s；OK
+```
+
+三次合併後都沒有執行任何測試執行檔，沒有 `test result:` 可附。
 
 ## 推測
 
@@ -111,5 +121,5 @@ python 維護工具/test_native_skill_coverage.py
   - 1412 加進全域的 `last_skill_rejection` 名單，而不是另開一個立方專用的觀察函式。
   - 201 的 1800 毫秒施法時鐘會擋住所有技能 1.8 秒（PE 與 catalog 的值，和 175 的做法相同）。
 - 需要 Codex 本機執行 `native_skills_201_210`（8 案），並回歸 `native_skills_167_176`、`native_selector_only`、`native_skill_selection`、`native_skills`，回報 `test result:` 原文。
-- 批 7（#157）已合併進 main，本分支已同步並解完衝突；批 8（#158）還沒合併進 main。它和本張都改 `native_skills.rs` 的 `selector_only`、`reuse_millis`、`client_clock_millis` 三行，以及 `tests.tsv`、`test_native_skill_coverage.py`、選單標籤；後合併的一方要解衝突，兩邊內容都保留即可。
+- 批 7（#157）與批 8（#158）都已合併進 main，本分支已同步到 `3a81fc2` 並解完衝突。批 10（#160）也改 `native_skills.rs` 的 `selector_only`、`reuse_millis`、`client_clock_millis` 三行，以及 `tests.tsv`、`test_native_skill_coverage.py`、選單標籤；後合併的一方要解衝突，兩邊內容都保留即可。
 - 批 10（#160）：211–214、216–219 是同一個 wrapper（`IllusionSkillRequests`：攻擊類 213，其餘在 `OTHER`），可以加進 `illusion_targeted`。214／216／219 和本張的 204／209 一樣用 `selectPc`；211／212／217／218 用 `selectActor`（`ClientSession.java` 37524–37668 的四個 resolver），合格對象的規則本張沒有讀，要另外確認。立方的 1412 回饋本張已經接好。`tests/native_skill_selection.rs` 第 94 行斷言第 220 個技能還是「尚未支援」，接 220 時要一起改。
