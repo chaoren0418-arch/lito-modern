@@ -138,3 +138,4 @@
 - 2026-11-13 — #331 T052-2: T052（M3 2/2）: src/：裝備與彈藥 UI、地面拾取、特殊物品選項（code，claude-local，PR 已合併）→ [報告](reports/issue-331.md)
 - 2026-11-13 — #336 T057-1: T057（M3 1/2）: 資源支援矩陣與失敗診斷（G07.1、G07.4）（code，claude-local，PR #369 已合併）→ [報告](reports/issue-336.md)
 - 2026-11-13 — #338 T058-1: T058（M3 1/2）: src/：遮擋、屋頂、附件、透明與特效排序（G07.3）（code，claude-local，PR #368 已合併）→ [報告](reports/issue-338.md)
+- 2026-11-13 — #342 T060-1: T060（M3 1/1）: 聊天（code，claude-local，PR #366 已合併）→ [報告](reports/issue-342.md)
