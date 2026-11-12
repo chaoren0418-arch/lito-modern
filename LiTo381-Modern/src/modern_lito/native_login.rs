@@ -29,6 +29,9 @@ mod teleport_recovery_tests;
 #[path = "native_login_movement_tests.rs"]
 mod movement_tests;
 #[cfg(test)]
+#[path = "native_lifecycle_tests.rs"]
+mod lifecycle_tests;
+#[cfg(test)]
 #[path = "native_skill_controller_tests.rs"]
 mod skill_ui_tests;
 #[cfg(test)]
@@ -829,12 +832,8 @@ impl LoginController {
         let mut body = self.state.world.attack_request(target)?;
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
-        self.attack_pending = Some(super::native_combat::Pending {
-            since: Instant::now(),
-            count: self.state.world.own_attack_packets,
-            target,
-            generation: self.state.world.generation,
-        });
+        self.attack_pending = Some(super::native_combat::Pending::capture(
+            &self.state.world, target, Instant::now()));
         self.state.attack_feedback = super::native_combat::Feedback::Pending;
         Ok(())
     }
