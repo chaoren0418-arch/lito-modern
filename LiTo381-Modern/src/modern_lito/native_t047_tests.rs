@@ -157,6 +157,165 @@ fn light_packet_order_and_vitals_are_bound_to_published_animation_frame() {
     assert!(published.target_label(&world, id).is_none());
 }
 
+fn gate_catalog() -> SpriteActionCatalog {
+    SpriteActionCatalog::parse(
+        b"#1 1 actor\n0.walk(1 4,0.0:4 0.1:4 0.2:4 0.3:4) 1.attack(1 3,0.0:4 0.1:4 0.2:4) 2.damage(1 2,0.0:4 0.1:4) 3.breath(1 1,0.0:4)",
+        ActionLimits::default(),
+    )
+    .unwrap()
+}
+
+fn gate_world() -> (World, u32) {
+    let mut world = world();
+    let id = world.own_actor().unwrap().id;
+    let actor = world.actors.get_mut(&id).unwrap();
+    actor.graphics = 1;
+    actor.speed = 0;
+    actor.brave = 0;
+    actor.walk_action = 0;
+    actor.motion_from = None;
+    (world, id)
+}
+
+fn gate_frame(
+    animator: &mut super::native_world_animation::Animator,
+    gate: &mut super::native_combat::VitalsGate,
+    catalog: &SpriteActionCatalog,
+    world: &World,
+    id: u32,
+    now: u64,
+) -> (super::native_world_animation::Pose, FrameVitals) {
+    animator.begin(now, world.actors.keys().copied()).unwrap();
+    let pose = animator.pose(catalog, &world.actors[&id], now).unwrap();
+    let vitals = gate.present(world, |actor, barrier| animator.presented(actor, barrier));
+    (pose, vitals)
+}
+
+/// Same batch: hurt action and HP arrive, then a move keeps the walk owning
+/// the body. The HUD must keep the old HP until the hurt pose has started.
+#[test]
+fn hp_waits_for_action_held_behind_running_walk() {
+    let catalog = gate_catalog();
+    let (mut world, id) = gate_world();
+    let mut animator = super::native_world_animation::Animator::default();
+    let mut gate = super::native_combat::VitalsGate::default();
+    let (_, initial) = gate_frame(&mut animator, &mut gate, &catalog, &world, id, 0);
+    let old_hp = world.hp;
+    assert_eq!(initial.hp, old_hp);
+    let maximum = old_hp.unwrap()[1];
+    world.accept(&actor_packet(0x20, id, &[2])).unwrap();
+    let mut hp = vec![0x0d, 1, 0];
+    hp.extend(maximum.to_le_bytes());
+    world.accept(&hp).unwrap();
+    let ratio = if world.actors[&id].hp_ratio == 37 { 38 } else { 37 };
+    world.accept(&actor_packet(0x68, id, &[ratio])).unwrap();
+    // A later movement packet of the same batch restarts the running walk.
+    let actor = world.actors.get_mut(&id).unwrap();
+    actor.motion_from = Some([actor.x, actor.y]);
+    actor.x += 1;
+    world.visual_revision += 1;
+    actor.motion_revision = world.visual_revision;
+    assert_eq!(world.hp, Some([1, maximum]));
+    let (walking, held) = gate_frame(&mut animator, &mut gate, &catalog, &world, id, 10_000_000);
+    assert_eq!(walking.phase, "walk");
+    assert_eq!(held.hp, old_hp, "HP must not lead the held hurt action");
+    assert_ne!(held.target_label(&world, id).unwrap(), super::native_combat::target_label(&world.actors[&id]));
+    assert!(gate.held() >= 2);
+    let walk = super::native_world_animation::resolve(&catalog, 1, 0).unwrap().duration_ns();
+    let (hurt, committed) = gate_frame(&mut animator, &mut gate, &catalog, &world, id, 10_000_000 + walk + 1_000_000);
+    assert_eq!((hurt.action, hurt.phase), (2, "damage"));
+    assert_eq!(committed.hp, Some([1, maximum]));
+    assert_eq!(committed.target_label(&world, id).unwrap(), super::native_combat::target_label(&world.actors[&id]));
+}
+
+/// Same batch behind an unfinished action: the queued hurt and its HP/MP
+/// commit together only when that hurt leaves the queue.
+#[test]
+fn hp_and_mp_wait_for_queued_action_behind_active_action() {
+    let catalog = gate_catalog();
+    let (mut world, id) = gate_world();
+    let mut animator = super::native_world_animation::Animator::default();
+    let mut gate = super::native_combat::VitalsGate::default();
+    world.accept(&actor_packet(0x20, id, &[1])).unwrap();
+    let (attack, _) = gate_frame(&mut animator, &mut gate, &catalog, &world, id, 0);
+    assert_eq!(attack.action, 1);
+    let (old_hp, old_mp) = (world.hp, world.mp);
+    let maximum = old_hp.unwrap()[1];
+    world.accept(&actor_packet(0x20, id, &[2])).unwrap();
+    let mut hp = vec![0x0d, 2, 0];
+    hp.extend(maximum.to_le_bytes());
+    world.accept(&hp).unwrap();
+    world.accept(&[0x4d, 3, 0, 100, 0]).unwrap();
+    let (still_attack, held) = gate_frame(&mut animator, &mut gate, &catalog, &world, id, 10_000_000);
+    assert_eq!(still_attack.action, 1);
+    assert_eq!((held.hp, held.mp), (old_hp, old_mp));
+    let attack_ns = super::native_world_animation::resolve(&catalog, 1, 1).unwrap().duration_ns();
+    assert!(attack_ns > 10_000_000);
+    let (hurt, committed) = gate_frame(&mut animator, &mut gate, &catalog, &world, id, attack_ns + 1_000_000);
+    assert_eq!(hurt.action, 2);
+    assert_eq!((committed.hp, committed.mp), (Some([2, maximum]), Some([3, 100])));
+    // No pending action: a later value commits on the next frame.
+    let mut later = vec![0x0d, 5, 0];
+    later.extend(maximum.to_le_bytes());
+    world.accept(&later).unwrap();
+    let (_, next) = gate_frame(&mut animator, &mut gate, &catalog, &world, id, attack_ns + 2_000_000);
+    assert_eq!(next.hp, Some([5, maximum]));
+}
+
+#[test]
+fn finite_cache_evicts_least_recent_unprotected_bank_only() {
+    use super::native_skill_effects::finite_victim;
+    let used: std::collections::BTreeMap<u16, u64> = [(10, 5), (11, 2), (12, 9)].into();
+    let none = std::collections::BTreeSet::new();
+    assert_eq!(finite_victim([10, 11, 12].into_iter(), &used, &none), Some(11));
+    // A playing or not-yet-started cue protects its bank even when oldest.
+    let protected: std::collections::BTreeSet<u16> = [11].into();
+    assert_eq!(finite_victim([10, 11, 12].into_iter(), &used, &protected), Some(10));
+    let all: std::collections::BTreeSet<u16> = [10, 11, 12].into();
+    assert_eq!(finite_victim([10, 11, 12].into_iter(), &used, &all), None);
+    // Unstamped entries are evicted first, ties broken by ID.
+    assert_eq!(finite_victim([13, 10, 14].into_iter(), &used, &none), Some(13));
+    assert!(super::native_skill_effects::FINITE_ERROR_LIMIT >= 128 + 64);
+}
+
+/// Review regression: unsupported S37 IDs must not consume the finite bank
+/// capacity, so a later valid 7049 still loads and plays in the same Effects.
+#[test]
+#[ignore = "reads original SPR/WAV and renders offline pixels"]
+fn original_unsupported_flood_does_not_block_valid_finite_effect() {
+    use super::{
+        native_skill_effects::Effects,
+        world_map::{PixelPoint, ViewProjection, WorldCell},
+    };
+    let root = Path::new(r"D:\lineage開發\0-客戶端");
+    let cancel = AtomicBool::new(false);
+    let mut world = world();
+    let id = world.own_actor().unwrap().id;
+    let own = world.own_actor().unwrap();
+    let projection = ViewProjection {
+        anchor_cell: WorldCell { x: i32::from(own.x), y: i32::from(own.y) },
+        anchor_pixel: PixelPoint { x: 200, y: 200 },
+    };
+    let mut effects = Effects::default();
+    let mut canvas = Canvas::new(400, 400).unwrap();
+    for gfx in 60_000u16..60_040 {
+        world.accept(&actor_packet(0x37, id, &gfx.to_le_bytes())).unwrap();
+    }
+    effects.prepare(root, &world, &cancel);
+    let (flood, _) = effects.draw(&world, &mut canvas, projection, 0);
+    assert_eq!(flood["finite_banks"]["errors"].as_object().unwrap().len(), 40, "{flood}");
+    assert_eq!(flood["omitted"], 40);
+    world.accept(&actor_packet(0x37, id, &7049u16.to_le_bytes())).unwrap();
+    effects.prepare(root, &world, &cancel);
+    let (receipt, _) = effects.draw(&world, &mut canvas, projection, 1_000_000);
+    assert_eq!(receipt["started"], 1, "{receipt}");
+    assert_eq!(receipt["omitted"], 40, "{receipt}");
+    let row = receipt["effects"].as_array().unwrap().iter()
+        .find(|row| row["graphics"] == 7049).unwrap();
+    assert_eq!(row["drawn"], true, "{receipt}");
+    assert!(receipt["finite_banks"]["loaded"].as_array().unwrap().iter().any(|g| g == 7049));
+}
+
 #[test]
 fn proc_receipts_keep_direction_and_bound_history_without_local_inference() {
     let mut world = world();

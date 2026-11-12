@@ -115,6 +115,16 @@ impl Playback {
     pub fn retain(&mut self, ids: &std::collections::BTreeSet<u32>) {
         self.states.retain(|id, _| ids.contains(id));
     }
+    /// True once every received cue up to `barrier` has left the received
+    /// history for playback: it is active, finished, or was coalesced. A walk
+    /// hold or a backlog keeps later HP/MP presentation behind the action.
+    pub(crate) fn presented(&self, actor: &Actor, barrier: u64) -> bool {
+        let state = self.states.get(&actor.id).filter(|s| s.incarnation == actor.incarnation);
+        let seen = state.map_or(0, |s| s.seen);
+        let unseen = actor.actions.iter().any(|c| c.sequence <= barrier && c.sequence > seen);
+        let queued = state.is_some_and(|s| s.queue.iter().any(|c| c.sequence <= barrier));
+        !unseen && !queued
+    }
     pub fn sample(
         &mut self,
         catalog: &SpriteActionCatalog,

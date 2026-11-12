@@ -160,6 +160,10 @@ impl Animator {
     pub fn impact(&mut self, actor: &Actor, sequence: u64) -> bool {
         self.combat.impact(actor, sequence)
     }
+    /// Whether the published playback has started every action up to `barrier`.
+    pub(crate) fn presented(&self, actor: &Actor, barrier: u64) -> bool {
+        self.combat.presented(actor, barrier)
+    }
     pub fn begin(&mut self, now: u64, ids: impl Iterator<Item = u32>) -> Result<()> {
         ensure!(
             self.last_ns.is_none_or(|old| now >= old),

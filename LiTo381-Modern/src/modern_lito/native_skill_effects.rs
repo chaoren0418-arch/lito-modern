@@ -281,6 +281,18 @@ struct Active {
     start: u64,
     playback: Playback,
 }
+pub(crate) const FINITE_BANK_LIMIT: usize = 32;
+pub(crate) const FINITE_ERROR_LIMIT: usize = 192;
+pub(crate) const FINITE_BYTE_LIMIT: usize = 64 * 1024 * 1024;
+/// Least recently requested loaded graphics that no active or pending cue owns.
+pub(crate) fn finite_victim(loaded: impl Iterator<Item = u16>, used: &BTreeMap<u16, u64>,
+    protected: &BTreeSet<u16>) -> Option<u16> {
+    loaded.filter(|gfx| !protected.contains(gfx))
+        .min_by_key(|gfx| (used.get(gfx).copied().unwrap_or(0), *gfx))
+}
+fn finite_bank_bytes(bank: &SharedEffectBank) -> usize {
+    bank.encoded_bytes() + bank.retained_rgba_bytes() + bank.sound_bank().file_bytes()
+}
 /// Accepted finite callback state, with no sprite/PCM resource ownership.
 #[derive(Clone)]
 pub(crate) struct History {
@@ -301,6 +313,13 @@ pub struct Effects {
     finite_banks: BTreeMap<u16, SharedEffectBank>,
     finite_over: BTreeSet<u16>,
     finite_errors: BTreeMap<u16, String>,
+    /// LRU stamp per loaded finite bank; protected banks are never evicted.
+    finite_used: BTreeMap<u16, u64>,
+    finite_clock: u64,
+    /// Temporarily unloadable graphics with the protected set seen at that
+    /// time. Their cues stay unconsumed and retry once protection changes.
+    finite_deferred: BTreeMap<u16, BTreeSet<u16>>,
+    finite_evicted: u64,
     tw_heal_error: Option<String>,
     clips: BTreeMap<u16, Clip>,
     error: Option<String>,
@@ -435,12 +454,33 @@ impl Effects {
                     && !super::native_selector_effects::GRAPHICS.contains(gfx)
                     && !super::native_additional_finite_effects::GRAPHICS.contains(gfx))
                 .collect();
-            for gfx in requested {
+            self.finite_clock += 1;
+            // Banks still needed: playing effects and received cues that have
+            // not started yet. Everything else is an LRU eviction candidate.
+            let protected: BTreeSet<u16> = self.active.iter().map(|active| active.cue.graphics)
+                .chain(world.effects.iter().filter(|e| !self.seen.contains(&e.sequence)).map(|e| e.graphics))
+                .filter(|gfx| requested.contains(gfx))
+                .collect();
+            for gfx in &requested {
+                if self.finite_banks.contains_key(gfx) { self.finite_used.insert(*gfx, self.finite_clock); }
+            }
+            // Errors are diagnostics for referenced cues only. The S37 ring
+            // (128) plus active (64) bounds referenced IDs below this limit.
+            if self.finite_errors.len() >= FINITE_ERROR_LIMIT {
+                self.finite_errors.retain(|gfx, _| requested.contains(gfx));
+                while self.finite_errors.len() >= FINITE_ERROR_LIMIT { self.finite_errors.pop_first(); }
+            }
+            self.finite_deferred.retain(|gfx, _| requested.contains(gfx));
+            for &gfx in &requested {
                 if self.finite_banks.contains_key(&gfx) || self.finite_errors.contains_key(&gfx) {
                     continue;
                 }
-                if self.finite_banks.len() + self.finite_errors.len() >= 32 {
-                    break;
+                if self.finite_deferred.get(&gfx).is_some_and(|seen| *seen == protected) {
+                    continue;
+                }
+                if self.finite_banks.len() >= FINITE_BANK_LIMIT && !self.evict_finite(&protected) {
+                    self.finite_deferred.insert(gfx, protected.clone());
+                    continue;
                 }
                 let loaded = (|| -> anyhow::Result<_> {
                     let catalog = SharedActionCatalog::reuse_for_model(root, cancel, shared)?;
@@ -448,23 +488,46 @@ impl Effects {
                         .is_some_and(|row| row.attributes.iter().any(|attribute|
                             attribute.key == ActionKey::new(104) && attribute.body_bytes.trim_ascii() == b"8"));
                     let bank = SharedEffectBank::load_finite(catalog, cancel, gfx)?;
-                    let bytes = |bank: &SharedEffectBank| bank.encoded_bytes()
-                        + bank.retained_rgba_bytes() + bank.sound_bank().file_bytes();
-                    anyhow::ensure!(self.finite_banks.values().map(bytes).sum::<usize>()
-                        + bytes(&bank) <= 64 * 1024 * 1024, "finite effect cache byte budget");
+                    anyhow::ensure!(finite_bank_bytes(&bank) <= FINITE_BYTE_LIMIT,
+                        "finite effect {gfx} alone exceeds the {FINITE_BYTE_LIMIT}-byte cache budget");
                     let clip = Clip::new(Arc::clone(bank.animation(u32::from(gfx), 0)?))?;
                     Ok((bank, clip, screen))
                 })();
                 match loaded {
                     Ok((bank, clip, screen)) => {
+                        let needed = finite_bank_bytes(&bank);
+                        while self.finite_banks.values().map(finite_bank_bytes).sum::<usize>() + needed > FINITE_BYTE_LIMIT {
+                            if !self.evict_finite(&protected) { break; }
+                        }
+                        if self.finite_banks.values().map(finite_bank_bytes).sum::<usize>() + needed > FINITE_BYTE_LIMIT {
+                            // Temporary: protected banks hold the budget.
+                            self.finite_deferred.insert(gfx, protected.clone());
+                            continue;
+                        }
+                        self.finite_deferred.remove(&gfx);
                         self.clips.insert(gfx, clip);
                         self.finite_banks.insert(gfx, bank);
+                        self.finite_used.insert(gfx, self.finite_clock);
                         if !screen { self.finite_over.insert(gfx); }
                     }
-                    Err(error) => { self.finite_errors.insert(gfx, format!("{error:#}")); }
+                    Err(error) => {
+                        self.finite_deferred.remove(&gfx);
+                        self.finite_errors.insert(gfx, format!("{error:#}"));
+                    }
                 }
             }
         }
+    }
+    /// Drop the least recently requested finite bank outside `protected`.
+    fn evict_finite(&mut self, protected: &BTreeSet<u16>) -> bool {
+        let Some(gfx) = finite_victim(self.finite_banks.keys().copied(), &self.finite_used, protected)
+            else { return false };
+        self.finite_banks.remove(&gfx);
+        self.finite_used.remove(&gfx);
+        self.finite_over.remove(&gfx);
+        self.clips.remove(&gfx);
+        self.finite_evicted += 1;
+        true
     }
     pub fn draw(
         &mut self,
@@ -517,6 +580,11 @@ impl Effects {
                 continue;
             }
             let Some(clip) = self.clips.get(&cue.graphics) else {
+                if self.finite_deferred.contains_key(&cue.graphics) {
+                    // Cache capacity is temporarily held; keep the cue for retry.
+                    self.seen.remove(&cue.sequence);
+                    continue;
+                }
                 self.omitted += 1;
                 continue;
             };
@@ -616,8 +684,12 @@ impl Effects {
         receipt["finite_banks"] = serde_json::json!({
             "loaded": self.finite_banks.keys().collect::<Vec<_>>(),
             "errors": self.finite_errors,
-            "entry_limit": 32,
-            "byte_limit": 64 * 1024 * 1024,
+            "deferred": self.finite_deferred.keys().collect::<Vec<_>>(),
+            "evicted": self.finite_evicted,
+            "retained_bytes": self.finite_banks.values().map(finite_bank_bytes).sum::<usize>(),
+            "entry_limit": FINITE_BANK_LIMIT,
+            "error_limit": FINITE_ERROR_LIMIT,
+            "byte_limit": FINITE_BYTE_LIMIT,
         });
         if let Some(bank)=&self.selector_bank {
             receipt["selector_bank"]=serde_json::json!({"lazy":true,"loaded":true,

@@ -1,134 +1,77 @@
-# Issue #184 — T047 第 1 張
+# Issue #184 — T047 第 1 張（第 2 次嘗試）
 
 ## 結論
 
-本張完成影格事件音效接線、S_EFFECT 有限特效載入、GFX 7049 八方向、Source169 移除後播放、立方體圖層與動畫，以及畫面發布時的 HP／MP 快照。凍結 palette 與光術封包接收順序補上回歸驗證。
+本輪處理 codex-review 退回的三點：
 
-**GFX 6983 仍受原資源缺幀阻擋**。共享與 TW 動作都引用 subframe 9，現行八方向 SPR 各有 9 幀，索引範圍為 0–8。程式輸出具名診斷，整張驗收仍待這項資源問題解決。
+1. **動畫先於 HP（P1）**：已修正。HUD 的 HP／MP／目標血量改由呈現端 gate 提交。每個值都記錄收到當下該角色已收到的動作序號，要等動畫播放端開始播那個動作，HUD 才換成新值。走路中或前一個動作還沒播完時，HUD 保留舊值。封包接收端照舊立即保存權威值。
+2. **有限特效快取（P2）**：已修正。錯誤紀錄不再占用特效庫名額。特效庫改成 LRU 淘汰，正在播放或還沒開始播的特效庫不會被淘汰。名額或位元組暫時不夠時，記為 `deferred`，cue 不消耗，保護集合改變後再重試。
+3. **GFX 6983（P1，驗收缺口）**：**仍受阻擋，需要主控裁定驗收範圍**。查過客戶端全部 .idx/.pak（清單見下），6983 只有一組 SPR，每個方向 9 幀。共享與 TW 動作表首幀都引用 subframe 9。`LiTo.bin` 是 Themida 加殼，無法用靜態分析確認原生引擎怎麼處理越界 subframe。沒有來源依據時，我不能自訂「越界＝空白」的規則。
+
+本輪也已合併 `origin/main`（落後 35 個 commit），6 個檔案的衝突已解。
 
 ## 已驗證
 
 ### 做了什麼
 
-- `native_combat_animation.rs` 與 `native_world_animation.rs` 接入 `<` 的音效選取。既有 `FrameEvent::Effect` 是解析器的歷史名稱，其對應音檔為 `Sound/<id>.wav`。沿用 `combat_animation::classify_native_cues`，一個加權候選群組選取一次，保留重複 ID 的權重與 0 的靜音選取。Hit 保留為呈現事件，既有投射物繼續於攻擊 Hit 入口發射。
-- `native_skill_effects.rs` 與 `tower_assets.rs` 增加收到 S37／S53 後才載入的有限特效路徑。限定固定共享 catalog 中可解析的單一 action0、24 FPS、一向或八方向、class0、已支援的混色與事件。原始空白 sentinel 保留停留時間。需要附件或其他控制器的定義會產出資源診斷。新快取上限為 32 個載入結果／錯誤，以及 64 MiB 保留資料。
-- `native_world.rs` 保存 S37 接收時的方向，與原本的位置／物件世代一起使用。方向歷史隨 128 筆特效環形紀錄淘汰，換世界時回收。舊程式直接建立、缺少方向紀錄的 Effect 使用方向 0。
-- GFX 7049 的八方向 SPR 已實際解碼並繪圖，後續轉向維持原特效方向。`proc_spr` 由伺服器決定是否送出 S_EFFECT，客戶端依收到的 GFX 選擇合格資源。單純收到攻擊動作時，特效紀錄維持空集合。
-- Source169 保存接收位置，目標移除與同 ID 重建後仍完成一次播放。其 sound119 改以已接受特效的生命週期交付，目標移除後仍可準備音效。
-- `native_cube.rs` 核對四種 GFX 6706／6712／6718／6724 的 action3、attr128、兩個衣物層與陰影。`native_actor_layers.rs` 接納這四個精確定義，`native_world_animation.rs` 播放 action3 循環並產生影格事件。一次延遲抽樣最多補出最近一個循環的事件，避免恢復畫面時連播歷史聲音。
-- `FrameVitals` 隨世界渲染影格保存 HP、MP、目標血量文字與物件世代。原生登入視窗從已發布 Frame 取值，封包接收端仍立即保存權威 HP／MP。測試直接驗證攻擊前後 SPR subframe 與像素變化，以及舊畫面的 HP 快照。
-- 凍結使用既有 S32 的 `(green=0, gray=1)` 與 RGB555 Dim 路徑，測試核對實際像素。色盤解除與 S25 凍結移動鎖各自處理。
-- 光術 fixture 依序送入隱身解除、S20 motion、S37 effect、S4A sound、S1B light、S4D MP，核對接收 revision、動作／特效順序、光源與 MP。
+- `native_world.rs`：新增 `hp_barrier`、`mp_barrier`、`hp_ratio_barriers`。收到 S_HP（0x0d）、S_MP（0x4d）、S_STATUS（0x0c）、S_HPMETER（0x68）時，記下該角色當下的 `action_sequence`。`hp_ratio_barriers` 以 incarnation 綁定，最多 1024 筆，超過時清掉已不存在的物件。
+- `native_combat_animation.rs`：新增 `Playback::presented(actor, barrier)`。條件是序號不超過 barrier 的 cue 都已被播放端收下（`seen` 已涵蓋），而且不在排隊中，也就是已開始播、已播完或已被合併。`hold_for_motion` 不更新 `seen`，所以走路期間一律回傳 false。
+- `native_combat.rs`：新增 `VitalsGate`，負責保留呈現值。每個 world generation 或本機物件換人時重置。目標標籤改用呈現中的 ratio。`held()` 統計被擋下的次數。
+- `native_world_scene.rs`：`Model` 持有 `vitals_gate`，每張 Frame 在所有姿勢取樣（含投射物命中後重取樣）之後才提交。姿勢取樣失敗的角色沒有動畫可等，直接提交，避免 HUD 卡住。
+- `native_skill_effects.rs`：`FINITE_BANK_LIMIT=32`、`FINITE_ERROR_LIMIT=192`、`FINITE_BYTE_LIMIT=64 MiB`，錯誤與特效庫分開計算。被引用的 GFX 最多 128（S37 環）＋64（播放中），低於 192，所以被引用的錯誤不會被擠掉後一再重試。LRU 由 `finite_victim` 選出，保護集合是播放中與尚未開始的 cue。容量不足時寫入 `finite_deferred`，`draw_to` 對 deferred 的 cue 撤回 `seen`，等之後重試。單一特效庫超過 64 MiB 時給具名錯誤 `finite effect <gfx> alone exceeds ...`。receipt 新增 `deferred`、`evicted`、`retained_bytes`、`error_limit`。
+- 合併 main 時，`tower_assets.rs` 保留兩邊的 `ReviewedEarthJail` 與 `ReceivedFinite`。`native_skill_effects.rs` 的混色保留 main 的 2175 Multiply，以及本張的 finite Over。`native_login_window.rs` 使用 main 的 `resolve_for_skill` 並搭配 Frame 的 vitals 標籤。
+
+### 新增測試（`native_t047_tests.rs`）
+
+- `hp_waits_for_action_held_behind_running_walk`：同一批封包先收到受傷動作、HP 與 HPMETER，接著是移動。走路期間畫出 walk，HUD 的 HP 與目標標籤維持舊值，`held()>=2`。走路結束那一幀姿勢變成 action2 `damage`，HP 與標籤才換成新值。這就是審查要求的「走路中先收到動作及 HP，再 draw」情境。
+- `hp_and_mp_wait_for_queued_action_behind_active_action`：攻擊播放中又收到受傷動作，加上 HP 與 MP。攻擊還沒播完時，HP／MP 都維持舊值。受傷動作出列開始播後，兩者同時提交。之後沒有待播動作時，新值在下一幀就提交。
+- `finite_cache_evicts_least_recent_unprotected_bank_only`：驗證 LRU 選擇、保護集合、全部受保護時回傳 None，以及錯誤上限不小於 128＋64。
+- `original_unsupported_flood_does_not_block_valid_finite_effect`（`#[ignore]`，需原資源）：先送 40 個不存在的 GFX，之後送 7049，7049 仍載入並畫出，`started=1`。
 
 ### 怎麼驗證
-
-工作目錄為指定的 `task/184` worktree，基於本次工作開始時的 `origin/main`。執行 Rust 檢查與測試時，`TEMP`／`TMP` 指向 worktree 的 `scratch/tmp`，Cargo 使用 `--locked --offline -j1`、Windows x64 MSVC 與 `target/current`。
-
-測試門檻直接載入 `維護工具/run-local-test-suite.ps1` 的 `Measure-TestResult`。每個測試指令各自解析一份 harness，檢查結束碼、`running` 數量與 `test result:`，零案、失敗與解析錯誤均判為 FAIL。
-
-以下為最終指令與結果。
-
-所有最終指令的結束碼均為 **0**，門檻均為 **PASS**。測試共 **45 passed、0 failed、0 ignored**。
 
 ```powershell
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
 ```
 
-`cargo check` 結束碼 0。編譯器仍列出專案既有 warnings。
+結束碼 **0**（合併後與最終各跑一次），完整輸出在 `scratch/check-r2.log`。變更的檔案沒有新的 warning。
 
-```powershell
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib modern_lito::native_t047_tests -- --include-ignored --nocapture
-```
+**本輪沒有在本機執行 `cargo test`**：使用者 2026-11-09 規定，本機不得執行編譯出來的程式，測試二進位也算在內。新測試交給 GitHub Actions 的 `cargo test --locked --lib --no-fail-fast` 跑，結果以 PR 的 CI 為準。因此本輪沒有 `test result:` 原文。前一輪的 45 passed 是舊程式碼的結果，不能代表本輪。
 
-```text
-test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 2502 filtered out; finished in 13.65s
-```
+### 資源核對（6983）
 
-```powershell
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_combat
-```
+全部只讀，腳本與輸出在 `scratch/`：
 
-```text
-test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s
-```
-
-```powershell
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_ranged
-```
-
-```text
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.24s
-```
-
-```powershell
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_actor_states
-```
-
-```text
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.54s
-```
-
-```powershell
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_effect_lifecycle
-```
-
-```text
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.18s
-```
-
-新增 9 案中，3 案需原資源，執行時明確加上 `--include-ignored`。涵蓋下列具名案例。
-
-1. `effect_marker_selects_audio_and_hit_preserves_authoritative_hp`
-2. `freeze_palette_uses_wire_flags_and_native_rgb555_pixels`
-3. `source169_receipt_survives_remove_and_same_id_replacement`
-4. `light_packet_order_and_vitals_are_bound_to_published_animation_frame`
-5. `proc_receipts_keep_direction_and_bound_history_without_local_inference`
-6. `proc_resource_qualification_rejects_unimplemented_controllers`
-7. `original_t047_resource_definitions`
-8. `original_kiringku_eight_directions_and_source169_pixels`
-9. `original_cube_layers_and_attack_frames_reach_world_renderer`
-
-原資源測試使用 GUI 共用的 Model／Animator／Effects／合成器，產生離線 PNG。已檢視 `cubes-initial.png`、`attack-start.png`、`attack-later.png`、`kiringku-7049.png` 與 `source169-after-remove.png`，攻擊姿勢與特效像素可見。
-
-開發過程曾遇到 Frame 測試建構器缺欄位，以及測試 fixture 的光源 opcode、速度與未支援 modifier 設定錯誤，均已修正後重跑。6983 的資源失敗另以負例保留，測試通過代表診斷符合實際缺幀狀況。
-
-既有 `native_ranged` 首次回歸因新 worktree 缺少 `target/current/verification` 輸出目錄而失敗，結束碼 101。補建該產物目錄後重跑全部相關回歸，首輪記錄保留於 `scratch/native-ranged-missing-output.log`。
-
-```text
-test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.69s
-```
-
-### 資源核對
-
-- 正式唯讀 JAR 實際 SHA256 為 `E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498`。
-- 共享 `Text/list.spr` 使用既有 pinned catalog `523c61ad5cc362a56a36f58b262c84efa8b4435f017e7074d35b5834e8b9f127`。
-- 本機唯讀檢視 `launcher/TW13081901.pak` 的實際 SHA256 為 `92b512a32349d0775e1036f1832e21f1141ae66e64821d6978f0879246e59ca7`，解碼文字 SHA256 為 `28c4fc600833fb8c609ab195a67ff926e8ffa571100d8d4b389a23be8c2c8db8`。6983／7049 的相關動作定義與共享 catalog 相同，本次新增路徑使用共享 catalog。
-- `6983-0.spr` 位於 `Sprite10.pak`，40,057 bytes，SHA256 `fac6a3ed211d2319da23393598914bd6698269ffbb610294f704ea6bb1908ced`。八方向各有 9 個解碼幀，基底 `Sprite.idx` 均缺少同名項目。
-- 執行時會留下 `finite_banks.errors["6983"]`，包含 `SPR 6983-0.spr requires subframe 9, decoded frame count is 9`。
+- `scan_all_idx.py` → `scan_all_idx.log`：遞迴掃描 `D:\lineage開發\0-客戶端` 底下全部 .idx，共 24 個：`LiTo/LTicon`、`LTsprite`、`LTsurf`、`LTtext`、`LTtile`、`Sprite`、`Sprite00`～`Sprite15`、`Text`、`Tile`。名稱以 `6983-` 或 `6983.` 開頭的只有 `Sprite10..15`、`Sprite00`、`Sprite01` 的 `6983-0..7.spr`，以及 `Sprite02` 的 `6983.tbt`（圖示）。沒有任何沒有 .idx 的 .pak，`launcher/TW13081901.pak` 除外，它是動作表文字。也沒有散檔 `6983*`。
+- `spr_tail.py` → `spr_tail.log`：八個方向的 6983 SPR 都是 9 幀。幀 0、1 是空白 sentinel（192,120，無碎片），幀 2～8 有圖。7049 是 8 幀，幀 0 為空白 sentinel。
+- `tw_def.py` → `tw_def.log`（TW13081901.pak，文字 SHA256 `28c4fc60…`）：
+  - `#6983 8 illusionist azel att one eff`：`0.ani(1 10,0.9:3 0.0:3<3297 0.1:3 … 0.8:3) 104.attr(8)`
+  - `#7049 8 illusionist kiringku effect`：`0.eff(1 8,0.7:3 0.0:0 … 0.5:2! 0.6:3) 102.type(0) 104.attr(8)`
+  - 7049 的首幀引用最後一幀 7（幀數 8），6983 的首幀引用 9，超出 0～8 的範圍。
+- `LiTo.bin` 用 pefile 讀區段：程式區段熵 7.99，另有 `Themida` 區段，屬加殼檔案。`lito脫殼資源` 內只有零散的 VA 片段，沒有完整的脫殼 PE，因此無法靜態確認原生處理越界 subframe 的分支。
+- 程式維持具名診斷：`finite_banks.errors["6983"]` 為 `SPR 6983-0.spr requires subframe 9, decoded frame count is 9`。
 
 ## 推測
 
-- 6983 的 catalog／SPR 組合存在版本或資源完整性落差，具體來源仍待資源維護者核對。
-- 本次延續現有現代渲染器的影格時鐘與圖層排序。四種立方體的原始資源與層組已驗證，與舊引擎每個 timer callback／遮擋旗標的逐項同源比較仍待後續驗收。
-- `<` 加權音效使用 Rust `RandomState` 提供呈現端選取值，原生遊戲 RNG 的逐次序列對照仍待驗證。
+- 6983 的動作表可能是依 10 幀版本 SPR 撰寫的，而客戶端附的是 9 幀版本。原生引擎可能把越界幀當成空白跳過（類似 7049 首幀停留 3 tick），但目前沒有證據。
+- `VitalsGate` 以「動作開始播」作為提交點，不是 Hit 影格。原生端的 HP 是在動作開始時更新還是在 Hit 時更新，仍待原生對照。
 
 ## 待驗證
 
-- GFX 6983 的完整可見播放，先取得可對應 subframe 9 的原始資源或具來源依據的 catalog 修正。
-- 真正 E149 場次中的奇古獸開關／自訂 SPR、各類 `proc_spr` 生產端與完整光術封包鏈。本次以離線封包 fixture 驗證消費端。
-- 實體音效裝置、完整 GUI 操作、長時間效能與使用者真機驗收。
-- 複雜 class、附件型／多 action／加權音效的泛用 S_EFFECT 資源，仍由專用 renderer 或明確錯誤診斷處理。
+- **需要主控裁定**：6983 要（a）從本張驗收範圍拆出，成為資源阻擋項，或（b）提供原生越界 subframe 行為的動態證據，例如脫殼 PE 或實機觀測，再依證據實作。未裁定前，6983 只有負例診斷，八方向完整播放還沒完成。
+- **proc_spr 所需 GFX 清單**：伺服器端 `nativeSourceShowProcSpr` 的 GFX 來自 `NativeProcSkillCatalog`，在 DB 技能表的 `castGraphics` 欄位，見 `lito伺服器/LiTo381-Server/tools/combat-continuation/integration-lifecycle/NativeSourceProc68Graphics.java`、`NativeSourceProcScalarSkills.java`。本機規則禁止連 DB，所以本輪沒列出完整清單。客戶端目前的支援結果：單一 action0、一向或八方向、class0、已支援混色與事件的 GFX 可播，例如 7049。其他 GFX 會給具名錯誤。完整清單需要伺服器端提供 castGraphics 匯出，或由能讀 DB dump 的執行者核對。
+- CI 上新測試與既有回歸的結果，push 後看 PR。
+- 原資源測試（`#[ignore]`）與離線 PNG：本輪依規定沒有在本機執行，交給 Codex 執行 `--include-ignored`。
+- 真機：HUD 扣血時機、走路中受擊、光術完整封包鏈、音效裝置。
 
 ## 產出路徑
 
-- 程式與新增測試位於 `LiTo381-Modern/src/modern_lito/`。
-- 本報告為 `docs/reports/issue-184.md`。
-- 離線圖像位於 `LiTo381-Modern/target/current/issue-184/`。
-- 本機原始輸出位於 `scratch/check-final.log`、`scratch/t047-final.log`、`scratch/native_combat.log`、`scratch/native_ranged.log`、`scratch/native_actor_states.log`、`scratch/native_effect_lifecycle.log`。
-- 可重跑的本機輔助程式為 `scratch/run-checks.ps1`，接受 `Check`、`T047`、`Regression`。scratch 與 target 產物保留在此 worktree，Git 提交只包含程式與本報告。
+- 程式：`LiTo381-Modern/src/modern_lito/{native_world,native_combat,native_combat_animation,native_world_animation,native_world_scene,native_skill_effects,native_t047_tests}.rs`，以及合併時解衝突的檔案。
+- 報告：`docs/reports/issue-184.md`。
+- 本機證據：`scratch/check-r2.log`、`scratch/scan_all_idx.{py,log}`、`scratch/spr_tail.{py,log}`、`scratch/tw_def.{py,log}`，不進 git。
 
 ## 給下一棒的提示
 
-1. Claude 審查本張對 Effect 歷史命名的處理、class0 接納條件、方向快照與 HUD 發布邊界。
-2. 本機資源執行者接手 6983 的八方向 SPR／catalog 缺幀比對。解決後沿正常 S37 入口重跑八方向與攻擊影格驗證。
-3. 調度器依本報告保留 6983 待驗證狀態，再安排正式離線／真機驗收。T047 第 2 張仍由其 Issue 接手。
+1. 主控：先裁定 6983 的範圍（見待驗證第一項）。若拆出，本張其餘項目可依 CI 結果送審。
+2. Codex（本機測試）：執行 `cargo test --lib modern_lito::native_t047_tests -- --include-ignored`，以及 `native_combat`、`native_ranged`、`native_actor_states`、`native_effect_lifecycle` 的回歸。產出的 PNG 在 `target/current/issue-184/`。
+3. 伺服器端：匯出 proc_spr 使用的 castGraphics 清單，客戶端再逐一跑 `qualify_finite`。
