@@ -22,15 +22,20 @@ pub struct EnteredEvent {
 /// The catalog's historical `Effect` name denotes the '<' overlapping WAV
 /// cue. Select one weighted candidate through the overlapping voice path.
 /// The caller supplies presentation randomness. Hit remains a visual trigger.
+///
+/// Consecutive `[`/`<` markers on one frame are weighted alternatives of ONE
+/// cue (`classify_native_cues`; tw-bin-engine `docs/reference/sound.md` 2.1),
+/// never simultaneous sounds: shared list.spr 523C61AD has 2,734 frames such
+/// as `24.0:6[1537[1538`. Only the frame's first cue carries the selected
+/// candidate; a silent (0) selection and an unclassifiable bank enter nothing.
 pub(crate) fn frame_sound(events: &[FrameEvent], index: usize, selection: u32) -> Option<u32> {
-    match events.get(index)? {
-        FrameEvent::Sound(id) => Some(*id),
-        FrameEvent::Effect(_) => {
-            let group = super::combat_animation::classify_native_cues(events).ok()?.audio?;
-            (index == 0).then(|| group.selected(selection)).flatten()
-        }
-        _ => None,
+    if !matches!(events.get(index)?, FrameEvent::Sound(_) | FrameEvent::Effect(_)) {
+        return None;
     }
+    // Classification requires the bank to lead the frame: its first candidate
+    // is event 0, so every later candidate of the same bank stays silent.
+    let group = super::combat_animation::classify_native_cues(events).ok()?.audio?;
+    (index == 0).then(|| group.selected(selection)).flatten()
 }
 pub struct ActionPose {
     pub action: u8,

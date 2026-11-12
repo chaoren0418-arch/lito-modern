@@ -393,6 +393,8 @@ mod tests {
         playing: bool,
         pcm: Vec<u8>,
         queued_pointer: usize,
+        /// (dwFlags, dwLoops, dwBufferLength) of every submitted header.
+        queued_headers: Vec<(u32, u32, u32)>,
     }
     struct Fake(Rc<RefCell<Trace>>);
     impl Fake {
@@ -437,6 +439,9 @@ mod tests {
                 let mut trace = self.0.borrow_mut();
                 trace.pcm = pcm.to_vec();
                 trace.queued_pointer = header.lpData.0 as usize;
+                trace
+                    .queued_headers
+                    .push((header.dwFlags, header.dwLoops, header.dwBufferLength));
                 trace.playing = true;
             }
             code
@@ -517,6 +522,30 @@ mod tests {
                 "unprepare",
                 "close"
             ]
+        );
+    }
+
+    /// Issue #340: a voice is one finite buffer. It never asks the driver to
+    /// loop (WHDR_BEGINLOOP/WHDR_ENDLOOP, dwLoops) and queues exactly one
+    /// header per start, so the driver cannot be told to play without end.
+    #[test]
+    fn every_start_queues_exactly_one_unlooped_header_of_the_exact_pcm_length() {
+        let (mut voice, trace) = setup();
+        let source = bytes();
+        voice.start(&parse_pcm_wav(&source).unwrap()).unwrap();
+        voice
+            .start_prepared(&PreparedSound::from_wav(1, bytes()).unwrap())
+            .unwrap();
+        assert_eq!(voice.poll().unwrap(), VoiceStatus::Playing);
+        assert_eq!(voice.poll().unwrap(), VoiceStatus::Playing);
+        trace.borrow_mut().playing = false;
+        assert_eq!(voice.poll().unwrap(), VoiceStatus::Finished);
+        assert_eq!(voice.poll().unwrap(), VoiceStatus::Idle);
+        let record = trace.borrow();
+        assert_eq!(record.queued_headers, [(0, 0, 4), (0, 0, 4)]);
+        assert_eq!(
+            record.calls.iter().filter(|call| **call == "write").count(),
+            2
         );
     }
 
