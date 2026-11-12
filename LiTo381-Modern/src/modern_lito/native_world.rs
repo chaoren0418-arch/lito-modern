@@ -169,6 +169,7 @@ pub struct World {
     #[serde(skip)]
     packet_ms: u64,
     pub integrity_challenge: Option<[u32; 3]>,
+    pub integrity_status: super::native_integrity::Status,
     pub minimap: super::native_minimap::State,
     pub unhandled_opcodes: BTreeSet<u8>,
 }
@@ -547,6 +548,21 @@ impl World {
     }
     pub fn ready(&self) -> bool {
         !self.observer_mode && self.started && self.portal.is_none() && self.own_actor().is_some()
+    }
+    /// C_ADDR body for the current challenge, only while a supported reply is pending.
+    pub fn integrity_reply(&self) -> Option<[u8; 13]> {
+        use super::native_integrity::{Challenge, Status};
+        let [id, address, length] = self.integrity_challenge?;
+        (self.integrity_status == Status::ReplyPending)
+            .then(|| Challenge { id, address, length }.compatibility_proof())
+            .flatten()
+    }
+    /// Record that the pending reply entered the owning connection's queue.
+    pub fn integrity_reply_queued(&mut self) {
+        use super::native_integrity::Status;
+        if self.integrity_status == Status::ReplyPending {
+            self.integrity_status = Status::ReplyQueued;
+        }
     }
     pub fn finish_portal_if_ready(&mut self)->Result<bool>{
         let Some(pending)=self.portal else{return Ok(false)};
@@ -1240,15 +1256,20 @@ impl World {
                 r.end()?;
                 self.game_time = Some(time);
             }
-            0x7b if b.get(1) == Some(&33) => {
-                r.c()?;
-                let challenge = [r.d()?, r.d()?, r.d()?];
-                r.end()?;
-                ensure!(
-                    challenge.iter().all(|v| *v != 0),
-                    "invalid integrity challenge"
-                );
-                self.integrity_challenge = Some(challenge);
+            super::native_opcodes::S_EVENT if b.get(1) == Some(&33) => {
+                use super::native_integrity::{Challenge, Status};
+                let challenge = Challenge::parse(b)?;
+                let repeated = self.integrity_challenge == Some(challenge.fields())
+                    && self.integrity_status == Status::ReplyQueued;
+                self.integrity_challenge = Some(challenge.fields());
+                // A repeated, already answered challenge is not answered twice.
+                if !repeated {
+                    self.integrity_status = if challenge.compatibility_proof().is_some() {
+                        Status::ReplyPending
+                    } else {
+                        Status::UnsupportedRange
+                    };
+                }
             }
             0x4d | 0x0d => {
                 let value = [r.h()?, r.h()?];

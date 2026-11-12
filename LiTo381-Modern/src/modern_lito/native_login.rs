@@ -1825,6 +1825,12 @@ impl LoginController {
             Some(receipt) => self.state.world.accept_received(body, receipt)?,
             None => self.state.world.accept(body)?,
         };
+        if let Some(reply) = self.state.world.integrity_reply() {
+            // Answer on the connection that delivered this challenge; a failed
+            // queue leaves the reply pending and propagates the error.
+            self.transport.send(self.transport.snapshot().epoch, Zeroizing::new(reply.to_vec()))?;
+            self.state.world.integrity_reply_queued();
+        }
         self.static2941.synchronize(&self.state.world, self.transport.snapshot().epoch);
         if world_accepted {
             self.player_callbacks.synchronize(&mut self.static2941,&mut self.state.world,self.transport.snapshot().epoch);
@@ -3279,3 +3285,57 @@ mod pending_join_departure_tests;
 #[cfg(test)]
 #[path = "native_resurrection_tests.rs"]
 mod resurrection_tests;
+
+#[cfg(test)]
+#[path = "native_integrity_controller_tests.rs"]
+mod integrity_controller_tests;
+
+#[cfg(test)]
+mod native_integrity_tests {
+    use super::*;
+    use crate::modern_lito::native_integrity::Status;
+
+    const CHALLENGE: [u8; 14] = [0x7b, 33, 0x98, 0xba, 0xdc, 0xfe, 0x40, 0xd8, 0x4e, 0, 5, 0, 0, 0];
+
+    fn active_controller() -> LoginController {
+        let mut controller = LoginController::default();
+        assert!(controller.state.world.accept(&[0x28, 5, 0, 0]).unwrap());
+        assert!(controller.state.world.accept(&[0xd2]).unwrap());
+        controller.state.phase = LoginPhase::BattlePending;
+        controller
+    }
+
+    const UNKNOWN: [u8; 14] = [0x7b, 33, 1, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255];
+
+    #[test]
+    fn game_ingress_unknown_range_is_recorded_without_sending_or_extending_deadline() {
+        let mut controller = active_controller();
+        controller.deadline = Some(Instant::now() + Duration::from_secs(8));
+        let deadline = controller.deadline;
+        // There is deliberately no transport: attempting to send would fail.
+        for _ in 0..2 {
+            controller.accept_game(&UNKNOWN).unwrap();
+            assert_eq!(controller.state.world.integrity_status, Status::UnsupportedRange);
+            assert_eq!(controller.state.phase, LoginPhase::BattlePending);
+            assert_eq!(controller.deadline, deadline);
+            assert!(controller.state.acknowledgement_opcodes.is_empty());
+        }
+    }
+
+    #[test]
+    fn game_ingress_send_failure_keeps_reply_pending_and_is_not_reported_queued() {
+        let mut controller = active_controller();
+        assert!(controller.accept_game(&CHALLENGE).is_err());
+        assert_eq!(controller.state.world.integrity_status, Status::ReplyPending);
+        assert_eq!(controller.state.world.integrity_challenge, Some([0xfedcba98, 5167168, 5]));
+    }
+
+    #[test]
+    fn game_ingress_rejects_bad_challenge_without_changing_snapshot() {
+        let mut controller = active_controller();
+        controller.accept_game(&UNKNOWN).unwrap();
+        let before = serde_json::to_value(controller.snapshot()).unwrap();
+        assert!(controller.accept_game(&CHALLENGE[..13]).is_err());
+        assert_eq!(serde_json::to_value(controller.snapshot()).unwrap(), before);
+    }
+}
