@@ -59,6 +59,25 @@ impl Clip {
         unreachable!("validated positive duration")
     }
 }
+/// Original 3.81 chain-sword family (walk 83, attack 84, idle 86) falls back to
+/// the spear family (24, 25, 27) when the active sprite has no action 83. This
+/// mirrors the server `BattleAnimationCatalog.resolveEquippedWalkAction` rule
+/// (`ClientSession.battleWalkAction`: "falls back to spear 24/25 when the active
+/// sprite does not provide the later 83/84 family"). A sprite lacking both
+/// families keeps the requested action so its absence is still reported.
+pub fn weapon_family_action(catalog: &SpriteActionCatalog, id: u32, action: u8) -> u8 {
+    let spear = match action {
+        83 => 24,
+        84 => 25,
+        86 => 27,
+        _ => return action,
+    };
+    if resolve(catalog, id, 83).is_ok() || resolve(catalog, id, 24).is_err() {
+        action
+    } else {
+        spear
+    }
+}
 pub fn resolve(catalog: &SpriteActionCatalog, id: u32, action: u8) -> Result<Clip> {
     // Formal guardian healthy action is zero. Original type11 obelisks have
     // no walk/breath action: their intact source image is stateone, frame zero.
@@ -188,7 +207,8 @@ impl Animator {
     /// from elapsed zero just because its images were supplied by callbacks.
     pub(crate) fn source_motion(&mut self, catalog:&SpriteActionCatalog, actor:&Actor,
         now:u64, complete:bool)->Result<()> {
-        let duration=self.clip(catalog,u32::from(actor.graphics),actor.walk_action)?.duration_ns();
+        let stance=weapon_family_action(catalog,u32::from(actor.graphics),actor.walk_action);
+        let duration=self.clip(catalog,u32::from(actor.graphics),stance)?.duration_ns();
         let signature=(actor.incarnation,actor.motion_revision,actor.graphics,actor.x,actor.y,actor.walk_action);
         if complete && self.tracks.get(&actor.id).is_some_and(|t|t.signature==signature
             && t.virtual_units>=u128::from(duration)*126) {return Ok(());}
@@ -249,7 +269,7 @@ impl Animator {
             actor.y,
             actor.walk_action,
         );
-        let stance = actor.walk_action;
+        let stance = weapon_family_action(catalog, id, actor.walk_action);
         let base_walk = if actor.motion_from.is_some() {
             self.clip(catalog, id, stance)?.duration_ns()
         } else {
@@ -347,6 +367,7 @@ impl Animator {
             (stance, "object_action", elapsed, false)
         };
         let retired_motion=self.retired.actors.get(&actor.id).filter(|v|v.0==actor.incarnation).map(|v|v.2);
+        let action = weapon_family_action(catalog, id, action);
         let clip = self.clip(catalog, id, action)?;
         if phase == "idle" {
             let label = String::from_utf8_lossy(&clip.animation.label_bytes).to_ascii_lowercase();

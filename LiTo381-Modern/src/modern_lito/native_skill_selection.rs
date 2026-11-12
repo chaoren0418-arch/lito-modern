@@ -74,6 +74,25 @@ impl Target {
         .then_some(self.id)
     }
 }
+/// T key: advance to the next object in the presented draw order. Only ids the
+/// caller actually drew in a current frame are candidates; a retired world
+/// (teleport handoff, cancel, failure) has no own actor and yields nothing.
+/// `corpse` selects corpse targets for #41, otherwise living targets only.
+/// The result is a fresh capture, never the stale `current` selection.
+pub fn cycle_target(world: &World, presented: impl IntoIterator<Item = u32>, own: u32,
+    current: Option<Target>, corpse: bool) -> Option<Target> {
+    if !world.ready() || world.own_actor().is_none_or(|a| a.id != own) { return None; }
+    let mut ids: Vec<u32> = Vec::new();
+    for id in presented {
+        if id != own && !ids.contains(&id) { ids.push(id); }
+    }
+    let start = current.and_then(|t| ids.iter().position(|&id| id == t.id)).map_or(0, |i| i + 1);
+    (0..ids.len()).map(|n| ids[(start + n) % ids.len()]).find_map(|id| {
+        Target::capture(world, id).filter(|t| if corpse {
+            t.resolve_for_skill(world, 41).is_some()
+        } else { t.resolve(world).is_some() })
+    })
+}
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Row {
     pub id: u16,
@@ -109,14 +128,15 @@ impl Ground {
 /// Shared by the actual native window and isolated ClientSession probes.
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
-    let target = if native_skills::selector_only(skill) || matches!(skill,2|3|13|60|131) {
+    let named = matches!(skill, 116 | 118);
+    let target = if native_skills::selector_only(skill) || named || matches!(skill,2|3|13|60|131) {
         None
     } else {
         target
             .map(|t| t.resolve_for_skill(world, skill).context("選取的目標已失效，請重新點選"))
             .transpose()?
     };
-    native_skills::request(world, skill, target)?;
+    if named { native_skills::admit_named(world, skill)?; } else { native_skills::request(world, skill, target)?; }
     Ok(Choice {
         skill,
         target,
@@ -172,7 +192,7 @@ impl Model {
                         3 => "#3 護盾（自己）".into(),
                         4 => "#4 光箭（選取目標）".into(),
                         5 => "#5 指定傳送（隨機／書籤）".into(),
-                        12 => "#12 擬似魔法武器（選取背包物品）".into(),
+                        12 => "#12 擬似魔法武器（對裝備中的武器）".into(),
                         20 => "#20 闇盲咒術（選取目標，一格內）".into(),
                         21 => "#21 鎧甲護持（選取背包物品）".into(),
                         22 => "#22 寒冰氣息（選取目標，六格內）".into(),
@@ -223,9 +243,18 @@ impl Model {
                         104 => "#104 毒性抵抗（自己）".into(),
                         105 => "#105 雙重破壞（自己）".into(),
                         106 => "#106 暗影閃避（自己）".into(),
-                        107 => "#107 暗影之牙（開啟背包選取武器）".into(),
+                        107 => "#107 暗影之牙（對裝備中的武器）".into(),
                         108 => "#108 會心一擊（選取目標，一格內）".into(),
                         109 => "#109 力量提升（自己）".into(),
+                        110 => "#110 敏捷提升（自己）".into(),
+                        111 => "#111 閃避提升（自己）".into(),
+                        112 => "#112 破壞盔甲（伺服器判定一格內目標；消耗 HP）".into(),
+                        113 => "#113 精準目標（選取目標／自己，畫面內；可輸入標記文字）".into(),
+                        114 => "#114 激勵士氣（自己與周圍隊員）".into(),
+                        115 => "#115 鋼鐵士氣（自己與周圍隊員／盟友）".into(),
+                        116 => "#116 呼喚盟友（輸入盟友名稱）".into(),
+                        117 => "#117 衝擊士氣（自己與周圍隊員）".into(),
+                        118 => "#118 援護盟友（輸入盟友名稱）".into(),
                         13 => "#13 偵測術（自己）".into(),
                         15 => "#15 火箭（選取目標）".into(),
                         18 => "#18 起死回生術（選取目標，十格內）".into(),

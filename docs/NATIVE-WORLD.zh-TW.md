@@ -31,7 +31,7 @@ pwsh -NoProfile -File .\啟動現代客戶端.ps1 -NativeLoginEndpoint 127.0.0.1
 
 room-world 使用真正 LOGIN／GAME ClientSession：登入測試乙、選角、進頻道 0、加入房間、準備、等正式倒數啟動。核對伺服器最終 BATTLE、自己的物件 ID／座標／gfx、同一 GAME epoch，以及斷線寬限期後房間與頻道人口回收。使用 MemoryAccountRepository 與非持久化 GameStateStore，無 SQL 或玩家實表。
 
-實際收到 map564 與 12 個世界物件，首幀呈現 11 個；gfx1544 的 action0 在現行共用 catalog 沒有定義，保留明確缺口。自己的 ID=1、座標 (32729,32797)、logical gfx0 → graphics3225，畫面中心 (400,300)。PNG 是同一客戶端從真實收包狀態經 GUI 共用 renderer 產生，並已查看；不是 GUI 連線全程操作證據。
+實際收到 map564 與 12 個世界物件，首輪首幀呈現 11 個；gfx1544 的 action0 在現行共用 catalog 沒有定義。後續已由靜態看板路徑補上（見 [原生動畫驗證](NATIVE-ANIMATION.zh-TW.md)「靜態看板」）：2026-10-12 的 schema3 收據 `objects_rendered=12`、`missing_graphics` 為空，1544 以 `static_prop` 呈現；#185 另加單元測試固定這條路徑。自己的 ID=1、座標 (32729,32797)、logical gfx0 → graphics3225，畫面中心 (400,300)。PNG 是同一客戶端從真實收包狀態經 GUI 共用 renderer 產生，並已查看；不是 GUI 連線全程操作證據。
 
 PNG：`LiTo381-Modern/target/current/verification/native-world.png`。本次 RGBA SHA256 `b71fb1cd4f1c46da545378ea69db0ad9eb3fd42a9a1a54d402130b5f00c62ae4`。收據、session logs 與 oracle 在 `驗證紀錄/current/native-world`。相关 Rust 共 45 項；TCP 共 25 情境（世界 1，加原 24）。Release 只做編譯檢查。
 

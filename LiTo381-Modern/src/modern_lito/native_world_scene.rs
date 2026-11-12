@@ -71,6 +71,14 @@ impl InputSurface {
             && self.navigation.contains(cell.x,cell.y)).then_some(cell)
     }
     pub fn is_ground_item(&self,id:u32)->bool {self.ground_ids.contains(&id)}
+    /// T key over this presented frame's pixel owners (ground items excluded).
+    /// A frame from another generation/revision is not an input source.
+    pub fn cycle_target(&self,world:&World,own:u32,current:Option<super::native_skill_selection::Target>,corpse:bool)
+        ->Option<super::native_skill_selection::Target> {
+        if !self.input_ready(world){return None;}
+        super::native_skill_selection::cycle_target(world,
+            self.visibility.iter().map(|(id,_)|*id).filter(|id|!self.is_ground_item(*id)),own,current,corpse)
+    }
 }
 /// Already dispatched model callback; publication never replays the animation.
 #[derive(Clone,Debug)]

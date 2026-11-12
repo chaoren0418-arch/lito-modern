@@ -85,13 +85,18 @@ def source_ids(path):
     require(not selectors or re.search(r'\bid\s+if\s+selector_only\(id\)\s*=>', scope),
             'selector helper is not wired into request')
     ids.update(selectors)
+    text_ids = helper_ids('text_skill')
+    require(not text_ids or (re.search(r'\bid\s+if\s+text_skill\(id\)\s*=>', scope)
+                             and 'pub fn text_request(' in text),
+            'text helper is not wired into request')
     ground_scope = text[text.index('pub fn ground_request('):text.index('pub fn in_native_screen(')]
     ground = re.search(r'ensure!\(\s*matches!\(\s*skill\s*,\s*([\d\s|]+)\)', ground_scope)
     require(ground is not None, 'ground arm syntax differs')
     ground_ids = set(map(int, re.findall(r'\d+', ground[1])))
     item_ids = helper_ids('item_targeted')
     return dict(actor_or_selector_request_ids=sorted(ids), ground_request_ids=sorted(ground_ids),
-                inventory_request_ids=sorted(item_ids), all_request_ids=sorted(ids | ground_ids | item_ids),
+                inventory_request_ids=sorted(item_ids), text_request_ids=sorted(text_ids),
+                all_request_ids=sorted(ids | ground_ids | item_ids | text_ids),
                 path=str(path), sha256=sha(path))
 
 

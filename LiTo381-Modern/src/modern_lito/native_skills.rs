@@ -47,6 +47,21 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
 /// Item object IDs must never pass through the actor-target request path.
 pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 73 | 100 | 107) }
 
+/// 12 擬似魔法武器／107 暗影之牙：正式 E149 `nativeMaterialItemWeaponEnchantBody` 讀
+/// 請求的物件，檢查 `definition.weapon()` 後交 `CombatWeaponBuffs.equippedWeapon`，buff
+/// 一律掛在 `inventory.equippedWeaponItem()` 上；舊的「任選背包物品」不再決定目標。
+/// 客戶端因此固定送「目前裝備中的武器」的物件 ID。
+pub fn weapon_bound(skill: u16) -> bool { matches!(skill, 12 | 107) }
+/// 正式 `RuntimeInventory$Item.nativeViewName`：裝備中的武器在名稱後加 ` ($9)`
+/// （照明 ` ($10)`、防具 ` ($117)`），之後才接次數與數量。
+pub const EQUIPPED_WEAPON_MARK: &str = " ($9)";
+pub fn equipped_weapon(inventory: &super::native_inventory::Inventory) -> Result<&super::native_inventory::Item> {
+    let mut weapons = inventory.items.values().filter(|i| i.name.contains(EQUIPPED_WEAPON_MARK));
+    let weapon = weapons.next().context("尚未裝備武器，無法施放此技能")?;
+    ensure!(weapons.next().is_none(), "背包顯示多件裝備中的武器，請等待背包更新");
+    Ok(weapon)
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemTarget {
     choice: super::native_item_actions::Choice,
@@ -65,6 +80,12 @@ impl ItemTarget {
         target.validate(s, epoch)?;
         Ok(target)
     }
+    /// 12／107 用：取目前裝備中的武器，背包或裝備一變動就失效（沿用同一份快照守衛）。
+    pub fn equipped_weapon(s: &super::native_login::Snapshot, epoch: u64) -> Result<Self> {
+        let id = equipped_weapon(&s.inventory)?.id;
+        Self::capture(s, epoch, id)
+    }
+    pub fn item_id(&self) -> u32 { self.choice.item.id }
     pub fn validate(&self, s: &super::native_login::Snapshot, epoch: u64) -> Result<()> {
         ensure!(s.game_connected && s.phase.active_world() && !s.observer
             && !s.world.observer_mode && s.world.ready(), "目前不能選取施法物品");
@@ -151,7 +172,53 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 206)
+}
+/// Requests whose tail ends in one MS950 `s` field: ⑪ True Target (113) and
+/// ⑦／⑧ Call／Run Clan (116／118).
+pub fn text_skill(skill: u16) -> bool { matches!(skill, 113 | 116 | 118) }
+/// Formal parser limits: True Target annotation ≤0x34 bytes (may be empty);
+/// clan member names 1..=0x1B bytes, already trimmed. Both reject control
+/// characters and inexact MS950. Member lookup, clan and world checks stay
+/// server-owned.
+pub const TRUE_TARGET_TEXT_MAX: usize = 0x34;
+pub const CLAN_NAME_MAX: usize = 0x1b;
+/// Menu admission for 116／118 before a name is typed; `text_request` still
+/// rechecks everything at send time.
+pub fn admit_named(world: &World, skill: u16) -> Result<()> {
+    ensure!(matches!(skill, 116 | 118), "此技能不以盟友名稱指定對象");
+    can_cast(world, skill)
+}
+pub fn text_request(world: &World, skill: u16, target: Option<u32>, text: &str) -> Result<Vec<u8>> {
+    ensure!(text_skill(skill), "此技能不帶文字欄位");
+    can_cast(world, skill)?;
+    let own = world.own_actor().unwrap();
+    let mut b = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
+    if skill == 113 {
+        // The server re-resolves the target ID and ignores these coordinates;
+        // self is an eligible candidate (BattleTrueTarget.resolve).
+        let id = target.unwrap_or(own.id);
+        let actor = world.actors.get(&id).context("技能目標已離開")?;
+        ensure!(!actor.dead && world.actor_visible(id)
+            && !super::native_obstacles::destroyed_guardian(actor)
+            && in_native_screen([own.x, own.y], [actor.x, actor.y]),
+            "精準目標不可用或超出畫面");
+        b.extend_from_slice(&id.to_le_bytes());
+        b.extend_from_slice(&actor.x.to_le_bytes());
+        b.extend_from_slice(&actor.y.to_le_bytes());
+        if !text.is_empty() {
+            b.extend_from_slice(&super::native_login::encode_text(text, TRUE_TARGET_TEXT_MAX)
+                .context("標記文字須為 MS950，最多 52 bytes，不可含控制字元")?);
+        }
+    } else {
+        ensure!(target.is_none(), "此技能以盟友名稱指定對象");
+        ensure!(!text.is_empty(), "請輸入盟友名稱");
+        ensure!(text == text.trim(), "盟友名稱前後不可有空白");
+        b.extend_from_slice(&super::native_login::encode_text(text, CLAN_NAME_MAX)
+            .context("盟友名稱須為 MS950，最多 27 bytes，不可含控制字元")?);
+    }
+    b.push(0);
+    Ok(b)
 }
 
 pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>> {
@@ -181,6 +248,8 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
             b.extend_from_slice(&id.to_le_bytes());
         }
         id if selector_only(id) => {ensure!(target.is_none(), "此技能不接受指定目標");}
+        // Without typed text: 113 sends an empty annotation, 116／118 require a name.
+        id if text_skill(id) => {return text_request(world, id, target, "");}
         13 => {ensure!(target.is_none(), "偵測術不接受目標");}
         60 => {return self_tick_request(world,skill,target,ClientTick::now()?);}
         2 => {ensure!(target.is_none(), "日光術不接受目標");}
@@ -242,7 +311,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109=>0,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118=>0,112=>2000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -275,6 +344,11 @@ impl Feedback {
             Self::Rejected(353) => "目前地圖無法召喚",
             Self::Rejected(743) => "等級不足以召喚此種類",
             Self::Rejected(319) => "可控制的同伴數量已達上限",
+            Self::Rejected(73) => "找不到該盟友或對方不在線上",
+            Self::Rejected(414) => "對象不是同血盟成員",
+            Self::Rejected(629) => "對象不在同一個世界",
+            Self::Rejected(647) => "目前位置無法援護盟友",
+            Self::Rejected(1192) => "對方所在區域無法援護",
             Self::Rejected(_) => "伺服器限制施法",
         }
     }
@@ -334,6 +408,16 @@ impl Pending {
             Feedback::Rejected(79)
         } else {
             feedback
+        }
+    }
+    /// Call／Run Clan (116／118) also accept their sequenced name/clan/world
+    /// rejections; other casts never consult `last_clan_skill_rejection`.
+    pub fn observe_clan(&self, world: &World, now: Instant) -> Feedback {
+        let feedback = self.observe(world, now);
+        match world.last_clan_skill_rejection {
+            Some((sequence, code)) if sequence > self.messages
+                && matches!(feedback, Feedback::Pending | Feedback::NoResponse) => Feedback::Rejected(code),
+            _ => feedback,
         }
     }
     pub fn observe(&self, world: &World, now: Instant) -> Feedback {
@@ -444,6 +528,24 @@ pub const SUMMON_SELECTIONS: &[SummonSelection] = &[
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn weapon_bound_skills_resolve_only_the_single_equipped_weapon() {
+        use super::super::native_inventory::{Inventory, Item};
+        let item = |id: u32, name: &str| Item { id, use_type: 1, charge: 0, icon: 1, blessing: 1, count: 1,
+            identified: 1, name: name.into(), detail: vec![] };
+        assert!(weapon_bound(12) && weapon_bound(107));
+        assert!(!weapon_bound(21) && !weapon_bound(73) && !weapon_bound(100));
+        let mut inv = Inventory::default();
+        inv.items.insert(1, item(1, "$95"));
+        inv.items.insert(2, item(2, "$20 ($117)"));
+        inv.items.insert(3, item(3, "$100 ($10)"));
+        assert!(equipped_weapon(&inv).is_err(), "armor/light marks are not weapons");
+        inv.items.insert(0xfedc_ba98, item(0xfedc_ba98, "+7 $41 ($9) (3)"));
+        assert_eq!(equipped_weapon(&inv).unwrap().id, 0xfedc_ba98);
+        inv.items.insert(5, item(5, "$42 ($9)"));
+        assert!(equipped_weapon(&inv).is_err(), "ambiguous equipment is never guessed");
+    }
 
     /// Skill 60's dword is bracketed by the shared native 4D69F0 clock, not a
     /// second OS uptime source with a different epoch or resolution.
