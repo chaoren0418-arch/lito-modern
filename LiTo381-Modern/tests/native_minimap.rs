@@ -49,7 +49,7 @@ fn original_geometry_overlay_filters_hidden_markers_and_blocks_world_hit_tests()
  assert_eq!(mini["markers"][0]["pixel"],serde_json::json!([706,104]));assert_eq!(mini["markers"][0]["kind"],"ally");
  for (x,y) in [(610,10),(700,100),(789,189)]{assert!(f.overlay_contains(x,y));assert!(f.pick(x,y,own).is_none());assert!(f.ground_cell(&w,x,y).is_none());}
  for (x,y) in [(609,10),(610,9),(790,189),(789,190)]{assert!(!f.overlay_contains(x,y));}
- let out=Path::new("target/current/verification/native-minimap");std::fs::create_dir_all(out).unwrap();
+ let out=Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current/verification/native-minimap");std::fs::create_dir_all(&out).unwrap();
  let file=std::fs::File::create(out.join("original-geometry-ally.png")).unwrap();let mut encoder=png::Encoder::new(file,800,600);encoder.set_color(png::ColorType::Rgba);encoder.set_depth(png::BitDepth::Eight);encoder.write_header().unwrap().write_image_data(f.canvas.rgba()).unwrap();
  w.actors.get_mut(&2).unwrap().draw_state.invisible=true;w.visual_revision+=1;
  f=model.draw_at(&w,&cancel,1_000_000).unwrap();assert!(f.receipt["minimap"]["markers"].as_array().unwrap().is_empty());

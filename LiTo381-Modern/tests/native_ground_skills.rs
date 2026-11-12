@@ -205,7 +205,8 @@ fn original_resource_eight_segments_terminal_dwell_and_same_id_sound() {
         }
         if [0, 450, 1000, 1100].contains(&ms) {
             let path = format!("target/current/verification/native-wall-{ms}.png");
-            let mut enc = png::Encoder::new(std::fs::File::create(&path).unwrap(), 800, 600);
+            let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(&path);
+            let mut enc = png::Encoder::new(std::fs::File::create(file).unwrap(), 800, 600);
             enc.set_color(png::ColorType::Rgba);
             enc.set_depth(png::BitDepth::Eight);
             enc.write_header()
@@ -219,7 +220,8 @@ fn original_resource_eight_segments_terminal_dwell_and_same_id_sound() {
     }
     assert_eq!((emitted, heard, suppressed), (8, 1, 7));
     std::fs::write(
-        "target/current/verification/native-wall.json",
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("target/current/verification/native-wall.json"),
         serde_json::to_vec_pretty(&frames).unwrap(),
     )
     .unwrap();

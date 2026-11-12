@@ -338,7 +338,8 @@ fn world_scene_prepares_original_sound_once_and_preserves_server_state() {
     }
     assert_eq!(audio.len(), 1);
     std::fs::write(
-        "target/current/verification/native-reagent-audio.json",
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("target/current/verification/native-reagent-audio.json"),
         serde_json::to_vec_pretty(&audio).unwrap(),
     )
     .unwrap();
