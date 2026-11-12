@@ -384,7 +384,8 @@ impl Presentation {
             );
         }
         Ok(Self {
-            assets: Arc::new(DisintegrateAssets::load(root, cancel)?),
+            // #165: current `launcher/` TW profile, not the legacy root pack.
+            assets: Arc::new(DisintegrateAssets::load_current_tw(root, cancel)?),
             tracker: Tracker::new(f),
             effects: Vec::new(),
             skipped: false,

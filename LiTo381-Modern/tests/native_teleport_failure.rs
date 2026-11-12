@@ -239,4 +239,23 @@ mod recovery_wire {
  fn natural_source_wait_then_complete_c8_and_manual_selection() {
   cases::recovery_after_source_wait_confirms_directory(super::observe_source_expiry);
  }
+ // T023-4: continuation rejection/expiry, cancel-late, malformed and
+ // cross-generation continuation replies, T key scope.
+ use cases::continuation as t023_4;
+ #[test]
+ fn refused_continuation_keeps_recovery() { t023_4::destination_refused_continuation_keeps_one_recovery_without_c9(); }
+ #[test]
+ fn silent_continuation_is_bounded() { t023_4::destination_silent_continuation_is_bounded_and_keeps_one_recovery(); }
+ #[test]
+ fn expired_and_rerented_items_use_destination_ids() { t023_4::expired_and_rerented_items_use_only_destination_ids(); }
+ #[test]
+ fn malformed_continuation_replies() { t023_4::malformed_continuation_replies_fail_closed_on_the_destination(); }
+ #[test]
+ fn cross_generation_continuation_replies() { t023_4::cross_generation_continuation_replies_do_not_select_or_retarget(); }
+ #[test]
+ fn late_cancel_keeps_recovery() { t023_4::late_cancel_keeps_one_recovery_for_an_explicit_login(); }
+ #[test]
+ fn cancel_after_completed_continuation() { t023_4::cancel_after_completed_continuation_creates_no_recovery(); }
+ #[test]
+ fn t_key_cycle_scope() { t023_4::t_key_cycle_is_scoped_to_the_presented_live_world(); }
 }

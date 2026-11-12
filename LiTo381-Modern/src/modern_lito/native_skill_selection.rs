@@ -74,6 +74,25 @@ impl Target {
         .then_some(self.id)
     }
 }
+/// T key: advance to the next object in the presented draw order. Only ids the
+/// caller actually drew in a current frame are candidates; a retired world
+/// (teleport handoff, cancel, failure) has no own actor and yields nothing.
+/// `corpse` selects corpse targets for #41, otherwise living targets only.
+/// The result is a fresh capture, never the stale `current` selection.
+pub fn cycle_target(world: &World, presented: impl IntoIterator<Item = u32>, own: u32,
+    current: Option<Target>, corpse: bool) -> Option<Target> {
+    if !world.ready() || world.own_actor().is_none_or(|a| a.id != own) { return None; }
+    let mut ids: Vec<u32> = Vec::new();
+    for id in presented {
+        if id != own && !ids.contains(&id) { ids.push(id); }
+    }
+    let start = current.and_then(|t| ids.iter().position(|&id| id == t.id)).map_or(0, |i| i + 1);
+    (0..ids.len()).map(|n| ids[(start + n) % ids.len()]).find_map(|id| {
+        Target::capture(world, id).filter(|t| if corpse {
+            t.resolve_for_skill(world, 41).is_some()
+        } else { t.resolve(world).is_some() })
+    })
+}
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Row {
     pub id: u16,

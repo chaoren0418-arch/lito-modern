@@ -48,7 +48,8 @@
   - `native_skill_effects.rs`：採用 main 的 `finite_banks` 通用路徑，再把本批的 `batch4_bank` 接回去；`BATCH4_GRAPHICS` 從通用路徑的候選中**排除**。原因：通用 qualifier 只接受 attr 104 為 0／8，所以 2230（attr128）會被它拒絕；760／230 雖然會被它接受，但本批保留逐字比對的精確定義。2230 的混色維持 Multiply（main 的 mix 判斷順序是 finite_over → 2175|2228|2230 Multiply → Screen；2230 不會進 finite_over）。另外確認 3943／3944 有 `109.effect` 屬性，通用路徑也會拒絕，所以它們仍然是「呈現未接」。
   - `tower_assets.rs`：兩邊的新函式都保留（`load_reviewed_batch4_finite` 與 main 的 `load_finite`）。
   - 合併後本機 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 3m 55s`）。
-- 第 3 輪：合併 commit 推送後的 CI 結果，以 PR #283 最新 commit 為準。
+- 第 3 輪（run 43172382221，`7c46bce`）：`cargo check` 通過；`cargo test --lib` **失敗**，原文 `test result: FAILED. 2246 passed; 1 failed; 595 ignored; 0 measured; 0 filtered out; finished in 21.43s`。本批 8 案 ok，失敗的仍是 `batch4_finite_definitions_are_exact_and_visual_only`，這次訊息清楚：`original rows: parse: list.spr line 1: SpriteCount { declared: 11297, actual: 3 }`。原因是測試摘錄的 list 檔頭宣告了 11297 個 sprite，但只放了三列，而解析器會檢查數量（這行檔頭是照抄歷史候選模板 `維護工具/templates/*definition_tests.rs`，那些模板從沒跑過）。修正為 `3 0 0`。
+- 第 4 輪：main 又前進到 `3f6de7a`（#172 新增 `native_t028_ground` 白名單），再合併一次；只有 `tests.tsv` 衝突，兩邊的列都保留。合併後本機 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 32s`）。CI 結果以 PR #283 最新 commit 為準。
 
 ## 推測
 - 送包形狀、範圍與 reuse 是依正式 contract 與候選說明做的靜態對照，不代表正式 E149 服務一定接受（同盟資格、材料、機率等）。
