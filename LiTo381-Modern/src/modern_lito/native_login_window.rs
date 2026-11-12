@@ -986,6 +986,21 @@ impl Ui {
             None => self.controller.cast_selected_with_input(choice.skill, self.target, frame, input),
         }
     }
+    /// T key: cycle the selection through targets in the frame actually painted
+    /// for this connection. No request is sent; casts/attacks keep their gates.
+    fn cycle_target(&mut self)->Result<()> {
+        let epoch=self.controller.transport().snapshot().epoch;
+        let next={
+            let (painted,surface)=self.painted_input.as_ref().context("等待世界畫面")?;
+            ensure!(*painted==epoch,"世界畫面已更新，請稍候");
+            let world=&self.controller.snapshot().world;
+            let own=world.own_actor().context("角色尚未就緒")?.id;
+            surface.cycle_target(world,own,self.target,self.skills.selected()==Some(41))
+                .context("畫面內沒有可選取的目標")?
+        };
+        self.target=Some(next);self.ground=None;self.held_attack.clear();
+        Ok(())
+    }
     fn enter_nearby_portal(&mut self)->Result<()> {
         self.held.clear();self.held_attack.clear();
         let frame=self.world_presentation.frame.as_ref().context("等待世界畫面")?;
@@ -2847,6 +2862,15 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                         if message.lParam.0&(1<<30)==0 {
                             let result=ui.enter_nearby_portal();
                             if let Err(e)=result{ui.text(STATUS,&format!("{e:#}"));}
+                        }
+                        continue;
+                    }
+                }
+                if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x54 {
+                    let mut ui=state.0.borrow_mut();
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
+                        if message.lParam.0&(1<<30)==0 {
+                            if let Err(e)=ui.cycle_target(){ui.text(STATUS,&format!("{e:#}"));}
                         }
                         continue;
                     }

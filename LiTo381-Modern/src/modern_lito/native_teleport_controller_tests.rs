@@ -445,6 +445,11 @@ pub fn recovery_after_source_wait_confirms_directory(
     assert_eq!(c.transport.snapshot().epoch, epoch + 1);
     assert_eq!(game.opcodes().iter().filter(|&&op| op == 0xc9).count(), 1);
 }
+/// T023-4 continuation rejection/expiry, cancel-late, T key and malformed
+/// continuation replies; shares this module's FaultPeer and seeded scope.
+#[path = "native_teleport_continuation_tests.rs"]
+pub mod continuation;
+
 impl Drop for FaultPeer {
     fn drop(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){if let Ok(Err(error))=h.join(){eprintln!("synthetic peer {} failed: {error:#}",self.peer);}} }
 }
