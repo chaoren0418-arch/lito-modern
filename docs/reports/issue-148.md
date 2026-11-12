@@ -40,7 +40,7 @@
   7. `unqualified_presentations_are_omitted_not_substituted`：3943／3944 與 757／1812／3924 繪製時記為 omitted，沒有畫面、音效或本機 Impact。
   8. `rejections_keep_their_codes_and_silence_times_out`：278／279／280／299 拒絕碼，兩秒沒回覆就是 NoResponse。
   9. `batch4_finite_definitions_are_exact_and_visual_only`：用原始三列文字 qualify；整數 callback 的畫面結束時間 2230=1375ms、760=5250ms、230=830ms；改掉音效、attr、ticks 或 bank 數都會被拒絕；三個 gfx 不在舊 bank 的清單裡。
-- CI 結果：見下方「CI」一節。
+- CI：**PR #283 的 run 43173597271 通過**，lib 測試 `test result: ok. 2259 passed; 0 failed; 596 ignored`，本批 9 案全部 ok；各輪細節見下方「CI」一節。
 
 ### CI
 - 第 1 輪（commit `task #148: T027 批 4…`，run 43170045183）：`cargo check` 通過；`cargo test --lib` **失敗**，原文 `test result: FAILED. 2237 passed; 1 failed; 591 ignored; 0 measured; 0 filtered out; finished in 22.61s`。本批另外 8 案都是 ok；失敗的是 `batch4_finite_definitions_are_exact_and_visual_only`，panic 在測試輔助函式 `qualify` 的 `parse_for_inspection(...).unwrap()`（native_t027_batch4_tests.rs:337）。也就是某一筆故意改壞的定義列在解析階段就被拒絕，沒有走到 qualify。修正方式：解析失敗也算「不合格」（回傳 Err），原始三列如果解析失敗會另外 panic 並附上訊息。這不是放寬檢查：改壞的列不論在哪一層被拒絕都不能通過。修正後本機 `cargo check …--all-targets` exit 0（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 49.36s`）。
@@ -49,7 +49,8 @@
   - `tower_assets.rs`：兩邊的新函式都保留（`load_reviewed_batch4_finite` 與 main 的 `load_finite`）。
   - 合併後本機 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 3m 55s`）。
 - 第 3 輪（run 43172382221，`7c46bce`）：`cargo check` 通過；`cargo test --lib` **失敗**，原文 `test result: FAILED. 2246 passed; 1 failed; 595 ignored; 0 measured; 0 filtered out; finished in 21.43s`。本批 8 案 ok，失敗的仍是 `batch4_finite_definitions_are_exact_and_visual_only`，這次訊息清楚：`original rows: parse: list.spr line 1: SpriteCount { declared: 11297, actual: 3 }`。原因是測試摘錄的 list 檔頭宣告了 11297 個 sprite，但只放了三列，而解析器會檢查數量（這行檔頭是照抄歷史候選模板 `維護工具/templates/*definition_tests.rs`，那些模板從沒跑過）。修正為 `3 0 0`。
-- 第 4 輪：main 又前進到 `3f6de7a`（#172 新增 `native_t028_ground` 白名單），再合併一次；只有 `tests.tsv` 衝突，兩邊的列都保留。合併後本機 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 32s`）。CI 結果以 PR #283 最新 commit 為準。
+- 第 4 輪：main 又前進到 `3f6de7a`（#172 新增 `native_t028_ground` 白名單），再合併一次；只有 `tests.tsv` 衝突，兩邊的列都保留。合併後本機 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 32s`）。
+- **第 4 輪 CI（run 43173597271，`2397532`）：通過（exit 0）**。`cargo check --locked --all-targets` 原文 `Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 31s`；`cargo test --locked --lib --no-fail-fast` 原文 `test result: ok. 2259 passed; 0 failed; 596 ignored; 0 measured; 0 filtered out; finished in 25.40s`。本批 9 案全部 `ok`（含 `batch4_finite_definitions_are_exact_and_visual_only`）。596 個 ignored 不算通過，原資源 opt-in 案仍待 Codex。之後只再推了報告／狀態表的文件更新，CI 以 PR 最新 commit 為準。
 
 ## 推測
 - 送包形狀、範圍與 reuse 是依正式 contract 與候選說明做的靜態對照，不代表正式 E149 服務一定接受（同盟資格、材料、機率等）。
