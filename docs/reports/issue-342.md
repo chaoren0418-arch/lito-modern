@@ -93,7 +93,9 @@ JAR：`D:\lineage開發\3-lito開發\lito登入器\LiTo381-Launcher\app\server\L
 
 ### CI（單元測試）
 
-CI_PLACEHOLDER_CI
+已驗證：PR #366，commit `63a050d` 的 GitHub Actions run 43264351164 成功。`cargo check --locked --all-targets` 通過；`cargo test --locked --lib --no-fail-fast` 結果是 **2384 passed、0 failed、597 ignored**。本張新增的 21 個測試全部 `ok`（逐一在 log 中核對過名稱）。
+
+之後只有補這份報告的 commit，程式沒有再改；那個 commit 的 CI 結果以 PR 頁面為準。
 
 新增的測試：
 
@@ -117,7 +119,7 @@ CI_PLACEHOLDER_CI
 
 - 2 個 GUI ignored 測試是 `chat_filtered_window_tests.rs:22` 與 `direct_chat_window_tests.rs:438`，會開真的視窗，依 TASKS 併入 T034 清單，本張沒有執行。
 - 41 個 transport／SQL ignored 測試需要 loopback 或資料庫，屬 #54 的分類，本張沒有執行。
-- 78 個一般測試的 CI 結果：CI_PLACEHOLDER_MODERN
+- 78 個一般測試的 CI 結果：同一個 CI run 的 log 裡，測試路徑含 `chat`（不含 `native_`）的有 75 個 `ok`、0 個 `FAILED`、53 個 `ignored`。這個數字是用測試名稱比對的，和上面用檔案清點的 78／43 口徑不同，兩組數字對不上，差異沒有逐一追查。可以確定的只有：名稱含 `chat` 的測試沒有任何失敗。
 
 ## 推測
 
