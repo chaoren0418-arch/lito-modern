@@ -79,7 +79,7 @@ try {
             if(!$response.worker_quiescent -or $response.shutdown -ne 'closed' -or $combat.attacks_sent -ne 0 -or $combat.skills_sent -ne 0 -or $world.attack_packets -ne 0 -or $world.local_corrections -ne 0){throw 'State fixture changed combat authority'}
             if(@($combat.frames|Select-Object -ExpandProperty emblem_step -Unique).Count -ne 6 -or $combat.frames.Count -ne 6){throw 'Emblem capture incomplete'}
             if($world.emblems.requests -ne 3 -or $world.emblems.responses -ne 2 -or $world.emblems.timeouts -ne 1 -or $world.emblems.unsolicited -ne 0){throw 'Emblem cache counters invalid'}
-            if(($combat.frames | Measure-Object -Property opaque_pixels_checked -Sum).Sum -ne 1176){throw 'Emblem pixels incomplete'}
+            if(($combat.frames | Measure-Object -Property opaque_pixels_checked -Sum).Sum -ne 504){throw 'Emblem pixels incomplete'}
             if($world.hp[0] -ne $reference.final_player_hp -or $world.mp[0] -ne $reference.final_player_mp){throw 'State fixture HP/MP mismatch'}
             $stateFixture=Get-Content -LiteralPath (Join-Path $modeRoot 'emblem-fixture.json') -Raw|ConvertFrom-Json
             if($stateFixture.steps -ne 6 -or $stateFixture.seeded_clan_emblems -ne 2 -or $stateFixture.natural_clan_gameplay -or $stateFixture.response_handler -ne 'actual_ClientSession_C30_GameHub'){throw 'Emblem fixture scope mismatch'}

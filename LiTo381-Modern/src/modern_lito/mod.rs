@@ -394,6 +394,7 @@ pub mod native_points;
 pub mod native_tournament_shop;
 pub mod native_map_item;
 pub mod native_triple_arrow;
+pub mod native_equipment;
 pub mod native_merchant;
 pub mod native_companions;
 pub mod native_npc_document;
@@ -448,6 +449,7 @@ pub mod native_text_format;
 pub mod native_world_labels;
 pub mod native_clan_markers;
 pub mod native_emblems;
+pub mod native_name_badge;
 pub mod native_label_update_probe;
 pub mod native_emblem_probe;
 

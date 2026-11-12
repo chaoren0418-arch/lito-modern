@@ -1,0 +1,1055 @@
+__lib	modern_lito::actor_assets::tests::real_explicit_sprite_bank_binds_eight_headings_and_unique_scope_rejects_collision	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::ammo_resource_reference_tests::actual_shared_arrow_eight_banks_match_independent_reference	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::ammo_resource_reference_tests::actual_shared_bow_bodies_match_independent_pixels_and_launch_cues	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::animation::tests::real_shared_attack_uses_source_fps_ticks_and_once_only_presentation_events	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::armor_protection_reference_tests::actual_shared_armor_protection_action_definitions	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::audio::tests::real_shared_sound_10_has_explicit_terminal_unpadded_pcm8_variant	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::audio::tests::real_shared_sound_1539_matches_pcm_reference	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_body_audio::footsteps::tests::real_shared_player_footsteps_match_all_qualified_walk_boundaries_and_pcm	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_equipment::tests::java_v41_equipment_receipts_follow_atomically_without_inventing_live_success	yes	-	excluded	-	#318	env: 未設定 LITO_MODERN_TEST_SERVER_ROOT，等雜項環境變數一張（#318）
+__lib	modern_lito::battle_equipment::tests::java_v41_equipment_rejects_truncation_lengths_echo_and_nested_identity	yes	-	excluded	-	#318	env: 未設定 LITO_MODERN_TEST_SERVER_ROOT，等雜項環境變數一張（#318）
+__lib	modern_lito::battle_hud::tests::real_shared_hud_members_qualify_and_zero_mp_draws	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_motion::npc_pacing_tests::real_shared_npc_paced_cycles_and_layers	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::armor::java_complete_armor_schema8_keeps_healing_equipment_status_bots_and_lanes	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::armor_admission::java_armor_selected_preserves_full_state_and_atomic_healing	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::armor_admission::lifecycle::java_armor_shared_scene_survives_durable_gear_death_respawn_and_finish	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::armor_admission::presentation::java_armor_shared_status_strip_and_nested_healing_keep_full_observations	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::armor_admission::presentation_wire::java_armor_presentation_schema9_preserves_owner_anchor_multiplicity_and_atomic_admission	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::armor_admission::render::java_armor_schema9_shared_effects_render_order_anchor_audio_and_handoff	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::follow::java_canonical_body_cues_share_pixel_clocks_and_remain_atomic	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::follow::java_canonical_modes_qualify_exact_navigation_without_load_permission	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::follow::java_canonical_race_and_target_changes_animate_real_shared_resources	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::follow::java_canonical_sequences_allow_catchup_and_reject_rewrites_atomically	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::follow::java_durable_equipment_changes_follow_both_owners_without_repricing_past_events	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::follow::java_service_equipment_history_reaches_both_owners_and_terminal_without_legacy_frames	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::greater_haste::java_greater_haste_command_echo_success_denial_and_atomic_candidate_history	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::greater_haste::java_greater_haste_schema3_source_cost_gear_life_and_legacy_rejection	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::haste::java_haste43_schema5_complete_targets_owner_history_and_legacy_rejection	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::haste::java_haste43_shared_target_visual_and_npc_motion	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::haste::target_command::java_target_haste_command_pc_bot_npc_echo_denial_and_atomic_history	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::haste::time_attack::java_haste43_time_attack_schema5_all_terminals_and_owner_transitions	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::healing::java_complete_healing_battle_schema7_accounts_status_and_owner_round_trip	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::healing_admission::java_healing_selected_complete_observation_and_atomic_catchup	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::healing_command::java_player_healing_rust_intents_execute_and_replies_commit_atomically	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::healing_replies::java_healing_selected_all_reply_families_preserve_complete_data	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::healing_scene::java_healing_schema7_complete_scene_atomic_follower_and_catchup	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::java_complete_battle_payloads_preserve_sections_owner_and_engine_revision	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::npc_motion::java_npc_motion_schema4_scoped_pace_steps_bounds_and_legacy_rejection	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::npc_motion::java_v43_coalesced_npc_walk_and_attack_audio_share_confirmed_clock	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::operations::java_v38_operation_mixed_equipment_history_and_saved_receipt	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::presentation::confirmed_healing_uses_shared_action19_fixed744_and_deduplicated109	yes	-	excluded	-	#314	java-peer: 外部 Java peer 尚未核對，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::presentation::public_bows_use_native_hit_launch_and_immutable_class_three_flights	yes	-	excluded	-	#314	java-peer: 外部 Java peer 尚未核對，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::presentation::public_item_events_render_shared_art_and_preserve_skill_cues	yes	-	excluded	-	#314	java-peer: 外部 Java peer 尚未核對，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::presentation::schema_two_public_events_roundtrip_without_sharing_private_stocks	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::speed::java_first_slow_miss_keeps_target_status_and_pixels_clear	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::speed::java_speed29_schema6_lossless_components_and_old_versions_closed	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::speed::java_speed46_negotiated_read_and_atomic_observation_following	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::vip::java_complete_vip_schema10_preserves_versions_owners_wide_stats_and_all_sections	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::vip_equipment::java_vip_equipment_receipts_keep_independent_versions_and_atomic_acceptance	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::appearance::java_vip_public_appearance_is_source_bound_versioned_and_cannot_be_downgraded	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::java_vip_selected_read_retains_complete_state_and_rejects_downgrade_atomically	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::player_appearance::java_public_appearances_render_as_players_and_replace_resources_atomically	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::player_body::java_public_player_body_pixels_and_audio_share_native_clock_without_replay	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::player_cast::java_public_polymorph_casts_use_logical_clock_and_atomic_spell_presentation	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::player_utility::java_public_utility_spells_compose_polymorph_body_effects_and_allow_post_teleport_move	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::player_walking::java_public_player_walks_keep_native_body_camera_and_authority_separate	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::presentation::java_vip_armor_shared_presentation_keeps_owner_versions_and_expiry	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::real_map::java_vip_real_shared_map_manifest_reaches_formal_read_only_player_preview	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::vip_selected::status::java_vip_status_icons_follow_source_owned_equipment_without_invented_xml_timers	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_payload::interop_tests::worlds::java_v39_passive_world_mixed_equipment_saved_and_departure	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::battle_revival::tests::java_v40_revival_wire_and_atomic_follower_preserve_exact_death_and_new_life	yes	-	excluded	-	#318	env: 未設定 LITO_MODERN_TEST_SERVER_ROOT，等雜項環境變數一張（#318）
+__lib	modern_lito::battle_runtime::tests::actual_shared_worker_gain_and_attachment_reach_native_device_then_release	yes	-	excluded	-	#318	env: LITO_NATIVE_AUDIO_OPT_IN=1 與 shared root 未設定，等雜項環境變數一張（#318）
+__lib	modern_lito::battle_scene::objective_audio::actual_shared_objective_cues_are_atomic_finite_and_age_bounded	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_scene::tests::ordinary_status_icons_qualify_real_shared_lineage_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::battle_slow_visual::tests::real_speed_commands_and_slow752_visuals_preserve_existing_haste	yes	-	excluded	-	#318	env: 未設定 LITO_MODERN_SPEED_COMMAND_FIXTURES，等雜項環境變數一張（#318）
+__lib	modern_lito::chat_window::tests::filtered_native_category_inspection_without_network	yes	-	excluded	-	T030	gui: 需要原生視窗或操作員流程，移入 T030 實機驗收清單
+__lib	modern_lito::combat_animation::tests::real_shared_all_fourteen_unarmed_combat_actions_and_native_audio_members_are_present	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::combat_animation::tests::real_shared_weapon_families_have_exact_actions_and_native_main_attack_ticks	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::combat_audio::tests::real_shared_unarmed_battle_bank_qualifies_all_weighted_members_without_audio_device	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::compositor::tests::real_shared_sprite_composites_to_reference_png	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_504_whole_geometry_and_terrain_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_505_whole_geometry_and_terrain_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_506_whole_geometry_and_terrain_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_508_531_534_geometry_directions_islands_and_tile_assets_match_java	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_516_large_map_terrain_budget	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_516_sparse_tiles_equal_full_original_decodes	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_551_552_geometry_directions_islands_and_tile_assets_match_java	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::actual_shared_large_compact_cache_equals_original_pixels_and_budget	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::inspect_shared_504_505_506_whole_terrain_costs	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::inspect_shared_516_large_map_terrain_costs	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::deathmatch_resource_tests::inspect_shared_large_tile_pixel_reuse	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::descriptions::tests::real_shared_description_matches_independent_csharp_cp950_reference	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::direct_chat_window::tests::private_native_viewport_inspection_without_network	yes	-	excluded	-	T030	gui: 需要原生視窗或操作員流程，移入 T030 實機驗收清單
+__lib	modern_lito::disintegrate_assets::tests::all_four_shared_sprites_match_independent_csharp_pixels	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::disintegrate_assets::tests::all_four_shared_sprites_match_independent_csharp_pixels_current_launcher_tw_profile	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::disintegrate_effect::tests::shared_one_shots_match_csharp_composites_and_release_owned_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::disintegrate_effect::tests::shared_one_shots_match_csharp_composites_and_release_owned_assets_current_launcher_tw_profile	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::effect_catalog::tests::actual_lineage_effect_catalog_matches_encrypted_reference_and_shared_status_pictures	yes	-	excluded	-	#318	env: 未設定 LITO_EFFECTLIST_REFERENCE，等雜項環境變數一張（#318）
+__lib	modern_lito::equipment_history_wire::interop_tests::java_player_healing_owner_schema5_real_engine_cross_source_gear_life_and_effects_round_trip	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::equipment_history_wire::interop_tests::java_real_casters_and_mixed_price_history_round_trip_in_both_directions	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::fire_storm_effect::tests::real_shared_fire_storm_full_sprite_and_sound_match_independent_csharp	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::fixed_walk::tests::real_shared_player_walk_all_qualified_weapon_families_use_native_step_order	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::greater_haste_effect::tests::real_shared_greater_haste_effect_frames_and_terminal	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::haste_effect::tests::real_shared_haste43_effect_frames_and_terminal	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::healing_effect::tests::actual_shared_healing_effects_match_all_eighteen_reference_frames	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::honor_healing_effect::tests::actual_basic_heal_screen_profile_uses_qualified744_and_expires_without_a_decal	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::immune_to_harm_effect::tests::actual_shared_protection228_frames_audio_and_fixed_anchor_render	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::immune_to_harm_icon::tests::actual_shared_protection_status1562_matches_csharp_and_clips	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::inventory_icons::tests::real_shared_icons_cover_all_graphics_in_independent_two_source_inventory_fixture	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::inventory_icons::tests::real_shared_inventory_icons_match_independent_pakviewer_load_l1_image	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::light_arrow_effect::tests::actual_shared_four_profiles_preserve_all_assets_and_discard_failed_reader	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::light_arrow_effect::tests::actual_shared_light_arrow_full_chain_all_casters_and_rgba_match_csharp	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::map509_reference_tests::actual_shared509_full_static_references_geometry_and_connected_spawns_match_independent_oracle	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::map532_reference_tests::actual_shared532_six_sectors_all_static_references_and_connected_geometry_match_independent_oracle	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::map::tests::real_shared_map4_sector_matches_csharp_layers	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::native_actor_dependency_draft::capture_tests::append_only_reader_refuses_sequence_key_eof_and_budget_substitution	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_actor_dependency_draft::capture_tests::fixed_append_only_sql_catalog_actor_and_discovery_consumer	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_actor_dependency_draft::tests::actor_header_bound_before_body_and_nested_ids	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_actor_dependency_draft::tests::actor_identity_schema_alias_routes_ranges_and_hashes	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_actor_dependency_draft::tests::actor_immutable_identity_replacement_requires_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_actor_dependency_draft::tests::actor_selection_and_old_routes_remain_closed	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_actor_dependency_draft::tests::fixed_actor_authoritative_body_and_opaque_partial_completion	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_actor_dependency_draft::tests::fixed_actor_protocol_and_publication_consumer	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_appearance_clock_study_tests::actual_SPR_walk_attack_full_cycle_CPU_body_samples	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_clock_study_tests::exact_integer_clock_full_binding_retirement_and_no_loop_grant	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_clock_study_tests::original_ordinary_first_advance_zero_tick_is_not_a_visible_clock	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_continuation_study_tests::actual_attack47_continuation_end_idle_queue_and_late_callback_CPU	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_idle_study_tests::finite_attack_end_then_first_owned_idle49_callback_over_native564	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_inspection_tests::bound_schema_digest_duplicate_frame_and_expected_owner_rejections	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_inspection_tests::default_off_actual_SPR_first_frame_CPU_slices_body_shadow_and_105_separate	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_inspection_tests::four_complete_NAB_bindings_match_full_Work_LPL_and_separate_SQL_Class	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_inspection_tests::full_NAD_raw_catalog_shard_priority_and_432_bounded_SPR_decode	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_inspection_tests::shard_HIT_cannot_fall_back_and_alias_is_a_direct_image_bank	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_layer_study_tests::actual_attack47_shadow105_same_subframe_submission_depth_and_CPU	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_occlusion_study_tests::actual_FirePot_rear_front_occlusion_and_distinct_body_subframe_depth_ties	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_replay_study_tests::single_finite_attack47_replay_switches_bank88_to_end72_then_stops	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_appearance_terrain_study_tests::finite_attack47_end72_interleaves_actual_native564_floor_objects_and_player	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_campaign_resource_study::tests::complete_base_text_campaign_members_parse_source_fields_without_live_language_or_timer_grant	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_canonical_draft::prototype_tests::frozen_java_six_requests_eight_replies_proofs_and_43_negative_equivalents	yes	-	excluded	-	#318	env: 未設定 LITO_NATIVE_CANONICAL_PROTOTYPE_INPUT，等雜項環境變數一張（#318）
+__lib	modern_lito::native_canonical_draft::renderer_slice_tests::frozen_service_publications_native_firepot_ticks_depth_and_partial_completion	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_canonical_draft::renderer_slice_tests::frozen_sql_prince_body_standing_moving_depth_native_integer_milliseconds	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_canonical_draft::renderer_slice_tests::frozen_sql_publication_owner_and_actor_requirements	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_catalog_draft::tests::fixed_catalog_publications_proofs_owner_and_partial_completion	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_catalog_draft::tests::fixed_sql_catalog_owner_generation_proofs_and_equipment_publications	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_city_runtime::java_room_self::tests::count_or_multirow_cannot_supply_singleton_alias	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_city_runtime::room_player::r529_room_window_bindings::ambiguous_alias_and_absent_receipt_remain_unknown	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_city_runtime::room_player::r529_room_window_bindings::display_uses_last_d1_not_initial_or_queued_intent	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_cross_mode_tests::nine_complete_cross_mode_maps_large_budget_same_pixels_distinct_ids_wrong_mode_cancel_stale_missing_and_city_refusal	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_budget_and_late_timer_do_not_catch_up	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_cancel_and_failed_source_old_publication_cannot_relaunch	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_canvas_screen_then_multiply_and_projection_preflight	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_fragment_submission_uses_screen_multiply_and_remains_click_through	yes	-	excluded	-	#309	helper-open: 走 world_scene／world_raster，helper 閉合未完成，#307 轉 #309 複核
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_frozen_position_target_life_and_caster_retirement	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_marker_timing_once_normal_and_critical	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_model_rebuild_restores_only_admission_not_pixels_or_callbacks	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_prepare_generation_and_failed_source_retire_before_draw	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_prepared_payload_publication_and_history_once	yes	-	run	client	#307	-
+__lib	modern_lito::native_disintegrate_tests::native77_probe::actual_stale_generation_owner_and_life_stamps_never_rebind	yes	-	run	client	#307	-
+__lib	modern_lito::native_event_scheduler::tests::opcode32_idle_transition_and_first_end_are_bounded	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_event_scheduler::tests::post_pop_queue_and_late_callback_compensation	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_event_scheduler::tests::real_assets_conditional_event_sequence_and_opaque_partial	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::native_event_scheduler::tests::replacement_retirement_and_budget_drain_bound_events	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_external_fixture::lifecycle::actual_selected_reader_lifecycle_matrix	yes	-	excluded	-	#318	env: 未設定 LITO_R442_READY，等雜項環境變數一張（#318）
+__lib	modern_lito::native_external_fixture::tests::actual_Rust_SQL_TLS_external_navigation	yes	-	excluded	-	#318	env: 未設定 LITO_R440_READY，等雜項環境變數一張（#318）
+__lib	modern_lito::native_external_fixture::v2::tests::actual_v2_same_Work_CAS_and_selected_lifecycle	yes	-	excluded	-	#318	env: 未設定 LITO_R445_READY，等雜項環境變數一張（#318）
+__lib	modern_lito::native_external_fixture::v2::tests::v2_ready_and_same_Work_witness_mutants_are_strict_and_v1_stays_distinct	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::idle_cycle::tests::owned_first_idle2637_full_native_cycle_end0_repeat_and_retirement_reentry	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::action_tests::received_action32_at_completed_cell_gap_cancels_equal_due_carry_then_trueplayer_attack_and_idle	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::input_tests::mid_step_retarget_keeps_prequeue_then_stop_finishes_cell_without_idle_and_reentry_revokes_owner	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::queue_tests::busy_packet32_preserves_steps_finishes_cell_then_fifo_attacks_and_owner_removal_drains_queue	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::input::held_current_tests::held512_equal_current_cell_preserves_step_and_stops_before_refresh_with_source_equal_tail_boundaries	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::input::held_tests::held_arrival_refreshes_same_mouse_after_camera_move_and_commits_next_cell_with_joint_fifo	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::input::idle_reclick_tests::idle49_normal_reclick_cancels_current_idle_timer_and_resets_frame_without_owner_queue_camera_reset	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::input::release_stop_tests::release514_during_second_step_preserves_timers_commits_cell_and_stops_at_arrival_without_third_cell	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::input::restart_tests::stopped_held_scene_release_then_ordinary_reclick_reuses_owner_queue_camera_and_commits_next_cell	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::input::send_idle_tests::global47b720_explicit_success_projection_preserves_joint_fifo_and_consumes_existing4925_idle_node	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::input::tests::new_source_wait_restore_first_click_process_fifo_first_cell_and_old_owner_refusal	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::reload::tests::reload_destroys_queue_before_function_whitelist_rebuilds_globals_and_registers_distinct_private_owner	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::sequence_tests::actual_two_cell_move_rechecks_collision_prequeues_each_step_then_arrives	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::locomotion::tests::source_player_prequeue_cell_commit_arrival_idle_and_same_scene_retirement_reentry	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study::scene::tests::one_owner_clock_native564_player_roof_firepot_continuous_scene_atomic_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_callback_study_tests::actual_layer8_firepot_creation_first_attr8_callback_private_frame_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_layer8_sequence_study_tests::actual_firepot_cycle_end_source_requeue_repeat_and_sector_removal	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_login::return_server_negative_tests::actual_server_rejects_out_of_order_and_duplicate_return_requests	yes	-	excluded	-	#318	env: 未設定 LITO_NEGATIVE_ROOT，等雜項環境變數一張（#318）
+__lib	modern_lito::native_map_batch_tests::actual_four_complete_native_maps_new_old_generation_missing_and_bad_resource_no_fallback	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_mode_menu::tests::actual_mode_rebuild_headers_thumb_dpi_and_filtered_worker_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_mode_menu_skin::background::tests::modern_bin_20261007_real_assets_through_existing_img_and_canvas	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_mode_menu_skin::background::tests::modern_bin_20261007_wrong_identity_corruption_lengths_and_path_refused	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_multi_map_menu::tests::actual_two_native_maps_scroll_press_clipped_rows_switch_cancel_and_identity	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_multisector_batch_tests::six_complete_native_shapes_pan_cancel_stale_missing_current_effect_tiles_and_unknown_tile_refusal	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_multisector_tests::complete552_cross_xy_seams_signed_bounds_missing_every_sector_cancel_and_stale_frames	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_navigation_runner_tests::full_CAS_guard_refuses_foreign_baseline_revision_and_unrelated_flag_changes	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_navigation_runner_tests::selected_owner_epoch_channel_and_phase_must_match_each_live_step	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_navigation_runner_tests::world_fence_rejects_stale_generation_revision_resource_and_phase	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_offline_map_flow::tests::actual_dm564_menu_entry_pan_back_reentry_rejects_cancelled_and_stale_views	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_offline_menu_skin::tests::actual_ltsurf_img_bounds_mask_states_resize_and_skin_worker_flow	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_offline_preview_runtime::tests::candidate_ui_worker_late_result_back_input_dib_failure_and_close_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_component::tests::r533_pet_race_consumes_96_independent_java_observations	yes	-	excluded	-	#318	env: 未設定 LITO_R533_CHECK_OUTPUT，等雜項環境變數一張（#318）
+__lib	modern_lito::native_pet_race_component::tests::r533_pet_race_namespace_and_panel_domains	yes	-	excluded	-	#318	env: 未設定 LITO_R533_INPUT_ROOT，等雜項環境變數一張（#318）
+__lib	modern_lito::native_pet_race_quit_session::tests::r536_native_quit_actual_generated_normal_io_peer_and_duplicate_sequences	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_quit_session::tests::r536_native_quit_intent_version_missing_reply_and_late_receipt_counterexamples	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_return_profile::tests::r537_native_return_actual_per_receiver_result_self_peer_owner_delete_sequences	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_return_profile::tests::r537_native_return_partial_missing_untagged_epoch_and_atomic_counterexamples	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_session::tests::r535_native_session_malformed_atomicity_seed_and_revocation_counterexamples	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_session::tests::r535_native_session_prediction_wire_result_return_and_epoch_boundaries	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_start_component::tests::r540_start_component_atomic_decoders_foreign_binding_partial_eof_and_ready_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_start_component::tests::r540_start_component_keyed_ready_countdown_roster_hud_actor_and_teardown_scope	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_start_component::tests::r540_start_component_unknown_clock_restricted_elapsed_and_untagged_read	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_terrain::tests::r534_native_terrain_raw_reader_masks_and_composed_routes	yes	-	excluded	-	#318	env: 未設定 LITO_R534_CHECK_OUTPUT，等雜項環境變數一張（#318）
+__lib	modern_lito::native_pet_race_terrain::tests::r534_native_terrain_rejects_unqualified_inputs_and_keeps_offline_state_atomic	yes	-	excluded	-	#318	env: 未設定 LITO_R534_INPUT_ROOT，等雜項環境變數一張（#318）
+__lib	modern_lito::native_pet_race_wire_boundary::result_wire_tests::r539_result_wire_binding_pending_write_and_eof_retirement_fail_closed	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_wire_boundary::result_wire_tests::r539_result_wire_direct_fixture_start_bidirectional_counters_and_segmented_frames	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_wire_boundary::result_wire_tests::r539_result_wire_untagged_read_never_promotes_source_fixture_to_live_authority	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_wire_boundary::tests::r538_native_wire_actual_loopback_received_ordered_streams_and_partial_eof	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_wire_boundary::tests::r538_native_wire_actual_partial_eof_missing_key_foreign_stream_and_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_pet_race_wire_boundary::tests::r538_native_wire_existing_receiver_complete_split_merge_and_untagged_read_boundary	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_player_loadout_evidence_tests::fixed_full_projection_rawfacts_and_source_isolation	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_player_loadout_evidence_tests::raw_instance_lifetime_and_filtered_unarmed_intent_are_separate	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_player_loadout_evidence_tests::truncation_checksum_and_recomputed_owner_revision_rejections	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_player_navigation_evidence_tests::actual_work_lifecycle_and_expiry_guard_evidence_are_bound	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_player_navigation_evidence_tests::complete_body_truncation_trailing_and_owner_corruption_reject	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_player_navigation_evidence_tests::fixed_complete_navigation_bodies_and_exact_work_projections	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_resources::tests::real_native564_adapter_static_cancel_drift_and_roof_compositor	yes	-	excluded	-	#318	env: 未設定 LITO_MODERN_NATIVE_PINNED_INPUT，等雜項環境變數一張（#318）
+__lib	modern_lito::native_roof_callback_study::multi::tests::actual_multigroup_midtransition_fifo_duplicate_cancellation_and_local_invalidation	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_roof_callback_study_tests::native564_pointer_alias_actor_half_roof_callbacks_late_once_restore_retire	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_roof_callback_study_tests::settled_roof_actor_writes_refuse_backward_missing_wrapping_clocks_atomically	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_scene_composition::tests::opaque_scene_binding_reselection_and_retirement_refuse	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+__lib	modern_lito::native_scene_composition::tests::real_native_scene_interleaving_and_owner_bound_partial	yes	-	excluded	-	#306	tracked-evidence: 會覆寫 git 追蹤的 logs/continuation-20261003 證據檔，#306 裁定不放行
+__lib	modern_lito::npc_assets::tests::real_shared_npc_walk_source_geometry	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::npc_disintegrate_wire::interop_tests::rust_requests_execute_real_java_npc_skill77_and_replay_does_not_double_spend	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_frame::tests::java_npc70_atomic_live_all_nine_quest_maps_with_both_private_views	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_frame::tests::java_npc70_atomic_live_death_revival_retains_previous_life_structure	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_frame::tests::java_npc70_atomic_live_maximum_counts_exceed_legacy_envelope_without_lost_hits	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_frame::tests::java_npc70_atomic_live_mixed_magic_denial_regen_and_abort	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_frame::tests::java_npc70_atomic_live_tower_departure_four_waves_and_saved_result	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_protocol::tests::java_npc70_application_live_all_four_large_reply_kinds	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_protocol::tests::java_npc70_application_live_normal_replay_denial_and_abort	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_protocol::tests::java_npc70_application_live_quest_guardian_terminal	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_protocol::tests::java_npc70_application_live_quest_symbols_terminal	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_protocol::tests::java_npc70_application_live_time_tower_waves_terminal	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_wire::interop_tests::rust_java_fire_storm_quest_guardian_final_kill_and_terminal_proof	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_wire::interop_tests::rust_java_fire_storm_quest_symbols_stages_and_terminal_proof	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::npc_fire_storm_wire::interop_tests::rust_java_fire_storm_time_tower_four_waves_and_retained_proof	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::pet_race_resource_probe_tests::actual_missing_logical_race_maps_are_rejected_without_lt_fallback	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::pet_race_resource_probe_tests::actual_shared5143_candidate_full_geometry_probe	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::pet_race_resource_probe_tests::actual_shared_four_pet_walk_assets_and_all_action_resolutions	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::pet_race_resource_probe_tests::actual_shared_pet_shadow_definitions_inspection_only	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::pet_race_resource_probe_tests::actual_shared_pet_walk_breath_and_direct_shadow_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::polymorph_assets::cast::tests::real_shared_polymorph_caster_keeps_three_layers_and_exact_native_milliseconds	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::polymorph_assets::cast::tests::real_shared_polymorph_utility_caster_retains_all_five_sources_eight_headings	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::polymorph_assets::tests::real_shared_polymorph_preserves_logical_clock_and_renders_all_routes	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::profile::tests::profile_load_rejects_ancestor_and_file_symlinks	yes	-	excluded	-	#318	env: 需要 Windows symlink privilege／Developer Mode，等雜項環境變數一張（#318）
+__lib	modern_lito::protocol::tests::actual_java_server_negotiates_rust_generated_hello_over_stdio	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TEST_JAVA_CLASSPATH，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::quest_resource_probe_tests::actual_shared554_complete_geometry_and_static_tile_bank_candidate	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::quest_resource_probe_tests::actual_shared_npc_candidate_stage_budgets_and_oversized_roster_rejection	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::quest_resource_probe_tests::actual_shared_quest_npc_action_inventory	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::quest_resource_probe_tests::actual_shared_quest_npc_complete_asset_bank	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::resources::tests::real_shared_indexes_and_bounded_payloads	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::resources::tests::real_shared_text_matches_csharp_reference	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::resources::tests::windows_reparse_root_and_archive_are_rejected	yes	-	excluded	-	#318	env: 需要 Windows symlink privilege／Developer Mode，等雜項環境變數一張（#318）
+__lib	modern_lito::resources::tests::windows_reparse_sound_directory_and_file_are_rejected	yes	-	excluded	-	#318	env: 需要 Windows symlink privilege／Developer Mode，等雜項環境變數一張（#318）
+__lib	modern_lito::scene::tests::real_shared_sector_ground_renders_without_lt_resources	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::scene::tests::real_shared_static_objects_render_without_lt_resources	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::scene_model::tests::real_shared_scene_action_and_sound_are_preloaded_and_advance_without_io	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::shop_icons::tests::actual_shop_potion_icons_match_reference_and_worker_retires	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::shop_window::tests::actual_shop_selected_material_icon_loads_after_catalog_preload_and_retires	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::slow_effect::tests::real_shared_slow29_effect_frames_and_terminal	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::sprite::tests::real_shared_spr_rgba_matches_csharp_reference	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::sprite_actions::tests::real_shared_list_actions_are_bounded_and_resolvable	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::teleport_effect::tests::actual_shared_teleport_and_all_base_casts_match_reference	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tile::tests::real_shared_1207_cloud_diamonds_match_independent_csharp_goldens	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tile::tests::real_shared_2232_til_matches_reference_inverse_alpha_effects	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tile::tests::real_shared_2413_til_matches_reference_cloud_alpha_effects	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tile::tests::real_shared_fifty_til_preserves_half_opacity_black_coverage	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tile::tests::real_shared_kent_forty_seven_til_matches_all_reference_pixels	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tile::tests::real_shared_zero_til_matches_csharp_rgba_and_offsets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::timed_effect::reference_tests::actual_shared_timed_items_match_independent_reference_and_native_cues	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::timed_effect::tests::actual_timed_attr8_layers_use_screen_and_retire_without_replaying_cues	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tower_assets::tests::actual_honor_towers_shadow_and_explicit_classic_heal_match_independent_reference	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::battle_revival_interop_tests::java_v40_controllers_shared_death_revival_move_abort_return_and_shutdown	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::battle_revival_interop_tests::java_v43_controllers_npc_motion_death_revival_move_abort_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::battle_revival_interop_tests::java_v43_controllers_shared_distant_npc_pursuit_render_audio_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::battle_revival_interop_tests::java_v43_controllers_shared_low_quota_moving_targets_npc_pursuit_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::battle_revival_interop_tests::java_v43_controllers_shared_moving_targets_npc_pursuit_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::battle_revival_interop_tests::java_v43_controllers_shared_npc_cadence_render_audio_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_chat_committed_lobby_reply_loss_never_replays_or_reports_delivery	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_chat_committed_lobby_shutdown_cancels_before_exchange_timeout	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_chat_committed_room_reply_loss_retires_membership_without_replay	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_chat_committed_room_shutdown_retires_room_and_chat_owners	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_chat_controllers_confirm_scope_room_history_denials_and_source_return	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_chat_controllers_without_capability_keep_navigation_and_shutdown_working	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_direct_chat_controller_block_shutdown	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_direct_chat_controller_lobby_reply_loss	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_direct_chat_controller_lobby_shutdown	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_direct_chat_controller_preference_reply_loss	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_direct_chat_controller_room_reply_loss	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_direct_chat_controller_room_shutdown	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_direct_chat_controllers_qualified_delivery_controls_room_and_navigation	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_filtered_chat_controller_committed_forged_receipt_never_reports_delivery	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_filtered_chat_controller_committed_lobby_reply_loss_never_replays_or_reports_delivery	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_filtered_chat_controller_committed_lobby_shutdown_cancels_before_exchange_timeout	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_filtered_chat_controller_committed_room_reply_loss_retires_membership_without_replay	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_filtered_chat_controller_committed_room_shutdown_retires_room_and_chat_owners	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_filtered_chat_controllers_categories_preferences_receipts_and_qualified_blocks	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_filtered_chat_controllers_room_channel_and_source_return_clear_old_public_admission	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_matchmaking_controllers_queue_cancel_match_balanced_sources_manual_room_and_reentry	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_matchmaking_lost_match_reply_never_replays_or_invents_room	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_matchmaking_lost_start_reply_never_replays_or_invents_queue	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_matchmaking_shutdown_after_queue_commit_retires_without_replay	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::chat_controller_interop::java_matchmaking_shutdown_after_room_commit_retires_without_replay	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::extensions_interop::java_extended_tls_negotiates_healing_without_auth_or_legacy_downgrade	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_cancel_and_whole_roster_deadline_clear_all_authenticated_state	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_character_denial_and_backend_failure_preserve_authenticated_session	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_controller_cancel_after_server_commit_before_ack_releases_owner	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_controller_login_switch_idle_heartbeat_disconnect_and_shutdown	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_controller_navigation_returns_reload_roster_and_preserves_background_lobby	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_navigation_cycles_all_four_channels_and_clears_server_presence_on_disconnect	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_navigation_rejects_wrong_source_epoch_channel_and_closes_uncertain_commit	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_ping_auth_and_source_switch_keep_distinct_same_objid_characters	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_production_listener_authenticates_switches_sources_and_retires_workers	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_real_database_readonly_all_characters_four_channels_and_return	yes	-	excluded	-	T030	real-db: 需要正式 DB 設定（LITO_MODERN_REAL_DB_SERVER_CONFIG），直接排除，移入 T030
+__lib	modern_lito::transport::tests::java_application_rejected_auth_clears_principal_and_cannot_retry	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_request_id_does_not_wrap_and_authentication_is_one_shot	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_application_wrong_request_source_or_epoch_closes_instead_of_publishing_old_identity	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_character_data_is_not_sent_when_the_negotiated_capabilities_exclude_it	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_character_data_mismatched_context_and_deadline_abort_the_actual_selected_session	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_character_data_reads_all_source_fields_and_large_inventory_without_replacing_navigation	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_chat_four_channels_cross_source_identity_and_late_join_isolation	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_chat_peer_departure_revision_conflict_requires_a_confirmed_room_leave	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_chat_private_room_membership_ready_gm_and_source_reentry_keep_correct_scope	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_chat_stale_membership_is_rejected_without_redirecting_to_same_rejoined_room	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_chat_unnegotiated_capability_does_not_send_and_existing_ping_remains_usable	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_chat_world_shared_npc70_cast_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::java_direct_chat_committed_block_cancellation_is_not_reported_successful	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_committed_lobby_cancellation_retires_before_deadline	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_committed_lobby_reply_loss_aborts_without_replay	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_committed_preferences_reply_loss_is_not_reported_successful	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_committed_room_cancellation_retires_before_deadline	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_committed_room_reply_loss_aborts_without_replay	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_cross_channel_room_private_identity_and_navigation_lifecycle	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_forged_identity_epoch_channel_cursor_and_sequence_fail_closed	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_non_opted_in_recipient_is_unreachable_and_old_chat_stays_usable	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_offline_blocks_preferences_limits_and_shared_public_budget	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_stale_same_room_token_is_rejected_by_authority_without_delivery	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_state_dual_peer_room_rebind_preserves_inbox_and_channel_reentry_clears_it	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_unnegotiated_wire_is_rejected_even_when_encoded_manually	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_direct_chat_world_shared_npc70_cast_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::java_equipment_authority_set_conflict_denied_source_isolation_and_back_reload	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_equipment_back_busy_controller_preserves_data_arc_and_retries_without_automatic_reload	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_equipment_back_busy_keeps_channels_lobby_roster_and_data_until_retry	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_equipment_back_busy_wrong_phase_or_selected_row_aborts_the_real_owner	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_equipment_controller_ack_only_updates_and_keeps_owned_heartbeat_and_shutdown	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_equipment_reconnect_full_read_recovers_confirmed_private_revision	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_equipment_uncertain_atomic_commit_closes_without_ack_or_automatic_resend	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_filtered_chat_committed_private_loss_cancel_and_controls_never_replay	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_filtered_chat_forged_scope_membership_cursor_and_sequence_fail_closed	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_filtered_chat_legacy_normal_bridge_and_room_admission_reset	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_filtered_chat_navigation_keeps_sequences_and_clears_retired_history	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_filtered_chat_old_endpoints_cannot_bypass_negotiated_profile	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_filtered_chat_receipt_preferences_blocks_and_qualified_private_delivery	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_filtered_chat_unnegotiated_new_frames_fail_and_missing_provider_stays_legacy	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_haste44_authenticated_tls_two_owners_catchup_replay_and_owner_rejection_are_atomic	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_npc70_v31_controllers_real_shared_cast_kill_retire_and_source_switch	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_npc70_v31_public_connection_cast_denial_source_reload_return_and_retire	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_npc77_v29_controllers_real_shared_cast_kill_retire_and_source_switch	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::java_npc77_v29_public_connection_qualification_cast_cooldown_recast_leave_and_retire	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_npc_actions_live_receipts_shared_renderer_melee_arbitration	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_npc_v17_typed_engine_snapshots_attack_cooldown_and_abort_over_verified_tls	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_npc_v18_public_connection_auth_prepare_preflight_attack_leave_and_retire	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_npc_v19_controllers_real_shared_preflight_loaded_attack_return_and_source_switch	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::java_quest_v20_controllers_real_shared_isolated_four_waves_and_no_false_victory	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::java_quest_v21_controllers_real_shared_guardian_destruction_result_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::java_quest_v22_controllers_real_shared_death_confirmation_respawn_result_and_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::java_rooms_controller_periodic_read_and_gear_set_publish_confirmed_unready_together	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_rooms_two_tls_owners_password_team_ready_configure_conflict_leave_and_reentry	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_session_failure_diagnostics_idle_authenticated_close_is_clean	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_session_failure_diagnostics_inflight_cancel_is_not_a_gameplay_or_protocol_failure	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_close_cancel_before_first_write_is_clean_without_sending_the_request	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_close_cancelled_api_and_idle_worker_have_distinct_terminal_paths	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_close_controller_idle_disconnect_shutdown_and_silent_peer	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_close_controller_pending_ping_cancels_without_clean_close_claim	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_close_oracle_accepts_explicit_notify_and_distinguishes_abrupt_drop	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_controller_negotiates_profile_context_then_disconnects_quiescently	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_deadlines_and_cancellation_cover_handshake_and_ack_stalls	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_rejects_oversized_frames_and_mismatched_ack_request_ids	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_rejects_wrong_dns_untrusted_expired_and_plaintext	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_tls_verified_chain_fragmented_ack_tls12_and_retained_connection	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::java_v37_life_bound_controller_deferred_action_rejects_refreshes_and_finishes	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::player_healing_runtime_interop::java_healing_runtime_selected_tls_preserves_full_state_through_shared_load_and_leave	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::player_healing_runtime_interop::java_healing_runtime_two_owner_attack_heal_pending_and_leave	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::profile_probe_tests::java_profile_probe_ordinary_contracts_all_extensions_and_tls12_close_without_auth	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::profile_probe_tests::java_profile_probe_rejects_incompatible_trust_protocol_and_deadlines_without_fallback	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::vip_world_tls_interop::java_vip_transport_faults_abort_uncertain_world_and_saved_equipment_without_retry	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::vip_world_tls_interop::java_vip_world_two_sources_full_data_gear_leave_and_reload	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::transport::tests::vip_world_tls_interop::vip_controller::java_vip_appearance_main_sql_workers_keep_public_state_through_equipment_and_reentry	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::transport::tests::vip_world_tls_interop::vip_controller::java_vip_main_sql_unselected_source_stays_connected_and_switches_cleanly	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::transport::tests::vip_world_tls_interop::vip_controller::java_vip_main_sql_workers_preserve_i64_equipment_reentry_and_source_switch	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::transport::tests::vip_world_tls_interop::vip_controller::java_vip_profile_workers_prepare_poll_equipment_leave_and_source_switch	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::transport::tests::vip_world_tls_interop::vip_controller::java_vip_workers_faults_clear_receipts_and_do_not_retry_uncertain_saves	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::tw_action_catalog::tests::shared_tw_pack_has_real_ultimate_definitions_without_base_catalog_fallback	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::tw_action_catalog::tests::shared_tw_pack_has_real_ultimate_definitions_without_base_catalog_fallback_current_launcher_tw_profile	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::java_battle_read_tls_two_sources_shared_manifest_without_legacy_conversion_or_load_ack	yes	-	excluded	-	#318	env: 未設定 LITO_CANONICAL_CAPTURE_DIR，等雜項環境變數一張（#318）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::java_battle_worker_two_sources_clock_update_clear_abort_and_owned_shutdown	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::java_canonical_confirmed_move_plays_shared_walk_frames_then_idle_without_replay	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::java_schema_two_tls_coexists_with_schema_one_and_retires_cleanly	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::java_v38_operation_tls_exact_receipts_and_v37_peer_shared_movement	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::java_v39_world_lifecycle_tls_shared_preflight_and_v38_peer	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::live_equipment::java_v41_live_equipment_tls_shared_load_atomic_cas_and_return_persistence	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::live_equipment::java_v43_live_equipment_tls_schema4_atomic_cas_and_return	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::live_greater_haste::java_v42_greater_haste_tls_shared_load_cost_source_isolation_move_and_leave	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::live_greater_haste::java_v43_greater_haste_tls_schema4_load_cast_move_and_leave	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::live_slow_sql::java_v47_slow_main_sql_materials_cast_atomic_state_and_source_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::live_target_haste::java_v44_target_haste_tls_shared_load_source_isolation_target_stamp_and_leave	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::battle_read_interop_tests::preflight::java_two_v39_players_load_move_and_leave_without_legacy_resource_input	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::binding_clock_interop_tests::java_binding_clocks_real_scene_load_countdown_move_and_safety_abort_no_results	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::binding_clock_interop_tests::java_sql_world_policy_changes_real_births_and_clocks_through_two_shared_worlds	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::disintegrate_interop_tests::canonical_controller::java_canonical_player_window_move_cast_saved_return_and_close	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::disintegrate_interop_tests::canonical_controller::java_v39_controller_shared_load_move_kill_saved_navigation_and_shutdown	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::disintegrate_interop_tests::controller::java_disintegrate_player_controller_catalog_input_kill_record_return_and_shutdown	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::disintegrate_interop_tests::controller::java_v37_disintegrate_controller_guarded_kill_saved_return_with_v27_peer	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::disintegrate_interop_tests::java_disintegrate_dual_shared_render_launch_kill_saved_and_retire	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::disintegrate_interop_tests::java_disintegrate_typed_life_denial_kill_saved_sql_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::haste::java_v42_greater_haste_controllers_scoped_input_shared_cast_move_and_return	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::equipment_controller::java_v41_equipment_controller_inventory_atomic_render_move_and_return	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::equipment_controller::java_v41_equipment_window_inventory_move_return_and_close	yes	-	excluded	-	T030	gui: 需要原生視窗或操作員流程，移入 T030 實機驗收清單
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::armor_sql::java_armor_main_sql_controller_preserves_loading_and_returns_to_ordinary_world	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::armor_sql::java_armor_main_sql_explicit_gfx0_shared_runtime_loads_and_renders_proc	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::armor_sql::java_armor_main_sql_presentation_controller_preserves_loading_and_returns_to_ordinary_world	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::armor_sql::java_armor_main_sql_presentation_profiles_reject_before_authentication	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::armor_sql::java_armor_main_sql_profiles_reject_healing_only_listener_before_authentication	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::bots::java_v41_sql_gm_text_bots_single_human_capacity_authority_combat_saved_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::bots::r407_dev_single_human_bot_reaches_real_map514_world	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::bots::slow::java_v47_main_sql_slow_npc_bot_quest_materials_saved_results_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::bots::target_haste::java_v44_main_sql_target_haste_npc_bot_quest_saved_results_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::haste_sql::java_v42_main_sql_greater_haste_wide_stats_live_gear_cast_move_and_source_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::healing_sql::java_healing_main_sql_ordinary_controller_rejects_incompatible_listener	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::healing_sql::java_healing_main_sql_ordinary_controllers_cast_and_return_sources	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::healing_sql::mixed::java_healing_main_sql_ordinary_mixed_honor_bots_and_dm_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::healing_sql::quest::java_healing_main_sql_ordinary_quest_isolation_saved_and_swapped_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::honor::java_ordinary_v47_honor_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::honor::java_v41_honor_controllers_shared_heal_respawn_towers_saved_hud_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::inventory_sql::java_ordinary_v47_deathmatch_knight_elf_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::inventory_sql::java_ordinary_v47_deathmatch_knight_mage_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::inventory_sql::java_v42_continuously_slow_inventory_receiver_uses_saves_and_returns	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::inventory_sql::java_v42_delayed_inventory_receiver_catches_up_before_use_and_saved_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::inventory_sql::java_v42_inventory_knight_elf_use_select_shoot_saved_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::inventory_sql::java_v42_inventory_knight_mage_use_select_shoot_saved_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::inventory_sql::java_v42_inventory_stock_wait_diagnostics_recovers_saved_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::java_v41_sql_matchmaking_shop_countdown_fire_saved_results_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::java_v41_sql_supplies_rendered_use_saved_results_shop_return_and_source_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::mixed_modes::java_v47_main_sql_same_connections_all_six_modes_saved_and_source_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::mixed_modes::java_v47_main_sql_same_connections_alternating_winners_and_mode_results	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::mixed_modes::java_v47_main_sql_same_connections_pvp_honor_time_quest_results	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::mixed_modes::java_v47_main_sql_same_connections_pvp_quest_victories_and_source_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::mixed_modes::java_v47_main_sql_same_connections_six_modes_retire_and_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::race::java_ordinary_v47_pet_race_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::race::java_v41_sql_pet_race_controller_disconnect_survivor_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::race::java_v41_sql_pet_race_creator_withdraw_survivor_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::race::java_v41_sql_pet_race_four_laps_ranked_saved_hud_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_504_531_504	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_505_531_505	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_506_531_506	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_509_514_509	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_516_531_516	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_531_508_531	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_534_531_534	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v42_shared_map_rotation_552_551_552	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_504_531_504	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_505_531_505	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_506_531_506	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_509_514_509	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_516_531_516	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_531_508_531	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_534_531_534	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::rotation::java_v47_shared_map_rotation_552_551_552	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::siege::java_ordinary_v47_siege_shared_kent_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::siege::java_v41_sql_siege_shared_kent_route_portal_towers_saved_results_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::slow_sql::java_v47_main_sql_real_map_owner_status_icon_from_profile	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::slow_sql::java_v47_main_sql_slow_skillbook_materials_cast_move_and_source_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::slow_sql::java_v47_main_sql_window_materials_cast_move_return_and_close	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::slow_sql::java_v47_main_sql_window_shared_hud_status_from_profile	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::slow_sql::source_window::java_v47_main_sql_window_reselect_cross_source_and_close	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::target_haste_sql::java_v44_main_sql_target_haste_wide_stats_live_gear_cast_move_and_source_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::target_haste_time_attack::java_v45_main_sql_time_attack_haste_departure_clear_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::target_haste_time_attack::java_v45_main_sql_time_attack_haste_timeout_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::teleport::java_v41_sql_teleport_shared_camera_input_recovery_and_abort_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::time_attack::java_ordinary_v47_time_attack_disintegrate_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::time_attack::java_ordinary_v47_time_attack_fire_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::time_attack::java_v43_sql_time_attack_disintegrate_leader_departure_hud_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::supplies_sql::time_attack::java_v43_sql_time_attack_fire_leader_departure_hud_saved_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::equipment_controller::target_haste::java_v44_target_haste_controllers_scoped_input_shared_cast_move_and_return	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::fire_storm_interop_tests::java_fire_storm_empty_cast_pc_bot_atomic_multikill_saved_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::fire_storm_interop_tests::java_fire_storm_honor_pc_tower_respawn_destroy_saved_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::fire_storm_interop_tests::java_v37_fire_storm_guarded_move_empty_cast_cooldown_pc_bot_multikill_and_saved_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::honor_interop_tests::java_honor_tower_healing_five_second_respawn_destroy_and_saved_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::honor_interop_tests::java_v37_honor_delayed_target_respawn_rejection_then_fresh_attack_heal_and_saved_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::item_interop_tests::java_items_shop_buy_sell_unready_real_healing_result_reset_and_isolated_sql_records	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::java_armed_combat_controller_qualified_weapon_sound_and_normal_retirement	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::java_combat_controller_authoritative_attack_hurt_death_atomic_render_and_normal_retirement	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::java_combat_deathmatch_result_saved_and_both_owners_return_to_same_room	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::java_learned_teleport_controller_atomic_mp_position_shared_effect_then_move_melee_result_return	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::java_light_arrow_after_teleport_shared_native_effect_magic_lethal_and_real_mysql_records	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::java_real_mysql_battle_both_clients_read_distinct_saved_totals_and_replay_is_idempotent	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::java_tls_gm_bot_cap_clear_readd_real_world_magic_result_and_human_only_totals	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::java_world_controller_two_real_runtimes_auto_prepare_countdown_confirmed_move_and_retire	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_504_531_504_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_505_531_505_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_506_531_506_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_509_514_509_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_516_531_516_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#314	java-peer: Java peer／產生 fixture 的來源與 classpath 未提供，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_531_508_531_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_534_531_534_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::map_rotation_interop_tests::java_shared_552_551_552_three_saved_rounds_same_owners_and_renderers	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::match_descriptor_interop_tests::java_scene_honor_scene_same_tls_real_load_stock_and_single_saved_result	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::match_descriptor_interop_tests::java_v14_rejects_scene_without_losing_tls_stock_or_compatible_honor	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::natural_regen_interop_tests::java_natural_hp_signed_mp_healing_spent_above_max_render_and_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::pet_race_interop_tests::java_pet_race_four_ordered_laps_real_window_saved_and_retire	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::pet_race_interop_tests::java_pet_race_true_tls_disconnect_does_not_abort_other_runner	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::pet_race_interop_tests::java_pet_race_world_withdraw_does_not_abort_other_runner	yes	-	excluded	-	#314	java-peer: 未設定 LITO_MODERN_TLS_TEST_FIXTURES，等 Java peer／TLS 盤點（#314）與執行（#315、#316）
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::java_quest_sql_gm_bots_capacity_teams_sparse_magic_saved_records_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::java_quest_sql_main_two_controllers_shared_world_saved_records_and_source_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::java_quest_sql_npc_magic_sparse_cast_shared_renderer_saved_records_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::java_quest_sql_supplies_buy_sell_unready_heal_render_and_reset	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::java_quest_sql_teleport_sparse_cast_shared_renderer_move_and_normal_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::quest_filtered_chat_sql_interop_tests::java_filtered_chat_sql_shared_loading_cast_settlement_return_and_source_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::quest_matchmaking_sql_interop_tests::java_matchmaking_sql_shared_countdown_battle_saved_results_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::quest_npc70_sql_interop_tests::java_quest_npc70_sql_shared_sparse_waves_objective_saved_records_and_source_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::quest_npc77_sql_interop_tests::java_quest_npc77_sql_sparse_waves_death_revival_saved_records_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::siege_sql_interop_tests::java_siege_shared_kent_two_controllers_real_map_preload_path_portal_result_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::siege_sql_interop_tests::java_siege_sql_two_controllers_shared_towers_portal_gm_bots_result_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::time_attack_sql_interop_tests::java_npc4_time_attack_sql_shared_kills_saved_result_departure_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::time_attack_sql_interop_tests::java_npc70_time_attack_sql_shared_tower_casters_departure_saved_records_and_source_reload	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::time_attack_sql_interop_tests::java_npc77_time_attack_sql_shared_casters_source_costs_kill_settlement_and_return	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::quest_sql_interop_tests::time_attack_sql_interop_tests::java_time_attack_sql_two_controllers_shared_tower_leader_departure_waves_and_source_results	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::r383_official_window_host_tests::r383_combined_profile_two_source_contract_smoke	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::r383_official_window_host_tests::r383_owned_main_for_official_exe_two_window_acceptance	yes	-	excluded	-	T030	gui: 需要原生視窗或操作員流程，移入 T030 實機驗收清單
+__lib	modern_lito::world_integration_tests::r383_official_window_host_tests::r407_owned_dev_showcase_boot_stop_smoke	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::r383_official_window_host_tests::r407_owned_dev_showcase_operator	yes	-	excluded	-	T030	gui: 需要原生視窗或操作員流程，移入 T030 實機驗收清單
+__lib	modern_lito::world_integration_tests::ranged_interop_tests::java_bow_select_miss_exhaust_switch_damage_weight_render_and_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::ranged_interop_tests::java_canonical_bow_commands_public_events_private_views_workers_and_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::ranged_interop_tests::java_v37_guarded_bow_supplies_ammo_damage_terminal_recovery_and_saved_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::spawn_egress_interop_tests::java_single_human_eight_bots_can_walk_out_of_514_spawn	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::spawn_egress_interop_tests::java_single_human_three_bots_can_walk_out_of_514_spawn	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::spawn_egress_interop_tests::java_single_human_twenty_bots_can_walk_out_of_514_spawn	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::spawn_egress_interop_tests::java_single_human_twenty_bots_can_walk_out_of_532_honor_spawn	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::timed_interop_tests::java_four_timed_supplies_class_refresh_pace_magic_render_and_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_integration_tests::weight_interop_tests::java_weight_authority_buy_gate_full_hp_consumption_move_cast_result_and_sql	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+__lib	modern_lito::world_map::tests::real_shared_map514_binding_connected_spawns_and_static_art_are_verified_without_lt	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_path::tests::real_shared514_anchor_paths_use_every_authoritative_shared_step	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_roofs::tests::shared_roof_bindings_match_independent_csharp_metadata	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::attr8_runtime_tests::actual_ten_attr8_graphics_match_screen_oracle_not_opaque_and_retire_once	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::disintegrate_runtime_tests::actual_disintegrate_runtime_normal_critical_kill_dwell_and_audio_are_receipt_driven	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::fire_storm_runtime_tests::actual_fire_group_zero_targets_terminal_dwell_and_history_are_isolated	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::honor_runtime_tests::actual_honor_assets_layers_terminal_hold_and_respawn_are_authority_driven	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::npc_disintegrate_runtime_tests::actual_npc77_runtime_shared_sprites_pixel_difference_audio_and_terminal_dwell	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::npc_fire_storm_runtime_tests::actual_npc70_runtime_preloads_once_and_renders_one_owned_group_without_replay	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::npc_runtime_tests::actual_shared_npcs_preload_once_and_render_typed_geometry_on_the_world_worker	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::pet_tests::actual_shared_four_pet_renderers_layers_steps_and_scope_retirement	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::quest_runtime_tests::real_shared_quest_preflight_damage_collapse_ruin_and_typed_geometry_never_reload_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::ranged_tests::real_shared_arrow_layer_starts_at_bow_hit_then_retires_without_replay	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::shared_catalog_integration_tests::actual_common_catalog_does_not_bypass_any_consumer_cancellation_gate	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::shared_catalog_integration_tests::actual_eight_banks_share_one_catalog_and_each_new_world_acquires_its_own	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::siege_runtime_tests::real_shared_siege_three_towers_gate_portals_collapse_and_audio_use_one_preload	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::spell_body_arbitration_tests::actual_shared_pending_skills_yield_to_npc_melee_but_keep_launched_effects	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::tests::real_armed_render_sound_sequence_does_not_replay_baseline_revisions_or_stalled_events	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::tests::real_shared_healing_layer_changes_pixels_then_retires_without_same_revision_replay	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::tests::real_shared_manifest_loader_first_render_ready_then_confirmed_move_and_owned_retirement	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::tests::real_shared_timed_layers_change_only_effect_pixels_and_never_replay_a_revision	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_runtime::time_attack_runtime_tests::real_shared_time_attack_tower_collapse_wave_preload_and_ruins_do_not_reload_assets	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_scene::tests::real_disintegrate_layers_share_world_depth_and_survive_target_removal	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_scene::tests::real_disintegrate_layers_share_world_depth_and_survive_target_removal_current_launcher_tw_profile	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_scene::tests::real_honor_effect_roof_cache_matches_csharp_and_counts_full_budget	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_scene::tests::real_shared_armed_families_preload_and_knight_pixels_match_independent_csharp_goldens	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_scene::tests::real_shared_combat_assets_match_qualified_one_shots_and_render_attack_hurt_death	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_scene::tests::real_shared_roofs_fade_and_restore_without_archive_reads_during_render	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_scene::tests::real_shared_world_all_base_appearances_decode_and_authoritative_camera_moves	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::character_panel::tests::real_shared_character_assets_keep_close_and_equipped_icon_separate	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::hotbar::tests::real_shared_f5_f12_frame_is_qualified	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::hotbar::tests::real_shared_skill_ids_resolve_to_decodable_icons	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::hotbar::tests::real_worker_bound_supply_is_visible_and_only_current_server_proof_acts	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::hotbar::tests::real_worker_skill_icon_and_proof_are_bound_to_current_skill_model	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::inventory_panel::tests::actual_shared_inventory_frame_and_icons_are_qualified	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::inventory_panel::tests::real_worker_composes_confirmed_inventory_slot_without_ui_thread_file_io	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::skill_panel::tests::actual_shared_magic_frame_and_eight_skill_icons	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+__lib	modern_lito::world_window::tests::real_shared_pages_close_reopen_resize_and_new_life_keep_only_current_paint_proofs	yes	-	excluded	-	#312	shared-root: 需要 LITO_SHARED_RESOURCE_ROOT，等共享資源根兩張（#312、#313）
+native_ability_live	actual_two_ability_buffs_self_and_nonclan_target	yes	-	excluded	-	#318	env: 未設定 LITO_ABILITY_BUFF_LIVE_ROOT，等雜項環境變數一張（#318）
+native_actor_layers	body_image_and_subframe_bind_real_layers_across_actions_and_directions	no	-	run	client	#306	-
+native_actor_layers	catalog_attributes_fail_closed_and_logical_alias_keeps_its_layers	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_layers	inspect_actual_actor_layer_catalog	no	-	run	client	#306	-
+native_actor_layers	live_scene_layers_follow_body_without_own_clocks_events_or_stale_actor_ids	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_layers	original_body_attachment_shadow_composition_matches_independent_rgb555_and_hit_surfaces	no	-	run	client	#306	-
+native_actor_relations	clan_update_sets_own_pet_flag_unlike_constructor_and_empty_clan_clears_side_only	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	constructor_context_distinguishes_owned_pets_status_and_registered_declaration	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	duplicate_wars_remove_one_entry_but_clear_existing_actors_each_time	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	end_war_captures_transition_graphics_instead_of_reclassifying_after_morph	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	malformed_notice_is_atomic_and_unrelated_or_missing_own_clans_do_not_mutate_context	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	map_and_scene_replacements_preserve_game_context_but_retirement_and_new_game_reset_it	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	master_update_preserves_byte_identity_even_when_decoded_text_is_unchanged	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	ms950_trails_and_duplicate_unicode_encodings_keep_wire_identity	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	repeated_put_preserves_side_only_and_resets_prior_flag_transitions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_relations	transition_budget_rejection_does_not_partially_clear_registered_actors	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_states	catalogue_half_body_preserves_attachment_style_depth_and_pixel_ownership	no	-	run	client	#306	-
+native_actor_states	hidden_targets_are_rejected_until_visible_and_identity_replacement_invalidates_selection	no	-	covered	-	whitelist	-
+native_actor_states	hide_show_between_input_samples_requires_a_fresh_selection_or_press	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_states	initial_flags_and_twenty_four_tick_color_priority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_states	model_state_updates_invalidate_pixels_without_restarting_animation_or_audio	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_states	original_body_attachment_shadow_states_match_independent_pixels_and_owners	no	-	run	client	#306	-
+native_actor_states	owned_green_callback_changes_real_pixels_at_fixed_animation_time_without_replaying_sound	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_actor_states	packets_are_atomic_and_draw_state_does_not_change_authority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_additional_finite_resources	candidate_original_finite_bank_draws_and_advances_each_once	yes	-	excluded	-	#318	env: 未設定 LITO_EXTRA_FINITE_RENDER_OUT，等雜項環境變數一張（#318）
+native_animation	hurt_queued_after_motion::eight_directions_hurt_waits_for_walk_without_camera_rewind_and_old_life_replay	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_animation	paralysis_pairs_block_until_their_own_release_and_world_reset_clears	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_animation	rational_repeat_skips_zero_dwell_and_has_no_per_frame_rounding_drift	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_animation	walking_interpolates_then_returns_to_idle_and_correction_snaps	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_animation_resources	inspect_actual_world_animation_definitions	no	-	run	client	#306	-
+native_arena_portal	actual_siege_gui_supports_twenty_eight_players	yes	-	excluded	-	T030	gui: 需要原生視窗或操作員流程，移入 T030 實機驗收清單
+native_arena_portal	actual_siege_portal_checks_both_teams_and_retires_scene	yes	-	excluded	-	#318	env: 未設定 LITO_ARENA_PORTAL_ROOT，等雜項環境變數一張（#318）
+native_arena_portal	close_gui_spawn_crosses_real_original_sector_before_source_entrance	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_arena_portal	original_101_and_102_sources_are_available_without_client_destinations	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_attack_skills	call_lightning_request_contract::current_c02_exact_object_coordinates_and_readonly_authority	no	-	covered	-	whitelist	-
+native_attack_skills	call_lightning_request_contract::invalid_unlearned_dead_invisible_blocked_and_missing_states_cannot_make_requests	no	-	covered	-	whitelist	-
+native_attack_skills	call_lightning_request_contract::mp_and_lawful_are_server_permission_inputs_and_never_locally_spent	no	-	covered	-	whitelist	-
+native_attack_skills	call_lightning_request_contract::range_six_boundary_and_target_changes_use_current_received_coordinates	no	-	covered	-	whitelist	-
+native_attack_skills	call_lightning_request_contract::selected_learned_skill_has_native_label_and_rejects_stale_life_world_or_connection	no	-	run	-	#307	-
+native_attack_skills	captured_c02_disintegrate_lawful352_is_a_rejection_without_authority_or_cast	no	-	run	-	#307	-
+native_attack_skills	class4_launch_freezes_target_and_retires_reused_identity	no	-	run	client	#307	-
+native_attack_skills	class4_zero_distance_zero_damage_and_miss_keep_authority	no	-	run	client	#307	-
+native_attack_skills	disintegrate_request_contract::current_c02_exact_object_coordinates_and_readonly_authority	no	-	covered	-	whitelist	-
+native_attack_skills	disintegrate_request_contract::invalid_unlearned_dead_invisible_blocked_and_missing_states_cannot_make_requests	no	-	covered	-	whitelist	-
+native_attack_skills	disintegrate_request_contract::mp_and_lawful_are_server_permission_inputs_and_never_locally_spent	no	-	covered	-	whitelist	-
+native_attack_skills	disintegrate_request_contract::range_ten_boundary_and_target_changes_use_current_received_coordinates	no	-	covered	-	whitelist	-
+native_attack_skills	disintegrate_request_contract::selected_learned_skill_has_native_label_and_rejects_stale_life_world_or_connection	no	-	run	-	#307	-
+native_attack_skills	formal_attack_spell_layout_and_request_guards	no	-	covered	-	whitelist	-
+native_attack_skills	original_class4_flight_impact_audio_and_hurt_are_once	no	-	run	client	#306	-
+native_attack_skills	spell_authority_is_atomic_and_does_not_preempt_arrival_hurt	no	-	run	-	#307	-
+native_audio_device	original_PCM_actual_device_completion_reset_replacement_multivoice_and_drop	yes	-	excluded	-	#318	env: LITO_AUDIO_TEST_ROOT 未設定／裝置未核對，等雜項環境變數一張（#318）
+native_background	actual_native_first_IMG_bank_matches_all_twelve_original_whole_frames	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background	invalid_batch_layout_map_phase_or_cancel_never_changes_destination	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background_geometry	all_2688_original_cases_and_17472_ordered_calls_match_rust	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background_geometry	malformed_coordinates_and_light_domain_return_errors_without_panics	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background_geometry	signed_negative_odd_phase_and_conditional_522_bottom_are_preserved	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background_pixels	all_1584_original_whole_frame_hashes_and_clipped_rectangles_match_rust	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background_pixels	all_original_135168_packed_channel_words_match_rust	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background_pixels	encoded_black_writes_and_every_nonzero_gate_value_preserves_the_old_word	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_background_pixels	invalid_images_layouts_phases_or_strength_fail_before_destination_changes	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_chill_touch	all_eight_banks_frozen_heading_offset_once_sound_and_effect_hit	no	-	run	client	#307	-
+native_chill_touch	common_finite_clock_quantizes_birth_and_dispatches_late_hit_once	no	-	run	client	#306	-
+native_chill_touch	miss_replacement_and_map_change_cannot_hurt_a_new_target	no	-	run	client	#307	-
+native_chill_touch	request_layout_guards_and_server_authority_do_not_predict_healing_or_hurt	no	-	covered	-	whitelist	-
+native_city_resources	original_rental_city_has_bounded_complete_geometry	no	-	run	client	#306	-
+native_clan_markers	metadata_marker_overlay_keeps_authority_and_all_pixel_targets	no	-	run	client	#306	-
+native_clan_markers	seven_original_images_match_scalar_pixels_with_clipping_and_cancellation	no	-	run	client	#306	-
+native_clan_markers	shared_clock_draws_then_advances_with_native_threshold_and_modern_epoch	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_classic_entry	classic_entry_cannot_start_without_current_character_directory	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_classic_entry	classic_entry_preserves_received_identity_and_formal_check_domain	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_combat	attack_feedback_distinguishes_reply_timeout_and_interrupted_authority	no	-	run	-	#307	-
+native_combat	death_confirmation_requires_authoritative_zero_hp_and_death	no	-	run	-	#307	-
+native_combat	formal_melee_vectors_and_atomic_rejection_never_infer_hp	no	-	run	-	#307	-
+native_combat	formal_movement_release_does_not_cure_controls_or_predict_actor_state	no	-	run	-	#307	-
+native_combat	held_attack_requires_a_new_press_after_even_a_brief_control_interruption	no	-	run	-	#307	-
+native_combat	held_attack_retires_world_owner_correction_and_invalid_targets	no	-	run	-	#307	-
+native_combat	held_attack_waits_for_authority_and_animation_and_stops_on_release_timeout	no	-	run	-	#307	-
+native_combat	npc_damage_bursts_preserve_spell_events_authority_and_death_preemption	no	-	run	client	#307	-
+native_combat	original_resource_attack_events_fire_once_and_death_holds	no	-	run	client	#307	-
+native_combat	orphan_and_malformed_updates_do_not_create_actors	no	-	run	-	#307	-
+native_combat	target_range_death_result_and_scoreboard_guards	no	-	run	-	#307	-
+native_cone_cold	cold_raw_S23_is_atomic_and_defers_hurt_until_effect_arrival	no	-	run	-	#307	-
+native_cone_cold	cold_request_uses_observed_C14_and_six_cell_range_without_spending_authority	no	-	covered	-	whitelist	-
+native_cone_cold	cold_selector_rechecks_target_life_generation_owner_and_book	no	-	covered	-	whitelist	-
+native_effect_lifecycle	explicit_action_dwell_and_cues_survive_skips_without_replay_or_clock_regression	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_effect_lifecycle	native_class0_integer_frames_and_late_callback_deadlines_match_original_timer	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_effect_lifecycle	native_effect_quantizes_common_clock_and_preserves_late_frames_without_world_changes	no	-	run	client	#306	-
+native_effect_lifecycle	original_class0_resources_match_every_boundary_including_terminal_dwell	no	-	run	client	#306	-
+native_effect_lifecycle	s37_snapshot_survives_movement_death_removal_replacement_and_queue_eviction	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_effect_lifecycle	scene_publishes_original_terminal_frames_then_retires_without_changing_authority	no	-	run	client	#306	-
+native_effect_lifecycle	single_frame_zero_duration_and_invalid_resource_shapes_have_explicit_bounds	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_emblems	all_native_words_preserve_zero_key_and_high_bit_coverage	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_emblems	bounded_requests_silent_miss_late_response_and_atomic_rejection	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_emblems	deployed_wire_unsigned_ids_and_exact_envelope	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_emblems	world_reset_and_current_actor_id_fence_rendering	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	all_223729_actual_C02_calendar_vectors_include_historical_DST_and_native_time_t_bounds	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	blind_signed_domain_and_malformed_packets_never_partially_mutate_environment	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	every_native_map_flag_and_all_four_65536_argument_sweeps_match_original_fragments	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	map_and_portal_replacements_preserve_GAME_time_weather_blindness_and_water_authority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	original_daylight_43920_boundaries_preserve_signed_division_and_three_weather_flags	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	real_monotonic_water_poll_rearms_once_per_ready_generation_and_retires_game_callbacks	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	retired_epochs_cannot_resurrect_and_new_epochs_start_without_old_scene_authority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	status_zero_is_authority_and_positive_override_counter_suppresses_only_time_ambient_writes	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_environment	weather_repeats_and_unknown_channels_apply_the_original_ambient_side_effect	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_fire_arrow	class4_launch_freezes_target_and_retires_reused_identity	no	-	run	client	#307	-
+native_fire_arrow	formal_attack_spell_layout_and_request_guards	no	-	covered	-	whitelist	-
+native_fire_arrow	original_class4_flight_impact_audio_and_hurt_are_once	no	-	run	client	#306	-
+native_game	complete_directory_is_atomic_bounded_and_rejects_duplicate_names	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_game	deployed_character_row_keeps_signed_fields_rank_order_and_original_name	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_game	deployed_game_envelopes_reject_truncation_trailing_bytes_and_invalid_projection	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_game	notice_acknowledgements_match_deployed_parsers	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_game_timers	admitted_timer_bytes_share_the_ordered_counter_and_final_quit_barrier	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_game_timers	formal_character_admission_natural_callbacks_cancel_and_reauthenticate	yes	-	excluded	-	#318	env: 未設定 LITO_GAME_TIMER_LOGIN，等雜項環境變數一張（#318）
+native_game_timers	natural_callbacks_continue_with_a_full_inbound_event_queue_and_no_UI_polling	yes	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_ground_pickup	capture_requires_actual_type9_resource_and_fresh_render	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_ground_pickup	formal_all_unsigned_wire_x_and_quantity_vectors	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_ground_pickup	formal_ground_replacement_and_removal_are_atomic	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_ground_pickup	formal_pickup_action15_uses_original_frames_then_returns_to_idle	no	-	run	client	#306	-
+native_ground_pickup	split_ground_and_inventory_updates_are_observations_not_success_ack	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_ground_pickup	stale_pickup_choice_never_rebinds_same_id_or_new_owner	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_ground_skills	action18_and_location_effect_are_atomic_without_local_mana_or_damage	no	-	run	-	#307	-
+native_ground_skills	formal_ground_request_unsigned_boundaries_range_and_authority	no	-	covered	-	whitelist	-
+native_ground_skills	ground_choice_is_separate_from_actor_target_and_fenced_by_owner	no	-	run	-	#307	-
+native_ground_skills	ground_effects_are_bounded_deduplicated_and_never_follow_actor_ids	no	-	run	client	#307	-
+native_ground_skills	native_class0_enters_source1_and_dwells_terminal0_before_retirement	no	-	run	-	#307	-
+native_ground_skills	original_resource_eight_segments_terminal_dwell_and_same_id_sound	no	-	run	client	#306	-
+native_ground_skills	original_wave_duration_gates_repeated_ground_audio_and_world_reset	no	-	excluded	-	#309	helper-open: 走 world_scene／world_raster，helper 閉合未完成，#307 轉 #309 複核
+native_guardian_attack	actual_guardian_cracks_destruction_and_settlement_retire_old_inputs	yes	-	excluded	-	#318	env: 未設定 LITO_GUARDIAN_ROOT，等雜項環境變數一張（#318）
+native_guardian_inventory_audit	inspect_owned_guardian_weapon_inventory	yes	-	excluded	-	#318	env: 未設定 LITO_GUARDIAN_AUDIT_ROOT，等雜項環境變數一張（#318）
+native_holy_weapon	holy_sound_terminal_dwell_and_map_retirement_do_not_predict_a_buff	no	-	run	client	#307	-
+native_holy_weapon	object_selector_screen_and_owner_guards_preserve_authority	no	-	covered	-	whitelist	-
+native_holy_weapon	original_holy_definition_is_exact_and_changed_controls_fail_closed	no	-	run	client	#307	-
+native_ice_arrow	class5_launch_freezes_target_and_retires_reused_identity	no	-	run	client	#307	-
+native_ice_arrow	class5_zero_distance_zero_damage_and_miss_keep_authority	no	-	run	client	#307	-
+native_ice_arrow	formal_attack_spell_layout_and_request_guards	no	-	covered	-	whitelist	-
+native_ice_arrow	original_class5_flight_impact_audio_and_hurt_are_once	no	-	run	client	#306	-
+native_ice_arrow_source	inspect_original_ice_arrow_chain	no	-	run	client	#306	-
+native_inventory	batches_add_to_existing_objects_and_replacement_does_not_duplicate_rows	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory	every_truncation_and_trailing_field_is_rejected_atomically	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory	formal_records_and_all_deltas_keep_unsigned_fields_and_opaque_details	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory	labels_preserve_authoritative_names_and_do_not_expose_control_characters	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory	resource_limits_allow_maximum_wire_fields_but_bound_inventory_storage	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory	same_character_resume_without_replay_keeps_authority_and_rejected_switch_rolls_back	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory	selected_connection_and_reselection_own_inventory_not_world_generation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_icons	corrupt_primary_archive_cannot_be_treated_as_base_archive_miss	no	-	run	client	#306	-
+native_inventory_icons	covered_black_is_opaque_and_uncovered_pixels_use_background	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_icons	malformed_native_images_and_cancelled_loads_fail_closed	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_icons	original_samples_and_every_present_lito_icon_match_independent_reference	no	-	run	client	#306	-
+native_inventory_icons	signed_offsets_clip_without_wrapping_or_losing_coverage_count	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_icons	viewport_changes_publish_only_current_intrinsic_ids_and_close_reclaims_worker	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_icons	visible_budget_hidden_rows_and_failures_are_bounded_without_retry_loops	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_names	corrupt_primary_archive_is_an_error_and_cannot_be_treated_as_a_base_miss	no	-	run	client	#306	-
+native_inventory_names	invalid_or_unsupported_references_never_publish_partial_names_or_change_wire_item	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_names	labels_resolve_only_presentation_and_count_stays_authoritative	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_names	original_tables_use_lito_first_base_miss_fallback_and_known_cp950_names	no	-	run	client	#306	-
+native_inventory_names	references_use_actual_base_slots_then_lito_offset_and_preserve_literals	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_inventory_names	worker_closure_reclaims_loading_ready_and_failed_jobs	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	actor_target_requires_current_live_coordinates_and_presence	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	drop_uses_current_world_position_and_authoritative_quantity_bounds	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	formal_ground_items_preserve_quantity_identity_and_strict_envelope	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	ordinary_portal_admission_requires_live_room_and_same_map	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	pending_expires_without_replay_and_interrupts_on_owner_or_world_change	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	pending_tracks_only_selected_item_changes_and_does_not_claim_success	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	request_envelopes_match_actual_jar_unsigned_vectors	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	requests_do_not_predict_inventory_count_name_or_equipment	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	specialized_or_unknown_use_types_never_fall_through_to_default_packet	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	stale_character_connection_reselection_and_changed_instance_are_rejected	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	target_cursor_rejects_retired_world_even_with_unchanged_inventory	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	target_location_envelope_matches_actual_sql_loaded_formal_parser	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	target_pending_requires_exact_new_rejection_or_authoritative_portal	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	transition_dead_and_blocked_worlds_cannot_issue_item_requests	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_actions	type_five_requires_explicit_world_target_without_predicting_authority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_item_effects	original_potion_effects_follow_class0_frames_terminal_dwell_and_retire	no	-	run	client	#306	-
+native_item_effects	original_type9_ground_items_are_single_frame_static_sprites	no	-	run	client	#306	-
+native_label_updates	formal_updates_follow_native_field_assignments_and_preserve_selection	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_label_updates	received_title_reflows_existing_hover_without_changing_hit_surface	no	-	run	client	#306	-
+native_label_updates	wire_bounds_truncation_and_orphans_are_atomic	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_library_regression	modern_lito::backend_evidence::r531_evidence_checks::actual_runtime_rejection_close_and_join_remain_distinct_from_world_admission	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_library_regression	modern_lito::backend_evidence::r531_evidence_checks::bounded_journal_retains_first_failure_without_auth_data_or_false_negatives	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_library_regression	modern_lito::backend_evidence::r531_evidence_checks::late_d1_e100_and_complete_write_drain_retained_ledgers_once	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_library_regression	modern_lito::backend_evidence::r531_evidence_checks::unseen_is_unknown_without_coverage_and_scoped_not_observed_is_not_wire_absence	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_library_regression	modern_lito::backend_evidence::r532_counterexample_checks::d1_e1_scanned_scopes_and_gaps_are_independent	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_library_regression	modern_lito::backend_evidence::r532_counterexample_checks::dropped_positive_receipts_rejection_close_and_writes_never_claim_observed	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_library_regression	modern_lito::multisector_batch::six_complete_native_shapes_pan_cancel_stale_missing_current_effect_tiles_and_unknown_tile_refusal	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_component::tests::r533_pet_race_consumes_96_independent_java_observations	yes	-	excluded	-	#318	env: 未設定 LITO_R533_CHECK_OUTPUT，等雜項環境變數一張（#318）
+native_library_regression	modern_lito::native_pet_race_component::tests::r533_pet_race_namespace_and_panel_domains	yes	-	excluded	-	#318	env: 未設定 LITO_R533_INPUT_ROOT，等雜項環境變數一張（#318）
+native_library_regression	modern_lito::native_pet_race_quit_session::tests::r536_native_quit_actual_generated_normal_io_peer_and_duplicate_sequences	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_quit_session::tests::r536_native_quit_intent_version_missing_reply_and_late_receipt_counterexamples	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_return_profile::tests::r537_native_return_actual_per_receiver_result_self_peer_owner_delete_sequences	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_return_profile::tests::r537_native_return_partial_missing_untagged_epoch_and_atomic_counterexamples	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_session::tests::r535_native_session_malformed_atomicity_seed_and_revocation_counterexamples	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_session::tests::r535_native_session_prediction_wire_result_return_and_epoch_boundaries	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_start_component::tests::r540_start_component_atomic_decoders_foreign_binding_partial_eof_and_ready_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_start_component::tests::r540_start_component_keyed_ready_countdown_roster_hud_actor_and_teardown_scope	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_start_component::tests::r540_start_component_unknown_clock_restricted_elapsed_and_untagged_read	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_terrain::tests::r534_native_terrain_raw_reader_masks_and_composed_routes	yes	-	excluded	-	#318	env: 未設定 LITO_R534_CHECK_OUTPUT，等雜項環境變數一張（#318）
+native_library_regression	modern_lito::native_pet_race_terrain::tests::r534_native_terrain_rejects_unqualified_inputs_and_keeps_offline_state_atomic	yes	-	excluded	-	#318	env: 未設定 LITO_R534_INPUT_ROOT，等雜項環境變數一張（#318）
+native_library_regression	modern_lito::native_pet_race_wire_boundary::result_wire_tests::r539_result_wire_binding_pending_write_and_eof_retirement_fail_closed	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_wire_boundary::result_wire_tests::r539_result_wire_direct_fixture_start_bidirectional_counters_and_segmented_frames	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_wire_boundary::result_wire_tests::r539_result_wire_untagged_read_never_promotes_source_fixture_to_live_authority	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_wire_boundary::tests::r538_native_wire_actual_loopback_received_ordered_streams_and_partial_eof	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_wire_boundary::tests::r538_native_wire_actual_partial_eof_missing_key_foreign_stream_and_retirement	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_library_regression	modern_lito::native_pet_race_wire_boundary::tests::r538_native_wire_existing_receiver_complete_split_merge_and_untagged_read_boundary	yes	-	excluded	-	#317	snapshot: 依賴原機 snapshot 的絕對路徑與 SHA pins，等 #317
+native_lifecycle	deployed_resurrection_vectors_preserve_unsigned_identity_and_never_infer_health	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_lifecycle	malformed_or_orphan_resurrection_never_creates_or_partially_mutates_an_actor	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_lifecycle	resurrected_life_retires_death_playback_selection_and_ack_without_requiring_a_new_map	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_light_mask	every_original_compositor_case_matches_the_executed_native_mask_digest	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_light_mask	loader_uses_only_the_named_base_resource_and_checks_hash_and_cancellation	no	-	run	-	#306	-
+native_light_mask	mask_uses_max_instead_of_sum_and_rejects_invalid_input_before_mutation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_light_mask	original_center_alignment_truncates_negative_halves_then_clears_x_low_bits	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_light_mask	source_header_preserves_shared_ranges_empty_slot_and_exact_original_pixels	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_light_spell	direct_sound_cursor_consumes_once_bounds_bursts_and_does_not_replay_across_worlds	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_light_spell	formal_change_light_is_atomic_unsigned_actor_scoped_and_does_not_change_motion_owner	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_light_spell	formal_direct_sound_is_bounded_atomic_and_cleared_with_the_world	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_light_spell	light_uses_self_selector_without_predicting_authority_and_scopes_UI_choice	no	-	covered	-	whitelist	-
+native_light_spell	original_light_definition_and_149_bitmap_are_inspected_without_alias_guessing	no	-	run	client	#306	-
+native_light_spell	original_light_single_bitmap_retires_on_166ms_callback_without_embedded_sound	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_light_spell	scene_prepares_the_original_direct_145_WAV_once_without_inventing_light_duration	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_lightning	all_eight_lightning_banks_match_independent_pixels_origin_and_multi_target_hit_once	no	-	run	client	#306	-
+native_lightning	many_common_clock_quantizes_birth_and_late_dispatch_without_replaying_hits	no	-	run	client	#306	-
+native_lightning	many_hits_reject_miss_replacement_removal_death_and_new_world	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_lightning	many_packet_is_atomic_bounded_and_preserves_each_unsigned_target_marker	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_lightning	request_clock_reuse_range_and_target_guard_preserve_authority	no	-	covered	-	whitelist	-
+native_lobby	deployed_channel_results_are_exact_and_keep_full_unsigned_tails	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_lobby	deployed_chinese_room_row_is_bounded_and_updates_by_server_id	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_lobby	lobby_actions_do_not_run_without_live_character_and_channel	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_login	chinese_credentials_and_source_match_deployed_java_ms950_parser	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_login	credentials_and_selection_require_current_live_state	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_login	deployed_login_replies_retain_full_failure_body_and_unsigned_endpoints	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_map_portal	actual_original_map_entrances_roundtrip_and_retire_old_scene	yes	-	excluded	-	#318	env: 未設定 LITO_MAP_PORTAL_ROOT，等雜項環境變數一張（#318）
+native_map_portal	original_native_entrances_encode_source_only_and_guard_every_owner_change	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_merchant	captured_system_refusal_is_not_a_template_message_and_invalid_text_is_atomic	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_merchant	formal_inventory_rejections_are_separate_from_text_messages	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_merchant	formal_merchant_rows_and_dialog_are_exact_bounded_and_unsigned	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_merchant	received_zero_buy_order_is_not_a_zero_inventory_object	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_merchant	shop_list_is_single_use_and_expires_with_character_world_and_time	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_minimap	bounded_marker_replacement_and_delete_are_not_actor_predictions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_minimap	eighteen_formal_vectors_preserve_full_unsigned_identity_and_coordinates	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_minimap	malformed_packets_never_partially_update_world_or_marker_state	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_minimap	new_map_same_map_portal_and_disconnect_retire_markers	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_minimap	original_geometry_overlay_filters_hidden_markers_and_blocks_world_hit_tests	no	-	run	client	#306	-
+native_motion	all_eight_moves_send_source_and_predict_formal_destination	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_motion	authoritative_correction_replaces_prediction_and_remove_retires_own_actor	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_motion	deployed_remote_movement_uses_source_cell_in_all_directions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_motion	malformed_updates_never_partially_mutate_world	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_motion	old_render_cannot_publish_after_map_generation_or_connection_changes	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_motion	remote_correction_uses_received_source_instead_of_interpolating_from_old_position	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	actual_ltmap_all_32768_direction_tests_match_deployed_server	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	deployed_speed_and_brave_modes_update_only_the_addressed_actor	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	held_keys_ignore_repeat_preserve_tap_and_release_or_focus_cancel_stops	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	held_movement_survives_prediction_but_not_a_new_life_or_authority_interruption	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	honor_spawns_route_across_original_sectors_and_avoid_dynamic_cells	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	malformed_speed_frames_do_not_mutate_and_multiplier_branches_are_explicit	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	short_paralysis_cannot_restore_an_old_press_after_release_between_samples	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_navigation	speed_change_preserves_walk_progress_and_changes_remaining_cadence	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_network	stalled_seed_can_cancel_and_reconnect_without_stale_owner_or_thread	no	-	run	-	#306	-
+native_npc_document	local_page_links_are_distinct_from_wire_requests_and_stay_in_the_catalog	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_document	original_archive_loader_matches_fixture_hashes_and_obeys_cancellation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_document	original_chinese_documents_preserve_text_and_received_actions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_document	original_hotel_variables_are_plain_text_and_missing_values_fail_closed	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_document	original_teleport_page_keeps_only_source_actions_and_image_references	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_document	truncated_unqualified_and_oversized_markup_never_produces_action_buttons	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_images	absent_image_archive_preserves_original_text_actions_and_reports_the_asset_error	no	-	run	client	#306	-
+native_npc_images	cancelled_image_worker_never_returns_a_publishable_bank	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_images	cancelling_the_real_document_worker_does_not_publish_cached_images	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_images	original_page_images_match_independent_rgb555_reference_and_page_bindings	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_input	formal_numeric_request_bounds_and_reply_match_pinned_protocol	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_npc_input	quantity_request_is_owned_expiring_and_cannot_be_reused_after_submission	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_object_dispatch	all_263423_original_object_routes_arguments_and_gate_bytes_match_rust	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_observer	actual_three_role_observer_bootstrap_preflight	yes	-	excluded	-	#318	env: 未設定 LITO_OBSERVER_ROOT，等雜項環境變數一張（#318）
+native_observer_camera	observer_camera_bounds_do_not_create_role_or_actor	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_observer_camera	observer_camera_half_open_edges_and_invalid_direction_preserve_authority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_observer_camera	observer_role_change_map_replacement_and_clear_retire_camera	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_obstacles	destroyed_guardian_retires_attacks_spells_and_selection_even_if_repaired_between_polls	no	-	covered	-	whitelist	-
+native_obstacles	formal_guardian_occupancy_includes_one_hp_and_excludes_destroyed_or_removed_objects	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_obstacles	guardian_state_updates_hold_authority_without_turning_players_into_obstacles	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_obstacles	original_guardian_assets_render_healthy_damaged_and_held_destroyed_states	no	-	run	client	#306	-
+native_obstacles	repeated_guardian_hits_never_queue_character_hurt_or_hide_original_states	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_painted_input	painted_masks_and_camera_survive_unpainted_idle_ticks_without_copying_canvas	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_painted_input	painted_surface_rejects_portals_updates_actor_life_and_control_interruptions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_poison_cure	cure_uses_its_own_timing_and_sound_with_direct_192_graphics_bank	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_poison_cure	object_and_coordinate_envelopes_preserve_authority_and_gate_live_targets	no	-	covered	-	whitelist	-
+native_poison_cure	reagent_and_probability_refusals_do_not_invent_a_poison_or_expire_one_locally	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_poison_cure	verified_numeric_comma_does_not_relax_other_delimiters	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	arrival_is_once_at_the_original_30ms_terminal_callback_even_when_frames_skip	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	current_jar_far_attack_vectors_preserve_native_unsigned_fields	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	malformed_ranged_packets_are_atomic_and_other_effect_branches_remain_unknown	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	no_hurt_for_miss_zero_damage_death_removed_or_replaced_objects	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	original_arrow_follows_actor_hit_event_and_finishes_without_hp_mutation	no	-	run	client	#306	-
+native_ranged	projectile_launch_is_once_and_retired_on_actor_removal_or_new_world	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	ranged_authority_acknowledges_and_queues_launch_without_inventing_hp	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	ranged_cues_have_a_visible_budget_and_orphan_attackers_do_not_spawn_effects	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	same_id_replacement_before_launch_cannot_bind_an_old_cue	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	zero_damage_hit_freezes_live_target_at_launch_and_never_retargets	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_reagent_skills	completion_waits_for_sampled_effect_and_caster_with_bounded_diagnostics	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_reagent_skills	explicit_modern_original_action3_once_has_nineteen_frames_and_one_sound	no	-	run	client	#306	-
+native_reagent_skills	formal_action19_effect_and_mana_keep_authority_atomic	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_reagent_skills	formal_reagent_request_self_screen_boundary_and_no_prediction	no	-	covered	-	whitelist	-
+native_reagent_skills	life_stream_choice_is_owned_ground_and_invalidated_by_correction	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_reagent_skills	reagent_effect_is_fixed_bounded_reset_and_not_an_actor_effect	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_reagent_skills	world_scene_prepares_original_sound_once_and_preserves_server_state	no	-	run	client	#306	-
+native_rental_entry_guard	rental_entry_rejects_ordinary_channel_before_wire_and_remains_usable_after_return	yes	-	excluded	-	#318	env: 未設定 LITO_RENTAL_ENTRY_GUARD_ROOT，等雜項環境變數一張（#318）
+native_rental_routes	formal_rental_npcs_are_reachable_on_original_geometry_without_crossing_actors	no	-	run	client	#306	-
+native_resource_loading	cancelled_shared_source_wait_does_not_retire_the_live_owner	no	-	run	-	#306	-
+native_resource_loading	concurrent_shared_native_archive_windows_match_independent_original_pixels	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_resource_loading	marker_load_profile_keeps_identical_sources_across_fresh_banks	no	-	run	client	#306	-
+native_resource_loading	observed_archive_lifetime_denies_writes_to_all_four_sources	no	-	run	-	#306	-
+native_resource_loading	observed_native_archives_keep_pak_handles_and_reject_drifted_plans	no	-	run	-	#306	-
+native_resource_loading	observed_surface_pins_and_override_rejections_survive_sparse_lookup	no	-	run	-	#306	-
+native_resource_loading	overlapping_world_models_reuse_source_leases_without_changing_pixels	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_resource_loading	ranged_capture_floor_waits_without_a_frame_rate_assumption	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_resource_loading	retained_archive_validation_and_failed_windows_keep_the_same_source_owner	no	-	run	-	#306	-
+native_resource_loading	retained_native_geometry_keeps_sector_identity_locks_and_rejects_new_sources	no	-	run	-	#306	-
+native_resource_loading	selected_index_preserves_reads_and_checks_every_unselected_record	no	-	run	-	#306	-
+native_resource_loading	shared_native_sources_release_only_after_the_last_owner_and_respect_limits	no	-	run	-	#306	-
+native_room	joined_room_preserves_settings_but_never_serializes_password	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room	participant_ready_two_and_signed_selector_are_authoritative_incremental_fields	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room	room_actions_require_current_server_lobby_and_membership	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room	room_envelopes_match_deployed_jar_and_reject_partial_or_trailing_fields	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_admin	admin_actions_require_live_phase_and_do_not_mutate_idle_snapshot	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_admin	observer_and_kick_replies_match_formal_and_reject_partial_envelopes	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_admin	settings_match_formal_vectors_and_wire_capacity_domain	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_admin	settings_reject_unrepresentable_fields_and_invalid_option_combinations	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_force	captured_force_before_roster_does_not_create_a_member_or_override_full_snapshot	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_force	deployed_force_contract_is_bounded_and_preserves_authoritative_name	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_force	disconnected_controller_cannot_queue_a_force_change	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_force	incomplete_roster_force_is_bounded_and_cannot_cross_room_or_connection	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_ui	draft_cannot_outlive_connection_character_channel_owner_or_received_configuration	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_ui	edits_preserve_opaque_received_options_and_match_formal_bytes_without_retaining_password	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_ui	kick_choice_keeps_named_member_across_reordering_and_rejects_changed_identity	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_room_ui	lobby_room_choice_follows_id_through_live_counts_and_order_without_crossing_scope	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_skill_selection	actual_render_camera_ground_cells_and_object_hits_reject_stale_worlds	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skill_selection	all_learned_rows_visible_but_unsupported_and_invalid_choices_cannot_cast	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skill_selection	learned_insert_remove_preserves_id_never_retargets_combo_row	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skill_selection	owner_change_fences_selection_before_and_after_refresh	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skill_selection	request_rechecks_learned_mp_hp_and_target_range_without_refresh	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skill_selection	selection_uses_formal_packets_and_preserves_authority	no	-	covered	-	whitelist	-
+native_skill_selection	stale_target_never_becomes_another_actor_or_implicit_self_heal	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	current_book_is_atomic_add_remove_and_survives_map_but_not_new_world_owner	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	detection_original749_frames_sound_once_and_generation_retirement	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	detection_selector_menu_guards_and_cooldown_leave_authority_unchanged	no	-	covered	-	whitelist	-
+native_skills	effects_preserve_formal_unsigned_ids_and_are_bounded_atomic_and_map_scoped	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	invisibility_tick_envelope_guards_clock_and_menu_preserve_authority	no	-	covered	-	whitelist	-
+native_skills	legacy_higher_heal_aliases_keep_original744_pixels_wire_ids_and_individual_sounds	no	-	run	client	#306	-
+native_skills	original_tw_basic_heal_frames_sound_clock_and_retirement_preserve_authority	no	-	run	client	#306	-
+native_skills	skill_feedback_requires_authority_and_expires_without_guessing_success	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	source_heal_and_shield_effects_play_once_independently_of_actor_replacement	no	-	run	client	#306	-
+native_skills	spell_requests_use_formal_selectors_and_never_predict_mana	no	-	covered	-	whitelist	-
+native_skills	tw_higher_full_heal_group_budget_rejects_both_layers_atomically	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	tw_higher_heal_original_slots_clothes_sound_and_retirement_preserve_authority	no	-	run	client	#306	-
+native_skills	tw_higher_heal_requests_use_learned_ids_original_clocks_and_never_predict_authority	no	-	covered	-	whitelist	-
+native_stalac_layers	all_stalac_frames_match_independent_fragment_compositor_and_cues_once	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_stalac_layers	layered_submission_budget_rejects_the_whole_group	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_stalac_layers	original_stalac_body_shadow_and_smoke_share_every_subframe	no	-	run	client	#306	-
+native_stalac_layers	stalac_miss_replaced_target_and_map_retire_without_hurt_authority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_stalac_layers	stalac_packet_range_clock_and_no_predicted_authority	no	-	covered	-	whitelist	-
+native_startup	bounded_file_save_replaces_atomically_and_read_is_unchanged	no	-	run	-	#306	-
+native_startup	endpoints_roots_and_schema_are_explicit_without_legacy_fields	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_startup	settings_are_adjacent_to_executable_independent_of_working_directory	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_startup	unicode_bom_duplicate_keys_and_input_budgets_are_checked	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	absent_directory_and_routes_for_another_peer_do_not_invent_rental_service	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	availability_rejects_every_truncation_trailing_data_and_unknown_state	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	changing_the_pending_owner_or_destination_cannot_retarget_a_captured_catalog	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	cross_endpoint_or_port_change_never_carries_source_rental_routes	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	endpoint_rejects_every_truncation_trailing_data_and_invalid_index_or_port	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	every_owner_dimension_rejects_stale_replies_without_consuming_current_pending	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	formal_endpoint_vectors_keep_little_endian_ip_and_port	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	formal_status_vectors_preserve_slots_and_missing_slots_are_unavailable	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	old_or_skipped_connection_and_wrong_character_consume_the_catalog	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	only_reachable_page_choices_authorize_teleport	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	remembered_directory_is_an_owned_snapshot_and_connection_overflow_cannot_wrap	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	same_endpoint_catalog_rebinds_only_matching_routes_once_after_fresh_game_character	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	stale_owner_and_unavailable_slots_cannot_redirect	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport	teleport_requires_matching_status_then_endpoint_once	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport_failure	cancellation_retires_destination_and_expired_handoff_requires_fresh_selection	yes	-	covered	-	G06	-
+native_teleport_failure	cancellation_then_immediate_retry_consumes_staged_character_once	yes	-	covered	-	G06	-
+native_teleport_failure	destination_timeout_retires_old_authority_and_allows_fresh_login	yes	-	covered	-	G06	-
+native_teleport_failure	refused_destination_retires_authority_and_allows_fresh_login	yes	-	covered	-	G06	-
+native_teleport_failure	wrong_service_destination_retires_authority_and_allows_fresh_login	yes	-	covered	-	G06	-
+native_teleport_handoff	actual_two_players_teleport_and_continue_on_new_game_endpoints	yes	-	excluded	-	#318	env: 未設定 LITO_TELEPORT_ROOT，等雜項環境變數一張（#318）
+native_teleport_unconfigured	actual_unconfigured_teleport_wait_is_bounded_and_dialogue_recovers	yes	-	excluded	-	#318	env: 未設定 LITO_NEGATIVE_ROOT，等雜項環境變數一張（#318）
+native_terrain_pixels	clipped_gate_follows_actual_canvas_black_coverage_and_extreme_positions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_terrain_pixels	invalid_floor_or_gate_inputs_fail_before_mutation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_terrain_pixels	original_floor_dispatch_64_whole_surfaces_match_real_tile_decoder_and_gate	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_terrain_residence	original_siege563_residence_reloads_at_sector_boundary_and_retires_old_input	no	-	run	client	#306	-
+native_terrain_residence	resident_native_city_pixels_match_complete_original_terrain	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_travel	actual_sql_wand_portal_retires_owner_and_preserves_peer_scene	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
+native_travel	original_169_bitmap_sound_once_terminal_dwell_and_portal_retirement	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_travel	original_169_frames_sound_and_controls_are_exact	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_turn_undead	actual_quest554_source_spawn_can_route_to_original_ranged_target	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_turn_undead	actual_quest_wall_rejection_replans_to_a_reachable_casting_line	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_turn_undead	low_mana_turn_undead_times_out_without_predicted_mana_death_or_rejection	no	-	covered	-	whitelist	-
+native_turn_undead	original_754_zero_frames_sound_and_skipped_subframe_are_exact	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_turn_undead	original_boss_summon_circle_definition_and_terminal_are_finite	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_turn_undead	original_turn_undead_frames_pixels_sound_once_and_zero_terminal_retirement_after_death	no	-	run	client	#306	-
+native_turn_undead	selector_clock_range_and_dead_target_guards_never_predict_death_or_mana	no	-	covered	-	whitelist	-
+native_type12_prop	model_uses_original_catalogue_half_without_mutating_world_or_animation	no	-	run	client	#306	-
+native_type12_prop	original_type12_is_a_single_image_not_an_invented_breath_action	no	-	run	client	#306	-
+native_vampiric_touch	all_eight_banks_frozen_heading_offset_once_sound_and_effect_hit	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_vampiric_touch	miss_replacement_and_map_change_cannot_hurt_a_new_target	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_vampiric_touch	server_reuse_and_recovered_client_clock_are_separate	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_vampiric_touch	vampiric_envelope_range_and_authority_do_not_predict_healing_or_hurt	no	-	covered	-	whitelist	-
+native_water_light	all_native_water_channel_tables_and_private_CRT_resource_plane_match	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_water_light	original_water_raster_samples_and_surface_guards_match_in_both_formats	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_water_light	rgba_water_has_no_level31_identity_shortcut_and_preserves_alpha_and_atomic_errors	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_weapon_expiry	two_equipped_weapons_expire_after_real_one_hour_and_restore_original_weapon	yes	-	excluded	-	#318	env: 未設定 LITO_WEAPON_ROOT，等雜項環境變數一張（#318）
+native_wind_cutter	class4_launch_freezes_target_and_retires_reused_identity	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_wind_cutter	class4_zero_distance_zero_damage_and_miss_keep_authority	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_wind_cutter	formal_attack_spell_layout_and_request_guards	no	-	covered	-	whitelist	-
+native_wind_cutter	original_class4_flight_impact_audio_and_hurt_are_once	no	-	run	client	#306	-
+native_world	clearing_authority_does_not_reuse_a_prior_render_generation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world	deployed_world_fields_and_local_object_identity_are_preserved	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world	known_world_packets_reject_every_truncation_and_extra_tail	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world	new_world_clears_old_actors_status_and_challenges	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world	world_actor_updates_use_id_and_do_not_require_display_names	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_effects	actual_effect_fragments_match_scalar_pixels_occlusion_and_click_through_owners	no	-	run	client	#306	-
+native_world_effects	effect_bounds_missing_fragments_and_all_arrow_heading_banks_are_checked	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_effects	fragment_and_flat_sinks_have_identical_clock_events_retirement_and_generation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_effects	live_model_submits_all_stationary_profiles_once_without_world_mutation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_entry	actual_world_tree_disabled_preserves_arena_and_allows_retry	yes	-	excluded	-	#318	env: 未設定 LITO_WORLD_ENTRY_ROOT，等雜項環境變數一張（#318）
+native_world_entry	actual_world_tree_enters_roomless_world_and_walks	yes	-	excluded	-	#318	env: 未設定 LITO_WORLD_ENTRY_ROOT，等雜項環境變數一張（#318）
+native_world_entry	formal_map_rejection_is_visible_and_does_not_change_world	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_entry	learned_world_tree_is_selector_only_and_cross_map_admission_stays_owned	no	-	covered	-	whitelist	-
+native_world_entry_contract	actual_world_tree_transition_contract	yes	-	excluded	-	#318	env: 未設定 LITO_WORLD_ENTRY_ROOT，等雜項環境變數一張（#318）
+native_world_labels	cp950_layout_uses_body_bounds_and_native_prefix_rules	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_labels	lawful_palette_boundaries_and_hover_identity	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_labels	real_world_labels_are_click_through_and_do_not_mutate_authority	no	-	run	client	#306	-
+native_world_layers	actual_terrain_body_and_ground_fragments_match_independent_pixels_and_owners	no	-	run	client	#306	-
+native_world_layers	ground_pointer_uses_visible_pixels_and_never_rebinds_a_stale_item	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_layers	pixel_pick_preserves_authority_and_stale_frame_fences	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_layers	same_depth_overlap_preserves_reverse_insertion_and_transparent_holes	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_layers	scene_composition_rejects_invalid_identity_budget_and_unqualified_sprites	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	blind_two_does_not_query_catalog_for_own_or_outside_sources	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	blind_two_queries_predicate_only_inside_the_native_inclusive_bounds	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	blindness_uses_local_identity_in_signed_registration_order_and_shared_centers	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	full_bright_is_exact_and_does_not_open_resources_or_change_retained_selector	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	logical_metadata_uses_native_defaults_and_low_byte_without_alias_inheritance	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	selector_history_survives_scene_replacement_but_retires_with_the_game_owner	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	water_budget_stops_metadata_and_action_queries_at_exact_native_700_limit	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	water_outer_bypass_updates_native_selector_and_cancel_or_wrong_map_never_changes_pixels	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	water_requires_live_relation_owner_and_shared_action_before_mutating_pixels	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	water_uses_real_master_war_death_mode_and_current_display_action_fields	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting	water_war_end_uses_historical_graphics_metadata_after_actor_morph	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	actual_async_new_model_restores_same_game_scroll_without_adding_map_jump	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	admission_lifecycle_cancelled_pending_death_holds_final_pose	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	admission_lifecycle_invalid_source_ABA_retires_actor_and_wire_cues	no	-	run	client	#306	-
+native_world_lighting_scene	admission_lifecycle_reused_actor_id_and_new_connection_accept_fresh_actions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	generation_model_cancelled_transition_preserves_old_model_then_new_world_succeeds	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	generation_model_direct_same_map_new_world_has_fresh_action_and_sound_once	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	generation_model_job_rejects_same_map_old_world_with_restarted_clock	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	legacy_actual_publication_binds_an_unplayed_cue_and_cancel_retires_its_owner	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	legacy_actual_stale_environment_job_defers_wire_sound_once_and_never_publishes_old_pixels	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	ordinary_actor_pending_event_stays_retired_and_fresh_action_plays_once	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	ordinary_actor_published_event_stays_retired_and_fresh_action_plays_once	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	ordinary_direct_model_map_change_cannot_keep_previous_world_death	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	ordinary_pending_wire_is_retired_before_worker_can_publish	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	ordinary_wire_cue_never_replays_after_same_world_model_recreation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	presentation_cancel_does_not_recapture_sources_from_a_pending_render	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	presentation_job_rejects_reused_model_from_other_resource_root	no	-	run	client	#306	-
+native_world_lighting_scene	presentation_resume_same_scene_rejects_retired_render_contexts	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	presentation_root_change_retires_old_model_and_source_leases	no	-	run	client	#306	-
+native_world_lighting_scene	presentation_sources_survive_scene_retirement_without_retaining_old_input	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	real_catalog_blind_two_uses_walking_source_cell_then_terminal_destination_without_authority_writes	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	real_model_keeps_full_bright_exact_and_blind_light_at_interpolated_body_center	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	real_water_pixels_use_dry_walk_camera_history_and_phase_before_minimap_overlay	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_lighting_scene	real_water_producer_tracks_the_same_body_pose_and_native_death_marker	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_roofs	exact_half_cell_group_ordinals_and_bad_metadata_are_qualified	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_roofs	live_roof_runtime_changes_presentation_without_mutating_world_authority	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_roofs	real_hidden_roof_groups_use_source_565_without_fixture_substitution	no	-	run	client	#306	-
+native_world_roofs	real_roof_groups_and_source_pixels_match_scalar_composition_and_owners	no	-	run	client	#306	-
+native_world_roofs	roof_enter_leave_reverse_scope_and_clock_follow_bounded_quanta	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_roofs	stale_map_roof_frames_and_cancelled_composition_are_rejected	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_world_text	actual_cp950_font_raster_is_cached_bounded_and_cancellable	no	-	run	-	#306	-
+native_world_text	outline_offsets_rgb555_color_and_clipping_match_scalar_composition	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+rebuild_wire	current_formal_jar_cipher_matches_native_x64_rx_tx_and_partial_io	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
+native_teleport_controller	cancel_discards_old_inbound_burst_before_fresh_login	no	teleport-wire-test	run	-	#306	-
+native_teleport_controller	coalesced_old_socket_burst_cannot_retarget_or_repeat_quit	no	teleport-wire-test	run	-	#306	-
+native_teleport_controller	invalid_transport_envelopes_during_teleport_retire_scope	no	teleport-wire-test	run	-	#306	-
+native_teleport_controller	malformed_and_misordered_teleport_replies_over_tcp_retire_pending_owner	no	teleport-wire-test	run	-	#306	-
+native_teleport_controller	new_destination_does_not_accept_previous_endpoint_as_a_new_handoff	no	teleport-wire-test	run	-	#306	-
+native_teleport_controller	retired_endpoint_duplicate_and_old_world_packets_do_not_change_quit_barrier	no	teleport-wire-test	run	-	#306	-

@@ -1,0 +1,140 @@
+status	item	path	expected_sha256	actual_sha256
+SHA_OK	G05-gameplay-matrix	驗證紀錄/current/native-detection-skill-candidate/20261017-002102-887104/independent-readback.json	8CADE85636EC9A8A75EF51A23CEA776728678790B55FB3E0D7A407449F056783	8CADE85636EC9A8A75EF51A23CEA776728678790B55FB3E0D7A407449F056783
+EXISTS	G05-gameplay-matrix	驗證紀錄/current/native-light-spell/live/20261015-214650-481/qualified.json		
+EXISTS	G05.2	驗證紀錄/current/native-effect-native-clock/common-finite-followup/protocol-effect-id-audit/qualified.json		
+EXISTS	G05.2	驗證紀錄/current/native-shared-higher-heals/live/20261015-193452-972/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-G06-controller/20261016-225305-614364/qualified/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-G06-controller/20261017-010712-984244/completion-observation.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-catalog-audio-cohort/20261019-002450-475847		
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-audio-cohort/20261019-002450-475847/qualified/qualified.json	D59D581B4C3360BB0BF48A5700ACB1C486B4168296AA668B9DA97C592E089A09	D59D581B4C3360BB0BF48A5700ACB1C486B4168296AA668B9DA97C592E089A09
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-catalog-hotel/20261019-004008-982025		
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-hotel/20261019-004008-982025/diagnostic-visual-map-correction.json	4756E03250383AF61877B66B5165BC29A8205BAF4648C21348D7C0B66B5A3075	4756E03250383AF61877B66B5165BC29A8205BAF4648C21348D7C0B66B5A3075
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-hotel/20261019-004008-982025/qualified.json	D8D7E0C1012691E2EECE274D2CB5562455D3B63AFD09248304325F47381FB3ED	D8D7E0C1012691E2EECE274D2CB5562455D3B63AFD09248304325F47381FB3ED
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-002319-690826/qualified-20261019-002439-648161/qualified.json	404A7E6CD675F429B64429CAFBE42499F335AF3046A4E31563D82A3A5DA8377C	404A7E6CD675F429B64429CAFBE42499F335AF3046A4E31563D82A3A5DA8377C
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-002453-241974/qualified-20261019-003912-768396/qualified.json	D8968E43C683307DDAAB860D3D4ACF692D02C9787AC2218C516095CDAEAD3B21	D8968E43C683307DDAAB860D3D4ACF692D02C9787AC2218C516095CDAEAD3B21
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-002549-484135/qualified-20261019-003916-084076/qualified.json	28FBD35A488D9D93F57B622DFFE1683A140D6BBBCB7B8ECB50EA625B3AEAB19F	28FBD35A488D9D93F57B622DFFE1683A140D6BBBCB7B8ECB50EA625B3AEAB19F
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-002705-934743/qualified-20261019-003919-697450/qualified.json	00FBAA56A531FA491F6BEDA4EF4C071692999829AAEC9C819AC4B36ED71ABFB7	00FBAA56A531FA491F6BEDA4EF4C071692999829AAEC9C819AC4B36ED71ABFB7
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-002830-590668/qualified-20261019-003923-166362/qualified.json	2C62CB119A9889D0F9AC108624DD5E35BA908AB0ECA4BAA2DBE7ADDE0648933E	2C62CB119A9889D0F9AC108624DD5E35BA908AB0ECA4BAA2DBE7ADDE0648933E
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-002948-617257/qualified-20261019-003926-499592/qualified.json	B5D1AEFC2405CD5730D074D82606446CB29883DCA24141182E9BFE64E4BEC5DC	B5D1AEFC2405CD5730D074D82606446CB29883DCA24141182E9BFE64E4BEC5DC
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-003220-839988/qualified-20261019-003929-352206/qualified.json	D49269828D7002F58D67C2C630A70EE5FC6E5C2A31EB76164101495B58DEFE54	D49269828D7002F58D67C2C630A70EE5FC6E5C2A31EB76164101495B58DEFE54
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-003316-593851/qualified-20261019-003932-305858/qualified.json	4E451574ED12CF118F02AE8F108EC4609A9B22C07C7A762451034837EE5A0F64	4E451574ED12CF118F02AE8F108EC4609A9B22C07C7A762451034837EE5A0F64
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-003359-489693/qualified-20261019-003935-136658/qualified.json	C9DD0569103B153DD0D4E1BE0B8336F4DF4C093CDC976F542028F2C94F48A107	C9DD0569103B153DD0D4E1BE0B8336F4DF4C093CDC976F542028F2C94F48A107
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-003457-200586/qualified-20261019-003938-053439/qualified.json	6A499C309EAD93D1FC68A65D09EBA50BD6AE1DBFE8570F6B527630461447E90B	6A499C309EAD93D1FC68A65D09EBA50BD6AE1DBFE8570F6B527630461447E90B
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-003602-321743/qualified-20261019-003940-909152/qualified.json	A8B74F05012996434589449D425A2C10BC6F8849E2DB61C707A0A75CED5EAD91	A8B74F05012996434589449D425A2C10BC6F8849E2DB61C707A0A75CED5EAD91
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-catalog-teleport-audio/run-20261019-003650-914322/qualified-20261019-003943-787872/qualified.json	0B83E3BD6C5294A735133D6482FD5304EBD83B8A8290B9BF9C2E0F85D3716F64	0B83E3BD6C5294A735133D6482FD5304EBD83B8A8290B9BF9C2E0F85D3716F64
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-environment/20261016-023507-851373/GUI-current/completion-observation.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-hotel-current/20261016-164232-826-keys/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-hotel-current/20261016-165028-819-middle-entry/all-rooms-qualified/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-hotel-current/20261016-165723-312-share/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-installed-resource-profile-controller/20261020-071943-668000		
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-installed-resource-profile-controller/20261020-071943-668000/completion-observation.json	C6CB073786FC9612C94201F2B4ED58978B3C23051BBF1A30734454188CA38BEA	C6CB073786FC9612C94201F2B4ED58978B3C23051BBF1A30734454188CA38BEA
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-installed-resource-profile-controller/20261020-071943-668000/qualified/qualified.json	845CFC25098639554FE064C5502C773B451B8E93E48DFE79EC5449F949FE20FB	845CFC25098639554FE064C5502C773B451B8E93E48DFE79EC5449F949FE20FB
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-model-generation-normal/validation-20261018-160708-195207/Debug-qualified-20261018-161140-387802/qualified.json	8AC9DC5AC93F8EBE3F1D4CBD10BB4222202C9A92643E3220B82E21C37817CD08	8AC9DC5AC93F8EBE3F1D4CBD10BB4222202C9A92643E3220B82E21C37817CD08
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-model-generation-normal/validation-20261018-160708-195207/Release-qualified-20261018-161809-646719/qualified.json	FACBD336DE73417547DCE8EFA4F5F0F08313696FC811E75DCB2C64C980571888	FACBD336DE73417547DCE8EFA4F5F0F08313696FC811E75DCB2C64C980571888
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-same-endpoint-catalog-normal/validation-20261018-232351-306737/qualified/qualified.json	D0E2550D08DEB9024B4D24C6DF68D1062B4B7B9F99BAA548B8CA9180800E3AC6	D0E2550D08DEB9024B4D24C6DF68D1062B4B7B9F99BAA548B8CA9180800E3AC6
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-startup-siege563/20261016-212437-878135/completion-observation.json	3E37DA4F397414EAE775F69326589EB9894A2DC8B0DA1229CB3B0BF0C7D84DCD	3E37DA4F397414EAE775F69326589EB9894A2DC8B0DA1229CB3B0BF0C7D84DCD
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-startup-siege563/20261016-212437-878135/qualified/qualified.json	DB8C98925D905BD6E4E9D3B7C4E719E41216D03E967583A4A87F12E93C08F7BB	DB8C98925D905BD6E4E9D3B7C4E719E41216D03E967583A4A87F12E93C08F7BB
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-startup-siege563/20261016-221755-210184/qualified/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-teleport-current/20261015-204817-443-TW-shared/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-teleport-current/20261015-232637-257-TW-shared/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-teleport-current/20261016-014931-306-TW-shared/Debug-current-cohort.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-teleport-current/20261016-014931-306-TW-shared/qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-teleport-current/20261016-032035-848-TW-environment/qualified.json		
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-203825-610277/qualified-20261017-204125-046497/qualified.json	D33C5D867547EC9E271244ABD313637476C5396305242B5513DAE1FC1E40FC70	D33C5D867547EC9E271244ABD313637476C5396305242B5513DAE1FC1E40FC70
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-204022-990882/qualified-20261017-204310-989939/qualified.json	319F254FA94AC08F7137FE621089F8EA7A32FAF98A59EEFCF111ED1AA021F22E	319F254FA94AC08F7137FE621089F8EA7A32FAF98A59EEFCF111ED1AA021F22E
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-204422-611021/qualified-20261017-204628-784410/qualified.json	74ABB421F08CCFF43128ABF7BADCC6A4C3CABF11DE9683B337696005F2F24C5C	74ABB421F08CCFF43128ABF7BADCC6A4C3CABF11DE9683B337696005F2F24C5C
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-204626-582802/qualified-20261017-204826-452951/qualified.json	F6F3158A50EB33931FC9E1ADB81B7D22E02442A6DDFEA485EFAEF9DB52897BE6	F6F3158A50EB33931FC9E1ADB81B7D22E02442A6DDFEA485EFAEF9DB52897BE6
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-204824-484601/qualified-20261017-205141-341482/qualified.json	11296F674B88D97A08250D7FE570A811F293728A4947F031D00266A04D9A9FCA	11296F674B88D97A08250D7FE570A811F293728A4947F031D00266A04D9A9FCA
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-205138-961896/qualified-20261017-205304-432626/qualified.json	5F8BA19A632727C3D83B4E8CFD1B968CF0265D75D2019F434897377DED6F84CA	5F8BA19A632727C3D83B4E8CFD1B968CF0265D75D2019F434897377DED6F84CA
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-205302-880640/qualified-20261017-205434-233325/qualified.json	5EE24446AAB0FBF11EF922F280454896F49BD0EA52C6E9E2D86AB57787663945	5EE24446AAB0FBF11EF922F280454896F49BD0EA52C6E9E2D86AB57787663945
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-205432-523295/qualified-20261017-205600-609395/qualified.json	A0E502791071ED4F28CDE3CE693B4F637F679FDC89DB9D0B1DC8E081267A704A	A0E502791071ED4F28CDE3CE693B4F637F679FDC89DB9D0B1DC8E081267A704A
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-205558-832235/qualified-20261017-205732-826581/qualified.json	FA6DD21A22A023C352D5B74CEF48E70572F34822467CDCDE0118A729E1462575	FA6DD21A22A023C352D5B74CEF48E70572F34822467CDCDE0118A729E1462575
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native-teleport-failure-presentation/run-20261017-205730-939206/qualified-20261017-210019-735394/qualified.json	2D33794D9D6350C526646D7FE0A431AF41730E01CBFC44F5CC8B3BD13740B840	2D33794D9D6350C526646D7FE0A431AF41730E01CBFC44F5CC8B3BD13740B840
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-teleport-gui/20261014-221516-672/teleport-gui-authority-comparison.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-teleport-wire/Debug-limited-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/battle-cooldown-gui-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/battle-withdrawal-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/current-formal-6928-teleport-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/gui-B21A8C36-regression.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/native-map-portal-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-entry-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-equipped-glove-expiry-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-equipped-weapon-expiry-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-hotel-entry-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-merchants-gui-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-return-ack-guards-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-return-boundary.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-return-server-negative-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-return-services-candidate-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-return-shared-guest-candidate-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/rental-shop-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/same-endpoint-server-candidate.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/target-item-development.md		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/target-item-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/teleport-cancel-expiry-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/teleport-cancel-retry-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/teleport-gui-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/teleport-gui-recovery-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/teleport-stale-command-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/teleport-wrong-service-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/travel-GUI-development.md		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/travel-GUI-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/travel-development.md		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native-world-integration/travel-qualified.json		
+EXISTS	G06-room-service-branches	驗證紀錄/current/native1040-presentation-cohort/20261018-072138-629257		
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-presentation-cohort/20261018-072138-629257/diagnostic-image-observation.json	8BF9D737AA5CE1C4CE14B038C8BBA17547B278452FEE8E09F3146E97D4FB3515	8BF9D737AA5CE1C4CE14B038C8BBA17547B278452FEE8E09F3146E97D4FB3515
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-presentation-cohort/20261018-072138-629257/qualified/qualified.json	CE8DC8D5D6BF18C6B8927A2223074C91D4AF496AC11F04DE08D3127E22C31206	CE8DC8D5D6BF18C6B8927A2223074C91D4AF496AC11F04DE08D3127E22C31206
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-072345-147839/qualified-20261018-073915-545612/qualified.json	09F1C82C7B45CA755B7403850D1DE447AB074F9F0733986301A913EAAD22B5BD	09F1C82C7B45CA755B7403850D1DE447AB074F9F0733986301A913EAAD22B5BD
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-072512-103305/qualified-20261018-073918-205121/qualified.json	B5C70511BF4A6CE3BB4BE0661AB3717CF48CD5F6F4427F68C75AD58416304E7C	B5C70511BF4A6CE3BB4BE0661AB3717CF48CD5F6F4427F68C75AD58416304E7C
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-072631-734346/qualified-20261018-073920-779839/qualified.json	C88D7230FA2AEC641CA25EC2765C1BA01C67815ACDA2607D8F8557B6E66A04E3	C88D7230FA2AEC641CA25EC2765C1BA01C67815ACDA2607D8F8557B6E66A04E3
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-072805-315638/qualified-20261018-073923-495285/qualified.json	7711FB20AD8E8C0F1705C07611A33FCEE31B64DCF96607AC1DD6EC227D9BDDDE	7711FB20AD8E8C0F1705C07611A33FCEE31B64DCF96607AC1DD6EC227D9BDDDE
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-072923-187276/qualified-20261018-073925-845787/qualified.json	36EDA1BB366F01137040580257FF4A0F621A22FE392026DBF84B5FDDADC66720	36EDA1BB366F01137040580257FF4A0F621A22FE392026DBF84B5FDDADC66720
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-073240-153470/qualified-20261018-073929-918898/qualified.json	35D8AFC222D19361F4E3CCEEE1DD1218DBEE6B69CA5D6F297CAD7EA5CA594825	35D8AFC222D19361F4E3CCEEE1DD1218DBEE6B69CA5D6F297CAD7EA5CA594825
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-073339-438879/qualified-20261018-073931-912028/qualified.json	63A396BA8B0CFFF2685EA90BF242D333085A8398FB93C5285D160689072ECA0D	63A396BA8B0CFFF2685EA90BF242D333085A8398FB93C5285D160689072ECA0D
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-073432-841606/qualified-20261018-073933-966563/qualified.json	023EF0C111790CDCF27C82AA7F8352F754244FDB3C92846FB93B0559EDFAEFFD	023EF0C111790CDCF27C82AA7F8352F754244FDB3C92846FB93B0559EDFAEFFD
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-073539-919955/qualified-20261018-073935-949804/qualified.json	8364C6E164280683E1386AD3FA3E4A761D3C88A25B974406D68B81326D933D56	8364C6E164280683E1386AD3FA3E4A761D3C88A25B974406D68B81326D933D56
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-failure-presentation/run-20261018-073630-055180/qualified-20261018-073937-948330/qualified.json	37C8A9A341F53B35DF512FD7962A2EBD26125BFB3765BFF68C21C460BD3F0FBF	37C8A9A341F53B35DF512FD7962A2EBD26125BFB3765BFF68C21C460BD3F0FBF
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-presentation/run-20261018-072239-976849/qualified-20261018-073912-799792/qualified.json	8F02B350F27DF337D9B2CD99973F0CF6E4389637379BB128CF589A831C2A512A	8F02B350F27DF337D9B2CD99973F0CF6E4389637379BB128CF589A831C2A512A
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native1040-teleport-presentation/run-20261018-073200-621399/qualified-20261018-073927-932389/qualified.json	FF9024BEE93073EE5E46A1D7A2FB676904C75E21AE151FA33B20CD183142E836	FF9024BEE93073EE5E46A1D7A2FB676904C75E21AE151FA33B20CD183142E836
+EXISTS	G06-room-service-branches	驗證紀錄/current/native44FE-audio-cohort/20261018-165317-090522		
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-audio-cohort/20261018-165317-090522/qualified/qualified.json	EDA372F6BF7E1917102BDF6BFABFAF30302DE70D5A679B1FEB4F3F5644601A69	EDA372F6BF7E1917102BDF6BFABFAF30302DE70D5A679B1FEB4F3F5644601A69
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-hotel/20261018-172052-514017/qualified/qualified.json	404775E96968077647E1EC2B1350376F0CF26CF0AAC882869619D824C5ACCD54	404775E96968077647E1EC2B1350376F0CF26CF0AAC882869619D824C5ACCD54
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-same-endpoint/20261018-171204-385221-debug/independent-boundary/boundary.json	2FD908D83317CCB966F11D75FADE2B8B0D37232CC7AFE941050AA05D8D17FA4C	2FD908D83317CCB966F11D75FADE2B8B0D37232CC7AFE941050AA05D8D17FA4C
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-164507-209091/qualified-20261018-164738-733787/qualified.json	350EBB35825BEAE90C5E146DBF5B75C843F7807200E4F0CD359DF14938DB14B5	350EBB35825BEAE90C5E146DBF5B75C843F7807200E4F0CD359DF14938DB14B5
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-165320-607809/qualified-20261018-171012-578917/qualified.json	B88736618B45222B6C614430CEE6D651A04051B08B16EE54E89B18418C34635C	B88736618B45222B6C614430CEE6D651A04051B08B16EE54E89B18418C34635C
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-165429-018963/qualified-20261018-171016-296183/qualified.json	60008659CB6D0BCA51F9FFB12FB181C5B450E10C19F1CAA166935D893F386FF4	60008659CB6D0BCA51F9FFB12FB181C5B450E10C19F1CAA166935D893F386FF4
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-165550-000811/qualified-20261018-171020-220438/qualified.json	F1C866C0BA24A732E007729ED7C37E76A4880063B545E1CF9A046B5A342FC09F	F1C866C0BA24A732E007729ED7C37E76A4880063B545E1CF9A046B5A342FC09F
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-165717-580188/qualified-20261018-171023-982748/qualified.json	F9834C1CBE178554A413DEA0DCACE019F6D978875FBE00CD65230CF79BEAB211	F9834C1CBE178554A413DEA0DCACE019F6D978875FBE00CD65230CF79BEAB211
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-165837-194342/qualified-20261018-171027-761412/qualified.json	A6FBDF56A46BD497F40258E37E098E610F91F321F570F40A2083BD43CA2A4D4F	A6FBDF56A46BD497F40258E37E098E610F91F321F570F40A2083BD43CA2A4D4F
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-170129-583514/qualified-20261018-171030-944591/qualified.json	6D1EB0227771E0DDBC51B91C616DBAF33572316C41AFA6EAB8FF9BE165EA8598	6D1EB0227771E0DDBC51B91C616DBAF33572316C41AFA6EAB8FF9BE165EA8598
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-170228-995209/qualified-20261018-171034-196660/qualified.json	743538D13FB8CA6C250A63865F613B8A2C73EC9A03EA29E3B70D5B841FAEE219	743538D13FB8CA6C250A63865F613B8A2C73EC9A03EA29E3B70D5B841FAEE219
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-170319-598798/qualified-20261018-171037-485085/qualified.json	285E5B2466D5F413BB9E09221CFBA6272AD55EE5319FDBE7544F1C20176EDB7E	285E5B2466D5F413BB9E09221CFBA6272AD55EE5319FDBE7544F1C20176EDB7E
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-170428-196990/qualified-20261018-171040-662207/qualified.json	6E4CF3866D71D65D0E8F7B45232C3F279F6431F33320F25E1FDD059927B3100F	6E4CF3866D71D65D0E8F7B45232C3F279F6431F33320F25E1FDD059927B3100F
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-170544-484931/qualified-20261018-171043-787249/qualified.json	C96A16711D84837BE54B1A5B4FFE614085BBC2CC5CD107AEB57D7E7BD3C32C93	C96A16711D84837BE54B1A5B4FFE614085BBC2CC5CD107AEB57D7E7BD3C32C93
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-teleport-audio/run-20261018-170646-629766/qualified-20261018-171046-954639/qualified.json	B81B5E96EE32C2C8E50CA4E97E9F12F6B6D66ABD3E8E5B91D6EEBB12C6A97C0B	B81B5E96EE32C2C8E50CA4E97E9F12F6B6D66ABD3E8E5B91D6EEBB12C6A97C0B
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-world-tree/run-20261018-173346-505185/preflight-failure/failure.json	92D6D4C6952D43B077DFCA11CD2718AA36158322B6727FEC83A9BE2D87899B88	92D6D4C6952D43B077DFCA11CD2718AA36158322B6727FEC83A9BE2D87899B88
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-world-tree/run-20261018-173508-298197/qualified-20261018-173641-037877/qualified.json	BD87734CE598863B58DA00D618BDBFC8F2EA373F05A1BA81D35C4173C3E16782	BD87734CE598863B58DA00D618BDBFC8F2EA373F05A1BA81D35C4173C3E16782
+SHA_OK	G06-room-service-branches	驗證紀錄/current/native44FE-world-tree/run-20261018-173810-370193/qualified-20261018-173924-489690/qualified.json	7FD14605BF64DE7E614A6E7FE391E173AE73C17C30E1B793AAEAD325E37472BC	7FD14605BF64DE7E614A6E7FE391E173AE73C17C30E1B793AAEAD325E37472BC
+EXISTS	G06-room-service-branches	驗證紀錄/current/travel-sql/20261014-164205-269/authority-comparison.json		
+EXISTS	G06.2	驗證紀錄/current/native-observer/20261014-040434-230/last-member-boundary.json		
+EXISTS	G07-resource-rendering	驗證紀錄/current/native-light-spell/live/20261015-214650-481/qualified.json		
+SHA_OK	G07-resource-rendering	驗證紀錄/current/native-map303-assets/20261016-211846-076873/independent-readback.json	80647C9991F2DA847EBC11BD039FE753512EB1EA072682F81275202593F3AC0D	80647C9991F2DA847EBC11BD039FE753512EB1EA072682F81275202593F3AC0D
+SHA_OK	G07-resource-rendering	驗證紀錄/current/native-map303-assets/20261016-211846-076873/integration-boundary.json	E1BD534EC39514AAA5D2FC63228C3BE1CD061AFC03081A87C69BD6583C05CC68	E1BD534EC39514AAA5D2FC63228C3BE1CD061AFC03081A87C69BD6583C05CC68
+EXISTS	G07.5	LiTo381-Modern/target/current/minimap-draft		
+EXISTS	G08-player-gui	驗證紀錄/current/native-light-spell/live/20261015-214650-481/qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-real-peers/20261013-151347-522/rental-citizen-comparison.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-capacity-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-citizen-gui-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-equipped-expiry-next-contract.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-equipped-glove-expiry-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-hotel-entry-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-hotel-gui-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-hotel-natural-expiry-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-hotel-share-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-item-expiry-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-merchants-gui-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-merchants-qualified.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-teleport-next-contract.json		
+EXISTS	G08.2	驗證紀錄/current/native-world-integration/rental-weight-qualified.json		
+EXISTS	G09-audio	驗證紀錄/current/native-light-spell/live/20261015-214650-481/qualified.json		
+EXISTS	G11-stability-performance	驗證紀錄/current/native-performance/acceptance-budget-v1.json		

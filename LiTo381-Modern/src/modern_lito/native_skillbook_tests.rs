@@ -27,10 +27,12 @@ fn complete_book_keeps_all_wire_ids_and_181_catalog_names() {
     }
     assert!(catalog::name(0).is_none());
     assert!(catalog::name(221).is_none());
-    // A name or hotbar binding cannot invent an unimplemented request.
-    m.bind(7, Some(220)).unwrap();
-    assert_eq!(m.bound(7, &w, 7).unwrap(), 220);
-    assert!(m.choice_id_at(7, &w, 220, None, None).is_err());
+    // A learned row or hotbar binding cannot invent an unimplemented request.
+    // 200 is not an E149 skill (196–200 have no catalog row); 220 is wired since #160.
+    assert!(catalog::name(200).is_none());
+    m.bind(7, Some(200)).unwrap();
+    assert_eq!(m.bound(7, &w, 7).unwrap(), 200);
+    assert!(m.choice_id_at(7, &w, 200, None, None).is_err());
 }
 
 #[test]

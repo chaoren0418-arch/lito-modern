@@ -68,7 +68,7 @@
 - 名稱超過 23 bytes 的兩行換行（4436C0／414080）。
 - 442A30 開頭的圖示底圖（`dword_648EC0[圖示]+0x14` → 4B9A40）。
 - `\k`／`\j`／`\c` 的字碼頁切換（目前只略過）。
-- 「全部名稱」模式（`byte_64BC13`／`64BC14`）仍未接線，地面物品名稱只在指向時顯示。
+- 「全部名稱」模式的版面已由 main 的另一張任務加入（`layout_with`／`Policy`），本張只讓它的名稱走同一套 `expand` 與分段顏色；開關仍沒有輸入綁定，地面物品名稱實際上還是只在指向時顯示。
 
 ## 查過的資源
 
@@ -91,4 +91,19 @@
 
 本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，3 分 16 秒；只有既有的命名風格警告）。這只代表可編譯。
 
-PR #360 第一個 commit 的 CI（run 43219191327）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2350 passed／0 failed／597 ignored；本張新增的 14 個單元測試都在通過清單內。之後只改了本報告這一段。
+PR #360 第一個 commit 的 CI（run 43219191327）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2350 passed／0 failed／597 ignored；本張新增的 14 個單元測試都在通過清單內。
+
+## 與 main 同步（2026-11-13）
+
+PR #360 與 main 衝突，已 `git merge origin/main` 並解決兩個檔案：
+
+- `native_login_window.rs`：採用 main 的裝備分組清單（`native_equipment::Summary`，標題列 ID 0），物品列的名稱維持本張的 `label_as`（帶角色名稱）。標題列在黑底上以白字顯示。
+- `native_world_labels.rs`：採用 main 的全部名稱模式、主人列、`773.img` 後綴（`Line::badge`）與自己角色稱號的錨點；名稱、稱號、主人列都改走 `expand` 與 `push_runs`。`badge` 掛在第一段（該段的 x 就是名稱起點）。
+
+合併後的差異：
+
+- main 的版本在名稱去掉 `+`／`-` 前綴後為空時不產生任何列；現在同樣不產生（`push_runs` 對空字串不輸出）。
+- 名稱只有控制碼、沒有可見文字時不會有列，`badge` 也就不畫。
+- 後綴圖的位置用完整名稱（含 `\fX` 控制碼）量寬度。原版 432330 是否把控制碼算進寬度沒有查，列為推測。
+
+合併後本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，4 分 17 秒）。合併後的測試結果以 PR 最新 commit 的 CI 為準，本機未執行。

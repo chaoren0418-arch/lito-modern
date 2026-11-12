@@ -142,6 +142,14 @@ class SkillCoverageTests(unittest.TestCase):
         self.assertNotIn(107, result['actor_or_selector_request_ids'])
         self.assertTrue(set(result['all_request_ids']) <= set(range(1, 221)))
 
+    def test_current_source_covers_tenth_batch(self):
+        result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
+        batch = set(range(211, 221))
+        self.assertTrue(batch <= set(result['actor_or_selector_request_ids']))
+        self.assertFalse(batch & set(result['inventory_request_ids']))
+        self.assertFalse(batch & set(result['text_request_ids']))
+        self.assertFalse(batch & set(result['ground_request_ids']))
+
 
 if __name__ == '__main__':
     unittest.main()
