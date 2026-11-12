@@ -280,6 +280,73 @@ fn live_roof_runtime_changes_presentation_without_mutating_world_authority() {
         .is_err());
 }
 
+/// Real resources (T058 #338): the recorded arena door is list.spr #2083 with
+/// `100.switch(1 -2,0,2,0)`. Native 4E6C50/48AFC0 draw it with the half writer
+/// while the local actor's logical cell is the doorway or a horizontal
+/// neighbour. Not run by CI; needs the shared client root.
+#[test]
+fn arena_door_switch_follows_the_local_logical_cell_on_the_formal_scene() {
+    let cancel = AtomicBool::new(false);
+    let mut w = world();
+    let j: serde_json::Value =
+        serde_json::from_slice(include_bytes!("fixtures/native-world-current.json")).unwrap();
+    let h = j["packets"]["door"].as_str().unwrap();
+    let door: Vec<u8> = (0..h.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&h[i..i + 2], 16).unwrap())
+        .collect();
+    w.accept(&door).unwrap();
+    let own = w.own_actor().unwrap().id;
+    let (id, at) = w
+        .actors
+        .values()
+        .find(|a| a.graphics == 2083)
+        .map(|a| (a.id, [a.x, a.y]))
+        .expect("recorded door 2083");
+    let mut model = Model::load(root(), &w, &cancel).unwrap();
+    let mut elapsed = 0;
+    for (dx, dy, switched) in [
+        (-2i32, 0i32, false),
+        (-1, 0, true),
+        (0, 0, true),
+        (1, 0, true),
+        (2, 0, false),
+        (0, 1, false),
+        (0, -1, false),
+    ] {
+        {
+            let a = w.actors.get_mut(&own).unwrap();
+            a.x = (i32::from(at[0]) + dx) as u16;
+            a.y = (i32::from(at[1]) + dy) as u16;
+        }
+        elapsed += 1_000_000;
+        let frame = model.draw_at(&w, &cancel, elapsed).unwrap();
+        let row = frame.receipt["actors"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|a| a["id"] == id)
+            .expect("door receipt")
+            .clone();
+        assert_eq!(row["rendered"], true, "{dx} {dy}: {row}");
+        assert_eq!(row["occlusion_switch"]["listed"], true);
+        assert_eq!(row["occlusion_switch"]["switched"], switched, "{dx} {dy}");
+        assert_eq!(
+            row["body_draw_style"],
+            if switched { "Half" } else { "Normal" },
+            "{dx} {dy}"
+        );
+        let me = frame.receipt["actors"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|a| a["id"] == own)
+            .unwrap()
+            .clone();
+        assert_eq!(me["occlusion_switch"]["listed"], false);
+    }
+}
+
 #[test]
 fn stale_map_roof_frames_and_cancelled_composition_are_rejected() {
     let cancel = AtomicBool::new(false);
