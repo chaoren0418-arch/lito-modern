@@ -127,3 +127,4 @@
 - 2026-11-12 — #325 T037-2: T037（M3 2/2）: docs/G01-G12-AUDIT.md：G12 稽核（code，claude-local，PR #356 已合併）→ [報告](reports/issue-325.md)
 - 2026-11-12 — #160 T022-10: T022（M2 10/10）: src/：未接的 91 個技能（code，claude-local，PR #347 已合併）→ [報告](reports/issue-160.md)
 - 2026-11-12 — #327 T042-1: T042（M3 1/1）: 維護工具/run-local-test-suite.ps1：-Full 模式（code，claude-local，PR #357 已合併）→ [報告](reports/issue-327.md)
+- 2026-11-12 — #332 T053-1: T053（M3 1/2）: G03 舊 54 情境盤點與重驗（code，claude-local，PR #358 已合併）→ [報告](reports/issue-332.md)
