@@ -1,6 +1,6 @@
 # Issue #150 — T027 批 6：技能 76、79、80、87、88、89、90、91
 
-日期：2026-11-12。分支：`task/150`。runner：claude-local（第 1 次嘗試）。本張只做第六批八個技能；T027 六張的送包到此都有了，但 T027 與 M2 整體還沒完成（各批都留有未接的呈現與同意流程，見各批報告）。
+日期：2026-11-12。分支：`task/150`，PR #298。runner：claude-local（第 1 次嘗試）。本張只做第六批八個技能；T027 六張的送包到此都有了，但 T027 與 M2 整體還沒完成（各批都留有未接的呈現與同意流程，見各批報告）。
 
 ## 做了什麼
 
@@ -33,7 +33,7 @@
 ## 已驗證
 - 本機 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：**exit 0**，原文 `Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 3m 55s`（`scratch/issue-150/check1.log`；補上 `tests/native_t027_batch6.rs` 後再跑一次也是 exit 0，`check2.log`）。新增與修改的檔案沒有 warning。
 - 本機 `python 維護工具/test_native_skill_coverage.py`（只解析原始碼，不是編譯產物）：`Ran 9 tests … OK`。
-- CI：見下方「CI」一節（本機不能執行測試，lib 測試以 PR 的 CI 為準）。
+- CI：**PR #298 的 run 43189145172 通過**，lib 測試 `test result: ok. 2319 passed; 0 failed; 597 ignored`，本批 9 案全部 ok；細節見下方「CI」一節（本機不能執行測試，以 PR 的 CI 為準）。
 
 ### 新增的 lib 測試（都不需要資源，CI 的 `cargo test --lib` 會跑）
 `native_skills::t027_batch6_tests`（9 案）：
@@ -48,7 +48,9 @@
 9. `changed_original_definitions_are_refused_not_approximated`：14 種改動（109 的值、attr、header、音效 ID 或種類、ticks、事件位置）只讓被改到的那一列被拒絕，其他列照常；缺列時是錯誤而不是改用別的列。
 
 ### CI
-（第一次推送後補上）
+- 第 1 次推送（`5fcb438`）時 main 已前進到 `3e761f2`（#156 技能 167–176），所以開 PR 前先依常設授權 `git merge origin/main`。只有 `native_skills.rs` 衝突，六處都是同一行的清單，兩邊的項目都保留：`selector_only`（本批 80／88／89／90／91 加上 main 的 169／171／172／175／176）、自己或角色分支與畫面菱形清單（本批 79 加上 main 的 170）、角色＋座標分支（本批 76／87 加上 main 的 167／173／174）、距離表（本批 76=10、87=1 加上 main 的 167=8、173=3）、`reuse_millis`（本批 76／80／88／90／91=3000、89=5000、87=8000 加上 main 的 167–176）。合併後本機 `cargo check …--all-targets`：**exit 0**，`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 49s`（`scratch/issue-150/check3.log`）；`python 維護工具/test_native_skill_coverage.py`：`Ran 10 tests … OK`。
+- **PR #298 的 run 43189145172（`9c4ded5`）：通過**。`cargo check --locked --all-targets` 原文 `Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 10s`；`cargo test --locked --lib --no-fail-fast` 原文 `test result: ok. 2319 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 23.33s`。本批 9 案（`modern_lito::native_skills::t027_batch6_tests::*`）逐案都是 `ok`（log 存在 `scratch/issue-150/ci-43189145172.log`）。597 個 ignored 不算通過，原資源 opt-in 案仍待 Codex。PR 狀態 MERGEABLE／CLEAN。
+- 本報告與狀態表補上 CI 結果的 commit 另外會再跑一次 CI；那一輪的數字寫在調度器摘要（`=== RESULT ===`）裡，不再為了補數字多推一個 commit。
 
 ## 推測
 - 送包形狀、範圍、步態條件與 reuse 是依正式 contract、候選說明與相鄰伺服器原始碼做的靜態對照，不代表正式 E149 服務一定接受。相鄰伺服器原始碼是工作目錄現況，不等於正式唯讀 JAR `E1498871…`；歷史候選說明（讀 E149 JAR 得出）在八個技能的 row／column、形狀、reuse、成本與特效 ID 上和它一致。
