@@ -1,0 +1,82 @@
+//! Issue #150: original-resource memory rendering for T027 batch 6; no game,
+//! service, GUI or sound device. Packet, model and definition cases live in the
+//! library (`native_skills::t027_batch6_tests`) so CI runs them.
+use lito_modern::modern_lito::{
+    native_login::LoginController,
+    native_skill_effects::Effects,
+    native_world_effects,
+    world_map::{PixelPoint, ViewProjection, WorldCell},
+};
+const ITEM: u32 = 0xfedcba98;
+fn fixture(data: &[u8], key: &str) -> Vec<u8> {
+    let value: serde_json::Value = serde_json::from_slice(data).unwrap();
+    let text = value["packets"][key].as_str().unwrap();
+    (0..text.len()).step_by(2).map(|i| u8::from_str_radix(&text[i..i + 2], 16).unwrap()).collect()
+}
+fn world() -> lito_modern::modern_lito::native_world::World {
+    let mut w = LoginController::default().snapshot().world.clone();
+    for key in ["world", "start", "status", "actor", "bot"] {
+        w.accept(&fixture(include_bytes!("fixtures/native-world-current.json"), key)).unwrap();
+    }
+    let mut own = w.actors.remove(&ITEM).unwrap();
+    own.id = 1;
+    own.x = 32770;
+    own.y = 32818;
+    w.actors.insert(1, own);
+    w.status.as_mut().unwrap().object_id = 1;
+    let actor = w.actors.get_mut(&2).unwrap();
+    actor.x = 32771;
+    actor.y = 32818;
+    w.hp = Some([500, 500]);
+    w.mp = Some([100, 100]);
+    w
+}
+fn view() -> ViewProjection {
+    ViewProjection { anchor_cell: WorldCell { x: 32770, y: 32818 }, anchor_pixel: PixelPoint { x: 400, y: 300 } }
+}
+
+/// 76 mass-slow 3932, 79 advance-spirit 3935, 87 shock-stun 4434, 88
+/// reduction-armor 4824, 89 bounce-attack 4648 (exact pinned definitions) and 90
+/// solid-carriage 5831, 91 counter-barrier 5832 plus its trigger 10710 (generic
+/// received-finite rows): each draws real Screen pixels at its receipt cell,
+/// prepares its single audio cue exactly once (10710 has none) and retires at
+/// its visual end. None of them is a status, cost or damage acknowledgement.
+#[test]
+#[ignore = "original resource memory rendering; no GUI or sound device"]
+fn original_batch6_object_effects_use_exact_definitions_screen_and_sounds() {
+    let root = std::path::Path::new(r"D:\lineage開發\0-客戶端");
+    let cancel = std::sync::atomic::AtomicBool::new(false);
+    for (gfx, sound, end_ms) in [(3932u16, Some(1349u32), 2451u64), (3935, Some(1356), 2076), (4434, Some(1498), 246),
+        (4824, Some(3089), 2366), (4648, Some(1924), 2281), (5831, Some(3973), 2324), (5832, Some(3974), 2491),
+        (10710, None, 665)] {
+        let mut w = world();
+        let mut b = vec![0x37];
+        b.extend(2u32.to_le_bytes());
+        b.extend(gfx.to_le_bytes());
+        w.accept(&b).unwrap();
+        let mut fx = Effects::default();
+        fx.prepare(root, &w, &cancel);
+        let mut audio = Vec::new();
+        let mut drawn = false;
+        let mut finished_at = None;
+        for step in 0..=350u64 {
+            let now = step * 10_000_000;
+            let mut fragments = Vec::new();
+            let (r, e) = fx.draw_to(&w, &mut native_world_effects::Target::Fragments(&mut fragments), view(), now);
+            assert!(r["load_error"].is_null(), "{gfx}: {r}");
+            assert!(r["finite_banks"]["errors"].as_object().is_some_and(|errors| errors.is_empty()), "{gfx}: {r}");
+            assert_eq!(r["omitted"], 0, "{gfx}: {r}");
+            for f in &fragments {
+                assert_eq!(f.position, WorldCell { x: 32771, y: 32818 }, "{gfx}");
+                assert!(matches!(f.mix, native_world_effects::Mix::Screen), "{gfx}");
+            }
+            drawn |= !fragments.is_empty();
+            audio.extend(e.into_iter().filter_map(|e| e.sound));
+            if finished_at.is_none() && r["active"] == 0 { finished_at = Some(step * 10); }
+        }
+        assert!(drawn, "{gfx}");
+        assert_eq!(audio, sound.into_iter().collect::<Vec<_>>(), "{gfx}");
+        let at = finished_at.expect("finite effect retires");
+        assert!(at >= end_ms && at < end_ms + 20, "{gfx}: retired at {at}ms, visual end {end_ms}ms");
+    }
+}

@@ -289,7 +289,10 @@ impl SharedEffectBank {
             .ok_or(HonorAssetError::Unsupported("finite effect definition absent"))?
             .graphics_id;
         Self::load_profile(context, cancel,
-            |catalog| super::native_skill_effects::qualify_finite(catalog, gfx),
+            // T027 batch 6 (#150): five exact-pinned rows carry a 109 row the
+            // generic qualifier refuses; everything else keeps the generic rule.
+            |catalog| super::native_additional_finite_effects::qualify_batch6(catalog, gfx)
+                .unwrap_or_else(|| super::native_skill_effects::qualify_finite(catalog, gfx)),
             &[(gfx, bank)], true, ReferencedFramePolicy::ReceivedFinite)
     }
     fn load_profile(

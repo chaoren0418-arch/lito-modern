@@ -66,6 +66,52 @@ fn qualify_specs(c:&SpriteActionCatalog,specs:&[Spec])->Result<Vec<(u32,u8,Anima
     Ok(result)
 }
 
+/// T027 batch 6 (#150): S37 mass-slow76 3932, advance-spirit79 3935,
+/// shock-stun87 4434, reduction-armor88 4824 and bounce-attack89 4648. Their
+/// `109.effect` rows keep them out of the generic received-finite qualifier, so
+/// each is pinned to its exact original definition and then loaded through the
+/// same per-graphics received-finite cache (own bank, own error, attr8 Screen).
+/// `<n` is the original overlapping-audio cue, not a child sprite.
+/// 90／91's 5831／5832／10710 have no 109 row and already pass the generic qualifier.
+struct EventSpec {sprite:u32,header:&'static[u8],attrs:&'static[(u32,&'static[u8])],subframes:&'static[u32],ticks:&'static[u32],event:(usize,FrameEvent)}
+const BATCH6_SPECS:&[EventSpec]=&[
+EventSpec{sprite:3932,header:b"#3932 1 mass slow",attrs:&[(102,b"0"),(104,b"8"),(109,b"1 -1")],
+    subframes:&[12,0,1,2,3,4,5,6,7,8,9,10,11],ticks:&[4,4,4,4,4,4,4,4,4,5,5,6,7],event:(2,FrameEvent::Effect(1349))},
+EventSpec{sprite:3935,header:b"#3935 1 advance holiness",attrs:&[(102,b"0"),(104,b"8"),(109,b"0 -1")],
+    subframes:&[18,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],ticks:&[4,2,2,2,2,2,2,2,2,2,2,2,2,2,3,4,4,4,5],event:(1,FrameEvent::Effect(1356))},
+EventSpec{sprite:4434,header:b"#4434 1 shock sturn",attrs:&[(104,b"8"),(109,b"1 -1")],
+    subframes:&[5,0,1,2,3,4],ticks:&[1,1,1,1,1,1],event:(2,FrameEvent::Sound(1498))},
+EventSpec{sprite:4824,header:b"#4824 1 knight reduction armor effect",attrs:&[(104,b"8"),(109,b"0 -1")],
+    subframes:&[18,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],ticks:&[4,1,1,1,2,2,2,3,3,3,3,4,4,4,4,4,4,4,4],event:(3,FrameEvent::Effect(3089))},
+EventSpec{sprite:4648,header:b"#4648 1 knight bounce attack effect",attrs:&[(104,b"8"),(109,b"0 -1")],
+    subframes:&[21,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],ticks:&[4,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,4,4,4,4,4,4],event:(4,FrameEvent::Effect(1924))},
+];
+/// `None`: not a batch 6 pinned graphic (the caller keeps the generic qualifier).
+pub(crate) fn qualify_batch6(c:&SpriteActionCatalog,gfx:u32)->Option<Result<Vec<(u32,u8,Animation)>,HonorAssetError>> {
+    BATCH6_SPECS.iter().find(|spec|spec.sprite==gfx).map(|spec|qualify_event_spec(c,spec))
+}
+fn qualify_event_spec(c:&SpriteActionCatalog,spec:&EventSpec)->Result<Vec<(u32,u8,Animation)>,HonorAssetError> {
+    let gfx=spec.sprite;
+    let row=c.sprites.get(&gfx).ok_or(HonorAssetError::Unsupported("batch 6 finite effect absent"))?;
+    if row.id!=gfx || row.graphics_id!=gfx || row.image_count!=Some(1)
+        || row.header_issue.is_some() || row.header_bytes.as_slice()!=spec.header || row.actions.len()!=1
+        || row.attributes.len()!=spec.attrs.len()
+        || row.attributes.iter().zip(spec.attrs).any(|(actual,(key,body))|actual.key!=ActionKey::new(*key)||actual.body_bytes.as_slice()!=*body) {
+        return Err(HonorAssetError::Unsupported("batch 6 finite effect definition changed"));
+    }
+    let resolved=c.resolve_action(gfx,ActionKey::new(0))?;
+    let a=resolved.animation;
+    if resolved.definition_sprite_id!=gfx || a.directionality!=Directionality::Undirected
+        || a.frames_per_second!=24 || a.frames.len()!=spec.subframes.len() || spec.ticks.len()!=spec.subframes.len()
+        || a.frames.iter().enumerate().any(|(n,actual)| {
+            let expected:&[FrameEvent]=if n==spec.event.0 {std::slice::from_ref(&spec.event.1)} else {&[]};
+            (actual.image_id,actual.subframe,actual.duration_ticks)!=(0,spec.subframes[n],spec.ticks[n])
+                || actual.events.as_slice()!=expected
+        }) {
+        return Err(HonorAssetError::Unsupported("batch 6 finite effect timing changed"));
+    }
+    Ok(vec![(gfx,0,a.clone())])
+}
 
 // Original2251 has one no-block slot. It retains the normal clip/audio clock.
 const ORIGINAL2251_SHA:[u8;32]=[185,12,69,1,70,41,110,119,4,48,144,148,139,17,7,92,7,49,252,123,21,9,55,52,220,55,147,90,17,77,151,91];

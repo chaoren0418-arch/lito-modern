@@ -205,7 +205,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 169 | 171 | 172 | 175 | 176 | 181 | 182 | 185 | 186 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 80 | 88 | 89 | 90 | 91 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 169 | 171 | 172 | 175 | 176 | 181 | 182 | 185 | 186 | 206)
 }
 /// ④ requests whose only accepted object is the caster: formal
 /// `useFireWeaponSpell`／`useStormShotSpell` answer 280 for any other ID, so the
@@ -224,6 +224,11 @@ pub fn summon_feedback(skill: u16) -> bool { matches!(skill, 51 | 154 | 162) }
 /// in the bow stance; the formal server drops the request silently otherwise
 /// (`walkAction != BattleAnimationCatalog.BOW_WALK`).
 pub const BOW_WALK_ACTION: u8 = 20;
+/// 87 Shock Stun is admitted by the original client only while the caster's
+/// weapon walk family is 50 (two-hand sword) or 54 (edoryu); 91 Counter Barrier
+/// only for 50. The formal handlers re-check the real equipped weapon.
+pub const TWO_HAND_SWORD_WALK_ACTION: u8 = 50;
+pub const EDORYU_WALK_ACTION: u8 = 54;
 /// 133 Elemental Fall Down: E149 catalog `maximumRange`, checked together with
 /// the native screen diamond by `useElementalFallDownSpell`.
 pub const ELEMENTAL_FALL_DOWN_RANGE: u16 = 10;
@@ -283,22 +288,35 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     can_cast(world, skill)?;
     let own = world.own_actor().unwrap();
     let mut b = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
+    // T027 batch 6 (#150) knight skills. HP costs (88: 50, 89: 120, 90／91: 100;
+    // the server needs HP strictly above the cost and answers S10 279), MP,
+    // durations, 90's shield／guarder check and 91's real type-3 weapon are
+    // server-owned: the client never spends HP or predicts the refusal.
+    if skill == 87 {
+        ensure!(matches!(own.walk_action, TWO_HAND_SWORD_WALK_ACTION | EDORYU_WALK_ACTION),
+            "需裝備雙手劍才能施放衝擊之暈");
+    }
+    if skill == 91 {
+        ensure!(own.walk_action == TWO_HAND_SWORD_WALK_ACTION, "需裝備雙手劍才能施放反擊屏障");
+    }
     match skill {
         // 170 Water Life (④): one living PC on the native screen, the caster included
         // (formal `useWaterLifeSpell`); PC-only eligibility and the reagent are server-owned.
-        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 55 | 57 | 67 | 68 | 158 | 160 | 170 => {
+        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 55 | 57 | 67 | 68 | 79 | 158 | 160 | 170 => {
             let id = target.unwrap_or(own.id);
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
                     && world.actor_visible(id)
-                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 55 | 67 | 68 | 158 | 160 | 170) {
+                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 55 | 67 | 68 | 79 | 158 | 160 | 170) {
                         in_native_screen([own.x, own.y], [actor.x, actor.y])
                     } else {
                         own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 19
                     },
                 "技能目標不可用"
             );
+            // 79: MP20, the maximum HP／MP raise and its 1200 seconds are
+            // server-owned; S37 3935 is not a status ACK.
             // 67: MP80, one gem, the control-ring `monlist` grant (sent to the
             // target's own session) or the random form are server-owned; S37 230
             // is not a polymorph ACK. Only S27 changes an appearance.
@@ -431,7 +449,12 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 b.extend_from_slice(&actor.y.to_le_bytes());
             }
         }
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 71 | 74 | 77 | 103 | 108 | 152 | 153 | 167 | 173 | 174 | 183 | 184 | 187 | 188 => {
+        // 76 Mass Slow: range 10 to the main target; the radius-3 list, two gems,
+        // probability and the 64-second slow are server-owned (S37 3932 only
+        // when at least one target was slowed). 87 Shock Stun: range 1; damage,
+        // probability and the 2–4 second stun (S0B 4183 object) are server-owned
+        // and neither the attack action nor S37 4434 is a stun ACK.
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 71 | 74 | 76 | 77 | 87 | 103 | 108 | 152 | 153 | 167 | 173 | 174 | 183 | 184 | 187 | 188 => {
             // 183／184／187／188: `DragonSkillRequests.TARGETED` requires the 11-byte
             // explicit target and never guesses a nearby victim.
             let id = target.context("請先選取法術目標")?;
@@ -440,7 +463,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45|167=>8,33|187=>2,40|46|47|56|64|71|173=>3,50=>6,65|66|74=>10,10|103|183|188=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45|167=>8,33|187=>2,40|46|47|56|64|71|173=>3,50=>6,65|66|74|76=>10,10|103|183|188=>3,11|20|87|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
                     // 152／153／184: formal range 10 and the native screen diamond both apply.
                     // 167: original click range 8 (4CB78B, `sub_4CA6E0`); 173: formal
                     // range 3; 174: original click range 10 (4CB755) inside the diamond.
@@ -456,7 +479,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74=>3000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155|185=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,168|172=>0,146=>1200,153=>600,167|169|170|171|176=>100,173=>1000,174=>3000,175=>300,112|182|187=>2000,130|132|133=>100,134|183|184|188=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74|76|80|88|90|91=>3000,89=>5000,87=>8000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155|185=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,168|172=>0,146=>1200,153=>600,167|169|170|171|176=>100,173=>1000,174=>3000,175=>300,112|182|187=>2000,130|132|133=>100,134|183|184|188=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 /// 167..=176: recovered PE `word_635774[skill-1]` (600／0／100／400／300／0／1000／3000／5000／100).
 pub fn client_clock_millis(skill:u16)->u64 {match skill {50|173=>1000,33|175=>5000,167=>600,169|176=>100,170=>400,171=>300,174=>3000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|71|72=>500,206|188=>1200,182=>3600,183=>1800,_=>0}}
@@ -704,6 +727,9 @@ mod t027_batch4_tests;
 #[cfg(test)]
 #[path = "native_t027_batch5_tests.rs"]
 mod t027_batch5_tests;
+#[cfg(test)]
+#[path = "native_t027_batch6_tests.rs"]
+mod t027_batch6_tests;
 #[cfg(test)]
 mod tests {
     use super::*;
