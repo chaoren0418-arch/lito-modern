@@ -1951,7 +1951,11 @@ impl Ui {
                             super::native_status4183::now_ms(), self.controller.skill_cooldown_ms(std::time::Instant::now()));
                         format!("地圖 {}　HP {}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}",
                             snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),buffs,target,ground,
-                            snapshot.attack_feedback.text(),snapshot.skill_feedback.label(),format!("{}　{}",guidance,self.controller.portal_entry_feedback().label()),omitted,
+                            snapshot.attack_feedback.text(),
+                            match self.controller.triple_arrow_receipt() {
+                                Some(receipt)=>format!("{}（{receipt}）",snapshot.skill_feedback.label()),
+                                None=>snapshot.skill_feedback.label().to_owned(),
+                            },format!("{}　{}",guidance,self.controller.portal_entry_feedback().label()),omitted,
                             self.audio_error.as_ref().map(|e|format!("音效：{e}")).unwrap_or_default())
                     } else {
                         "正在載入伺服器指定的世界資源…".into()
