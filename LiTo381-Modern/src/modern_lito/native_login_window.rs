@@ -135,6 +135,9 @@ struct Ui {
     audio_scope: Option<super::native_audio_delivery::Scope>,
     audio_frame: Option<(u64, u64, u64)>,
     audio_error: Option<String>,
+    /// `audio_error` is a device fault reported by the voice pool. Cleared when
+    /// the pool's bounded recovery succeeds; other audio errors stay latched.
+    audio_device_fault: bool,
     peer: SocketAddr,
     resource_root: std::path::PathBuf,
     controller: LoginController,
@@ -230,7 +233,7 @@ impl Ui {
         self.held_attack.clear();
         if audio {
             if let Err(e) = self.voices.stop_all() {
-                self.audio_error = Some(e.to_string());
+                note_audio_error(&mut self.audio_error, &mut self.audio_device_fault, e);
             }
         }
     }
@@ -911,7 +914,7 @@ impl Ui {
             self.target = None;
             self.ground = None;
             self.painted = None;self.painted_input = None;
-            if let Err(e)=self.voices.stop_all() {self.audio_error=Some(e.to_string());}
+            if let Err(e)=self.voices.stop_all() {note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e);}
             self.audio_frame = None;
         }
         if !self.controller.snapshot().world.movement_blocks.is_empty() {
@@ -979,11 +982,15 @@ impl Ui {
                 self.world_presentation.error=Some(format!("player draw clock: {error:#}"));
             }
         }
-        if let Err(e)=self.voices.poll() {self.audio_error=Some(e.to_string());}
+        match self.voices.poll() {
+            // The pool re-enabled itself after a device fault (issue #341).
+            Ok(_)=>if self.audio_device_fault {self.audio_device_fault=false;self.audio_error=None;},
+            Err(e)=>note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e),
+        }
         let native_scope=self.world_presentation.audio_scope(self.controller.transport().snapshot().epoch,
             self.controller.snapshot().world.generation);
         if self.audio_scope.as_ref().is_none_or(|old|!old.same_context(&native_scope)) {
-            if let Err(e)=self.voices.stop_all() {self.audio_error=Some(e.to_string());}
+            if let Err(e)=self.voices.stop_all() {note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e);}
             self.audio_frame=None;self.audio_scope=Some(native_scope.clone());
         }
         if let Some(frame) = &self.world_presentation.frame {
@@ -995,18 +1002,18 @@ impl Ui {
             if self.audio_frame != Some(key) {
                 self.audio_frame = Some(key);
                 for cue in &frame.legacy_audio {
-                    if self.audio_error.is_none() && GetForegroundWindow()==parent {
+                    if self.audio_error.is_none() && !self.closing && GetForegroundWindow()==parent {
                         match cue.submit(&native_scope,&mut self.voices) {
-                            Err(e)=>self.audio_error=Some(e.to_string()),
+                            Err(e)=>note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e),
                             Ok(super::native_audio_delivery::DeliveryOutcome::Unbound)=>self.audio_error=Some("一般音效尚未綁定場景".into()),
                             _=>{},
                         }
                     } else {cue.discard();}
                 }
                 for cue in &frame.native_audio {
-                    if self.audio_error.is_none() && GetForegroundWindow()==parent {
+                    if self.audio_error.is_none() && !self.closing && GetForegroundWindow()==parent {
                         match cue.submit(&native_scope,&mut self.voices) {
-                            Err(e)=>self.audio_error=Some(e.to_string()),
+                            Err(e)=>note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e),
                             Ok(super::native_audio_delivery::DeliveryOutcome::Unbound)=>self.audio_error=Some("音效尚未綁定場景".into()),
                             _=>{},
                         }
@@ -2061,7 +2068,7 @@ impl Ui {
                                 Some(receipt)=>format!("{}（{receipt}）",snapshot.skill_feedback.label()),
                                 None=>snapshot.skill_feedback.label().to_owned(),
                             },format!("{}　{}",guidance,self.controller.portal_entry_feedback().label()),omitted,
-                            self.audio_error.as_ref().map(|e|format!("音效：{e}")).unwrap_or_default())
+                            self.audio_error.as_ref().map(|e|format!("音效：{e}")).or_else(||self.voices.status().device_unavailable.then(||"音效：找不到可用的音效輸出裝置，音效暫停；接上裝置後會自動恢復。".to_owned())).unwrap_or_default())
                     } else {
                         "正在載入伺服器指定的世界資源…".into()
                     }
@@ -2463,6 +2470,14 @@ impl Ui {
         Ok(())
     }
 }
+/// Device faults may be replaced by a newer report and are cleared when the
+/// pool recovers. A bank or binding error is never downgraded to one.
+fn note_audio_error(slot: &mut Option<String>, device_fault: &mut bool, error: super::combat_audio::PoolError) {
+    if slot.is_none() || *device_fault {
+        *device_fault = matches!(error, super::combat_audio::PoolError::Device(_));
+        *slot = Some(error.to_string());
+    }
+}
 impl Drop for Ui {
     fn drop(&mut self) {
         unsafe {
@@ -2709,7 +2724,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     ui.item_cursor = None;
                     ui.held.clear();
                     ui.held_attack.clear();
-                    if let Err(e)=ui.voices.stop_all() {ui.audio_error=Some(e.to_string());}
+                    if let Err(e)=ui.voices.stop_all() {let ui=&mut *ui;note_audio_error(&mut ui.audio_error,&mut ui.audio_device_fault,e);}
                     ui.closing = true;
                     ui.controller.cancel();
                     ui.world_presentation.cancel();
@@ -2837,6 +2852,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 audio_scope: None,
                 audio_frame: None,
                 audio_error: None,
+                audio_device_fault: false,
                 peer,
                 resource_root,
                 controller: LoginController::default(),
