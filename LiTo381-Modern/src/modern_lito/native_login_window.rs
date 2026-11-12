@@ -2122,7 +2122,12 @@ impl Ui {
                 LoginPhase::WorldEntering => "正在進入普通世界…".into(),
                 LoginPhase::BattlePending | LoginPhase::WorldReady => {
                     if let Some(error) = &self.world_presentation.error {
-                        format!("世界資源載入失敗：{error}")
+                        // G07.4：失敗時說明這張地圖該讀哪個域、兩個域各有沒有資料。
+                        let source = snapshot.world.map_id.map(|map| {
+                            use super::resource_diagnostics as rd;
+                            format!("\r\n{}", rd::explain_terrain(map, rd::TerrainPresence::probe(&self.resource_root, map)))
+                        }).unwrap_or_default();
+                        format!("世界資源載入失敗：{error}{source}")
                     } else if let Some(frame) = &self.world_presentation.frame {
                         let omitted = frame.receipt["actors"].as_array().map_or(0, |rows| {
                             rows.iter().filter(|r| r["rendered"] == false).count()
@@ -2197,7 +2202,14 @@ impl Ui {
                         let ammo = snapshot.world.own_actor()
                             .and_then(|a| super::native_equipment::Summary::of(&snapshot.inventory).hud(a.walk_action))
                             .map(|text| format!("　{text}")).unwrap_or_default();
-                        format!("地圖 {}　HP {}{}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}",
+                        // G07.4：區域名稱（LTzone，只有名稱與顏色）、資源失敗摘要、地圖頁狀態。
+                        let zone = frame.receipt["zone"]["label"]["name"].as_str()
+                            .map(|name| format!("（{name}）")).unwrap_or_default();
+                        let resource_notes: String = [
+                            frame.receipt["resource_diagnostics"]["hud"].as_str().map(str::to_owned),
+                            snapshot.map_view.status(),
+                        ].into_iter().flatten().map(|line| format!("\r\n{line}")).collect();
+                        format!("地圖 {}{zone}　HP {}{}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}{resource_notes}",
                             snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),ammo,buffs,target,ground,
                             snapshot.attack_feedback.text(),
                             match self.controller.triple_arrow_receipt() {

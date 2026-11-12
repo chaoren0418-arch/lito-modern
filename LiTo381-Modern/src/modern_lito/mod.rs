@@ -393,6 +393,8 @@ pub mod native_peer_rental_probe;
 pub mod native_points;
 pub mod native_tournament_shop;
 pub mod native_map_item;
+pub mod native_zone;
+pub mod resource_diagnostics;
 pub mod native_triple_arrow;
 pub mod native_equipment;
 pub mod native_merchant;

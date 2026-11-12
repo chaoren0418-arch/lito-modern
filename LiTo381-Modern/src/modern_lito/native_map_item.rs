@@ -9,12 +9,25 @@
 //!   `447B70` 只確認背包裡有這個物件 ID（頁碼不參與比對），成功才把 `page-1` 寫入地圖面板
 //!   `[0x75AC68]+0xC` 並以 `4EBEB0→4EBBD0` 開啟；物件不在背包時整包忽略。
 //!
-//! 本模組只保存「目前顯示哪一頁」。地圖頁圖片由哪個資源繪製尚未定位（見 issue-180 報告）。
+//! 本模組只保存「目前顯示哪一頁」，還不繪製地圖頁圖片。
+//!
+//! 圖片來源（T057，`docs/MAP-DOMAINS.md` 第 5 節）：原版地圖面板以 `page-1` 當索引讀
+//! `dword_62F7BC`。這張表在脫殼 PE 4271D92F… 只有兩個項目 6700、6701，後面緊接字串
+//! `"%d.alp"`，所以**只有第 1、2 頁有圖片**（`LiTo/LTsurf` 的 `6700.img`、`6701.img`，
+//! 各 1536×768）；伺服器可以送的第 3–18 頁在原版沒有對應圖片。兩張圖都超過
+//! `native_mode_menu_skin::decode_img` 的 1,048,576 像素上限。
 use anyhow::{ensure, Context, Result};
 use serde::Serialize;
 
 pub const S_SHOW_MAP: u8 = 0x6e;
 pub const PAGES: u8 = 18;
+/// 原版地圖頁圖片表 `dword_62F7BC`：索引是 `page-1`。
+pub const NATIVE_PAGE_IMAGES: [u16; 2] = [6700, 6701];
+pub const NATIVE_PAGE_ARCHIVE: &str = "LiTo/LTsurf";
+/// 這一頁在原版對應的圖片編號；第 3 頁以後沒有。
+pub fn page_image(page: u8) -> Option<u16> {
+    NATIVE_PAGE_IMAGES.get(usize::from(page).checked_sub(1)?).copied()
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 pub struct MapItem { pub catalog: u32, pub page: u8, pub icon: u16, pub ground_gfx: u16, pub name_id: &'static str }
@@ -89,6 +102,33 @@ impl View {
     pub fn label(&self) -> Option<String> {
         self.shown.as_ref().map(|s| format!("地圖第 {} 頁（共 {PAGES} 頁）", s.page))
     }
+    /// 目前這一頁的資源診斷（G07.4）。本版還不繪製地圖頁，所以開著地圖頁時一定有一筆：
+    /// 第 1、2 頁是「圖片存在但還沒接上」，第 3–18 頁是「原版沒有這一頁的圖片」。
+    pub fn diagnostic(&self) -> Option<super::resource_diagnostics::Diagnostic> {
+        use super::resource_diagnostics::{Consumer, Diagnostic, Kind};
+        let page = self.shown.as_ref()?.page;
+        Some(match page_image(page) {
+            Some(image) => Diagnostic {
+                consumer: Consumer::MapPage,
+                kind: Kind::Unavailable,
+                source: NATIVE_PAGE_ARCHIVE.into(),
+                member: format!("{image}.img"),
+                reason: format!("第 {page} 頁的圖片在資源裡，但本版還沒有繪製地圖頁（圖片 1536×768，超過 IMG 解碼上限）"),
+            },
+            None => Diagnostic {
+                consumer: Consumer::MapPage,
+                kind: Kind::Missing,
+                source: "原版圖片表 dword_62F7BC".into(),
+                member: format!("第 {page} 頁"),
+                reason: format!("原版圖片表只有第 1、2 頁（{}、{}），這一頁沒有對應圖片",
+                    NATIVE_PAGE_IMAGES[0], NATIVE_PAGE_IMAGES[1]),
+            },
+        })
+    }
+    /// HUD 用：頁碼加上這一頁為什麼看不到圖。
+    pub fn status(&self) -> Option<String> {
+        Some(format!("{}；{}", self.label()?, self.diagnostic()?.line()))
+    }
 }
 
 #[cfg(test)]
@@ -151,5 +191,28 @@ mod tests {
         other.owner.as_mut().unwrap().selection = 2;
         view.tick(&other);
         assert!(view.shown.is_none(), "character reselection closes the page");
+    }
+
+    #[test]
+    fn only_pages_one_and_two_have_a_native_image_and_every_open_page_is_diagnosed() {
+        use crate::modern_lito::resource_diagnostics::{Consumer, Kind};
+        assert_eq!((page_image(0), page_image(1), page_image(2), page_image(3), page_image(18)),
+            (None, Some(6700), Some(6701), None, None));
+        let inv = inventory(9, "$1102");
+        let mut view = View::default();
+        assert_eq!((view.diagnostic(), view.status()), (None, None), "no page open, nothing to report");
+        view.accept(&inv, &[0x6e, 9, 0, 0, 0, 2]).unwrap();
+        let d = view.diagnostic().unwrap();
+        assert_eq!((d.consumer, d.kind, d.source.as_str(), d.member.as_str()),
+            (Consumer::MapPage, Kind::Unavailable, "LiTo/LTsurf", "6701.img"));
+        assert!(view.status().unwrap().starts_with("地圖第 2 頁（共 18 頁）；地圖頁不可用：6701.img（LiTo/LTsurf）—"));
+        for page in 3..=PAGES {
+            view.accept(&inv, &[0x6e, 9, 0, 0, 0, page]).unwrap();
+            let d = view.diagnostic().unwrap();
+            assert_eq!((d.kind, d.member.clone()), (Kind::Missing, format!("第 {page} 頁")));
+            assert!(d.reason.contains("只有第 1、2 頁（6700、6701）"), "{}", d.reason);
+        }
+        view.close();
+        assert_eq!(view.diagnostic(), None);
     }
 }
