@@ -53,6 +53,21 @@ pub enum AudioOutputError {
     },
 }
 
+/// WinMM results that mean "there is no usable output device right now"
+/// (`MMSYSERR_BADDEVICEID`, `MMSYSERR_NOTENABLED`, `MMSYSERR_ALLOCATED`,
+/// `MMSYSERR_NODRIVER`): no endpoint, a stopped audio service, or a device
+/// held exclusively. They describe the host, not a broken voice.
+const DEVICE_UNAVAILABLE_CODES: [u32; 4] = [2, 3, 4, 6];
+
+impl AudioOutputError {
+    /// True only for a plain device error (no failed cleanup attached) whose
+    /// code says the output device is absent or busy. The caller must still
+    /// check `PcmVoice::is_idle` before treating the voice as reusable.
+    pub fn device_unavailable(&self) -> bool {
+        matches!(self, Self::Device(error) if DEVICE_UNAVAILABLE_CODES.contains(&error.code))
+    }
+}
+
 impl fmt::Display for AudioOutputError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -119,6 +134,12 @@ impl PcmVoice {
         result("waveOutGetID", unsafe { waveOutGetID(playback.device, &mut id) })
             .map_err(AudioOutputError::Device)?;
         Ok(Some(id))
+    }
+    /// True when the driver owns no header, PCM or device handle of this
+    /// voice: never started, finished, stopped, or a start that failed and
+    /// cleaned up completely. Performs no driver call.
+    pub fn is_idle(&self) -> bool {
+        self.inner.playback.is_none()
     }
     /// Explicit shutdown lets the caller report device errors before closing
     /// its UI. Drop additionally retries cleanup as a safety net.
@@ -655,6 +676,112 @@ mod tests {
                 _ => vec!["open", "prepare", "write", "unprepare", "close"],
             };
             assert_eq!(trace.borrow().calls, expected);
+        }
+    }
+
+    /// Issue #341: with no output device `waveOutOpen` fails before anything
+    /// is handed to the driver, so the voice stays idle and can simply be
+    /// started again once a device exists. Same when the device disappears
+    /// between open and write and the cleanup succeeds.
+    #[test]
+    fn missing_device_leaves_the_voice_idle_and_a_later_start_plays_normally() {
+        for (operation, expected_calls) in [
+            ("open", vec!["open"]),
+            ("write", vec!["open", "prepare", "write", "unprepare", "close"]),
+        ] {
+            for code in DEVICE_UNAVAILABLE_CODES {
+                let (mut voice, trace) = setup();
+                let source = bytes();
+                let wave = parse_pcm_wav(&source).unwrap();
+                trace.borrow_mut().persistent_failures.insert(operation, code);
+                for _ in 0..3 {
+                    let error = voice.start(&wave).unwrap_err();
+                    assert!(error.device_unavailable(), "{operation} {code}: {error}");
+                    assert!(voice.playback.is_none());
+                    assert_eq!(voice.poll().unwrap(), VoiceStatus::Idle);
+                }
+                assert_eq!(trace.borrow().calls, expected_calls.repeat(3));
+                assert!(trace.borrow().queued_headers.is_empty());
+                // The device arrives: the same voice plays, exactly once.
+                trace.borrow_mut().persistent_failures.clear();
+                voice.start(&wave).unwrap();
+                assert_eq!(voice.poll().unwrap(), VoiceStatus::Playing);
+                trace.borrow_mut().playing = false;
+                assert_eq!(voice.poll().unwrap(), VoiceStatus::Finished);
+                assert_eq!(trace.borrow().queued_headers, [(0, 0, 4)]);
+            }
+        }
+    }
+
+    /// Issue #341: only a clean "no device" code is classified as unavailable.
+    /// Other codes, and any start whose cleanup also failed (the driver may
+    /// still own the buffer), stay ordinary device failures.
+    #[test]
+    fn only_clean_no_device_codes_are_classified_as_unavailable() {
+        let device = |code| {
+            AudioOutputError::Device(DriverError {
+                operation: "waveOutOpen",
+                code,
+            })
+        };
+        for code in [2, 3, 4, 6] {
+            assert!(device(code).device_unavailable());
+        }
+        // MMSYSERR_ERROR, INVALHANDLE, NOMEM, WAVERR_BADFORMAT, STILLPLAYING.
+        for code in [1, 5, 7, 32, 33, u32::MAX] {
+            assert!(!device(code).device_unavailable());
+        }
+        let retained = AudioOutputError::StartAndCleanup {
+            start: DriverError {
+                operation: "waveOutWrite",
+                code: 6,
+            },
+            cleanup: DriverError {
+                operation: "waveOutUnprepareHeader",
+                code: 6,
+            },
+        };
+        assert!(!retained.device_unavailable());
+        assert!(!AudioOutputError::EmptyPcm.device_unavailable());
+    }
+
+    /// Issue #341: the device vanishes while a cue is playing. Whichever call
+    /// reports it, the error is returned (never a panic), the buffer stays
+    /// owned while the driver may still read it, and Drop retries the release.
+    #[test]
+    fn device_removed_while_playing_is_reported_and_never_frees_owned_memory() {
+        for operation in ["unprepare", "reset", "close"] {
+            let (mut voice, trace) = setup();
+            let source = bytes();
+            voice.start(&parse_pcm_wav(&source).unwrap()).unwrap();
+            let pcm_pointer = voice.playback.as_ref().unwrap()._pcm.as_ptr() as usize;
+            // MMSYSERR_NODRIVER from now on, for this one operation.
+            trace.borrow_mut().persistent_failures.insert(operation, 6);
+            if operation == "unprepare" {
+                assert!(matches!(voice.poll(), Err(AudioOutputError::Device(_))));
+            }
+            assert!(voice.stop_inner().is_err());
+            assert_eq!(
+                voice.playback.as_ref().unwrap()._pcm.as_ptr() as usize,
+                pcm_pointer
+            );
+            // A new cue cannot be queued over driver-owned memory.
+            assert!(voice.start(&parse_pcm_wav(&source).unwrap()).is_err());
+            assert_eq!(
+                trace.borrow().calls.iter().filter(|c| **c == "open").count(),
+                1
+            );
+            // The driver comes back (or lets go): the voice is reusable.
+            trace.borrow_mut().persistent_failures.clear();
+            voice.stop_inner().unwrap();
+            assert!(voice.playback.is_none());
+            voice.start(&parse_pcm_wav(&source).unwrap()).unwrap();
+            drop(voice);
+            assert_eq!(
+                trace.borrow().calls.iter().filter(|c| **c == "open").count(),
+                2
+            );
+            assert_eq!(trace.borrow().calls.last(), Some(&"close"));
         }
     }
 

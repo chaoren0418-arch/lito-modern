@@ -883,81 +883,9 @@ impl NativeResourceAdapter {
             map.canonical_digest() == plan.canonical_sha256,
             "Native canonical geometry differs from pin"
         );
-        let resident_bounds=resident.map(|view|{
-            let bindings=map.bindings();
-            let x=i32::from(view[0]);let y=i32::from(view[1]);
-            let min_x=bindings.iter().map(|b|b.key.world_origin().0).min().unwrap();
-            let min_y=bindings.iter().map(|b|b.key.world_origin().1).min().unwrap();
-            let max_x=bindings.iter().map(|b|b.key.world_origin().0+64).max().unwrap();
-            let max_y=bindings.iter().map(|b|b.key.world_origin().1+64).max().unwrap();
-            ensure!(x>=min_x&&x<max_x&&y>=min_y&&y<max_y,"Native view outside source geometry bounds");
-            let (ox,oy)=bindings[0].key.world_origin();
-            let (dx,dy)=((x&!7)-ox,(y&!7)-oy);
-            let (px,py)=(24+24*(dx+dy),768+12*(-dx+dy));
-            // Union of every camera in the block, plus two cells of motion.
-            Ok::<[i32;4],anyhow::Error>([px-496,py-432,px+832,py+432])
-        }).transpose()?;
-        let mut draw = Vec::new();
-        let mut effects = Vec::new();
-        let mut opacity_records = 0usize;
-        for binding in map.bindings() {
-            active(cancel)?;
-            let sector = map.sector(binding.key).context("Native sector absent")?;
-            let (sx, sy) = (
-                i32::from(binding.key.sector_x) - i32::from(plan.sectors[0].key.x),
-                i32::from(binding.key.sector_y) - i32::from(plan.sectors[0].key.y),
-            );
-            let mut tiles = static_draw_list(sector)?;
-            ensure!(
-                draw.len().checked_add(tiles.len()).is_some_and(|n|n<=self.draw_reference_limit),
-                "Native draw budget exceeded"
-            );
-            for tile in &mut tiles {
-                tile.x = tile
-                    .x
-                    .checked_add(1536 * (sx + sy))
-                    .context("Native projected X overflow")?;
-                tile.y = tile
-                    .y
-                    .checked_add(768 * (-sx + sy))
-                    .context("Native projected Y overflow")?;
-            }
-            // Preserve source group ordinal per object, including nonordinal serialized IDs.
-            ensure!(
-                sector.objects.len() <= 65_536,
-                "Native object group ordinal budget exceeded"
-            );
-            let floor = sector.floor.len() + sector.overlays.len();
-            let mut groups = vec![None; floor];
-            for (i, group) in sector.objects.iter().enumerate() {
-                groups.extend(std::iter::repeat_n(
-                    Some(Group(binding.key.sector_x, binding.key.sector_y, i as u16)),
-                    group.tiles.len(),
-                ));
-            }
-            draw.extend(
-                tiles
-                    .into_iter()
-                    .zip(groups)
-                    .filter(|(t,_)|resident_bounds.is_none_or(|[l,top,r,b]|t.x<r&&t.y<b&&t.x+24>l&&t.y+24>top))
-                    .map(|(tile, group)| NativeDraw { tile, group, sector:NativeSectorKey{map_id:plan.map_id,x:binding.key.sector_x,y:binding.key.sector_y} }),
-            );
-            opacity_records += sector.opacity.len();
-            effects.extend(
-                sector
-                    .effects
-                    .iter()
-                    .copied()
-                    .map(|effect| NativeEffectRecord {
-                        sector: NativeSectorKey {
-                            map_id: plan.map_id,
-                            x: binding.key.sector_x,
-                            y: binding.key.sector_y,
-                        },
-                        effect,
-                    }),
-            );
-        }
+        let resident_bounds=resident.map(|view|resident_window(&map,view)).transpose()?;
+        let StaticDraws{draw,effects,opacity_records}=collect_static_draws(&map,plan.map_id,
+            [plan.sectors[0].key.x,plan.sectors[0].key.y],self.draw_reference_limit,resident_bounds,cancel)?;
         let mut required: BTreeMap<u16, BTreeSet<usize>> = BTreeMap::new();
         for d in &draw {
             required
@@ -1041,6 +969,131 @@ impl NativeResourceAdapter {
             opacity_records,
             effects,
         })
+    }
+}
+/// Projected pixel window `[left, top, right, bottom]` kept resident for the
+/// 8x8 cell block containing `view`, relative to the first source sector.
+fn resident_window(map:&WorldMap,view:[u16;2])->Result<[i32;4]> {
+    let bindings=map.bindings();
+    let x=i32::from(view[0]);let y=i32::from(view[1]);
+    let min_x=bindings.iter().map(|b|b.key.world_origin().0).min().unwrap();
+    let min_y=bindings.iter().map(|b|b.key.world_origin().1).min().unwrap();
+    let max_x=bindings.iter().map(|b|b.key.world_origin().0+64).max().unwrap();
+    let max_y=bindings.iter().map(|b|b.key.world_origin().1+64).max().unwrap();
+    ensure!(x>=min_x&&x<max_x&&y>=min_y&&y<max_y,"Native view outside source geometry bounds");
+    let (ox,oy)=bindings[0].key.world_origin();
+    let (dx,dy)=((x&!7)-ox,(y&!7)-oy);
+    let (px,py)=(24+24*(dx+dy),768+12*(-dx+dy));
+    // Union of every camera in the block, plus two cells of motion.
+    Ok([px-496,py-432,px+832,py+432])
+}
+struct StaticDraws {
+    draw: Vec<NativeDraw>,
+    effects: Vec<NativeEffectRecord>,
+    opacity_records: usize,
+}
+/// Source-order floor, overlay and Layer4 references of every sector, projected
+/// from `anchor` (the first plan sector) and paired with the Layer4 group
+/// ordinal that Layer5 addresses. `resident` culls decoded references only.
+fn collect_static_draws(map:&WorldMap,map_id:u32,anchor:[u16;2],draw_reference_limit:usize,
+    resident:Option<[i32;4]>,cancel:&AtomicBool)->Result<StaticDraws> {
+    let mut draw = Vec::new();
+    let mut effects = Vec::new();
+    let mut opacity_records = 0usize;
+    for binding in map.bindings() {
+        active(cancel)?;
+        let sector = map.sector(binding.key).context("Native sector absent")?;
+        let (sx, sy) = (
+            i32::from(binding.key.sector_x) - i32::from(anchor[0]),
+            i32::from(binding.key.sector_y) - i32::from(anchor[1]),
+        );
+        let mut tiles = static_draw_list(sector)?;
+        ensure!(
+            draw.len().checked_add(tiles.len()).is_some_and(|n|n<=draw_reference_limit),
+            "Native draw budget exceeded"
+        );
+        for tile in &mut tiles {
+            tile.x = tile
+                .x
+                .checked_add(1536 * (sx + sy))
+                .context("Native projected X overflow")?;
+            tile.y = tile
+                .y
+                .checked_add(768 * (-sx + sy))
+                .context("Native projected Y overflow")?;
+        }
+        // Preserve source group ordinal per object, including nonordinal serialized IDs.
+        ensure!(
+            sector.objects.len() <= 65_536,
+            "Native object group ordinal budget exceeded"
+        );
+        let floor = sector.floor.len() + sector.overlays.len();
+        let mut groups = vec![None; floor];
+        for (i, group) in sector.objects.iter().enumerate() {
+            groups.extend(std::iter::repeat_n(
+                Some(Group(binding.key.sector_x, binding.key.sector_y, i as u16)),
+                group.tiles.len(),
+            ));
+        }
+        // A silent zip truncation would shift every later roof group.
+        ensure!(tiles.len() == groups.len(), "Native draw/group alignment");
+        draw.extend(
+            tiles
+                .into_iter()
+                .zip(groups)
+                .filter(|(t,_)|resident.is_none_or(|[l,top,r,b]|t.x<r&&t.y<b&&t.x+24>l&&t.y+24>top))
+                .map(|(tile, group)| NativeDraw { tile, group, sector:NativeSectorKey{map_id,x:binding.key.sector_x,y:binding.key.sector_y} }),
+        );
+        opacity_records += sector.opacity.len();
+        effects.extend(
+            sector
+                .effects
+                .iter()
+                .copied()
+                .map(|effect| NativeEffectRecord {
+                    sector: NativeSectorKey {
+                        map_id,
+                        x: binding.key.sector_x,
+                        y: binding.key.sector_y,
+                    },
+                    effect,
+                }),
+        );
+    }
+    Ok(StaticDraws{draw,effects,opacity_records})
+}
+#[cfg(test)]
+impl NativeStaticAssets {
+    /// CI fixture entry: the production reference/group collection and TIL
+    /// decoder over caller-owned S32 geometry and encoded TIL members. No
+    /// archive, pin or path is consulted, so this grants no resource identity.
+    pub(crate) fn from_owned_sources_for_test(map:WorldMap,encoded:BTreeMap<u16,Vec<u8>>,
+        resident:Option<[u16;2]>,cancel:&AtomicBool)->Result<Self> {
+        let limits=Limits::default();
+        let bindings=map.bindings();
+        ensure!(!bindings.is_empty(),"fixture map empty");
+        let sectors:Vec<SectorPin>=bindings.iter().map(|b|SectorPin{
+            key:NativeSectorKey{map_id:map.map_id(),x:b.key.sector_x,y:b.key.sector_y},
+            pin:BytePin{bytes:u64::from(b.byte_length),sha256:b.sha256}}).collect();
+        let resident=resident.map(|view|resident_window(&map,view)).transpose()?;
+        let StaticDraws{draw,effects,opacity_records}=collect_static_draws(&map,map.map_id(),
+            [sectors[0].key.x,sectors[0].key.y],1_048_576,resident,cancel)?;
+        let mut required:BTreeMap<u16,BTreeSet<usize>>=BTreeMap::new();
+        for d in &draw {required.entry(d.tile.archive_entry_id).or_default().insert(usize::from(d.tile.sub_index));}
+        let mut tiles=BTreeMap::new();let mut decoded_bytes=0usize;
+        for (id,slots) in &required {
+            let raw=encoded.get(id).with_context(||format!("fixture TIL {id} absent"))?;
+            let input=ValidatedTileInput::new_with_empty_tail(raw,TileLimits{max_input_bytes:limits.entry_bytes,..Default::default()})?;
+            for &slot in slots {
+                let tile=input.decode_selected(&BTreeSet::from([slot]),false)?.remove(&slot).context("fixture TIL slot absent")?;
+                decoded_bytes+=tile.rgba.len();
+                tiles.insert((*id,slot as u8),tile);
+            }
+        }
+        let plan=NativeAssetPlan{namespace:ResourceNamespace::NativeLitoV1,map_id:map.map_id(),
+            canonical_sha256:map.canonical_digest(),sectors,archives:Vec::new()};
+        Ok(Self{plan,draw_reference_limit:1_048_576,map:Arc::new(map),draw,tiles,encoded,decoded_bytes,
+            cache_limit:limits.decoded_bytes,opacity_records,effects})
     }
 }
 struct NativeDraw {

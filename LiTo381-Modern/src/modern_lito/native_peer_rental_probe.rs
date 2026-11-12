@@ -29,7 +29,7 @@ pub(super) fn run(peer:SocketAddr,account:&str,password:&str,source:usize,role:&
                     if w.ready()&&w.actors.contains_key(&other_id)&&w.minimap.markers.contains_key(&other_id){
                         ensure!(w.own_actor().context("rental own")?.id==own,"rental identity");
                         ensure!(c.snapshot().joined_room.as_ref().is_some_and(|r|r.mode==6&&Some(r.map_id)==w.map_id),"rental mode/map mismatch");
-                        if model.is_none(){model=Some(Model::load(Path::new(r"D:\lineage開發\0-客戶端"),w,&cancel)?);}
+                        if model.is_none(){model=Some(Model::load(&super::native_startup::diagnostic_resource_root()?,w,&cancel)?);}
                         if rendered.is_null(){let f=model.as_mut().unwrap().draw_at(w,&cancel,0)?;rendered=super::native_peer_probe::capture(root,role,1,"rental-entry",&f)?;
                             captured_state=json!(c.snapshot());captured=Some(Instant::now());std::fs::write(root.join(format!("{role}-rental-rendered")),b"rendered")?;}
                     }
@@ -88,7 +88,7 @@ pub(super) fn observe_return(c:&mut LoginController,root:&Path,role:&str,other:&
     }
     let peer=if role=="a"{3}else{1};wait(c,|s|s.world.actors.contains_key(&peer))?;
     let reentered=c.snapshot().clone();let cancel=AtomicBool::new(false);
-    let mut model=Model::load(Path::new(r"D:\lineage開發\0-客戶端"),&reentered.world,&cancel)?;
+    let mut model=Model::load(&super::native_startup::diagnostic_resource_root()?,&reentered.world,&cancel)?;
     let frame=model.draw_at(&reentered.world,&cancel,0)?;
     let render=super::native_peer_probe::capture(root,role,2,"rental-return-reentered",&frame)?;
     Ok(json!({"before":before,"after":after,"phases":phases,"observed_ms":observed_ms,"characters_ready":true,"reentry_verified":true,"reentered":reentered,"reentry_render":render}))

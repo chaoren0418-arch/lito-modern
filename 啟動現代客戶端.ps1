@@ -48,7 +48,10 @@ if(-not $PSCmdlet.ShouldProcess($project,$cargoCommand)){
     return
 }
 
-$previousTemp=$env:TEMP;$previousTmp=$env:TMP
+$previousTemp=$env:TEMP;$previousTmp=$env:TMP;$previousRustFlags=$env:RUSTFLAGS
+# Same static C runtime flag as tools/build.ps1 -Mode Release: both write
+# target/current/.../release, and a different flag would rebuild everything.
+if($BuildProfile -eq 'Release' -and "$env:RUSTFLAGS" -notmatch 'crt-static'){$env:RUSTFLAGS=("$env:RUSTFLAGS -C target-feature=+crt-static").Trim()}
 $scratch=Join-Path $project 'target\current\scratch'
 New-Item -ItemType Directory -Path $evidence,$scratch -Force|Out-Null
 $env:TEMP=$scratch;$env:TMP=$scratch
@@ -78,4 +81,4 @@ try {
     }else{
         Start-Process -FilePath $exe -WorkingDirectory $project -WindowStyle Hidden
     }
-}finally { Pop-Location;$env:TEMP=$previousTemp;$env:TMP=$previousTmp }
+}finally { Pop-Location;$env:TEMP=$previousTemp;$env:TMP=$previousTmp;$env:RUSTFLAGS=$previousRustFlags }

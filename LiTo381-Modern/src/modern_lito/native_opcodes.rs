@@ -56,6 +56,17 @@ pub const S_LITO_JOIN_RESULT: u8 = 0xCE;
 pub const S_LITO_DELETE_ROOM: u8 = 0xCF;
 pub const S_LITO_EXIT_ROOM: u8 = 0xD0;
 
+// --- §6.2 chat (T060). JAR E1498871 Protocol constants, javap-checked (#342). ---
+pub const C_ONOFF: u8 = 0x0D;
+pub const C_SAY: u8 = 0x13;
+pub const C_TELL: u8 = 0x1B;
+pub const C_CHAT: u8 = 0x77;
+
+pub const S_SAY: u8 = 0x13;
+pub const S_TELL: u8 = 0x14;
+/// Decimal 45: NPC speech with the speaker's coordinates (`Protocol.sayCode`).
+pub const S_SAY_CODE: u8 = 0x2D;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -105,5 +116,16 @@ mod tests {
         assert_eq!(S_LITO_JOIN_RESULT, 0xCE);
         assert_eq!(S_LITO_DELETE_ROOM, 0xCF);
         assert_eq!(S_LITO_EXIT_ROOM, 0xD0);
+    }
+
+    #[test]
+    fn chat_opcode_constants_match_jar_e149_decimal_values() {
+        assert_eq!(C_ONOFF, 13);
+        assert_eq!(C_SAY, 19);
+        assert_eq!(C_TELL, 27);
+        assert_eq!(C_CHAT, 119);
+        assert_eq!(S_SAY, 19);
+        assert_eq!(S_TELL, 20);
+        assert_eq!(S_SAY_CODE, 45);
     }
 }

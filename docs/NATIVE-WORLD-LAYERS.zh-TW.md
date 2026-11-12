@@ -23,7 +23,7 @@
 
 每幀同一合成器產生 RGBA 與 800×600×2 bytes 的共享 owner 表，最多 128 個角色物件。透明像素不取得 owner；不透明地形會清除底下角色的 owner，部分透明地形保留底下可選物件。Frame 的矩形只保留幾何資訊，`pick` 改查實際 terrain/body owner。
 
-命中仍要求目前已畫出的 Frame、viewport、visual revision 與自己 incarnation 相符。自己遮住的物品不會因為排除自己而穿透選取。點到可見地面物品時，經 `Choice::at` 與既有 owner／generation／correction／完整 Actor／三格距離檢查後開啟數量面板；點選本身不送拾取封包。按拾取時再次檢查目前 Frame 與權威狀態。GUI／IME／DPI／焦點的實際人工操作尚未驗收。
+命中仍要求目前已畫出的 Frame、viewport、visual revision 與自己 incarnation 相符。自己遮住的物品不會因為排除自己而穿透選取。點到可見地面物品時，#331 起照原版 `sub_4062E0` 處理：一格內經 `Choice::capture` 與既有 owner／generation／correction／完整 Actor 檢查後直接送拾取，一格外先走過去；按住 Shift 點堆疊才開數量面板（詳見 [地面拾取](NATIVE-GROUND-PICKUP.zh-TW.md)）。送出時再次檢查目前 Frame 與權威狀態。GUI／IME／DPI／焦點的實際人工操作尚未驗收。
 
 特效目前仍在 terrain/body 合成後繪製，不改動這張 owner 表。完整特效交錯、角色陰影／附件，以及屋頂 runtime 不在已完成範圍；收據仍標示完整 actor／terrain／effect 等價未完成。
 

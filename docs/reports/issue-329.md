@@ -103,3 +103,14 @@
 本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，3 分 12 秒）。本機未執行測試。
 
 PR #370 第一個 commit 的 CI（run 43269639808）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2398 passed／0 failed／597 ignored；本張新增的 8 個單元測試（含用到 Windows CP950 轉換的 `tables_are_parsed_leniently`）都在通過清單內。之後只改了本報告這一段與「待驗證」第一項。
+
+## 與 main 同步（2026-11-13）
+
+PR #370 與 main 衝突（衝突時 GitHub 不跑 CI，所以 commit `001e6be` 沒有 CI 紀錄），已 `git merge origin/main` 並解決兩個檔案：
+
+- `native_login_window.rs`：HUD 狀態文字那一行，保留 main 的「找不到音效輸出裝置」提示，後面再接本張的訊息區塊。
+- `docs/GUI-ACCEPTANCE.md`：前置表採用 main 的列（main 已移除 §17 那列、新增 Q04／Q09），L12／W05 那列用本張的寫法。
+
+main 新增的 Q04／Q09 列提到「`$數字` 台詞未轉文字，字串表屬 T049」。那是聊天台詞（#342）的顯示，本張沒有處理；`native_messages::Strings` 與 `Catalog::expand_argument` 可以直接拿去用。
+
+合併後本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，2 分 39 秒）。本機未執行測試；合併 commit 的 CI 見 PR。

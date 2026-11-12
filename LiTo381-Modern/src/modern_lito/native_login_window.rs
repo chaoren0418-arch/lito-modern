@@ -36,6 +36,8 @@ mod rental;
 mod skill_ui;
 #[path="native_companion_window.rs"]
 mod companions;
+#[path = "native_chat_window.rs"]
+mod chat_ui;
 const CREATE_ROOM:u16=119;
 const EDIT_ROOM:u16=120;
 const SAVE_ROOM:u16=121;
@@ -100,6 +102,7 @@ struct Ui {
     character_pages: Pages,
     rental:rental::View,
     companions:companions::View,
+    chat: chat_ui::View,
     parent: HWND,
     room_tools_view: bool,
     room_editor: Option<super::native_room_ui::Draft>,
@@ -109,6 +112,11 @@ struct Ui {
     ground_view: bool,
     pickup_rows: Vec<super::native_ground_pickup::Choice>,
     pickup_choice: Option<super::native_ground_pickup::Choice>,
+    /// 走向一格外的地面物品；bool 是到達後是否整疊拾取。
+    pickup_approach: Option<(super::native_ground_pickup::Approach, bool)>,
+    pickup_throttle: super::native_ground_pickup::Throttle,
+    /// 直接點選拾取的提示：文字（None 表示顯示控制器的拾取狀態）與顯示期限。
+    pickup_note: Option<(Option<String>, std::time::Instant)>,
     inventory_rows: Vec<(u32, String)>,
     inventory_owner: Option<super::native_inventory::Owner>,
     inventory_names: super::native_inventory_names::Service,
@@ -135,6 +143,9 @@ struct Ui {
     audio_scope: Option<super::native_audio_delivery::Scope>,
     audio_frame: Option<(u64, u64, u64)>,
     audio_error: Option<String>,
+    /// `audio_error` is a device fault reported by the voice pool. Cleared when
+    /// the pool's bounded recovery succeeds; other audio errors stay latched.
+    audio_device_fault: bool,
     peer: SocketAddr,
     resource_root: std::path::PathBuf,
     controller: LoginController,
@@ -226,11 +237,12 @@ impl Ui {
     /// Focus loss, minimize or a modal size/menu loop: nothing held continues.
     unsafe fn release_input(&mut self, audio: bool) {
         self.item_cursor = None;
+        self.pickup_approach = None;
         self.held.clear();
         self.held_attack.clear();
         if audio {
             if let Err(e) = self.voices.stop_all() {
-                self.audio_error = Some(e.to_string());
+                note_audio_error(&mut self.audio_error, &mut self.audio_device_fault, e);
             }
         }
     }
@@ -441,6 +453,7 @@ impl Ui {
         }
         self.create_rental_controls()?;
         self.create_companion_controls()?;
+        self.create_chat_controls()?;
         let ids:std::collections::BTreeSet<_>=self.controls.iter().map(|(id,_)|*id).collect();
         ensure!(ids.len()==self.controls.len(),"duplicate native child control id");
         self.layout(parent, true);
@@ -577,7 +590,7 @@ impl Ui {
                 }
                 INVENTORY_TOGGLE => true,
                 ROOMS => !self.world_view && !self.inventory_view,
-                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !(self.rental.open || self.companions.open),
+                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !(self.rental.open || self.companions.open || self.chat.open),
                 SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.ground_view,
                 SUMMON_OPTIONS => self.world_view && !self.result_view && !self.inventory_view && !self.rental.open && self.skills.selected()==Some(51),
                 TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected().is_some_and(super::native_skills::destination_skill),
@@ -737,6 +750,7 @@ impl Ui {
         self.layout_rental();
         self.layout_skill_book(area, dpi);
         self.layout_companions();
+        self.layout_chat();
         self.follow_status(self.control(STATUS), status_before);
     }
     unsafe fn score_extent(&self) {
@@ -911,7 +925,7 @@ impl Ui {
             self.target = None;
             self.ground = None;
             self.painted = None;self.painted_input = None;
-            if let Err(e)=self.voices.stop_all() {self.audio_error=Some(e.to_string());}
+            if let Err(e)=self.voices.stop_all() {note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e);}
             self.audio_frame = None;
         }
         if !self.controller.snapshot().world.movement_blocks.is_empty() {
@@ -932,7 +946,7 @@ impl Ui {
         // Hover is sampled against the actual painted viewport, including when
         // the pointer leaves this window or a child control receives input.
         let hover = (|| {
-            if !active || self.closing || self.inventory_view || self.rental.open || self.companions.open || GetForegroundWindow() != parent {
+            if !active || self.closing || self.inventory_view || self.rental.open || self.companions.open || self.chat.open || GetForegroundWindow() != parent {
                 return None;
             }
             let mut point = POINT::default();
@@ -979,11 +993,15 @@ impl Ui {
                 self.world_presentation.error=Some(format!("player draw clock: {error:#}"));
             }
         }
-        if let Err(e)=self.voices.poll() {self.audio_error=Some(e.to_string());}
+        match self.voices.poll() {
+            // The pool re-enabled itself after a device fault (issue #341).
+            Ok(_)=>if self.audio_device_fault {self.audio_device_fault=false;self.audio_error=None;},
+            Err(e)=>note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e),
+        }
         let native_scope=self.world_presentation.audio_scope(self.controller.transport().snapshot().epoch,
             self.controller.snapshot().world.generation);
         if self.audio_scope.as_ref().is_none_or(|old|!old.same_context(&native_scope)) {
-            if let Err(e)=self.voices.stop_all() {self.audio_error=Some(e.to_string());}
+            if let Err(e)=self.voices.stop_all() {note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e);}
             self.audio_frame=None;self.audio_scope=Some(native_scope.clone());
         }
         if let Some(frame) = &self.world_presentation.frame {
@@ -995,18 +1013,18 @@ impl Ui {
             if self.audio_frame != Some(key) {
                 self.audio_frame = Some(key);
                 for cue in &frame.legacy_audio {
-                    if self.audio_error.is_none() && GetForegroundWindow()==parent {
+                    if self.audio_error.is_none() && !self.closing && GetForegroundWindow()==parent {
                         match cue.submit(&native_scope,&mut self.voices) {
-                            Err(e)=>self.audio_error=Some(e.to_string()),
+                            Err(e)=>note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e),
                             Ok(super::native_audio_delivery::DeliveryOutcome::Unbound)=>self.audio_error=Some("一般音效尚未綁定場景".into()),
                             _=>{},
                         }
                     } else {cue.discard();}
                 }
                 for cue in &frame.native_audio {
-                    if self.audio_error.is_none() && GetForegroundWindow()==parent {
+                    if self.audio_error.is_none() && !self.closing && GetForegroundWindow()==parent {
                         match cue.submit(&native_scope,&mut self.voices) {
-                            Err(e)=>self.audio_error=Some(e.to_string()),
+                            Err(e)=>note_audio_error(&mut self.audio_error,&mut self.audio_device_fault,e),
                             Ok(super::native_audio_delivery::DeliveryOutcome::Unbound)=>self.audio_error=Some("音效尚未綁定場景".into()),
                             _=>{},
                         }
@@ -1157,11 +1175,13 @@ impl Ui {
         {
             self.held.clear();
             self.held_attack.clear();
+            self.pickup_approach = None;
             return;
         }
         if self.controller.snapshot().world.death_confirmation_pending {
             self.held.clear();
             self.held_attack.clear();
+            self.pickup_approach = None;
             if let Some(frame) = &self.world_presentation.frame {
                 if frame.death_ready(&self.controller.snapshot().world) {
                     if let Err(e) = self.controller.confirm_death(frame) {
@@ -1171,9 +1191,10 @@ impl Ui {
             }
             return;
         }
-        if self.inventory_view || self.rental.open || self.companions.open {
+        if self.inventory_view || self.rental.open || self.companions.open || self.chat.open {
             self.held.clear();
             self.held_attack.clear();
+            self.pickup_approach = None;
             return;
         }
         let input = self.combat_input();
@@ -1204,11 +1225,136 @@ impl Ui {
                 }
             }
         }
+        self.pickup_tick();
         if let Err(error) = self.controller.continue_movement(
             &mut self.held, self.world_presentation.frame.as_ref(),
         ) {
             self.held_attack.clear();
             self.text(STATUS, &format!("{error:#}"));
+        }
+    }
+    fn note_pickup(&mut self, text: Option<String>) {
+        self.pickup_note = Some((text, std::time::Instant::now() + std::time::Duration::from_secs(5)));
+    }
+    /// 直接點選地面物品（原版 `sub_4062E0` 類別 9 分支）：一格內直接送，
+    /// 一格外先走過去。`pick_all` 為 false 時堆疊改開數量面板。
+    unsafe fn ground_click(&mut self, id: u32, pick_all: bool) {
+        use super::native_ground_pickup as pickup;
+        self.target = None;
+        self.ground = None;
+        self.held.clear();
+        self.held_attack.clear();
+        self.pickup_approach = None;
+        let epoch = self.controller.transport().snapshot().epoch;
+        let (plan, approach) = {
+            let world = &self.controller.snapshot().world;
+            let plan = world.own_actor().zip(world.actors.get(&id)).and_then(|(own, item)| {
+                pickup::click([own.x, own.y], [item.x, item.y], item.experience, pick_all)
+            });
+            let approach = (plan == Some(pickup::Click::Approach))
+                .then(|| pickup::Approach::begin(epoch, world, id, std::time::Instant::now()))
+                .flatten();
+            (plan, approach)
+        };
+        let result = match plan {
+            Some(pickup::Click::Approach) if approach.is_some() => {
+                self.pickup_approach = approach.map(|a| (a, pick_all));
+                self.pickup_note = None;
+                Ok(())
+            }
+            Some(click @ (pickup::Click::Send(_) | pickup::Click::Prompt(_))) => self.ground_pick(id, click),
+            _ => Err(anyhow::anyhow!("此處沒有可拾取的物品")),
+        };
+        if let Err(error) = result {
+            self.note_pickup(Some(format!("{error:#}")));
+        }
+    }
+    /// 已在一格內：再核對一次目前畫面、權威狀態與通行，才送出或開數量面板。
+    unsafe fn ground_pick(&mut self, id: u32, click: super::native_ground_pickup::Click) -> Result<()> {
+        use super::native_ground_pickup as pickup;
+        let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+        let choice = pickup::Choice::capture(self.controller.snapshot(), frame, id)?;
+        let own = self.controller.snapshot().world.own_actor().map(|a| [a.x, a.y]).context("目前沒有世界角色")?;
+        ensure!(
+            pickup::unobstructed(own, [choice.item.x, choice.item.y], |x, y, h| frame.navigation.can_step(x, y, h)),
+            "與物品之間有障礙，無法拾取"
+        );
+        match click {
+            pickup::Click::Send(quantity) => {
+                let now = std::time::Instant::now();
+                ensure!(self.pickup_throttle.ready(now), "拾取間隔未到，請稍候再點");
+                self.controller.pickup(choice, quantity, frame)?;
+                self.pickup_throttle.sent(now);
+                self.note_pickup(None);
+            }
+            pickup::Click::Prompt(stack) => {
+                if !(self.inventory_view && self.ground_view) {
+                    self.action(GROUND_TOGGLE)?;
+                }
+                let index = self.pickup_rows.iter().position(|c| c == &choice)
+                    .context("地面物品清單已更新，請重新點選")?;
+                send(self.control(INVENTORY_LIST), LB_SETCURSEL, WPARAM(index), LPARAM(0));
+                self.pickup_choice = Some(choice);
+                self.text(ITEM_QUANTITY, &stack.to_string());
+                self.refresh_item_actions();
+            }
+            pickup::Click::Approach => {}
+        }
+        Ok(())
+    }
+    unsafe fn pickup_tick(&mut self) {
+        use super::native_ground_pickup as pickup;
+        let Some((approach, pick_all)) = self.pickup_approach.clone() else { return; };
+        if self.held.direction().is_some() || self.held_attack.active() {
+            self.pickup_approach = None;
+            return;
+        }
+        let Some(frame) = self.world_presentation.frame.as_ref() else { return; };
+        let epoch = self.controller.transport().snapshot().epoch;
+        let (step, ready, plan) = {
+            let world = &self.controller.snapshot().world;
+            let step = approach.next(epoch, world, std::time::Instant::now(), |x, y, h| {
+                frame.navigation.can_step(x, y, h)
+                    && u16::try_from(x).ok().zip(u16::try_from(y).ok()).is_some_and(|(x, y)| {
+                        super::native_world::destination(x, y, h)
+                            .is_ok_and(|(nx, ny)| !super::native_obstacles::blocks(world, nx, ny))
+                    })
+            });
+            let plan = world.own_actor().zip(world.actors.get(&approach.id())).and_then(|(own, item)| {
+                pickup::click([own.x, own.y], [item.x, item.y], item.experience, pick_all)
+            });
+            (step, frame.movement_ready(world) && frame.input_ready(world), plan)
+        };
+        match step {
+            pickup::ApproachStep::Ended(reason) => {
+                self.pickup_approach = None;
+                self.note_pickup(Some(reason.to_owned()));
+            }
+            // 上一步的動作或畫面還沒完成：等下一個 tick。
+            _ if !ready => {}
+            pickup::ApproachStep::Step(heading) => match self.controller.move_presented(heading, frame) {
+                Ok(()) => {
+                    if let Some((approach, _)) = &mut self.pickup_approach {
+                        approach.stepped();
+                    }
+                }
+                Err(error) => {
+                    self.pickup_approach = None;
+                    self.note_pickup(Some(format!("{error:#}")));
+                }
+            },
+            pickup::ApproachStep::Arrived => {
+                self.pickup_approach = None;
+                let result = match plan {
+                    Some(click @ (pickup::Click::Send(_) | pickup::Click::Prompt(_))) => {
+                        self.ground_pick(approach.id(), click)
+                    }
+                    _ => Err(anyhow::anyhow!("地面物品已更新，請重新點選")),
+                };
+                if let Err(error) = result {
+                    self.note_pickup(Some(format!("{error:#}")));
+                }
+            }
         }
     }
     unsafe fn paint_world(&mut self, parent: HWND) {
@@ -1217,7 +1363,7 @@ impl Ui {
         let dc = BeginPaint(parent, &mut paint);
         let mut area = RECT::default();
         let _ = GetClientRect(parent, &mut area);
-        if self.rental.open || self.companions.open {
+        if self.rental.open || self.companions.open || self.chat.open {
             FillRect(dc,&area,GetSysColorBrush(COLOR_BTNFACE));
             let _=EndPaint(parent,&paint);self.painted=None;self.painted_input=None;return;
         }
@@ -1571,6 +1717,10 @@ impl Ui {
                         super::native_ground_pickup::Choice::capture(snapshot, frame, a.id).ok()
                     })
                     .collect();
+                // 先近後遠；畫面的繪製順序不適合當清單順序。
+                if let Some(own) = snapshot.world.own_actor() {
+                    super::native_ground_pickup::order(&mut self.pickup_rows, [own.x, own.y]);
+                }
             }
             rows = self
                 .pickup_rows
@@ -2048,6 +2198,11 @@ impl Ui {
                             "正在等待退出戰鬥確認…".to_owned()
                         } else if self.item_cursor.is_some() {
                             "請點選物品目標位置；Esc取消".to_owned()
+                        } else if self.pickup_approach.is_some() {
+                            "正在走向地面物品；Esc 或移動可取消".to_owned()
+                        } else if let Some((text, _)) = self.pickup_note.as_ref()
+                            .filter(|(_, until)| std::time::Instant::now() < *until) {
+                            text.clone().unwrap_or_else(|| format!("拾取：{}", snapshot.pickup_feedback.label()))
                         } else if snapshot.item_feedback == super::native_item_actions::Feedback::TargetRejected {
                             snapshot.world.last_system_message.as_ref()
                                 .filter(|(kind,_)|*kind==9).map(|(_,text)|text.clone())
@@ -2087,7 +2242,7 @@ impl Ui {
                                 Some(receipt)=>format!("{}（{receipt}）",snapshot.skill_feedback.label()),
                                 None=>snapshot.skill_feedback.label().to_owned(),
                             },format!("{}　{}",guidance,self.controller.portal_entry_feedback().label()),omitted,
-                            self.audio_error.as_ref().map(|e|format!("音效：{e}")).unwrap_or_default(),messages)
+                            self.audio_error.as_ref().map(|e|format!("音效：{e}")).or_else(||self.voices.status().device_unavailable.then(||"音效：找不到可用的音效輸出裝置，音效暫停；接上裝置後會自動恢復。".to_owned())).unwrap_or_default(),messages)
                     } else {
                         "正在載入伺服器指定的世界資源…".into()
                     }
@@ -2223,6 +2378,7 @@ impl Ui {
         }
         self.refresh_rental();
         self.refresh_companions();
+        self.refresh_chat();
         self.restore_keyboard_focus_after_update();
     }
     unsafe fn restore_keyboard_focus_after_update(&self) {
@@ -2238,6 +2394,7 @@ impl Ui {
             Err(error)=>{self.companions.error=Some(format!("{error:#}"));self.refresh_companions();return Err(error);}
         }
         if self.rental_action(id)? {return Ok(());}
+        if self.chat_action(id)? {return Ok(());}
         match id {
             skill_ui::BOOK => {
                 self.skill_book_open = !self.skill_book_open;
@@ -2321,10 +2478,11 @@ impl Ui {
             }
             ITEM_USE if self.ground_view => {
                 let choice = self.pickup_choice.clone().context("請先選取地面物品")?;
-                let quantity = self
-                    .read(ITEM_QUANTITY, 10)?
-                    .parse::<u32>()
-                    .context("請輸入有效的拾取數量")?;
+                // 與原版數量回呼相同：留白等於整疊；0 或超過整疊不送。
+                let quantity = super::native_ground_pickup::prompt_quantity(
+                    &self.read(ITEM_QUANTITY, 10)?, choice.item.experience)?;
+                let now = std::time::Instant::now();
+                ensure!(self.pickup_throttle.ready(now), "拾取間隔未到，請稍候再按");
                 self.held.clear();
                 self.held_attack.clear();
                 let frame = self
@@ -2333,6 +2491,7 @@ impl Ui {
                     .as_ref()
                     .context("等待世界畫面")?;
                 self.controller.pickup(choice, quantity, frame)?;
+                self.pickup_throttle.sent(now);
                 self.refresh_item_actions();
             }
             ITEM_USE | ITEM_DROP => {
@@ -2506,6 +2665,14 @@ impl Ui {
         Ok(())
     }
 }
+/// Device faults may be replaced by a newer report and are cleared when the
+/// pool recovers. A bank or binding error is never downgraded to one.
+fn note_audio_error(slot: &mut Option<String>, device_fault: &mut bool, error: super::combat_audio::PoolError) {
+    if slot.is_none() || *device_fault {
+        *device_fault = matches!(error, super::combat_audio::PoolError::Device(_));
+        *slot = Some(error.to_string());
+    }
+}
 impl Drop for Ui {
     fn drop(&mut self) {
         unsafe {
@@ -2565,8 +2732,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                         return LRESULT(1);
                     }
                 }
-                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !(ui.rental.open || ui.companions.open) => {
+                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open) => {
                     let _ = SetFocus(Some(hwnd));
+                    // 任何新的點選都取消走向地面物品。
+                    ui.pickup_approach = None;
                     let mut area = RECT::default();
                     let _ = GetClientRect(hwnd, &mut area);
                     let dpi = GetDpiForWindow(hwnd).max(96) as i32;
@@ -2609,30 +2778,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                             }
                             return LRESULT(0);
                         }
-                        if picked.is_some_and(|id| surface.is_ground_item(id)) {
-                            let choice = super::native_ground_pickup::Choice::capture(
-                                ui.controller.snapshot(),ui.world_presentation.frame.as_ref().unwrap(),picked.unwrap());
-                            match choice {
-                                Ok(choice) => {
-                                    ui.target = None;
-                                    ui.ground = None;
-                                    if let Err(error) = ui.action(GROUND_TOGGLE) {
-                                        ui.text(STATUS, &format!("{error:#}"));
-                                    } else if let Some(index) =
-                                        ui.pickup_rows.iter().position(|c| c == &choice)
-                                    {
-                                        send(
-                                            ui.control(INVENTORY_LIST),
-                                            LB_SETCURSEL,
-                                            WPARAM(index),
-                                            LPARAM(0),
-                                        );
-                                        ui.pickup_choice = Some(choice);
-                                        ui.refresh_item_actions();
-                                    }
-                                }
-                                Err(error) => ui.text(STATUS, &format!("{error:#}")),
-                            }
+                        if let Some(id) = picked.filter(|id| surface.is_ground_item(*id)) {
+                            // 原版「全部拾取」選項（byte_502278）初值是開的：直接送整疊。
+                            // 按住 Shift（MK_SHIFT）點堆疊時改問數量，這是新引擎的操作。
+                            ui.ground_click(id, wparam.0 & 0x0004 == 0);
                             return LRESULT(0);
                         }
                         let target = point
@@ -2752,7 +2901,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     ui.item_cursor = None;
                     ui.held.clear();
                     ui.held_attack.clear();
-                    if let Err(e)=ui.voices.stop_all() {ui.audio_error=Some(e.to_string());}
+                    if let Err(e)=ui.voices.stop_all() {let ui=&mut *ui;note_audio_error(&mut ui.audio_error,&mut ui.audio_device_fault,e);}
                     ui.closing = true;
                     ui.controller.cancel();
                     ui.world_presentation.cancel();
@@ -2818,9 +2967,6 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     }
     DefWindowProcW(hwnd, msg, wparam, lparam)
 }
-pub fn run(peer: SocketAddr) -> Result<()> {
-    run_with_resources(peer, std::path::PathBuf::from(r"D:\lineage開發\0-客戶端"))
-}
 pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -> Result<()> {
     ensure!(
         resource_root.is_absolute(),
@@ -2843,6 +2989,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 character_pages: Pages::default(),
                 rental:rental::View::new(resource_root.clone())?,
                 companions:companions::View::default(),
+                chat: chat_ui::View::default(),
                 parent: HWND::default(),
                 room_tools_view:false,
                 room_editor:None,
@@ -2852,6 +2999,9 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 ground_view: false,
                 pickup_rows: vec![],
                 pickup_choice: None,
+                pickup_approach: None,
+                pickup_throttle: Default::default(),
+                pickup_note: None,
                 inventory_rows: vec![],
                 inventory_owner: None,
                 inventory_names: super::native_inventory_names::Service::start(
@@ -2880,6 +3030,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 audio_scope: None,
                 audio_frame: None,
                 audio_error: None,
+                audio_device_fault: false,
                 peer,
                 resource_root,
                 controller: LoginController::default(),
@@ -2965,6 +3116,17 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                     ui.held.clear();
                     ui.held_attack.clear();
                 }
+                // Enter in a chat field sends the line instead of pressing the
+                // dialog's default button; a held key does not repeat the send.
+                if message.message == WM_KEYDOWN && message.wParam.0 == 0x0d {
+                    let chat_field = state.0.borrow().chat_input_focus(GetFocus());
+                    if chat_field {
+                        if message.lParam.0 & (1 << 30) == 0 {
+                            send(hwnd, WM_COMMAND, WPARAM(chat_ui::SEND as usize), LPARAM(0));
+                        }
+                        continue;
+                    }
+                }
                 // Submit a received numeric NPC request from its quantity field.
                 // The ordinary button path still validates owner, target and deadline.
                 if message.message == WM_KEYDOWN && message.wParam.0 == 0x0d {
@@ -2999,7 +3161,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if matches!(message.message, WM_KEYDOWN | WM_SYSKEYDOWN) {
                     if let Some((slot, first)) = skill_ui::hotbar_key(message.message, message.wParam.0, message.lParam.0) {
                         let mut ui = state.0.borrow_mut();
-                        if ui.skill_input_focus(GetFocus()) && ui.world_view && !ui.inventory_view && !ui.rental.open {
+                        if ui.skill_input_focus(GetFocus()) && ui.world_view && !ui.inventory_view && !ui.rental.open && !ui.chat.open {
                             if first {
                                 let result = ui.skill_slot(slot);
                                 ui.refresh();
@@ -3012,7 +3174,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if world_focus && message.message == WM_KEYDOWN && message.wParam.0 == 0x1b {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         ui.held.clear();
@@ -3020,13 +3182,14 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                         ui.target = None;
                         ui.ground = None;
                         ui.item_cursor = None;
+                        ui.pickup_approach = None;
                         continue;
                     }
                 }
                 if message.message == WM_KEYDOWN && matches!(message.wParam.0, 0x70 | 0x71 | 0x72) {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.lParam.0 & (1 << 30) == 0 {
@@ -3047,7 +3210,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x50 {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open || ui.chat.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             let result=ui.enter_nearby_portal();
                             if let Err(e)=result{ui.text(STATUS,&format!("{e:#}"));}
@@ -3057,7 +3220,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x54 {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open || ui.chat.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             if let Err(e)=ui.cycle_target(){ui.text(STATUS,&format!("{e:#}"));}
                         }
@@ -3066,7 +3229,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x4f {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open || ui.chat.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             if let Err(e)=ui.toggle_selected_door(){ui.text(STATUS,&format!("{e:#}"));}
                         }
@@ -3079,7 +3242,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.message == WM_KEYUP {
@@ -3098,7 +3261,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if ui.controller.snapshot().observer {

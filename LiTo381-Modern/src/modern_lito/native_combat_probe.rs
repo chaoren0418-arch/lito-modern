@@ -317,7 +317,7 @@ impl Probe {
             }
             self.previous_epoch = Some(c.transport().snapshot().epoch);
             let model = Model::load(
-                std::path::Path::new(r"D:\lineage開發\0-客戶端"),
+                &super::native_startup::diagnostic_resource_root()?,
                 &c.snapshot().world,
                 &cancel,
             )?;
@@ -413,7 +413,7 @@ impl Probe {
             let mut row = frame.receipt.clone();
             if sent.elapsed().as_millis() >= self.next_png_ms {
                 self.next_png_ms += if defeat { 500 } else { 250 };
-                let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
+                let path = super::native_startup::diagnostic_project_root()?.join(format!(
                     "target/current/verification/combat-{}-g{}-{}.png",
                     mode.trim_start_matches("room-world-"),
                     c.snapshot().world.generation,

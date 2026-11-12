@@ -1,0 +1,74 @@
+name: portable
+
+# Builds the Release player with the stable MSVC toolchain, packages it and runs
+# the windowless package checks. Only runs when packaging inputs change (the
+# Release build is slow), or on demand. Triggered by pushes to task branches so
+# the result exists before the pull request is opened; it shows on the pull
+# request through the head commit.
+on:
+  push:
+    branches: ['task/**']
+    paths:
+      - '.github/workflows/portable.yml'
+      - 'LiTo381-Modern/packaging/**'
+      - 'LiTo381-Modern/windows/**'
+      - 'LiTo381-Modern/build.rs'
+      - 'LiTo381-Modern/Cargo.toml'
+      - 'LiTo381-Modern/Cargo.lock'
+      - 'LiTo381-Modern/tools/build.ps1'
+      - 'LiTo381-Modern/tools/build-evidence.ps1'
+      - 'LiTo381-Modern/tools/package.ps1'
+      - 'LiTo381-Modern/tools/portable-evidence.ps1'
+      - 'LiTo381-Modern/tools/test-build-evidence.ps1'
+      - 'LiTo381-Modern/tools/verify-independent.ps1'
+      - 'LiTo381-Modern/tools/verify-portable-package.ps1'
+  workflow_dispatch:
+
+jobs:
+  package:
+    name: portable package (Release, static C runtime)
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: LiTo381-Modern
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: LiTo381-Modern -> target/current
+          key: portable-static-crt
+      - name: fetch locked dependencies (the build itself is offline)
+        run: cargo fetch --locked
+      - name: build receipt fixtures
+        run: ./tools/test-build-evidence.ps1
+      - name: build Release player
+        run: ./tools/build.ps1 -Mode Release
+      - name: package
+        run: |
+          $resources = Join-Path $env:RUNNER_TEMP 'synthetic-resources'
+          $null = New-Item -ItemType Directory -Path (Join-Path $resources 'sub')
+          # Stand-in files only: CI has no game resources, so this resource list is not a release record.
+          Set-Content -LiteralPath (Join-Path $resources 'placeholder.txt') -Value 'synthetic CI resource' -Encoding utf8
+          Set-Content -LiteralPath (Join-Path $resources 'sub/placeholder.txt') -Value 'synthetic CI resource 2' -Encoding utf8
+          ./tools/package.ps1 -Candidate ci-portable -ResourceRoot $resources -Zip | ConvertTo-Json -Depth 6
+      - name: verify package from a non-ASCII path (PowerShell 7)
+        run: |
+          $resources = Join-Path $env:RUNNER_TEMP 'synthetic-resources'
+          ./tools/verify-portable-package.ps1 -Zip (Join-Path $PWD 'dist/ci-portable.zip') -ExtractRoot (Join-Path $env:RUNNER_TEMP '可攜包 解壓測試 7') -ResourceRoot $resources | ConvertTo-Json -Depth 6
+      - name: verify package from a non-ASCII path (Windows PowerShell 5.1)
+        shell: powershell
+        run: |
+          $resources = Join-Path $env:RUNNER_TEMP 'synthetic-resources'
+          $extract = Join-Path $env:RUNNER_TEMP ((-join [char[]](0x53EF, 0x651C, 0x5305)) + ' extract 5')
+          ./tools/verify-portable-package.ps1 -Zip (Join-Path $PWD 'dist/ci-portable.zip') -ExtractRoot $extract -ResourceRoot $resources | ConvertTo-Json -Depth 6
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LiToModern-ci-portable
+          path: LiTo381-Modern/dist/ci-portable.zip
+          if-no-files-found: error
+          retention-days: 14

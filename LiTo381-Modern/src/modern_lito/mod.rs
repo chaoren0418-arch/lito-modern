@@ -397,6 +397,7 @@ pub mod native_triple_arrow;
 pub mod native_equipment;
 pub mod native_merchant;
 pub mod native_companions;
+pub mod native_chat;
 pub mod native_npc_document;
 pub mod native_npc_images;
 mod native_peer_citizen_probe;
@@ -440,6 +441,9 @@ pub mod native_world_roofs;
 pub mod native_world_effects;
 
 pub mod native_actor_states;
+pub mod native_actor_switch;
+#[cfg(test)]
+mod native_world_occlusion_tests;
 pub mod native_actor_relations;
 
 pub mod native_actor_state_probe;
