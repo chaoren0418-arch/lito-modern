@@ -2,7 +2,13 @@
 
 ## 做了什麼
 
-本張完成九個技能的請求、選單與控制器接線，交付範圍以 `C_USE_SPELL` 格式、施法前置條件及既有收包模型為主。工作分支為 `task/151`，起點為 `3acbeb1`。
+本張完成九個技能的請求、選單與控制器接線，交付範圍以 `C_USE_SPELL` 格式、施法前置條件及既有收包模型為主。工作分支為 `task/151`，起點為 `3acbeb1`；第 2 次嘗試已合併 `origin/main`（`e40c68a`）。
+
+### 第 2 次嘗試（審查退回修正）
+
+- **合併 main**：main 的 #145 已加入通用的 `ItemTarget`／`item_request`／`cast_item`／`observe_item`（服務 12、21）及背包施法 UI。本張刪除自己重複的實作，改為把 107 加入 main 的 `item_targeted`（`12 | 21 | 107`）；`native_login.rs`、`native_login_window.rs` 取 main 版本，本張不再修改這兩檔。`request` 的目標技能分支與 reuse 表併入 main 新增的 20／22／25／27／29／30／33／39／40／41／23／36 後再加上 103／108。
+- **修正 [P2] 79 被覆蓋**：`native_world::World` 新增 `last_item_skill_rejection: Option<u64>`，S10 收到 code 79 時記錄當下 `message_count` 序號；`Pending::observe_item` 改看此序號是否大於 pending 建立時的 `messages`，不再讀 `last_message`。同一輪 poll 依序收到 79 與其他 S10 時仍回傳 `Rejected(79)`；一般施法 `observe` 不讀此欄位，因此不會誤用 79；新 pending 不繼承舊的 79。此修正同時套用到 main 既有的 12／21。
+- **補回歸測試** `item_rejection_survives_later_messages_in_the_same_receive_batch`（已登錄白名單）：先 79、再 161、308，最後才 observe → `Rejected(79)`（含兩秒逾時後）；同狀態的一般 `observe` 為 Pending／NoResponse；新 pending 不繼承舊 79；新 pending 期間 79 後接普通訊息仍為 `Rejected(79)`。
 
 | 技能 | 選擇器 row／column | 封包 body | 本機目標檢查 | reuse 毫秒 |
 |---|---|---|---|---|
@@ -17,12 +23,12 @@
 | 109 力量提升 | 13／4 | 3 bytes | 自施 | 0 |
 
 - `native_skills::selector_only` 同時供請求分派與選單清除游標目標使用。沿用既有自施技能分類，加入本批六個 selector 技能。
-- 107 使用獨立 `ItemTarget`，重用 `native_item_actions::Choice` 與 `native_navigation::InputStamp`。送出前重核連線、角色選擇、物品內容、背包 revision、地圖、世代、角色 incarnation、控制中斷及觀戰狀態。
+- 107 使用 main 共用的 `ItemTarget`（第 1 次嘗試為本張自建，第 2 次併入 main 版本），重用 `native_item_actions::Choice` 與 `native_navigation::InputStamp`。送出前重核連線、角色選擇、物品內容、背包 revision、地圖、世代、角色 incarnation、控制中斷及觀戰狀態。
 - 背包顯示期間可選擇技能並按施法。只有實際點選背包列會建立物品目標，定期畫面刷新會檢查並撤銷失效目標。關閉或切換背包也會清除目標。
 - `LoginController::cast_item` 共用既有施法 pending、冷卻與畫面 gate。訊息 79 在物品施法回覆中顯示拒絕，161／308 不作為施法成功依據。
 - MP、HP、材料、武器適用性與附魔結果交由伺服器裁定。107 採明確背包選取，已裝備武器相關選取政策留給 T049 核對。
 - coverage parser 抽出可獨立測試的 `source_ids`，涵蓋多行／緊湊寫法的 `selector_only`、`item_targeted`，並在 helper 語法未知或 selector 未接入 request 時拒絕產生錯誤統計。
-- 新增九個 Rust 離線測試並登錄 `維護工具/test-whitelist/tests.tsv`，另有四個 Python parser 回歸測試。測試容許後續批次擴增技能支援。
+- 新增十個 Rust 離線測試（第 2 次嘗試新增一個 79 批次收包回歸）並登錄 `維護工具/test-whitelist/tests.tsv`，另有四個 Python parser 回歸測試。測試容許後續批次擴增技能支援。
 
 ## 已驗證
 
@@ -44,7 +50,24 @@
 - 訊息 79、278、280、299 的拒絕回饋，161／308、無回覆、S20 施法動作與跨世代中斷。
 - 既有技能選單、selector、物品操作與技能收包回歸。
 
-### 命令與結果
+### 命令與結果（第 2 次嘗試，合併 main 後）
+
+依 2026-11-09 本機執行限制，本次只在本機編譯、不執行測試執行檔；測試執行交 GitHub Actions CI（PR 最新 commit）。
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+結束碼 0（Finished `dev` profile，僅既存警告；本張觸及的檔案無新警告）
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_101_109 --test native_selector_only --test native_t027_batch1 --no-run
+結束碼 0（三個測試執行檔編譯成功，未執行）
+
+python -B 維護工具/test_native_skill_coverage.py
+結束碼 0；Ran 4 tests in 0.204s；OK
+```
+
+新測試 10 案（含新回歸）的 `test result:` 以 CI 為準，本機未執行，列「待驗證」。
+
+### 命令與結果（第 1 次嘗試，合併 main 前，僅供參考）
 
 所有 Cargo 命令均在 `LiTo381-Modern/` 執行，使用 `--locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current`。下列測試未啟動遊戲程序或伺服器，未連線正式服務或 DB。
 
@@ -117,6 +140,7 @@ Windows PowerShell 5 的暫存 gate wrapper 曾在執行政策／UTF-8 路徑解
 
 ## 待驗證與未驗證什麼
 
+- 第 2 次嘗試的 `cargo test`（含新回歸 `item_rejection_survives_later_messages_in_the_same_receive_batch`）本機未執行，結果以 PR CI 為準。`LoginController` 逐包處理後再 observe 的順序僅以 World 層測試覆蓋，未做控制器整合測試。
 - 未執行正式伺服器施法、原生 GUI 操作、Ctrl 同隊目標、材料不足的真實端到端流程及持續時間自然到期。
 - 本張沒有新增九技能的特效／音效資源資格與渲染接線。S37 model 測試僅涵蓋收包 cue，完整動畫、像素、音效及 106 的 TW 11765 命名空間仍待接線與驗收。
 - 107 的已裝備武器選取政策交由 T049，材料處理器差異依 `docs/SKILLS-STATUS.md` 的伺服器待定項追蹤。
@@ -126,8 +150,7 @@ Windows PowerShell 5 的暫存 gate wrapper 曾在執行政策／UTF-8 路徑解
 
 - `LiTo381-Modern/src/modern_lito/native_skills.rs`
 - `LiTo381-Modern/src/modern_lito/native_skill_selection.rs`
-- `LiTo381-Modern/src/modern_lito/native_login.rs`
-- `LiTo381-Modern/src/modern_lito/native_login_window.rs`
+- `LiTo381-Modern/src/modern_lito/native_world.rs`（第 2 次嘗試：`last_item_skill_rejection`）
 - `LiTo381-Modern/tests/native_skills_101_109.rs`
 - `維護工具/audit-native-E149-skill-catalog.py`
 - `維護工具/test_native_skill_coverage.py`
@@ -139,5 +162,5 @@ Windows PowerShell 5 的暫存 gate wrapper 曾在執行政策／UTF-8 路徑解
 
 - Claude 審查本批請求、背包施法 UI 路徑與驗證範圍，使用者依既定流程合併。
 - 下一批 110–118 沿用 `selector_only`，僅加入該批 ID。113 的 MS950 尾段與後續 21 個 wrapper 的十一位元組形狀依各張 Issue 實作。
-- 後續物品技能可重用 `ItemTarget` 與 `cast_item`。延伸 helper 時同步執行 parser 回歸測試。
+- 後續物品技能只要加入 `item_targeted`，即可重用 main 的 `ItemTarget`、`cast_item` 與序號化的 79 拒絕（`World::last_item_skill_rejection`）。延伸 helper 時同步執行 parser 回歸測試。
 - 調度器應保留上述特效／音效接線及真機驗收待辦，請勿把本張請求測試記成九技能完整玩法驗收。

@@ -364,3 +364,41 @@ fn item_rejection_is_scoped_and_cast_feedback_never_infers_success() {
     state.world.generation += 1;
     assert_eq!(cast.observe_item(&state.world, now), Feedback::Interrupted);
 }
+
+#[test]
+fn item_rejection_survives_later_messages_in_the_same_receive_batch() {
+    let mut state = snapshot();
+    let now = Instant::now();
+    let item = pending(&state, now);
+    // One poll drains every S10 before the controller observes the pending cast:
+    // 79 first, then ordinary messages overwrite last_message.
+    for body in [[0x10u8, 79, 0, 0], [0x10, 161, 0, 0], [0x10, 0x34, 1, 0]] {
+        state.world.accept(&body).unwrap();
+    }
+    assert_ne!(state.world.last_message.as_ref().map(|(code, _)| *code), Some(79));
+    assert_eq!(state.world.message_count, item.messages + 3);
+    assert_eq!(item.observe_item(&state.world, now), Feedback::Rejected(79));
+    assert_eq!(
+        item.observe_item(&state.world, now + Duration::from_secs(2)),
+        Feedback::Rejected(79)
+    );
+    // Ordinary casts never treat 79 as a skill rejection.
+    assert_eq!(item.observe(&state.world, now), Feedback::Pending);
+    assert_eq!(
+        item.observe(&state.world, now + Duration::from_secs(2)),
+        Feedback::NoResponse
+    );
+    // A later pending item cast never inherits the earlier sequenced 79.
+    let next = pending(&state, now);
+    state.world.accept(&[0x10, 161, 0, 0]).unwrap();
+    assert_eq!(next.observe_item(&state.world, now), Feedback::Pending);
+    assert_eq!(
+        next.observe_item(&state.world, now + Duration::from_secs(2)),
+        Feedback::NoResponse
+    );
+    // 79 arriving after other messages for the new pending is still scoped to it.
+    state.world.accept(&[0x10, 79, 0, 0]).unwrap();
+    state.world.accept(&[0x10, 161, 0, 0]).unwrap();
+    assert_eq!(next.observe_item(&state.world, now), Feedback::Rejected(79));
+    assert_eq!(next.observe(&state.world, now), Feedback::Pending);
+}

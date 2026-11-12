@@ -99,14 +99,14 @@ pub fn default_use_type(t: u8) -> bool {
 pub fn available(s: &Snapshot) -> bool {
     matches!(
         s.phase,
-        LoginPhase::LobbyReady | LoginPhase::RoomReady | LoginPhase::BattlePending
+        LoginPhase::LobbyReady | LoginPhase::RoomReady | LoginPhase::BattlePending | LoginPhase::WorldReady
     ) && s.game_connected
         && s.inventory.owner.is_some()
 }
 pub fn request(s: &Snapshot, choice: &Choice, action: Action) -> Result<Vec<u8>> {
     ensure!(available(s), "目前不能操作物品");
     choice.validate(s)?;
-    if s.phase == LoginPhase::BattlePending {
+    if s.phase.active_world() {
         ensure!(
             s.world.ready()
                 && s.world.battle_result.is_none()
@@ -219,7 +219,7 @@ impl Pending {
             && (s.world.portal.is_some() || s.world.completed_portals > self.completed_portals) {
             return Feedback::SceneUpdated;
         }
-        if s.phase == LoginPhase::BattlePending
+        if s.phase.active_world()
             && (s.world.generation != self.generation
                 || s.world.own_actor().map(|a| a.incarnation) != self.incarnation
                 || s.world.battle_result.is_some()

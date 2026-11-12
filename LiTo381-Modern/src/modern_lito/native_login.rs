@@ -6,6 +6,9 @@ use std::{
     time::{Duration, Instant},
 };
 use zeroize::Zeroizing;
+#[path = "native_login_callbacks.rs"]
+mod player_callbacks;
+use super::native_forced_combat::{self, Input as CombatInput};
 
 #[cfg(test)]
 #[path = "native_rental_return_tests.rs"]
@@ -22,6 +25,11 @@ mod movement_tests;
 #[cfg(test)]
 #[path = "native_room_admin_tests.rs"]
 mod room_admin_tests;
+#[path = "native_companion_controller.rs"]
+mod companion_controller;
+#[cfg(test)]
+#[path = "native_forced_combat_controller_tests.rs"]
+mod forced_combat_tests;
 
 pub fn decode_text(bytes: &[u8]) -> Result<String> {
     decode_message(bytes, false)
@@ -316,6 +324,7 @@ pub struct Snapshot {
     pub world: super::native_world::World,
     pub environment: super::native_environment::State,
     pub inventory: super::native_inventory::Inventory,
+    pub companions: super::native_companions::Session,
     pub room_result: Option<u8>,
     pub observer: bool,
     pub room_kick_result: Option<bool>,
@@ -334,6 +343,9 @@ struct RentalReturnReconnect {
     closing: bool,
 }
 pub struct LoginController {
+    player_callbacks: super::native_player_callbacks::Control,
+    presentation_callbacks: bool,
+    static2941: super::native_static2941::Queue,
     teleport: Option<super::native_teleport::Pending>,
     teleport_quit_tx: Option<u64>,
     login_peer: Option<SocketAddr>,
@@ -348,6 +360,8 @@ pub struct LoginController {
     item_pending: Option<super::native_item_actions::Pending>,
     skill_pending: Option<super::native_skills::Pending>,
     skill_item_pending: bool,
+    teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
+    teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
     world_tree_request: Option<(super::native_navigation::InputStamp,Instant)>,
     attack_pending: Option<super::native_combat::Pending>,
@@ -373,7 +387,13 @@ pub struct LoginController {
 }
 impl Default for LoginController {
     fn default() -> Self {
+        // Native 480A60 calls 4D6360 during startup, before queue activity.
+        // This process-wide result (including an error) survives controller reset.
+        super::native_clock::initialize();
         Self {
+            static2941: Default::default(),
+            player_callbacks: Default::default(),
+            presentation_callbacks: false,
             teleport: None,
             teleport_quit_tx: None,
             login_peer: None,
@@ -389,6 +409,8 @@ impl Default for LoginController {
             attack_pending: None,
             skill_pending: None,
             skill_item_pending: false,
+            teleport_spell: None,
+            teleport_bookmarks: Default::default(),
             skill_ready: None,
             world_tree_request: None,
             transport: Controller::default(),
@@ -423,6 +445,7 @@ impl Default for LoginController {
                 world: Default::default(),
                 environment: Default::default(),
                 inventory: Default::default(),
+                companions: Default::default(),
                 room_result: None,
                 observer: false,
                 room_kick_result: None,
@@ -579,6 +602,14 @@ impl LoginController {
         held: &mut super::native_combat::HeldAttack,
         frame: &super::native_world_scene::Frame,
     ) -> Result<bool> {
+        self.continue_attack_with_input(held, frame, CombatInput::default())
+    }
+    pub fn continue_attack_with_input(
+        &mut self,
+        held: &mut super::native_combat::HeldAttack,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+    ) -> Result<bool> {
         let Some(target) = held.ready(
             self.transport.snapshot().epoch,
             &self.state.world,
@@ -588,7 +619,7 @@ impl LoginController {
         ) else {
             return Ok(false);
         };
-        if let Err(error) = self.attack(target) {
+        if let Err(error) = self.attack_with_input(target, input) {
             held.clear();
             return Err(error);
         }
@@ -601,7 +632,16 @@ impl LoginController {
         target: Option<u32>,
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, None, frame)
+        self.cast_with_input(skill, target, frame, CombatInput::default())
+    }
+    pub fn cast_with_input(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+    ) -> Result<()> {
+        self.cast_request(skill, target, None, None, None, frame, input)
     }
     pub fn cast_ground(
         &mut self,
@@ -615,28 +655,36 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), None, frame)
+        self.cast_request(skill, None, Some(position), None, None, frame, CombatInput::default())
     }
-    pub fn cast_item(
-        &mut self,
-        skill: u16,
-        target: &super::native_skills::ItemTarget,
-        frame: &super::native_world_scene::Frame,
-    ) -> Result<()> {
-        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),
-            "等待目前物品操作回覆");
-        self.cast_request(skill, None, None, Some(target), frame)
+    pub fn cast_item(&mut self, skill: u16, item: &super::native_skills::ItemTarget,
+        frame: &super::native_world_scene::Frame) -> Result<()> {
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "等待目前物品操作回覆");
+        self.cast_request(skill, None, None, Some(item), None, frame, CombatInput::default())
     }
-
+    pub fn teleport_labels(&self)->Vec<String> {
+        self.teleport_bookmarks.labels(&self.state,self.transport.snapshot().epoch)
+    }
+    pub fn teleport_choice(&self,index:usize)->Result<super::native_teleport_spell::Choice> {
+        self.teleport_bookmarks.choose(&self.state,self.transport.snapshot().epoch,index)
+    }
+    pub fn teleport_choice_valid(&self,choice:&super::native_teleport_spell::Choice)->bool {
+        choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks).is_ok()
+    }
+    pub fn cast_teleport(&mut self,choice:&super::native_teleport_spell::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
+        self.cast_request(5,None,None,None,Some(choice),frame,CombatInput::default())
+    }
     fn cast_request(
         &mut self,
         skill: u16,
         target: Option<u32>,
         ground: Option<[u16; 2]>,
         item: Option<&super::native_skills::ItemTarget>,
+        teleport: Option<&super::native_teleport_spell::Choice>,
         frame: &super::native_world_scene::Frame,
+        input: CombatInput,
     ) -> Result<()> {
-        ensure!(self.world_tree_request.is_none(),"等待世界樹傳送回覆");
+        ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot cast");
         ensure!(
             self.state.phase.active_world()
@@ -647,22 +695,28 @@ impl LoginController {
         let now = Instant::now();
         ensure!(
             self.skill_ready.is_none_or(|deadline| now >= deadline)
-                && frame.movement_ready(&self.state.world),
+                && (frame.movement_ready(&self.state.world)
+                    || (self.presentation_callbacks && self.player_callbacks.moving()
+                        && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none() && !matches!(skill,60|131)
+                        && frame.input_ready(&self.state.world))),
             "等待施法動作完成"
         );
-        let body = match ground {
+        ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
+        ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
+        let mut body = if let Some(choice)=teleport {
+            choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
+        } else {match ground {
             Some(position) => {
                 super::native_skills::ground_request(&self.state.world, skill, position)?
             }
-            None => match item {
-                Some(item) => super::native_skills::item_request(
-                    &self.state, self.transport.snapshot().epoch, skill, item)?,
-                None => super::native_skills::request(&self.state.world, skill, target)?,
-            },
-        };
-        self.transport
-            .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+            None => if let Some(item) = item {
+                super::native_skills::item_request(&self.state, self.transport.snapshot().epoch, skill, item)?
+            } else { super::native_skills::request(&self.state.world, skill, target)? },
+        }};
+        native_forced_combat::append(&mut body, input, &self.state);
+        self.send_player_action(body)?;
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
+        self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
         self.skill_item_pending = item.is_some();
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
@@ -678,7 +732,11 @@ impl LoginController {
         Ok(())
     }
     pub fn attack(&mut self, target: u32) -> Result<()> {
-        ensure!(self.world_tree_request.is_none(),"等待世界樹傳送回覆");
+        self.attack_with_input(target, CombatInput::default())
+    }
+    pub fn attack_with_input(&mut self, target: u32, input: CombatInput) -> Result<()> {
+        ensure!(!self.player_callbacks.moving(),"等待目前步伐完成");
+        ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot attack");
         ensure!(
             self.state.phase.active_world()
@@ -686,9 +744,9 @@ impl LoginController {
                 && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
             "attack unavailable or awaiting server"
         );
-        let body = self.state.world.attack_request(target)?;
-        self.transport
-            .send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+        let mut body = self.state.world.attack_request(target)?;
+        native_forced_combat::append(&mut body, input, &self.state);
+        self.send_player_action(body)?;
         self.attack_pending = Some(super::native_combat::Pending {
             since: Instant::now(),
             count: self.state.world.own_attack_packets,
@@ -700,16 +758,17 @@ impl LoginController {
     }
     pub fn confirm_death(&mut self, frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(
-            self.state.phase == LoginPhase::BattlePending && frame.death_ready(&self.state.world),
+            self.state.phase == LoginPhase::BattlePending && !self.state.observer
+                && frame.death_ready(&self.state.world),
             "death animation/authority not ready"
         );
-        self.transport
-            .send(self.transport.snapshot().epoch, Zeroizing::new(vec![0xe0]))?;
-        self.state.world.death_confirmation_pending = false;
-        self.state.world.death_confirmations_sent += 1;
-        self.state.world.last_death_confirmed_action =
-            self.state.world.own_actor().map(|a| a.action_sequence);
-        self.deadline = Some(Instant::now() + Duration::from_secs(8));
+        let epoch = self.transport.snapshot().epoch;
+        self.state.world.acknowledge_death(|body|
+            self.transport.send(epoch, Zeroizing::new(body.to_vec())))?;
+        // CE0 has no correlated response or client-owned respawn deadline.
+        // E149 schedules Honor at 5000ms, but delivery can be delayed and other
+        // resolutions can leave the player dead. Keep waiting for authority;
+        // preserve any independent withdrawal deadline already in progress.
         Ok(())
     }
     pub fn request_battle_withdrawal(&mut self) -> Result<()> {
@@ -744,7 +803,14 @@ impl LoginController {
         frame: &super::native_world_scene::Frame,
     ) -> Result<()> {
         ensure!(frame.movement_ready(&self.state.world), "等待目前步伐抵達或更新畫面");
-        self.move_checked(heading, &frame.navigation)
+        self.move_checked(heading, &frame.navigation)?;
+        if self.presentation_callbacks {
+            if let Some(plan)=&frame.player_walk_plan {
+                self.player_callbacks.start(&mut self.static2941,&mut self.state.world,
+                    self.transport.snapshot().epoch,plan.clone(),&mut super::native_clock::sample)?;
+            }
+        }
+        Ok(())
     }
     /// Low-level protocol probes own their animation clock; interactive callers
     /// must use move_presented so an in-flight step cannot be skipped.
@@ -757,7 +823,7 @@ impl LoginController {
         self.move_step(heading)
     }
     pub fn move_step(&mut self, heading: u8) -> Result<()> {
-        ensure!(self.world_tree_request.is_none(),"等待世界樹傳送回覆");
+        ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer,"observer cannot move a player");
         ensure!(
             self.attack_pending.is_none() && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
@@ -826,6 +892,8 @@ impl LoginController {
         self.state.pickup_feedback = super::native_ground_pickup::Feedback::Interrupted;
         self.item_pending = None;
         let generation = self.state.world.generation;
+        self.static2941.retire();
+        self.state.world.retire_static_effects();
         self.state = Self::default().state;
         self.state.world.generation = generation;
         self.state.phase = LoginPhase::Connecting;
@@ -843,7 +911,7 @@ impl LoginController {
         self.pending_roster_forces.clear();self.early_roster.clear();
         self.attack_pending = None;
         self.skill_pending = None;
-        self.world_tree_request=None;
+        self.world_tree_request=None;self.teleport_spell=None;
         self.skill_ready = None;
         self.readiness_acked = false;
         self.confirm_initial_source = false;
@@ -998,7 +1066,7 @@ impl LoginController {
             self.state.selected_character.as_deref().unwrap(),
         )?;
         self.skill_pending = None;
-        self.world_tree_request=None;
+        self.world_tree_request=None;self.teleport_spell=None;
         self.skill_ready = None;
         self.state.skill_feedback = Default::default();
         self.state.phase = if classic {LoginPhase::ClassicEntryPending}else{LoginPhase::CharacterPending};
@@ -1499,6 +1567,13 @@ impl LoginController {
         Ok(true)
     }
     fn accept_game(&mut self, body: &[u8]) -> Result<()> {
+        self.accept_game_received(body, None)
+    }
+    fn accept_game_received(&mut self, body: &[u8], ingress: Option<super::native_connection::IngressReceipt>) -> Result<()> {
+        let dispatched_at = Instant::now();
+        if let Some(receipt) = ingress {
+            ensure!(receipt.connection_epoch() == self.transport.snapshot().epoch, "world ingress connection retired");
+        }
         if self.state.phase==LoginPhase::TeleportQuitPending {
             if body.first()==Some(&0xf0) {
                 ensure!(body==[0xf0,0],"malformed teleport quit acknowledgement");
@@ -1511,6 +1586,7 @@ impl LoginController {
             // Already queued old-world updates cannot repopulate its authority.
             return Ok(());
         }
+        if self.teleport_bookmarks.receive(&self.state,self.transport.snapshot().epoch,body)? {return Ok(());}
         let environment_packet = self.state.environment.accept(self.transport.snapshot().epoch, body)?;
         if environment_packet && !matches!(body.first(), Some(0x0c | 0x21)) {
             return Ok(());
@@ -1558,6 +1634,7 @@ impl LoginController {
             self.rental_restart_quit_pending=false;
             self.deadline=Some(Instant::now()+Duration::from_secs(8));return Ok(());
         }
+        if self.receive_companion(body)? { return Ok(()); }
         if body.first()==Some(&0x5b){
             let owner=self.merchant_owner();self.state.merchant.tick(owner.as_ref(),Instant::now());
             self.state.merchant.accept_input(super::native_merchant::parse_input(body)?,Instant::now())?;return Ok(());
@@ -1600,12 +1677,17 @@ impl LoginController {
         }
         if body.first()==Some(&0x5a){
             let destination=super::native_portal::parse(body)?;
+            let teleport = self.teleport_spell.take().filter(|(stamp, since, _)|
+                *stamp == super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world)
+                && since.elapsed() < Duration::from_secs(2));
             let tree=self.world_tree_request.take().filter(|(stamp,since)|
                 *stamp==super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world)
                 && since.elapsed()<Duration::from_secs(2));
             if tree.is_some(){
                 super::native_portal::admit_world_tree(&self.state,destination)?;
                 self.state.phase=LoginPhase::WorldEntering;
+            } else if let Some((_,_,map)) = teleport {
+                super::native_portal::admit_teleport_spell(&self.state, destination, map)?;
             }else{super::native_portal::admit(&self.state,destination)?;}
         }
         if body.first() == Some(&0x28) {
@@ -1616,7 +1698,19 @@ impl LoginController {
             );
         }
         let previous_world_generation=self.state.world.generation;
-        if self.state.world.accept(body)? {
+        let previous_resurrections = self.state.world.resurrection_packets;
+        let world_accepted = match ingress {
+            Some(receipt) => self.state.world.accept_received(body, receipt)?,
+            None => self.state.world.accept(body)?,
+        };
+        self.static2941.synchronize(&self.state.world, self.transport.snapshot().epoch);
+        if world_accepted {
+            self.player_callbacks.synchronize(&mut self.static2941,&mut self.state.world,self.transport.snapshot().epoch);
+            self.player_callbacks.accepted(body,&self.state.world);
+            self.tick_companions();
+            if let Some(receipt) = ingress {
+                self.static2941.admit_received(&mut self.state.world, self.transport.snapshot().epoch, receipt, dispatched_at)?;
+            }
             if matches!(body.first(), Some(0x28 | 0x5a)) {
                 self.state.environment.map_changed(self.transport.snapshot().epoch,
                     self.state.world.map_id.context("accepted environment map")?,
@@ -1659,22 +1753,19 @@ impl LoginController {
                 if let Some(room)=self.state.joined_room.as_mut(){room.map_id=self.state.world.map_id.context("portal map")?;}
                 self.deadline=None;
             }
-            if body.first() == Some(&0x11) {
-                if let Some(event) = self.state.world.last_resurrection {
+            if body.first() == Some(&0x11) && self.state.world.resurrection_packets != previous_resurrections {
+                if let Some(event) = self.state.world.last_resurrection
+                    .filter(|event| self.state.world.actors.contains_key(&event.target)) {
                     let own = self.state.world.own_actor().is_some_and(|a| a.id == event.target);
                     if own || self.attack_pending.as_ref().is_some_and(|p| p.target == event.target) {
                         self.attack_pending = None;
                         self.state.attack_feedback = super::native_combat::Feedback::Interrupted;
                     }
                     if own {
-                        // S_RESURRECT completes C_CONFIRM_DEATH's response wait;
-                        // keeping that deadline disconnects a live honor player.
-                        self.deadline = None;
-                        self.skill_pending = None;
-        self.world_tree_request=None;
-                        self.state.skill_feedback = super::native_skills::Feedback::Interrupted;
-                        self.door_pending = None;
-                        self.door_feedback = super::native_doors::Feedback::Interrupted;
+                        // Retire every old-life request, even when death and
+                        // resurrection arrive in the same poll. An unrelated
+                        // withdrawal/return deadline still belongs to its request.
+                        self.interrupt_world_actions();
                     }
                 }
             }
@@ -1847,6 +1938,7 @@ impl LoginController {
         Ok(())
     }
     pub fn cancel(&mut self) {
+        self.static2941.retire();
         self.rental_return_reconnect=None;
         self.confirm_initial_source = false;
         self.state.environment.retire();
@@ -1925,7 +2017,26 @@ impl LoginController {
         };
         Ok(())
     }
+    /// Accepted worker proofs enter the controller before the next poll drain.
+    /// Loading and paint never provide native timer samples.
+    pub(crate) fn enqueue_static2941(&mut self, root: &std::path::Path,
+        prepared: Vec<super::native_static2941::Prepared>) -> Result<()> {
+        for proof in prepared {
+            self.static2941.enqueue_prepared(&mut self.state.world, self.transport.snapshot().epoch,
+                root, proof, super::native_clock::sample)?;
+        }
+        Ok(())
+    }
     pub fn poll(&mut self) {
+        self.poll_inner(None);
+    }
+    pub(crate) fn poll_presented(&mut self, root: &std::path::Path,
+        presentation: &mut super::native_world_view::Presentation) {
+        self.presentation_callbacks=true;
+        self.poll_inner(Some((root,presentation)));
+    }
+    fn poll_inner(&mut self, mut presentation: Option<(&std::path::Path,&mut super::native_world_view::Presentation)>) {
+        self.tick_companions();
         for event in self.transport.poll() {
             if matches!(
                 self.state.phase,
@@ -1974,10 +2085,12 @@ impl LoginController {
                         Ok(())
                     }
                 }
-                Event::Packet { epoch, body, .. } => {
+                Event::Packet { epoch, body, rx_counter, receipt } => {
                     if epoch != self.transport.snapshot().epoch { continue; }
-                    if self.game {
-                        self.accept_game(&body)
+                    if receipt.connection_epoch() != epoch || receipt.rx_counter() != rx_counter {
+                        Err(anyhow::anyhow!("native packet receipt identity mismatch"))
+                    } else if self.game {
+                        self.accept_game_received(&body, Some(receipt))
                     } else {
                         parse(&body).and_then(|packet| self.accept(packet))
                     }
@@ -1996,7 +2109,19 @@ impl LoginController {
             if let Err(error) = result {
                 self.fail(format!("{error:#}"));
             }
+            // S37/169's nested pump completes before dispatching the next
+            // packet in this transport batch, as in 4ADDA0's virtual-call tail.
+            if let Some((root,view))=presentation.as_mut() {
+                if let Err(error)=self.run_player_callbacks(root,view,true) {self.fail(format!("player callback: {error:#}"));}
+            }
         }
+        let connection = self.transport.snapshot().epoch;
+        self.static2941.synchronize(&self.state.world, connection);
+        let drain = if let Some((root,view))=presentation.as_mut() {
+            self.run_player_callbacks(root,view,false)
+        } else {super::native_clock::sample().and_then(|sample|
+            self.static2941.drain_due(&mut self.state.world, connection, sample).map(|_|()))};
+        if let Err(error) = drain { self.fail(format!("native callback: {error:#}")); }
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);
             if let Err(error)=self.state.environment.water_poll(epoch,generation) {
@@ -2010,6 +2135,10 @@ impl LoginController {
             self.fail("room force notification was not followed by membership".into());
         }
         if self.world_tree_request.is_some_and(|(_,since)|since.elapsed()>=Duration::from_secs(2)){self.world_tree_request=None;}
+        if self.teleport_spell.is_some_and(|(stamp, since, _)| since.elapsed() >= Duration::from_secs(2)
+            || stamp != super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world)) {
+            self.teleport_spell = None;
+        }
         if let Some(pending)=&self.portal_entry {
             self.portal_feedback=if self.state.phase==LoginPhase::BattlePending {
                 pending.observe(self.transport.snapshot().epoch,&self.state.world,Instant::now())
@@ -2038,18 +2167,17 @@ impl LoginController {
         }
         if let Some(pending) = &self.skill_pending {
             let feedback = if self.state.phase.active_world() {
-                if self.skill_item_pending {
-                    pending.observe_item(&self.state.world, Instant::now())
-                } else {
-                    pending.observe(&self.state.world, Instant::now())
-                }
+                if self.player_callbacks.pending() {super::native_skills::Feedback::Pending}
+                else if self.skill_item_pending { pending.observe_item(&self.state.world, Instant::now()) }
+                else { pending.observe(&self.state.world, Instant::now()) }
             } else {
                 super::native_skills::Feedback::Interrupted
             };
             self.state.skill_feedback = feedback;
             if feedback != super::native_skills::Feedback::Pending {
+                self.player_callbacks.cancel_pending();
                 self.skill_pending = None;
-                if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;}
+                if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;self.teleport_spell=None;}
             }
         }
         if let Some(pending) = &self.attack_pending {
@@ -2196,6 +2324,7 @@ impl LoginController {
             source:self.state.selected_source.clone()?,character:teleport.character.clone()})
     }
     fn fail(&mut self, error: String) {
+        self.static2941.retire();
         self.rental_return_reconnect=None;
         self.confirm_initial_source = false;
         self.state.environment.retire();
@@ -2227,6 +2356,10 @@ impl LoginController {
         self.transport.cancel();
     }
     fn interrupt_world_actions(&mut self) {
+        self.player_callbacks.cancel_pending();self.player_callbacks.cancel();
+        self.state.companions.clear();
+        self.teleport_spell = None;
+        self.skill_item_pending = false;
         self.attack_pending=None;self.skill_pending=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;
@@ -2973,3 +3106,7 @@ fn probe_flow(
 #[cfg(test)]
 #[path = "native_pending_join_departure_tests.rs"]
 mod pending_join_departure_tests;
+
+#[cfg(test)]
+#[path = "native_resurrection_tests.rs"]
+mod resurrection_tests;
