@@ -135,3 +135,4 @@
 - 2026-11-13 — #335 T056-2: T056（M3 2/2）: src/：名稱、徽章與 FA／S69 狀態呈現（G07）（code，claude-local，PR 已合併）→ [報告](reports/issue-335.md)
 - 2026-11-13 — #340 T059-1: T059（M3 1/2）: 音效裝置生命週期（G09）（code，claude-local，PR #364 已合併）→ [報告](reports/issue-340.md)
 - 2026-11-13 — #308 T036-3: T036（M3 3/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR 已合併）→ [報告](reports/issue-308.md)
+- 2026-11-13 — #331 T052-2: T052（M3 2/2）: src/：裝備與彈藥 UI、地面拾取、特殊物品選項（code，claude-local，PR 已合併）→ [報告](reports/issue-331.md)
