@@ -131,3 +131,4 @@
 - 2026-11-12 — #314 T036-9: T036（M3 9/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR 已合併）→ [報告](reports/issue-314.md)
 - 2026-11-12 — #330 T052-1: T052（M3 1/2）: src/：裝備與彈藥 UI、地面拾取、特殊物品選項（code，claude-local，PR 已合併）→ [報告](reports/issue-330.md)
 - 2026-11-12 — #334 T056-1: T056（M3 1/2）: src/：名稱、徽章與 FA／S69 狀態呈現（G07）（code，claude-local，PR #362 已合併）→ [報告](reports/issue-334.md)
+- 2026-11-13 — #328 T049-1: T049（M3 1/2）: src/：背包與介面文字（code，claude-local，PR #360 已合併）→ [報告](reports/issue-328.md)
