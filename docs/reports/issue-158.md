@@ -70,6 +70,24 @@ python -B 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 10 tests in 0.055s；OK
 ```
 
+### 第二次同步 origin/main（`64a3796`，#156 T022 批 6 與 #296 合併後）
+
+PR #294 再次與 main 衝突（批 6 的 167–176 改了同幾行）。衝突 3 檔，兩邊都保留：
+
+- `native_skills.rs` 4 處：`selector_only`（加 169、171、172、175、176 與本張 189–191、195）、⑩ 分支清單與射程表（167＝8、173＝3、174 與 194 都套畫面菱形）、`reuse_millis`、`client_clock_millis`（main 的 167–176 與本張 191、192、194）。
+- `native_skill_selection.rs`：選單文字 167–176 與 189–195 並列。
+- `維護工具/test-whitelist/tests.tsv`：`native_skills_167_176` 8 列與 `native_skills_189_195` 7 列並列。
+
+`test_native_skill_coverage.py` 自動合併，`docs/REPORT.md` 是 main 版本。同步後重跑：
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+結束碼 0
+
+python -B 維護工具/test_native_skill_coverage.py
+結束碼 0；Ran 11 tests in 0.056s；OK
+```
+
 同步前的 commit `67866b9` 在 PR #294 的 CI 只有 `cargo check` 一項，結果 SUCCESS；CI 沒有執行 `cargo test`，所以仍然沒有 `test result:` 可附。
 
 ## 推測
