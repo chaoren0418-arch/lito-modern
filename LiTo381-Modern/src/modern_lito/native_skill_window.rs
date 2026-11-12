@@ -2,7 +2,7 @@
 use super::*;
 use windows::Win32::UI::Input::KeyboardAndMouse::GetKeyState;
 
-pub(super) const BOOK: u16 = 138;
+pub(super) const BOOK: u16 = 399; // 138/139 belong to main's character paging.
 pub(super) const FIRST: u16 = 400;
 pub(super) const LAST: u16 = FIRST + 7;
 
@@ -102,6 +102,8 @@ impl Ui {
             return;
         }
         let width = (area.right - px(32)).max(px(80));
+        // Skill 5 shows the teleport row and lifts the status box by 40.
+        let lift = if self.skills.selected() == Some(5) { px(40) } else { 0 };
         let _ = MoveWindow(
             self.control(BOOK),
             px(16),
@@ -113,7 +115,7 @@ impl Ui {
         let _ = MoveWindow(
             self.control(SKILL_LABEL),
             px(16),
-            area.bottom - px(453),
+            area.bottom - px(453) - lift,
             width,
             px(24),
             true,
@@ -121,7 +123,7 @@ impl Ui {
         let _ = MoveWindow(
             self.control(SKILLS),
             px(16),
-            area.bottom - px(425),
+            area.bottom - px(425) - lift,
             width,
             px(170),
             true,

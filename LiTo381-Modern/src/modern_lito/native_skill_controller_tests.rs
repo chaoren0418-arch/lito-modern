@@ -127,7 +127,7 @@ fn rejection_timeout_and_failed_send_do_not_mutate_authority_or_create_retries()
     let before = serde_json::to_value(&c.state.world).unwrap();
     let f = frame(&c.state.world, true);
     assert!(c
-        .cast_request_at(2, None, None, &f, now + Duration::from_secs(3))
+        .cast_request_at(2, None, None, None, None, &f, CombatInput::default(), now + Duration::from_secs(3))
         .unwrap_err()
         .to_string()
         .contains("native send owner"));
@@ -174,7 +174,7 @@ fn animation_boundary_is_resource_clock_and_respects_speed_and_longer_reuse() {
             if ms < end {
                 let before = serde_json::to_value(&c.state.world).unwrap();
                 assert!(c
-                    .cast_request_at(2, None, None, &f, now + Duration::from_millis(ms))
+                    .cast_request_at(2, None, None, None, None, &f, CombatInput::default(), now + Duration::from_millis(ms))
                     .unwrap_err()
                     .to_string()
                     .contains("等待施法動作完成"));
@@ -290,14 +290,14 @@ fn owned_encrypted_transport_sends_once_until_ack_and_animation_complete() {
         .bound(c.transport.snapshot().epoch, &c.state.world, 0)
         .unwrap();
     let before = serde_json::to_value(&c.state.world).unwrap();
-    c.cast_request_at(first, None, None, &ready, now).unwrap();
+    c.cast_request_at(first, None, None, None, None, &ready, CombatInput::default(), now).unwrap();
     let count = c.transport.queued_tx_counter().unwrap();
     for slot in [0, 1, 0, 1] {
         let id = book
             .bound(c.transport.snapshot().epoch, &c.state.world, slot)
             .unwrap();
         assert!(c
-            .cast_request_at(id, None, None, &ready, now + Duration::from_millis(10))
+            .cast_request_at(id, None, None, None, None, &ready, CombatInput::default(), now + Duration::from_millis(10))
             .is_err());
         assert_eq!(c.transport.queued_tx_counter(), Some(count));
     }
@@ -307,10 +307,10 @@ fn owned_encrypted_transport_sends_once_until_ack_and_animation_complete() {
     c.observe_skill(now + Duration::from_millis(10));
     let animating = frame(&c.state.world, false);
     assert!(c
-        .cast_request_at(3, None, None, &animating, now + Duration::from_millis(1479))
+        .cast_request_at(3, None, None, None, None, &animating, CombatInput::default(), now + Duration::from_millis(1479))
         .is_err());
     assert_eq!(c.transport.queued_tx_counter(), Some(count));
-    c.cast_request_at(3, None, None, &ready, now + Duration::from_millis(1480))
+    c.cast_request_at(3, None, None, None, None, &ready, CombatInput::default(), now + Duration::from_millis(1480))
         .unwrap();
     // The cipher counter advances by payload bytes, not by packet count.
     // The owned peer verifies the exact two decrypted requests.

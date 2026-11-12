@@ -37,6 +37,7 @@ pub struct Target {
     incarnation: u64,
     target_revision: u64,
     generation: u64,
+    corpse_action: Option<u64>,
 }
 impl Target {
     pub fn capture(world: &World, id: u32) -> Option<Self> {
@@ -49,10 +50,21 @@ impl Target {
             incarnation: a.incarnation,
             target_revision: a.target_revision,
             generation: world.generation,
+            corpse_action: a.dead.then_some(a.action_sequence),
         })
     }
+    /// A living selection cannot become a corpse authorization after death,
+    /// and a captured corpse cannot become a living authorization on revival.
+    pub fn resolve_for_skill(self, world: &World, skill: u16) -> Option<u32> {
+        if skill != 41 { return self.resolve(world); }
+        (world.generation == self.generation && world.actor_visible(self.id)
+            && world.actors.get(&self.id).is_some_and(|a|
+                a.incarnation == self.incarnation && a.target_revision == self.target_revision
+                && a.dead && self.corpse_action == Some(a.action_sequence)
+                && !super::native_obstacles::destroyed_guardian(a))).then_some(self.id)
+    }
     pub fn resolve(self, world: &World) -> Option<u32> {
-        (world.generation == self.generation
+        (self.corpse_action.is_none() && world.generation == self.generation
             && world.actor_visible(self.id)
                 && world.actors.get(&self.id).is_some_and(|a| {
                 a.incarnation == self.incarnation
@@ -101,7 +113,7 @@ pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choic
         None
     } else {
         target
-            .map(|t| t.resolve(world).context("選取的目標已失效，請重新點選"))
+            .map(|t| t.resolve_for_skill(world, skill).context("選取的目標已失效，請重新點選"))
             .transpose()?
     };
     native_skills::request(world, skill, target)?;
@@ -155,6 +167,22 @@ impl Model {
                         2 => "#2 日光術（自己）".into(),
                         3 => "#3 護盾（自己）".into(),
                         4 => "#4 光箭（選取目標）".into(),
+                        5 => "#5 指定傳送（隨機／書籤）".into(),
+                        12 => "#12 擬似魔法武器（選取背包物品）".into(),
+                        20 => "#20 闇盲咒術（選取目標，一格內）".into(),
+                        21 => "#21 鎧甲護持（選取背包物品）".into(),
+                        22 => "#22 寒冰氣息（選取目標，六格內）".into(),
+                        23 => "#23 能量感測（選取怪物，畫面內）".into(),
+                        25 => "#25 燃燒的火球（選取目標，六格內）".into(),
+                        27 => "#27 壞物術（選取目標，四格內；消耗魔法寶石）".into(),
+                        29 => "#29 緩速術（選取目標，八格內）".into(),
+                        30 => "#30 巖牢（選取目標，八格內）".into(),
+                        33 => "#33 木乃伊的詛咒（選取目標，兩格內）".into(),
+                        36 => "#36 迷魅術（選取怪物，畫面內）".into(),
+                        37 => "#37 聖潔之光（選取目標／自己）".into(),
+                        39 => "#39 魔力奪取（選取目標／自己，四格內）".into(),
+                        40 => "#40 黑闇之影（選取目標，三格內）".into(),
+                        41 => "#41 造屍術（選取屍體，畫面內）".into(),
                         6 => "#6 冰箭（選取目標）".into(),
                         7 => "#7 風刃（選取目標）".into(),
                         8 => "#8 神聖武器（選取目標／自己）".into(),
@@ -230,6 +258,12 @@ impl Model {
     }
     pub fn choice(&self, connection: u64, world: &World, target: Option<Target>) -> Result<Choice> {
         self.choice_at(connection, world, target, None)
+    }
+    pub fn selected_skill(&self, connection: u64, world: &World) -> Result<u16> {
+        ensure!(self.owner.is_some() && self.owner == Owner::current(connection, world), "技能畫面已失效");
+        let skill = self.selected.context("請先選擇已學會的技能")?;
+        ensure!(world.learned_skills.contains(&skill), "技能清單已更新");
+        Ok(skill)
     }
     pub fn choice_at(
         &self,
