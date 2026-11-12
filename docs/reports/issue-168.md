@@ -49,7 +49,18 @@ exit=0
 
 另外修改既有測試：`tests/native_combat.rs` 的回覆模擬補上 `own_attack_log`（新規則下只加計數不算確認）；`native_resurrection_tests.rs` 的 `Pending` 補 `messages` 欄位。
 
-CI 結果：見 PR 的 `build` 工作（`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast`）；本報告送出時尚未取得，完成後由 PR 留言補上 `test result:` 原文。整合測試 `tests/native_combat.rs` 不在 CI 範圍（部分案例要讀本機客戶端資源），本輪**未執行**。
+CI 結果（PR #278 的 `build` 工作：`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast`）：
+
+第一輪（run 43160990253）**失敗**，不算通過：
+
+```text
+test modern_lito::native_combat_ops::tests::chase_step_is_greedy_bounded_and_respects_gate ... FAILED
+  left: Blocked
+ right: Step(2)
+test result: FAILED. 2139 passed; 1 failed; 590 ignored; 0 measured; 0 filtered out; finished in 19.67s
+```
+
+原因是測試期望寫錯，不是程式錯：目標在正對角時，直行被擋後左右相鄰方向都不會縮短 Chebyshev 距離，`chase_step` 回 `Blocked` 符合設計（不做會來回擺盪的側移）。已改成用非正對角目標測「繞相鄰方向」，並另加正對角回 `Blocked` 的斷言；修正後的結果見 PR 最新 commit 的 CI 與 PR 留言。其他 15 個新測試與既有 lib 測試在第一輪都通過。整合測試 `tests/native_combat.rs` 不在 CI 範圍（部分案例要讀本機客戶端資源），本輪**未執行**。
 
 ## 推測
 

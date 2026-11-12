@@ -168,7 +168,10 @@ fn chase_step_is_greedy_bounded_and_respects_gate() {
     assert_eq!(chase_step([10, 10], [29, 10], 19, open), ChaseStep::InReach);
     // Direct heading blocked: a neighbour that still reduces distance.
     let no_direct = |_: i32, _: i32, h: u8| h != 3;
-    assert_eq!(chase_step([10, 10], [15, 15], 1, no_direct), ChaseStep::Step(2));
+    assert_eq!(chase_step([10, 10], [15, 12], 1, no_direct), ChaseStep::Step(2));
+    // Exact diagonal: orthogonal neighbours do not shorten Chebyshev distance,
+    // so no sidestep is taken (avoids oscillation without pathfinding).
+    assert_eq!(chase_step([10, 10], [15, 15], 1, no_direct), ChaseStep::Blocked);
     // Straight line: neighbours (diagonals) still reduce Chebyshev distance.
     assert_eq!(chase_step([10, 10], [10, 5], 1, |_, _, h| h != 0), ChaseStep::Step(7));
     assert_eq!(chase_step([10, 10], [15, 15], 1, |_, _, _| false), ChaseStep::Blocked);
