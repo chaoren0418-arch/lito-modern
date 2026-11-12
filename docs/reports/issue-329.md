@@ -56,7 +56,6 @@
 
 ## 待驗證
 
-- 新增的 lib 單元測試 8 個（`native_messages::tests`）**本機未執行**，等 CI。其中 `tables_are_parsed_leniently` 用到 Windows 的 CP950 轉換。
 - 實際字表在 Windows `MultiByteToWideChar(950, MB_ERR_INVALID_CHARS)` 下是否每列都解得出來（Python 的 cp950 全部解得出來；解不出的列會留空並計入 `undecodable`）。
 - 實機（需開遊戲，交 Codex／使用者）：
   - L12：通知 438 是否顯示整段中文，狀態區是否放得下。
@@ -101,4 +100,6 @@
 
 ## 建置結果
 
-本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，3 分 12 秒）。本機未執行測試。CI 結果見 PR。
+本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，3 分 12 秒）。本機未執行測試。
+
+PR #370 第一個 commit 的 CI（run 43269639808）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2398 passed／0 failed／597 ignored；本張新增的 8 個單元測試（含用到 Windows CP950 轉換的 `tables_are_parsed_leniently`）都在通過清單內。之後只改了本報告這一段與「待驗證」第一項。
