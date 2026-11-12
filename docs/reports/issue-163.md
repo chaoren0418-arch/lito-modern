@@ -21,6 +21,8 @@
 - 合併後 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` **結束碼 0**，原文結尾 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 22s``（日誌 `scratch/issue-163/check-merged.log`，不追蹤）。
 - 依使用者 2026-11-09 規定，本輪**未在本機執行任何測試二進位**；下方「已驗證」的 `test result:` 是第 1 次嘗試於 2026-11-06（基底 `59f0c2b`，規定生效前）的結果。合併後的測試結果以 PR CI（`cargo test --lib`，含 `tw_healing_generations_reject_mixed_changed_and_unknown_identity`）為準；需要共享資源的整合測試與 ignored golden 列入「待驗證」。
 
+- PR CI（run 43147278446，commit `cc77081`）：`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast` 通過，原文 `test result: ok. 2026 passed; 0 failed; 586 ignored; 0 measured; 0 filtered out; finished in 10.78s`。586 ignored 是需要共享資源的測試（含本張全 caster golden），不算通過。
+
 ## 已驗證
 
 2026-11-06，本張 10 組 Debug 測試合計 **33 passed／0 failed／0 ignored**，所有 Cargo test 結束碼 **0**，T012 解析門檻均為 PASS。全 caster 測試會先呼叫原 C# golden 前置測試，不重複灌入測試總數。來源基底為 `59f0c2bcd7dc4435ba43186f7767130ab7869af1` 加本分支變更。
