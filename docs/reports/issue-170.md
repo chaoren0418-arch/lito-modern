@@ -61,15 +61,20 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 ## 已驗證
 
 - 上面的 `cargo check`（all-targets，以及開 feature 的 integration 測試檔）結束碼 0、javac 結束碼 0、runner 語法解析 0 錯。
+- PR #273 的 GitHub Actions CI（run 43155337978，commit `a292c93`，windows-latest）：`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast` 都通過，conclusion `success`。
+
+```text
+test result: ok. 2049 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 21.29s
+```
+
+本張新增的 10 案都列為 `... ok`：`teleport_wire_tests::{repeated_cancellation_before_and_after_quiescence_keeps_one_recovery, failed_handoff_then_repeated_cancel_keeps_the_authenticated_recovery, recovery_game_rejects_previous_generation_endpoint_reply, recovery_game_malformed_directory_reply_fails_without_retry}`，以及 `native_skill_effects::finite_history_tests` 的 6 案。符合 `run-local-test-suite.ps1` 的門檻：passed > 0、failed 0、結束碼 0。585 個 ignored 不算通過。
 
 ## 推測
 
-- 新 wire 案例的預期行為是讀 `native_login.rs` 推出來的：F4 在 `BattlePending` 以外一律 `unsolicited teleport endpoint`；S03 的長度與正負號在 `native_source_identity::decode` 檢查；`fail()`／`cancel()` 對關聯的保留與取用規則。實際結果要看 CI。
-- refused 案例在 Windows loopback 上可能約 1～2 秒才回報拒絕，所以給 10 秒上限（`pump_for`）。
+- refused 案例在 Windows loopback 上可能約 1～2 秒才回報拒絕，所以給 10 秒上限（`pump_for`）。CI 這次通過，但 runner 機器負載不同時的時序沒有另外量測。
 
 ## 待驗證／未驗證什麼
 
-- **CI 的 `cargo test --lib` 結果（含新的 4 個 wire 案例與 6 個 History 單元測試）**：push 後看 PR 的 CI。本報告不宣稱任何測試通過。
 - `--features teleport-wire-test --test native_teleport_failure -- recovery_`（CI 沒跑這個 feature）：交給本機測試執行者。
 - 3 個正式 ignored scenario（cancel-repeat、refused-cancel-repeat、cancel-expiry-source）的 E149 owned runtime、Java fixture runtime、runner 全流程都沒跑；ignored／filtered 都不算通過。
 - 四 profile History 只有純狀態測試，沒有用原資源實際繪製或播放音效來驗證，GUI 也沒驗。
