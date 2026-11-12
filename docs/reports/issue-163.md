@@ -14,6 +14,13 @@
 
 目前唯讀資源身分：`D:\lineage開發\0-客戶端\launcher\TW13081901.pak`，1,406,534 bytes，SHA256 `92b512a32349d0775e1036f1832e21f1141ae66e64821d6978f0879246e59ca7`；解碼文字 5,990,880 bytes，SHA256 `28c4fc600833fb8c609ab195a67ff926e8ffa571100d8d4b389a23be8c2c8db8`。僅資格化 11722–11726 五筆，並未授權整份新版 pack 的其他技能。11722 是同一既有治癒 bank 的必需相依，沒有新增技能 1 的行為。
 
+## 第 2 次嘗試（2026-11-12，claude-local）
+
+- 分支落後 main 35 個 commit，`git merge origin/main`（main 頂端 `e40c68a`）自動合併、無衝突；`light_arrow_effect.rs`、`tower_assets.rs` 兩個重疊檔已逐段核對，本張的冰箭 233 項額度、TW 治癒世代配對與 main 新增的 S39 火球路徑、ReviewedEarthJail 策略並存。
+- 補上 `維護工具/test-whitelist/tests.tsv`：`native_t028_targets` 7 個測試（需共享資源者第 3 欄 `yes`：治癒定義 SHA、延遲回呼、有限特效邊界、寒冷／吸血），讓 `run-local-test-suite.ps1` 會實際跑到本張新測試。
+- 合併後 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` **結束碼 0**，原文結尾 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 22s``（日誌 `scratch/issue-163/check-merged.log`，不追蹤）。
+- 依使用者 2026-11-09 規定，本輪**未在本機執行任何測試二進位**；下方「已驗證」的 `test result:` 是第 1 次嘗試於 2026-11-06（基底 `59f0c2b`，規定生效前）的結果。合併後的測試結果以 PR CI（`cargo test --lib`，含 `tw_healing_generations_reject_mixed_changed_and_unknown_identity`）為準；需要共享資源的整合測試與 ignored golden 列入「待驗證」。
+
 ## 已驗證
 
 2026-11-06，本張 10 組 Debug 測試合計 **33 passed／0 failed／0 ignored**，所有 Cargo test 結束碼 **0**，T012 解析門檻均為 PASS。全 caster 測試會先呼叫原 C# golden 前置測試，不重複灌入測試總數。來源基底為 `59f0c2bcd7dc4435ba43186f7767130ab7869af1` 加本分支變更。
@@ -76,11 +83,12 @@ cargo test @common --lib modern_lito::light_arrow_effect::tests::actual_shared_i
 - 正式 E149 互動、實際其他玩家／NPC 施法成功與拒絕、自然機率分支、伺服器狀態到期、實體音效與完整 GUI；本任務未啟動客戶端或伺服器。
 - 第 2／3／4 張內容仍由各自 Issue 處理，尤其 S23／冰箭 NativeSpellClock 與 class1 啟動位置；本張有限時鐘測試只證明現行路徑，不能替代第 4 張的原生時序資格。
 - 本張不將 T028 或 M2 整體標完成。
+- 合併 main（`e40c68a`）後的整合測試尚未重跑：請 Codex 本機以 `LITO_SHARED_RESOURCE_ROOT=D:\lineage開發\0-客戶端` 執行 `run-local-test-suite.ps1`（含本張 7 筆 whitelist），以及 `--lib modern_lito::light_arrow_effect::tests::actual_shared_ice_arrow_all_casters_match_golden_and_launch_once -- --ignored --exact`；CI 無共享資源，不涵蓋這些項目。
 - 本輪執行 Debug 檢查與測試，Release 測試尚未執行；舊 TW pack 的完整資源重播也未執行（僅保留其精確身分配對並測試配對守門）。
 
 ## 產出路徑
 
-- 追蹤：`LiTo381-Modern/tests/native_t028_targets.rs`、`LiTo381-Modern/src/modern_lito/light_arrow_effect.rs`、`LiTo381-Modern/src/modern_lito/tower_assets.rs`、本報告。
+- 追蹤：`LiTo381-Modern/tests/native_t028_targets.rs`、`LiTo381-Modern/src/modern_lito/light_arrow_effect.rs`、`LiTo381-Modern/src/modern_lito/tower_assets.rs`、`維護工具/test-whitelist/tests.tsv`、本報告。
 - 不追蹤：`LiTo381-Modern/target/current/verification/issue-163/`（編譯／測試日誌與門檻結果）；既有測試自行產生的證據留在 `target/current/verification/`。
 - 一次性 runner：`scratch/run-163.ps1`。直接從 `維護工具/run-local-test-suite.ps1` AST 取得 `Measure-TestResult` 與 `Invoke-SuiteStep`，沿用其結束碼、running、結果格式與 Exact 門檻；僅為 golden 子程序明確加入唯讀 `LITO_SHARED_RESOURCE_ROOT`，TEMP／TMP 指向本 worktree 的 `scratch/`。
 
