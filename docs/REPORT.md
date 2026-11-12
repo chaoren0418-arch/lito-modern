@@ -68,3 +68,4 @@
 - 2026-11-06 — #192 T061-1: T061（M2 1/2）: src/：Ctrl 強制目標與目標選取政策（code，codex-local，PR 已合併）→ [報告](reports/issue-192.md)
 - 2026-11-06 — #195 T063-1: T063（M2 1/1）: src/：寵物與召喚物控制介面（code，codex-local，PR #251 已合併）→ [報告](reports/issue-195.md)
 - 2026-11-06 — #143 T020-2: T020（M2 2/2）: src/：#97 暗隱術（code，codex-local，PR #252 已合併）→ [報告](reports/issue-143.md)
+- 2026-11-12 — #194 T062-1: T062（M2 1/1）: src/：選角 8 角色分頁與選服流程（code，codex-local，PR 已合併）→ [報告](reports/issue-194.md)
