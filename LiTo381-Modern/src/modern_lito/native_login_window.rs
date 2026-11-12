@@ -512,7 +512,7 @@ impl Ui {
                 SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !(self.rental.open || self.companions.open),
                 SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.ground_view,
                 SUMMON_OPTIONS => self.world_view && !self.result_view && !self.inventory_view && !self.rental.open && self.skills.selected()==Some(51),
-                TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected()==Some(5),
+                TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected().is_some_and(super::native_skills::destination_skill),
                 SKILL_TEXT => self.world_view && !self.result_view && !self.inventory_view && !self.ground_view
                     && self.skills.selected().is_some_and(super::native_skills::text_skill),
                 SCORES => self.result_view && !self.inventory_view,
@@ -638,7 +638,7 @@ impl Ui {
                 px(16),
                 area.bottom
                     // World rows: book/cast -90, hotbar -155, teleport -190.
-                    - px(if self.inventory_view { if self.ground_view {286} else {326} } else if self.result_view { 250 } else if self.skills.selected()==Some(5) {290} else { 250 }),
+                    - px(if self.inventory_view { if self.ground_view {286} else {326} } else if self.result_view { 250 } else if self.skills.selected().is_some_and(super::native_skills::destination_skill) {290} else { 250 }),
                 area.right - px(32),
                 px(if self.inventory_view { 80 } else if self.result_view { 45 } else { 90 }),
                 true,
@@ -979,9 +979,10 @@ impl Ui {
             let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
             return self.controller.cast_item(skill, item, frame);
         }
-        if skill==5 {
+        if super::native_skills::destination_skill(skill) {
             ensure!(!self.inventory_view && !self.closing, "請回到世界畫面選擇傳送目的地");
-            let choice=self.teleport_choice.as_ref().context("請選擇傳送目的地")?;
+            // A choice made for 5 never authorizes 69 (or the reverse), e.g. from a hotbar slot.
+            let choice=self.teleport_choice.as_ref().filter(|choice|choice.skill()==skill).context("請選擇傳送目的地")?;
             let frame=self.world_presentation.frame.as_ref().context("等待世界畫面")?;
             return self.controller.cast_teleport(choice,frame);
         }
@@ -1017,7 +1018,7 @@ impl Ui {
             ensure!(*painted==epoch,"世界畫面已更新，請稍候");
             let world=&self.controller.snapshot().world;
             let own=world.own_actor().context("角色尚未就緒")?.id;
-            surface.cycle_target(world,own,self.target,self.skills.selected()==Some(41))
+            surface.cycle_target(world,own,self.target,self.skills.selected().is_some_and(super::native_skills::corpse_skill))
                 .context("畫面內沒有可選取的目標")?
         };
         self.target=Some(next);self.ground=None;self.held_attack.clear();
@@ -1152,7 +1153,7 @@ impl Ui {
                     - (if self.result_view || self.inventory_view {
                         260
                     } else {
-                        if self.skills.selected()==Some(5) {225} else {185}
+                        if self.skills.selected().is_some_and(super::native_skills::destination_skill) {225} else {185}
                     }) * dpi
                         / 96,
                 800,
@@ -1222,7 +1223,7 @@ impl Ui {
             }
             send(self.control(TELEPORT_DEST),CB_SETCURSEL,WPARAM(0),LPARAM(0));
         }
-        if self.skills.selected()!=Some(5) || self.inventory_view || self.closing
+        if !self.skills.selected().is_some_and(super::native_skills::destination_skill) || self.inventory_view || self.closing
             || self.teleport_choice.as_ref().is_some_and(|choice| !self.controller.teleport_choice_valid(choice)) {
             self.teleport_choice=None;
             send(self.control(TELEPORT_DEST),CB_SETCURSEL,WPARAM(0),LPARAM(0));
@@ -1270,7 +1271,7 @@ impl Ui {
                 let item = self.skill_item_target.as_ref().context("請選取背包物品")?;
                 super::native_skills::item_request(snapshot, epoch, skill, item)
             }).is_ok()
-        } else if self.skills.selected()==Some(5) {
+        } else if self.skills.selected().is_some_and(super::native_skills::destination_skill) {
             !self.inventory_view && self.skills.selected_skill(epoch,&snapshot.world).is_ok()
                 && self.teleport_choice.as_ref().is_some_and(|choice| self.controller.teleport_choice_valid(choice))
         } else {
@@ -1280,7 +1281,7 @@ impl Ui {
             .is_some_and(|f| self.controller.skill_action_ready(f, std::time::Instant::now()));
         let _ = EnableWindow(self.control(CAST_SKILL), enabled);
         let _ = EnableWindow(self.control(SUMMON_OPTIONS), active && self.skills.selected()==Some(51));
-        let _ = EnableWindow(self.control(TELEPORT_DEST), active && self.skills.selected()==Some(5));
+        let _ = EnableWindow(self.control(TELEPORT_DEST), active && self.skills.selected().is_some_and(super::native_skills::destination_skill));
         let _ = EnableWindow(self.control(SKILL_TEXT), active && self.skills.selected().is_some_and(super::native_skills::text_skill));
         let _ = EnableWindow(self.control(SKILLS), active && !self.skills.rows().is_empty());
         self.refresh_skill_art();
@@ -2533,7 +2534,8 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                         ui.text(STATUS, &format!("{error:#}"));
                     }
                     ui.summon_choice=None;send(ui.control(SUMMON_OPTIONS),CB_SETCURSEL,WPARAM(0),LPARAM(0));
-                    ui.teleport_choice=None;
+                    // 5 and 69 share the list; a destination shown for one is never kept for the other.
+                    ui.teleport_choice=None;send(ui.control(TELEPORT_DEST),CB_SETCURSEL,WPARAM(0),LPARAM(0));
                     ui.refresh();
                     ui.layout(hwnd,false);
                     return LRESULT(0);
@@ -2551,8 +2553,9 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                 WM_COMMAND if (wparam.0 & 0xffff)==TELEPORT_DEST as usize && (wparam.0>>16)==CBN_SELCHANGE as usize => {
                     ui.held.clear();ui.held_attack.clear();
                     let index=send(ui.control(TELEPORT_DEST),CB_GETCURSEL,WPARAM(0),LPARAM(0)).0;
+                    let skill=ui.skills.selected().filter(|id|super::native_skills::destination_skill(*id));
                     ui.teleport_choice=index.checked_sub(1).and_then(|i|usize::try_from(i).ok())
-                        .and_then(|i|ui.controller.teleport_choice(i).ok());
+                        .zip(skill).and_then(|(i,skill)|ui.controller.teleport_choice_for(skill,i).ok());
                     ui.refresh_skills();return LRESULT(0);
                 }
                 WM_COMMAND if (wparam.0 >> 16) == BN_CLICKED as usize => {

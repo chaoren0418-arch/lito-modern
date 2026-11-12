@@ -56,7 +56,7 @@ impl Target {
     /// A living selection cannot become a corpse authorization after death,
     /// and a captured corpse cannot become a living authorization on revival.
     pub fn resolve_for_skill(self, world: &World, skill: u16) -> Option<u32> {
-        if !matches!(skill, 41 | 61) { return self.resolve(world); }
+        if !native_skills::corpse_skill(skill) { return self.resolve(world); }
         (world.generation == self.generation && world.actor_visible(self.id)
             && world.actors.get(&self.id).is_some_and(|a|
                 a.incarnation == self.incarnation && a.target_revision == self.target_revision
@@ -77,7 +77,7 @@ impl Target {
 /// T key: advance to the next object in the presented draw order. Only ids the
 /// caller actually drew in a current frame are candidates; a retired world
 /// (teleport handoff, cancel, failure) has no own actor and yields nothing.
-/// `corpse` selects corpse targets for #41, otherwise living targets only.
+/// `corpse` selects corpse targets for #41／#61／#75, otherwise living targets only.
 /// The result is a fresh capture, never the stale `current` selection.
 pub fn cycle_target(world: &World, presented: impl IntoIterator<Item = u32>, own: u32,
     current: Option<Target>, corpse: bool) -> Option<Target> {
@@ -236,6 +236,12 @@ impl Model {
                         64 => "#64 魔法封印（選取目標，三格內；消耗 1 顆魔法寶石）".into(),
                         65 => "#65 雷霆風暴（選取目標，十格內；周圍三格）".into(),
                         66 => "#66 沉睡之霧（選取目標，十格內；消耗 1 顆魔法寶石）".into(),
+                        67 => "#67 變形術（選取角色／自己，畫面內；消耗 1 顆魔法寶石）".into(),
+                        69 => "#69 集體傳送術（隨機／書籤；消耗 1 顆魔法寶石）".into(),
+                        70 => "#70 火風暴（自己周圍三格）".into(),
+                        71 => "#71 藥水霜化術（選取目標，三格內；消耗 2 顆魔法寶石）".into(),
+                        74 => "#74 流星雨（選取目標，十格內；周圍三格）".into(),
+                        75 => "#75 終極返生術（選取屍體，畫面內；對方須同意）".into(),
                         49 => "#49 集體治癒術（周圍角色）".into(),
                         52 => "#52 神聖疾走（自己）".into(),
                         54 => "#54 強力加速術（自己）".into(),

@@ -13,11 +13,19 @@ pub const ACK:[u8;1]=[0x08];
 /// Skill 5 UI selects random travel or a received bookmark. Only a live controller-owned
 /// request grants this path; the returned coordinates remain server authority.
 pub fn admit_teleport_spell(s: &super::native_login::Snapshot, d: Destination, requested_map:u16) -> Result<()> {
+    admit_destination_spell(s, d, requested_map, 5)
+}
+/// Skill 69 caster (#149): admitted only after this connection answered the
+/// server's own S55 with C4E. Same map rule as skill 5; the cell is the server's.
+pub fn admit_mass_teleport(s: &super::native_login::Snapshot, d: Destination, requested_map:u16) -> Result<()> {
+    admit_destination_spell(s, d, requested_map, 69)
+}
+fn admit_destination_spell(s: &super::native_login::Snapshot, d: Destination, requested_map:u16, skill:u16) -> Result<()> {
     ensure!(s.game_connected && s.phase.active_world() && !s.observer && !s.world.observer_mode
         && s.world.ready() && s.world.battle_result.is_none()
         && s.world.hp.is_some_and(|hp| hp[0] > 0)
         && s.world.own_actor().is_some_and(|a| !a.dead)
-        && s.world.learned_skills.contains(&5), "指定傳送角色已失效");
+        && s.world.learned_skills.contains(&skill), "指定傳送角色已失效");
     ensure!(d.map==requested_map, "指定傳送回覆超出所選地圖");
     ensure!(s.phase!=super::native_login::LoginPhase::BattlePending || s.world.map_id==Some(d.map), "戰鬥傳送不可跨地圖");
     Ok(())
