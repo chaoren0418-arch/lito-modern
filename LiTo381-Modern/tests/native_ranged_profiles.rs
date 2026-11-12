@@ -77,6 +77,69 @@ fn original_physical_resources_draw_all_headings_and_retire_at_arrival() {
     }
 }
 
+/// Pinned plain class3 profiles (issue #167 round 3): own SPR per heading,
+/// own shadow only for 3584, declared-not-dispatched secondary, first callback
+/// enters source1 (wrapped to source0 for one-frame profiles), arrival retires.
+#[test]
+fn plain_class3_original_resources_draw_and_retire() {
+    let root = Path::new(r"D:\lineage開發\0-客戶端");
+    let cancel = AtomicBool::new(false);
+    let from = WorldCell { x: 32729, y: 32797 };
+    let projection = ViewProjection {
+        anchor_cell: from,
+        anchor_pixel: PixelPoint { x: 200, y: 200 },
+    };
+    // (graphics, images, subframes by source index, shadow, secondary)
+    let profiles: [(u32, usize, &[u32], Option<&str>, Option<u32>); 8] = [
+        (2740, 8, &[2, 0, 1], None, None),
+        (3584, 1, &[0], Some("3595-0.spr"), None),
+        (4026, 1, &[2, 0, 1], None, Some(4027)),
+        (5526, 8, &[2, 0, 1], None, None),
+        (7288, 8, &[2, 0, 1], None, None),
+        (8916, 8, &[2, 0, 1], None, None),
+        (9545, 8, &[1, 0], None, None),
+        (10699, 8, &[2, 0, 1], None, Some(10700)),
+    ];
+    for (graphics, images, subframes, shadow, secondary) in profiles {
+        let assets = RangedAssets::load_graphics(root, graphics, &cancel)
+            .unwrap_or_else(|e| panic!("{graphics}: {e}"));
+        assert_eq!(assets.sprite_sources().len(), images, "{graphics}");
+        assert_eq!(assets.shadow_source().map(|s| s.name.as_str()), shadow);
+        assert_eq!(assets.declared_secondary(), secondary);
+        for heading in 0..8u8 {
+            let (dx, dy) = [(0, -3), (3, -3), (3, 0), (3, 3), (0, 3), (-3, 3), (-3, 0), (-3, -3)]
+                [usize::from(heading)];
+            let path = RangedPath::new(
+                from,
+                WorldCell {
+                    x: from.x + dx,
+                    y: from.y + dy,
+                },
+            )
+            .unwrap();
+            let sample = assets.effect_frame(&path, Duration::ZERO).unwrap();
+            let direction = if images == 1 { 0 } else { heading };
+            assert_eq!(sample.graphics_id, graphics);
+            assert_eq!(sample.sprite_name, format!("{graphics}-{direction}.spr"));
+            let source = if subframes.len() > 1 { 1 } else { 0 };
+            assert_eq!((sample.source_frame, sample.subframe as u32), (source, subframes[source]));
+            assert_eq!(assets.sprite_frames(heading).unwrap().len(), subframes.len());
+            let mut canvas = Canvas::new(400, 400).unwrap();
+            canvas.clear([48, 96, 144]);
+            let blank = canvas.rgba().to_vec();
+            assert!(assets
+                .draw_effect(&mut canvas, &path, projection, Duration::ZERO)
+                .unwrap());
+            assert_ne!(canvas.rgba(), blank, "{graphics} heading {heading}");
+            let flying = canvas.rgba().to_vec();
+            assert!(!assets
+                .draw_effect(&mut canvas, &path, projection, path.finished_at())
+                .unwrap());
+            assert_eq!(canvas.rgba(), flying);
+        }
+    }
+}
+
 #[test]
 fn cancelled_and_unknown_projectiles_fail_explicitly() {
     let root = Path::new(r"D:\lineage開發\0-客戶端");

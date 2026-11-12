@@ -1,4 +1,6 @@
-//! Shared arrow66, stone1156, energy2349 and throwing sting2989, native class3.
+//! Shared arrow66, stone1156, energy2349 and throwing sting2989, native class3,
+//! plus the pinned plain class3 profiles in `PINNED_CLASS3` (2740, 3584, 4026,
+//! 5526, 7288, 8916, 9545, 10699).
 //!
 //! Evidence: ida-client-oep-v2/full-disassembly.asm sub_40E8F0 (29604)
 //! snapshots the live target ON LAUNCH for a hit; a miss keeps packet coords.
@@ -46,7 +48,134 @@ use super::{
 };
 
 const GRAPHICS_ID: u32 = 66;
-pub const PHYSICAL_GRAPHICS: [u32; 4] = [66, 1156, 2349, 2989];
+pub const PHYSICAL_GRAPHICS: [u32; 12] = [
+    66, 1156, 2349, 2989, 2740, 3584, 4026, 5526, 7288, 8916, 9545, 10699,
+];
+
+/// One original class3 definition pinned byte-for-byte from Text/list.spr
+/// (decoded SHA 523C61AD...). Only profiles whose frame events are Sound or
+/// none, whose shadow (if any) is a single type0 image, and whose remaining
+/// attributes are 102.type / 104.attr(8) / 109.effect(3 N) are admitted: those
+/// are exactly the semantics already proven for 66/1156/2349/2989 (class3
+/// constructor 40E2E0 and callback 40E420/40E8F0 never read the 109 secondary;
+/// 4E5B50 increments then wraps the frame index; attr8 composes as Screen).
+/// Profiles with `<` Effect / `]` Overlay events, 105.cloth, attr(128) or an
+/// eight-image shadow are NOT admitted until their native paths are decoded.
+struct PinnedClass3 {
+    graphics_id: u32,
+    images: u32,
+    /// (subframe, duration ticks, optional sound) in source order, image 0.
+    frames: &'static [(u32, u32, Option<u32>)],
+    attributes: &'static [(u32, &'static [u8])],
+    shadow: Option<u32>,
+    screen: bool,
+    secondary: Option<u32>,
+}
+
+const PINNED_CLASS3: &[PinnedClass3] = &[
+    PinnedClass3 {
+        graphics_id: 1156,
+        images: 1,
+        frames: &[(0, 1, None)],
+        attributes: &[(101, b"1157"), (102, b"9"), (109, b"3 -1")],
+        shadow: Some(1157),
+        screen: false,
+        secondary: None,
+    },
+    PinnedClass3 {
+        graphics_id: 2349,
+        images: 8,
+        frames: &[(0, 10, Some(97))],
+        attributes: &[(102, b"9"), (104, b"8"), (109, b"3 219")],
+        shadow: None,
+        screen: true,
+        secondary: Some(219),
+    },
+    // #2740 8 spirit of water boss spear 0.spear(1 3,0.2:4 0.0:4[1009 0.1:4)
+    PinnedClass3 {
+        graphics_id: 2740,
+        images: 8,
+        frames: &[(2, 4, None), (0, 4, Some(1009)), (1, 4, None)],
+        attributes: &[(104, b"8"), (109, b"3 -1")],
+        shadow: None,
+        screen: true,
+        secondary: None,
+    },
+    // #3584 1 mole rock 0.animation(0 1,0.0:4) 101.shadow(3595) 102.type(9)
+    PinnedClass3 {
+        graphics_id: 3584,
+        images: 1,
+        frames: &[(0, 4, None)],
+        attributes: &[(101, b"3595"), (102, b"9"), (109, b"3 -1")],
+        shadow: Some(3595),
+        screen: false,
+        secondary: None,
+    },
+    // #4026 1 abyss flame attack e 0.fireball(0 3,0.2:4 0.0:4[969 0.1:4)
+    PinnedClass3 {
+        graphics_id: 4026,
+        images: 1,
+        frames: &[(2, 4, None), (0, 4, Some(969)), (1, 4, None)],
+        attributes: &[(104, b"8"), (109, b"3 4027")],
+        shadow: None,
+        screen: true,
+        secondary: Some(4027),
+    },
+    // #5526 8 cursed wizard attack four fly e 0.animation(1 3,0.2:3 0.0:3[3865 0.1:3)
+    PinnedClass3 {
+        graphics_id: 5526,
+        images: 8,
+        frames: &[(2, 3, None), (0, 3, Some(3865)), (1, 3, None)],
+        attributes: &[(104, b"8"), (109, b"3 -1")],
+        shadow: None,
+        screen: true,
+        secondary: None,
+    },
+    // #7288 8 monkey two spell dir fly eff 0.eff(1 3,0.2:2 0.0:2 0.1:2)
+    PinnedClass3 {
+        graphics_id: 7288,
+        images: 8,
+        frames: &[(2, 2, None), (0, 2, None), (1, 2, None)],
+        attributes: &[(104, b"8"), (109, b"3 -1")],
+        shadow: None,
+        screen: true,
+        secondary: None,
+    },
+    // #8916 8 young gilian fly 0.animation(1 3,0.2:2 0.0:2 0.1:2)
+    PinnedClass3 {
+        graphics_id: 8916,
+        images: 8,
+        frames: &[(2, 2, None), (0, 2, None), (1, 2, None)],
+        attributes: &[(104, b"8"), (109, b"3 -1")],
+        shadow: None,
+        screen: true,
+        secondary: None,
+    },
+    // #9545 8 bow of shaya fly 0.animation(1 2,0.1:2 0.0:2) 102.type(0)
+    PinnedClass3 {
+        graphics_id: 9545,
+        images: 8,
+        frames: &[(1, 2, None), (0, 2, None)],
+        attributes: &[(102, b"0"), (104, b"8"), (109, b"3 -1")],
+        shadow: None,
+        screen: true,
+        secondary: None,
+    },
+    // #10699 8 shelob fly 0.animation(1 3,0.2:2 0.0:2 0.1:2) 109.effect(3 10700)
+    PinnedClass3 {
+        graphics_id: 10699,
+        images: 8,
+        frames: &[(2, 2, None), (0, 2, None), (1, 2, None)],
+        attributes: &[(104, b"8"), (109, b"3 10700")],
+        shadow: None,
+        screen: true,
+        secondary: Some(10700),
+    },
+];
+
+fn pinned(graphics_id: u32) -> Option<&'static PinnedClass3> {
+    PINNED_CLASS3.iter().find(|p| p.graphics_id == graphics_id)
+}
 const STEP_NANOS: u64 = 30_000_000;
 /// Presentation limit, NOT the authority's attack range. A target can move
 /// between shot acceptance and visual launch. Omit an over-bound presentation;
@@ -468,8 +597,9 @@ impl RangedAssets {
                 decoded,
             });
         }
-        let shadow = if graphics_id == 1156 {
-            let name = "1157-0.spr";
+        let shadow = if let Some(shadow_id) = pinned(graphics_id).and_then(|p| p.shadow) {
+            let name = format!("{shadow_id}-0.spr");
+            let name = name.as_str();
             let archive = reader.archive_for(name, cancel)?;
             let kind = archive.kind();
             if archive.entry(name)?.size as usize > MAX_ENTRY {
@@ -651,7 +781,7 @@ impl RangedAssets {
     }
     /// class3's constructor/callback never reads the 109 secondary table.
     pub fn declared_secondary(&self) -> Option<u32> {
-        (self.graphics_id == 2349).then_some(219)
+        pinned(self.graphics_id).and_then(|p| p.secondary)
     }
     pub(crate) fn submit<'s>(
         &'s self,
@@ -693,7 +823,7 @@ impl RangedAssets {
         }
         let mut frames = vec![(
             sample.frame,
-            if self.graphics_id == 2349 {
+            if pinned(self.graphics_id).is_some_and(|p| p.screen) {
                 Mix::Screen
             } else {
                 Mix::Over
@@ -745,38 +875,28 @@ fn qualify_graphics(catalog: &SpriteActionCatalog, graphics_id: u32) -> Result<A
         ))?;
     let resolved = catalog.resolve_action(graphics_id, ActionKey::new(0))?;
     let animation = resolved.animation;
-    if matches!(graphics_id, 1156 | 2349) {
-        let (images, direction, ticks, events, attributes) = if graphics_id == 1156 {
-            (
-                1,
-                Directionality::Undirected,
-                1,
-                vec![],
-                vec![(101, b"1157".as_slice()), (102, b"9"), (109, b"3 -1")],
-            )
+    if let Some(pin) = pinned(graphics_id) {
+        let direction = if pin.images == 8 {
+            Directionality::EightWay
         } else {
-            (
-                8,
-                Directionality::EightWay,
-                10,
-                vec![FrameEvent::Sound(97)],
-                vec![(102, b"9".as_slice()), (104, b"8"), (109, b"3 219")],
-            )
+            Directionality::Undirected
         };
         if sprite.graphics_id != graphics_id
             || resolved.definition_sprite_id != graphics_id
             || sprite.header_issue.is_some()
-            || sprite.image_count != Some(images)
+            || sprite.image_count != Some(pin.images)
             || sprite.actions.len() != 1
             || animation.directionality != direction
             || animation.frames_per_second != 24
-            || animation.frames.len() != 1
-            || animation.frames[0].image_id != 0
-            || animation.frames[0].subframe != 0
-            || animation.frames[0].duration_ticks != ticks
-            || animation.frames[0].events != events
-            || sprite.attributes.len() != attributes.len()
-            || attributes.iter().any(|(key, body)| {
+            || animation.frames.len() != pin.frames.len()
+            || animation.frames.iter().zip(pin.frames).any(|(frame, &(subframe, ticks, sound))| {
+                frame.image_id != 0
+                    || frame.subframe != subframe
+                    || frame.duration_ticks != ticks
+                    || frame.events != sound.map(FrameEvent::Sound).into_iter().collect::<Vec<_>>()
+            })
+            || sprite.attributes.len() != pin.attributes.len()
+            || pin.attributes.iter().any(|(key, body)| {
                 sprite
                     .attributes
                     .iter()
@@ -789,12 +909,12 @@ fn qualify_graphics(catalog: &SpriteActionCatalog, graphics_id: u32) -> Result<A
                 "special projectile definition changed",
             ));
         }
-        if graphics_id == 1156 {
+        if let Some(shadow_id) = pin.shadow {
             let shadow = catalog
                 .sprites
-                .get(&1157)
+                .get(&shadow_id)
                 .ok_or(RangedError::Unsupported("stone shadow absent"))?;
-            if shadow.graphics_id != 1157
+            if shadow.graphics_id != shadow_id
                 || shadow.image_count != Some(1)
                 || shadow.header_issue.is_some()
                 || !shadow.actions.is_empty()
@@ -969,6 +1089,94 @@ mod tests {
         ] {
             assert!(qualify_graphics(&catalog(&changed), 1156).is_err());
         }
+    }
+
+    /// Original list.spr lines (decoded SHA 523C61AD...), whitespace preserved
+    /// where it matters to the parser; each must qualify exactly as pinned.
+    const PLAIN_CLASS3: &str = "9 0 0\n\
+#2740\t8\tspirit of water boss spear 0.spear(1 3,0.2:4 0.0:4[1009 0.1:4) 104.attr(8) 109.effect(3 -1)\n\
+#3584 1 mole rock 0.animation(0 1,0.0:4) 101.shadow(3595) 102.type(9) 109.effect(3 -1)\n\
+#3595 1 mole rock s 102.type(0)\n\
+#4026\t1\tabyss flame attack e 0.fireball(0 3,0.2:4 0.0:4[969 0.1:4) 104.attr(8) 109.effect(3 4027)\n\
+#5526 8 cursed wizard attack four fly e 0.animation(1 3,0.2:3 0.0:3[3865 0.1:3) 104.attr(8) 109.effect(3 -1)\n\
+#7288 8 monkey two spell dir fly eff 0.eff(1 3,0.2:2 0.0:2 0.1:2) 104.attr(8) 109.effect(3 -1)\n\
+#8916 8 young gilian fly 0.animation(1 3,0.2:2 0.0:2 0.1:2) 104.attr(8) 109.effect(3 -1)\n\
+#9545\t8 bow of shaya fly 0.animation(1 2,0.1:2 0.0:2) 102.type(0) 104.attr(8) 109.effect(3 -1)\n\
+#10699 8 shelob fly 0.animation(1 3,0.2:2 0.0:2 0.1:2) 104.attr(8) 109.effect(3 10700)\n";
+
+    #[test]
+    fn plain_class3_profiles_qualify_only_with_their_pinned_original_definitions() {
+        let parsed = catalog(PLAIN_CLASS3);
+        for pin in PINNED_CLASS3.iter().filter(|p| !matches!(p.graphics_id, 1156 | 2349)) {
+            let animation = qualify_graphics(&parsed, pin.graphics_id)
+                .unwrap_or_else(|e| panic!("{} rejected: {e}", pin.graphics_id));
+            assert_eq!(animation.frames.len(), pin.frames.len());
+            let headings = if pin.images == 8 { 8 } else { 1 };
+            for heading in 0..headings {
+                for source in 0..pin.frames.len() {
+                    let asset = animation.frame_asset(pin.graphics_id, source, heading).unwrap();
+                    assert_eq!(asset.graphics_id, pin.graphics_id);
+                    assert_eq!(asset.image_id, u32::from(heading));
+                    assert_eq!(asset.subframe, pin.frames[source].0);
+                }
+            }
+        }
+        // Every pinned id is in the supported list and vice versa (besides the
+        // separately qualified 66/2989 three-frame arrow contract).
+        for pin in PINNED_CLASS3 {
+            assert!(PHYSICAL_GRAPHICS.contains(&pin.graphics_id));
+        }
+        for id in PHYSICAL_GRAPHICS {
+            assert!(pinned(id).is_some() || matches!(id, 66 | 2989), "{id}");
+        }
+    }
+
+    #[test]
+    fn plain_class3_profiles_reject_unproven_semantics_and_changed_bytes() {
+        let changed = [
+            (2740, "[1009", "<1009"),     // Effect event: native path not decoded
+            (2740, "[1009", "]1009"),     // Overlay event
+            (2740, "[1009", "[1010"),     // different sound
+            (2740, "0.1:4", "0.1:4!"),    // Hit marker
+            (2740, "#2740\t8", "#2740\t4"),
+            (3584, "shadow(3595)", "shadow(3596)"),
+            (3584, "#3595 1 mole rock s 102.type(0)", "#3595 8 mole rock s 102.type(0)"),
+            (3584, "#3595 1 mole rock s 102.type(0)", "#3595 1 mole rock s 102.type(9)"),
+            (4026, "3 4027", "3 -1"),
+            (4026, "[969", "[970"),
+            (5526, "0.2:3 0.0:3", "0.2:3 0.0:4"),
+            (7288, "attr(8) 109.effect(3 -1)\n#8916", "attr(128) 109.effect(3 -1)\n#8916"),
+            (8916, "gilian fly 0.animation(1 3,0.2:2 0.0:2 0.1:2)", "gilian fly 0.animation(1 4,0.2:2 0.0:2 0.1:2 0.3:2)"),
+            (9545, "102.type(0) 104.attr(8)", "102.type(0) 105.cloth(1 9546) 104.attr(8)"),
+            (9545, "0.1:2 0.0:2", "0.0:2 0.1:2"),
+            (10699, "3 10700", "4 10700"),
+        ];
+        for (id, from, to) in changed {
+            assert!(PLAIN_CLASS3.contains(from), "fixture lacks {from}");
+            let source = PLAIN_CLASS3.replacen(from, to, 1);
+            assert!(
+                qualify_graphics(&catalog(&source), id).is_err(),
+                "{id} accepted {from} -> {to}"
+            );
+        }
+        // Unadmitted class3 profiles whose semantics are still undecoded.
+        let undecoded = "3 0 0\n\
+#2748\t1\tspirit of fire boss fireball 0.fireball(0 3,0.2:4 0.0:4<969 0.1:4) 104.attr(8) 109.effect(3 -1)\n\
+#3692 8 fire arrow 0.fly(1 2,0.1:1 0.0:1]3693) 102.type(9) 109.effect(3 -1)\n\
+#8904 8 young helvine fly 0.animation(1 3,0.2:2 0.0:2 0.1:2) 104.attr(128) 109.effect(3 -1)\n";
+        for id in [2748, 3692, 8904] {
+            assert!(qualify_graphics(&catalog(undecoded), id).is_err());
+        }
+    }
+
+    #[test]
+    fn plain_class3_secondary_is_declared_but_mix_and_shadow_follow_the_pin() {
+        assert_eq!(pinned(4026).and_then(|p| p.secondary), Some(4027));
+        assert_eq!(pinned(10699).and_then(|p| p.secondary), Some(10700));
+        assert_eq!(pinned(2740).and_then(|p| p.secondary), None);
+        assert_eq!(pinned(3584).and_then(|p| p.shadow), Some(3595));
+        assert!(!pinned(3584).unwrap().screen);
+        assert!(pinned(9545).unwrap().screen);
     }
 
     #[test]

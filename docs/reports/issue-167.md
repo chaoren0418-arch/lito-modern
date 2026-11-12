@@ -2,7 +2,7 @@
 
 ## 結論
 
-本輪接續 PR #205 的 `bd2a423`，補上 #1156 stone、#2349 energy arrow、S23 跨 class 的 type 分派與可變長尾段。**整張 #167 仍有未完成項目，尚不能判定完整驗收通過。**
+第 1 輪（Codex，`bd2a423`～`0515b2e`）補上 #1156 stone、#2349 energy arrow、S23 跨 class 的 type 分派與可變長尾段。第 2 輪（claude-local，2026-11-12）合入 origin/main 並解衝突，把 class3 資格檢查改成表驅動，再接入 8 種只用已驗證語意的 class3 圖形。**原 23 種未接 class3 剩 15 種，整張 #167 仍未完成，不能判定完整驗收通過。**
 
 工作在指定 worktree、既有 `task/167` 進行。已讀 AGENTS.md、docs/REPORT.md、TASKS.md T029。原始專案及客戶端資源採唯讀引用，寫入限本 worktree。
 
@@ -93,6 +93,34 @@ cargo test @common --lib ranged_effect::tests
 
 首次跨class測試結束碼101、3 passed／1 failed，失敗於11738資源資格。已將TW不可用案例獨立驗證，六組不得計為成功呈現。初輪log保留於 `native_s23_profiles.initial.log`。建置有既有warnings。
 
+## 第 2 輪（2026-11-12，claude-local）
+
+### 做了什麼
+- 合入 ``origin/main``（``120c7be``）。``native_world.rs`` 的 S15 移除分支有衝突，兩邊都保留：先處理 -1 留地投射物的 revision，再移除 ``resurrection_relocations``。合併 commit ``1f95428``。
+- ``ranged_effect.rs``：把 1156／2349 寫死的檢查改成 ``PINNED_CLASS3`` 表，每筆逐欄釘住原 ``Text/list.spr`` 定義：影像數、各影格的 subframe／ticks／聲音、屬性 bytes、shadow、Screen 混合、secondary。shadow 載入、``declared_secondary``、Screen 判斷都改讀這張表。66／2989 的三影格路徑沒動。
+- 新接 8 種：**2740、3584（shadow 3595）、4026（secondary 4027）、5526、7288、8916、9545、10699（secondary 10700）**。``PHYSICAL_GRAPHICS`` 從 4 種增為 12 種，``native_projectiles::supports_graphics`` 會一起分派到這些圖形。
+- 收錄條件：每個影格的事件只能是 ``[`` 聲音或沒有事件；shadow 必須是單影像且 type0；屬性只能有 102.type、104.attr(8)、109.effect(3 N)。這些都是第 1 輪已經對過原生碼的語意：40E2E0／40E420／40E8F0 不讀 secondary；40E7E0 設 0/1/2 之後，4E5B50 加一並回繞；attr8 用 Screen。
+- 新增單元測試（``ranged_effect::tests``）3 個：8 種用原定義全部通過資格檢查；``<``／``]`` 事件、改聲音、Hit、影像數、shadow、屬性 128、cloth、影格順序、class 改變都會被拒絕；未收錄的 2748、3692、8904 會被拒絕。
+- 新增整合測試 ``native_ranged_profiles::plain_class3_original_resources_draw_and_retire``：8 種 × 8 方向，用原資源載入、檢查各自的 SPR 名稱、source／subframe 與 shadow／secondary、確認有畫出像素、抵達後退休。
+
+### 已驗證（第 2 輪）
+- ``cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets``：合併後結束碼 **0**，改完後再跑一次結束碼也是 **0**（``Finished `dev` profile``）。只有原本就有的 warnings，新程式沒有新增 warning。
+- 用唯讀 Python（``scratch/issue-167/find_spr.py``，直接讀 ``0-客戶端/Sprite*.idx``／``.pak``，沒有寫入）查過 8 種共 51 個 SPR，全部找得到（``missing: []``）。看得到明文檔頭的 4 種，影格數與定義相符：10699 為 3、7288 為 3、9545 為 2、3584 為 1。
+- 定義原文來自 ``scratch/issue-167/list.spr``（解碼 SHA ``523C61AD…``），已經逐行對過表內的值。
+
+### 待驗證（第 2 輪）
+- **本機依使用者 2026-11-09 規定沒有執行任何測試程式。** 新的 3 個 ``--lib`` 單元測試要等 PR #205 的 CI（``cargo test --locked --lib``）跑出結果。CI 沒有客戶端資源，整合測試 ``plain_class3_original_resources_draw_and_retire`` 和第 1 輪的資源型測試要交給 Codex 在本機跑：``cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_ranged_profiles``。
+- 2740、3595、4026、5526、8916 的 SPR 是 0xFF 調色盤格式，這次沒有解出 subframe 數，要靠上面的整合測試確認。
+- 這 8 種多半是怪物投射物（伺服器的 ``ClassicWorldMonsterPopulation``／``BattleCompanion`` 都會呼叫 ``Protocol.rangedPhysicalAttack``），實際送出哪個 gfx 由 DB 決定，要靠 T043 的實機收據確認。
+
+### 仍未接入的 class3（15 種，第 2 輪沒做）
+| 原因 | 圖形 |
+| --- | --- |
+| ``<`` Effect 事件（要先逆向 4E5B50 的 effect 生成路徑） | 2748、3705、4530、4547、4552、4621、4799、6767、8721、8771 |
+| ``]`` Overlay 事件 | 3692 |
+| 105.cloth | 5415 |
+| 104.attr(128) | 8904 |
+| 8 影像 shadow（要先確認 40E854／4CD9D0 怎麼選 shadow 的影像） | 4523（另有 duration0 影格）、10782 |
 ## 推測
 
 - 原生class分派與所有u8 type的class3合成回歸吻合。正式服務每個自訂arrowGfx實際搭配的type、動作與裝備，仍需T043收據。
@@ -100,7 +128,7 @@ cargo test @common --lib ranged_effect::tests
 
 ## 待驗證與未完成事項
 
-1. 原Text/list.spr另有23種class3，尚未接入。圖形為2740、2748、3584、3692、3705、4026、4523、4530、4547、4552、4621、4799、5415、5526、6767、7288、8721、8771、8904、8916、9545、10699、10782，各有影格、聲音、overlay、cloth或shadow契約。自動審核拒絕一次重寫核心載入器並擴充全部27種的腳本，理由為程式損壞與範圍風險。已提出逐組擴充的授權問題，該重寫未執行。
+1. 原Text/list.spr另有23種class3，第2輪已接入8種，剩下15種見上方「仍未接入的class3」。
 2. TW三種呈現器受Issue #111既有資格限制阻擋。現用 `0-客戶端/launcher/TW13081901.pak` 的SHA256為 `92B512A32349D0775E1036F1832E21F1141AE66E64821D6978F0879246E59CA7`。本輪保留資格檢查，成功呈現待資源資格處理。
 3. 真實雙玩家、正式扣彈藥、TCP、Release、GUI及實體音效裝置待後續驗收。執行期間沒有啟動遊戲、操作既有遊戲程序、連正式服務或DB。
 4. T029第二張的操作、空揮與拒絕條件由該張接續。
@@ -116,4 +144,6 @@ cargo test @common --lib ranged_effect::tests
 
 ## 給下一棒的提示
 
-Claude可先審查本輪具體修正、14組正向矩陣與留地生命週期。請維持#167未完成，待其他特殊class3補齊。TW資格由本機資源任務接續，處理後再重跑六組正向呈現。沿用task/167與PR #205繼續工作。本輪沒有修改docs/REPORT.md。
+- Codex（本機測試）：跑 `native_ranged_profiles`（含第2輪新增的整合測試）、`native_ranged`、`native_s23_profiles`，結果依 `run-local-test-suite.ps1` 門檻判讀。若 2740／3595／4026／5526／8916 的 subframe 數不符，這是資源契約有差異，要把該圖形移出 `PINNED_CLASS3`，不要放寬檢查。
+- 下一張 code：先逆向 `<` Effect 事件在 class3 回呼（4E5B50）的派送路徑，再補那 10 種；接著處理 8 影像 shadow（4CD9D0）。每接一組就加進 `PINNED_CLASS3` 並補拒絕案例。
+- TW 三種呈現器的資格由本機資源任務接續。#167 維持未完成，沿用 task/167 與 PR #205。本輪沒有修改 docs/REPORT.md。
