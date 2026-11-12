@@ -83,6 +83,12 @@ CI 只跑兩步：`cargo check --locked --all-targets` 與 `cargo test --locked 
 test result: ok. 2268 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.52s
 ```
 
+第二次同步後（commit `d14d462`，run 43180061576）同樣兩步都通過，PR 狀態 `MERGEABLE`，lib 測試原文：
+
+```text
+test result: ok. 2297 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.54s
+```
+
 CI **不執行** `tests/` 下的整合測試，所以新的 `native_skills_129_138` 7 案只有編譯通過，沒有任何地方執行過（見下方「待驗證」）。
 
 ## 推測
