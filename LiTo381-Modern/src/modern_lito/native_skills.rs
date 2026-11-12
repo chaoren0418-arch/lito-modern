@@ -201,7 +201,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 169 | 171 | 172 | 175 | 176 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 169 | 171 | 172 | 175 | 176 | 201 | 205 | 206 | 210)
 }
 /// ④ requests whose only accepted object is the caster: formal
 /// `useFireWeaponSpell`／`useStormShotSpell` answer 280 for any other ID, so the
@@ -228,6 +228,11 @@ pub const ELEMENTAL_FALL_DOWN_RANGE: u16 = 10;
 /// has target_to=0 and the same original `sub_4C9880` object form). A hovered
 /// actor is never sent; the request always carries the caster.
 pub fn self_object(skill: u16) -> bool { matches!(skill, 148 | 149 | 151 | 168) }
+/// Illusionist requests the formal `IllusionSkillRequests` wrapper reads as
+/// ⑩ `d(target) h(x) h(y)`: any other length is dropped ("missing explicit
+/// target") and no nearby actor is ever guessed. 202／203／207／208 are attacks,
+/// 204／209 are PC buffs that also accept the caster.
+pub fn illusion_targeted(skill: u16) -> bool { matches!(skill, 202 | 203 | 204 | 207 | 208 | 209) }
 /// Requests whose tail ends in one MS950 `s` field: ⑪ True Target (113) and
 /// ⑦／⑧ Call／Run Clan (116／118).
 pub fn text_skill(skill: u16) -> bool { matches!(skill, 113 | 116 | 118) }
@@ -326,6 +331,34 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 && !super::native_obstacles::destroyed_guardian(actor)
                 && in_native_screen([own.x, own.y], [actor.x, actor.y]),
                 "釋放元素目標不可用或超出畫面");
+            b.extend_from_slice(&id.to_le_bytes());
+            b.extend_from_slice(&actor.x.to_le_bytes());
+            b.extend_from_slice(&actor.y.to_le_bytes());
+        }
+        204 | 209 => {
+            // `selectPc`: the caster, or another living visible PC within the E149
+            // range 3. PC-only eligibility, Absolute Barrier, line of sight and MP
+            // stay server-owned; a rejected target gets no reply.
+            let id = target.unwrap_or(own.id);
+            let actor = world.actors.get(&id).context("技能目標已離開")?;
+            ensure!(!actor.dead && world.actor_visible(id)
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 3,
+                "幻覺目標不可用或超出三格");
+            b.extend_from_slice(&id.to_le_bytes());
+            b.extend_from_slice(&actor.x.to_le_bytes());
+            b.extend_from_slice(&actor.y.to_le_bytes());
+        }
+        202 | 203 | 207 | 208 => {
+            // Formal `useAttackSpell` drops a self target and anything beyond the
+            // E149 `maximumRange` (203: 1, others 3). HP／MP cost, probability,
+            // Counter Magic and the target MP debit stay server-owned.
+            let id = target.context("請先選取法術目標")?;
+            let actor = world.actors.get(&id).context("技能目標已離開")?;
+            ensure!(id != own.id && !actor.dead && world.actor_visible(id)
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= if skill == 203 { 1 } else { 3 },
+                "法術目標不可用或超出範圍");
             b.extend_from_slice(&id.to_le_bytes());
             b.extend_from_slice(&actor.x.to_le_bytes());
             b.extend_from_slice(&actor.y.to_le_bytes());
@@ -450,10 +483,11 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74=>3000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,168|172=>0,146=>1200,153=>600,167|169|170|171|176=>100,173=>1000,174=>3000,175=>300,112=>2000,130|132|133=>100,134=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74=>3000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,168|172=>0,146=>1200,153=>600,167|169|170|171|176=>100,173=>1000,174=>3000,175=>300,202|207=>3000,203=>600,204|208|209=>2000,205|210=>5000,112=>2000,130|132|133=>100,134=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 /// 167..=176: recovered PE `word_635774[skill-1]` (600／0／100／400／300／0／1000／3000／5000／100).
-pub fn client_clock_millis(skill:u16)->u64 {match skill {50|173=>1000,33|175=>5000,167=>600,169|176=>100,170=>400,171=>300,174=>3000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|71|72=>500,206=>1200,_=>0}}
+/// 201..=210: same table (1800／0／0／0／0／1200／0／0／64／0), equal to E149 `clientCastClockMillis`.
+pub fn client_clock_millis(skill:u16)->u64 {match skill {50|173=>1000,33|175=>5000,167=>600,169|176=>100,170=>400,171=>300,174=>3000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|71|72=>500,206=>1200,201=>1800,209=>64,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub enum Feedback {
     #[default]
@@ -489,6 +523,7 @@ impl Feedback {
             Self::Rejected(629) => "對象不在同一個世界",
             Self::Rejected(647) => "目前位置無法援護盟友",
             Self::Rejected(1192) => "對方所在區域無法援護",
+            Self::Rejected(1412) => "此處無法設置立方，或附近已有立方",
             Self::Rejected(_) => "伺服器限制施法",
         }
     }
