@@ -1,6 +1,6 @@
 # Issue #307 — T036（M3 2/15）跨函式 helper 閉合審查：技能／戰鬥（1／2）
 
-執行者：claude-local（本機，靜態審查）。審查基準：`origin/main` `f8ed20ec`（2026-11-12）。
+執行者：claude-local（本機，靜態審查）。審查基準：`origin/main` `f8ed20ec`（2026-11-12）；push 前合併到 `73cfb27` 並重跑檢查（見「怎麼審的」第 4 點）。
 **本張沒有執行任何測試，也沒有編譯；下面沒有任何一項是「測試通過」。** 結論只回答一個問題：這些測試跑起來會碰到什麼（檔案、網路、視窗、音效裝置、子程序），所以能不能放行給執行張（#310）去跑。
 
 ## 結論
@@ -43,10 +43,12 @@ Issue 只寫「技能／戰鬥（1／2）」，沒有列檔案，所以本張自
 ```powershell
 $s = 'LiTo381-Modern\src\modern_lito'
 $set = Get-Content 維護工具\t036-helper-closure\set-skills-combat-1.txt
-python -I 維護工具\t036-helper-closure\setcheck.py $s $set          # 集合封閉檢查
-python -I 維護工具\t036-helper-closure\showfn.py  $s "native_skills:*"  # 逐函式列副作用行與跨模組引用
-python -I 維護工具\t036-helper-closure\modcats.py $s "resources,combat_audio"  # 模組的副作用分類
+python -I -B 維護工具\t036-helper-closure\setcheck.py $s $set          # 集合封閉檢查
+python -I -B 維護工具\t036-helper-closure\showfn.py  $s "native_skills:*"  # 逐函式列副作用行與跨模組引用
+python -I -B 維護工具\t036-helper-closure\modcats.py $s "resources,combat_audio"  # 模組的副作用分類
 ```
+
+4. **合併 main 後重跑**：push 前 main 前進 7 個 commit，其中 `native_skills.rs`、`native_skill_selection.rs` 在本張的集合內（#158 新增技能 189–195）。合併後重跑 `setcheck.py` 與這兩個模組的 `showfn.py`：集合外引用一行都沒變，兩個模組仍然沒有副作用行。9 個測試檔沒有變動。
 
 腳本的判定是保守的：去掉註解、字串與行內 `#[cfg(test)] mod … { }` 後，用關鍵字找副作用原語；模組引用看 `super::X`、`super::super::X`、`modern_lito::X`、`use super::{X,…}`。
 
@@ -73,7 +75,7 @@ python -I 維護工具\t036-helper-closure\modcats.py $s "resources,combat_audio
 | `native_connection` | `IngressReceipt` | 只出現在 `World::accept_received`（`pub(crate)`）與 2941 收據；測試呼叫的是 `accept` |
 | `native_login` | `decode_text`、`encode_text`、`Snapshot`、`LoginPhase` | 前兩個只做 MS950 轉碼（`MultiByteToWideChar`／`WideCharToMultiByte`）；後兩個是資料型別，測試走的 `request`／`ground_request` 沒用到 |
 | `native_player_callbacks` | `WalkPose`、`Event`、`Kind` | 資料型別 |
-| `native_inventory`、`native_item_actions` | `Inventory`、`Item`、`Choice` | 只在 `native_skills` 的道具施法函式；`request`（`:287–480`）沒用到 |
+| `native_inventory`、`native_item_actions` | `Inventory`、`Item`、`Choice` | 只在 `native_skills` 的道具施法函式；`request`（合併後 `:291–485`）沒用到 |
 | `native_world_labels`、`native_world_text` | `Line`、`Cache` | 只是 `native_emblems::draw`、`native_minimap::draw` 的參數；A、B 類測試不呼叫 |
 | `native_object_dispatch`、`native_terrain_pixels`、`tile`、`tile_pixels`、`native_multisector_scene`、`native_world_roofs` | 多項 | 從 `world_raster`、`native_world_layers` 引出，**本張沒有往下閉合**；只有 1 個 B′ 測試會走到 |
 
@@ -199,7 +201,7 @@ python -I 維護工具\t036-helper-closure\modcats.py $s "resources,combat_audio
 
 ## 新放行清單（38）
 
-格式與 `維護工具/test-whitelist/tests.tsv` 相同：target、完整測試名稱、ignored、features；真正的 Tab 分隔。本張**沒有**改 `tests.tsv`／`lib.txt`／`skills.tsv`（基線套件有固定步數，改清單會改變套件行為），由 #310 決定併入哪一份。
+格式與 `維護工具/test-whitelist/tests.tsv` 相同：target、完整測試名稱、ignored、features；真正的 Tab 分隔。本張**沒有**改 `tests.tsv`／`lib.txt`／`skills.tsv`：本機套件會照清單逐項實跑，併入就等於排入執行，所以由 #310 決定併入哪一份、何時併。
 
 ### A 類（17）：純記憶體
 
@@ -270,7 +272,7 @@ modern_lito::native_disintegrate_tests::native77_probe::actual_stale_generation_
   - `native_ground_skills::original_wave_duration_gates_repeated_ground_audio_and_world_reset`。`Model::load`（`native_world_scene.rs:750`）與 `draw_at` 直接引用約 40 個模組。我掃過其中的直接相依：沒有寫檔、網路、視窗、音效裝置；兩處建立執行緒（`native_world_scene.rs:301` 的 `with_model_at_…`、`native_inventory_names.rs:195` 的 `Service::start`）都不在 `load／draw_at` 這條路上；`native_world_text::raster` 用 GDI 在記憶體畫字，不開視窗。第二層以下沒有閉合。
   - lib `…::actual_fragment_submission_uses_screen_multiply_and_remains_click_through`。`world_raster`、`native_world_layers` 往外引用的 6 個模組沒有閉合。
 - **腳本的盲點**：巨集產生的呼叫、trait object 的動態分派、relative `self::` 路徑不在掃描範圍；集合封閉檢查之外，我沒有另外找第二種方法交叉驗證。
-- 本張審的是 `f8ed20ec`。之後這 9 個測試檔或上述 73 個模組有改動，要重審受影響的項目。
+- 本張審到 `73cfb27`。之後這 9 個測試檔或上述 73 個模組有改動，要重審受影響的項目。
 
 ## 沒做的事
 
