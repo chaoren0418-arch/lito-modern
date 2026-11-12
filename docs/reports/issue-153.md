@@ -62,7 +62,15 @@ python -B 維護工具/test_native_skill_coverage.py
 
 合併 `origin/main`（`316c4d5`，含 #185 變身接收；無衝突）之後重跑同樣的 `cargo check`（結束碼 0）與 `--no-run`（結束碼 0）。
 
-`cargo test` 的 `test result:` 原文本機沒有，以 PR 的 CI 為準（見下方「待驗證」）。
+### CI（PR #289，commit `b6ba291`，run 43176762570）
+
+CI 只跑兩步：`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast`。兩步都通過，lib 測試原文：
+
+```text
+test result: ok. 2268 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.52s
+```
+
+CI **不執行** `tests/` 下的整合測試，所以新的 `native_skills_129_138` 7 案只有編譯通過，沒有任何地方執行過（見下方「待驗證」）。
 
 ## 推測
 
@@ -73,7 +81,7 @@ python -B 維護工具/test_native_skill_coverage.py
 
 ## 待驗證與未驗證什麼
 
-- 新的 7 案 `native_skills_129_138` 與既有回歸的 `test result:`，以 PR 最新 commit 的 CI 為準。本機沒有執行，在 CI 結果出來前不算通過。
+- 新的 7 案 `native_skills_129_138` **尚未執行，不算通過**：本機依規定不跑測試執行檔，CI 也不跑整合測試。需要由 Codex 用 `維護工具/run-local-test-suite.ps1`（白名單已登錄）執行並回報 `test result:`。既有整合測試（`native_skills_110_118`、`native_skills_101_109`、`native_selector_only`、`native_skill_selection`）在本張改動後同樣只有編譯通過。
 - 控制器的 `triple_arrow` 接線（送包前 `preflight`、攻擊後清除、`triple_arrow_receipt`）只在函式層測過，沒有控制器整合測試，因為需要 `Frame`。
 - 扣箭文字在視窗上的顯示沒有開 GUI 確認，交給 Codex／使用者驗收。
 - 沒有跑正式伺服器施法：三重矢實際扣箭數、三次命中的動作與特效（gfx 4394）、弱化屬性的成功率與 280、心靈轉換的 HP／MP 變化與訊息 702、四個增益的持續時間與材料消耗。
@@ -100,7 +108,7 @@ python -B 維護工具/test_native_skill_coverage.py
   - 130 在 MP 為 0 時放行（`can_cast` 的唯一例外）是否可以接受。
   - 132 沒有箭就不送包，會不會擋到不耗箭的弓（見「推測」）。
   - 133 用十格而不是 `SKILLS-STATUS.md` 寫的 -1。
-- CI 綠燈後由使用者合併。
+- 合併前建議先讓 Codex 跑一次 `native_skills_129_138` 與上述四個回歸測試檔；CI 綠燈不涵蓋它們。
 - 後續批次：
   - 純 selector 技能直接加進 `selector_only`；`d h h` 目標技能可以比照 `132 | 133` 分支。
   - 只扣 HP、不看 MP 的技能要像 130 一樣在 `can_cast` 放行，先查伺服器 handler 有沒有 `playerMp < mpCost`。
