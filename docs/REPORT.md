@@ -113,3 +113,4 @@
 - 2026-11-12 — #326 T032-1: T032（M3 1/1）: docs/ARCHITECTURE.zh-TW.md：重寫為現況版（code，claude-local，PR #344 已合併）→ [報告](reports/issue-326.md)
 - 2026-11-12 — #300 T034-1: T034（M3 1/1）: docs/GUI-ACCEPTANCE.md：T030 的檢查清單（code，claude-local，PR #345 已合併）→ [報告](reports/issue-300.md)
 - 2026-11-12 — #299 T040-1: T040（M3 1/1）: lito-launcher-server Issue：修補提案四項交給伺服器 repo（code，claude-local，PR #346 已合併）→ [報告](reports/issue-299.md)
+- 2026-11-12 — #150 T027-6: T027（M2 6/6）: src/：候選獨有的 48 個技能重做進 src（code，claude-local，PR 已合併）→ [報告](reports/issue-150.md)
