@@ -1,4 +1,4 @@
-//! Server-selected S_PORTAL destinations. No client-selected map teleportation.
+//! Server-authorized S_PORTAL destinations; requests never predict a map transition.
 use anyhow::{ensure,Result};
 #[derive(Clone,Copy,Debug,PartialEq,Eq,serde::Serialize)]
 pub struct Destination{pub map:u16,pub x:u16,pub y:u16}
@@ -9,6 +9,19 @@ pub fn parse(body:&[u8])->Result<Destination>{
  Ok(Destination{map:u16::from_le_bytes([body[1],body[2]]),x:u16::from_le_bytes([body[3],body[4]]),y:u16::from_le_bytes([body[5],body[6]])})
 }
 pub const ACK:[u8;1]=[0x08];
+
+/// Skill 5 UI selects random travel or a received bookmark. Only a live controller-owned
+/// request grants this path; the returned coordinates remain server authority.
+pub fn admit_teleport_spell(s: &super::native_login::Snapshot, d: Destination, requested_map:u16) -> Result<()> {
+    ensure!(s.game_connected && s.phase.active_world() && !s.observer && !s.world.observer_mode
+        && s.world.ready() && s.world.battle_result.is_none()
+        && s.world.hp.is_some_and(|hp| hp[0] > 0)
+        && s.world.own_actor().is_some_and(|a| !a.dead)
+        && s.world.learned_skills.contains(&5), "指定傳送角色已失效");
+    ensure!(d.map==requested_map, "指定傳送回覆超出所選地圖");
+    ensure!(s.phase!=super::native_login::LoginPhase::BattlePending || s.world.map_id==Some(d.map), "戰鬥傳送不可跨地圖");
+    Ok(())
+}
 
 /// An original-map source entrance, never a client-supplied destination.
 #[derive(Clone,Debug)]

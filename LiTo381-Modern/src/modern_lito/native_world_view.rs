@@ -35,6 +35,7 @@ struct PendingRender {
 }
 #[derive(Default)]
 pub struct Presentation {
+    static2941_ready: Vec<super::native_static2941::Prepared>,
     pub hover: Option<super::native_world_labels::Hover>,
     fence: Fence,
     job: Option<PendingRender>,
@@ -72,6 +73,7 @@ pub struct Presentation {
 }
 impl Presentation {
     pub fn cancel(&mut self) {
+        self.static2941_ready.clear();
         self.publication=Arc::new(());
         self.keep_source_owner=false;
         self.source_owner=None;
@@ -109,7 +111,8 @@ impl Presentation {
     /// Retired results never reach the queue; stale-environment results retain
     /// their live callbacks before their pixels are rejected.
     pub fn tick_environment(&mut self,root:&Path,connection:u64,world:&World,environment:&mut super::native_environment::State,active:bool)->bool {
-        let mut changed=self.tick(root,connection,world,environment,active);
+        let mut changed=self.prune_static_frame(world, connection);
+        changed |= self.tick(root,connection,world,environment,active);
         let scene=if active && connection!=0 && world.generation!=0 && world.view_ready() {
             world.map_id.map(|map|super::native_ambient_bridge::Scene::new(connection,world.generation,map,Arc::clone(self.ambient_source_owner.as_ref().unwrap_or(&self.publication))))
         } else {None};
@@ -151,6 +154,30 @@ impl Presentation {
         }
         changed
     }
+    /// Run after controller callbacks as well as at tick entry. Preserve already
+    /// admitted audio/hurt deliveries while discarding a retired raster.
+    pub(crate) fn prune_static_frame(&mut self, world: &World, connection: u64) -> bool {
+        if !self.frame.as_ref().is_some_and(|frame| !frame.static_current(world, connection)) { return false; }
+        let mut frame = self.frame.take().expect("checked frame");
+        self.rendered_revision = None;
+        if self.deferred_sounds.len().saturating_add(self.deferred_native_audio.len())
+            .saturating_add(frame.sounds.len()).saturating_add(frame.native_audio.len()) <= 4096 {
+            self.deferred_sounds.append(&mut frame.sounds);
+            self.deferred_legacy_audio.append(&mut frame.legacy_audio);
+            self.deferred_native_audio.append(&mut frame.native_audio);
+        } else {
+            for cue in &frame.legacy_audio { cue.discard(); }
+            for cue in &frame.native_audio { cue.discard(); }
+            self.error = Some("static retirement audio backlog exceeded".into());
+        }
+        if self.deferred_finite_hurt.len().saturating_add(frame.finite_hurt_callbacks.len()) <= 4096 {
+            self.deferred_finite_hurt.append(&mut frame.finite_hurt_callbacks);
+        } else { self.error = Some("static retirement hurt backlog exceeded".into()); }
+        true
+    }
+    pub(crate) fn take_static2941_ready(&mut self) -> Vec<super::native_static2941::Prepared> {
+        std::mem::take(&mut self.static2941_ready)
+    }
     pub fn quiescent(&self) -> bool {
         self.job.is_none()
     }
@@ -158,6 +185,20 @@ impl Presentation {
     /// cancellation arrived after the decoder had completed successfully.
     pub fn tick(&mut self, root: &Path, connection: u64, world: &World,
         environment: &super::native_environment::State, active: bool) -> bool {
+        self.tick_mode(root,connection,world,environment,active,false,true)
+    }
+    pub(crate) fn callback_draw(&mut self, root: &Path, connection: u64, world: &World,
+        environment: &super::native_environment::State) -> anyhow::Result<usize> {
+        self.rendered_revision=None;
+        self.tick_mode(root,connection,world,environment,true,true,true);
+        if let Some(error)=&self.error {anyhow::bail!("callback draw: {error}");}
+        let frame=self.frame.as_ref().ok_or_else(||anyhow::anyhow!("callback frame absent"))?;
+        anyhow::ensure!(frame.composition_current(world),"callback frame revision changed");
+        Ok(frame.player_walk_plan.as_ref().map_or(0,|p|p.frame_count()))
+    }
+    fn tick_mode(&mut self, root: &Path, connection: u64, world: &World,
+        environment: &super::native_environment::State, active: bool,
+        synchronous: bool, request: bool) -> bool {
         let root_changed=self.source_root.as_deref()!=Some(root);
         if root_changed {
             self.source_owner=None;self.source_root=Some(root.to_path_buf());
@@ -252,7 +293,7 @@ impl Presentation {
             changed = true;
         }
         if let Some(PendingRender{key,source_root,publication,revision,environment:captured_environment,job,..}) = &mut self.job {
-            if let Some(result) = job.poll() {
+            if let Some(result) = if synchronous {Some(job.finish())} else {job.poll()} {
                 let same_root=source_root.as_path()==root;
                 let current_context=same_root&&Arc::ptr_eq(publication,&self.publication);
                 if !current_context {
@@ -290,6 +331,10 @@ impl Presentation {
                 if current_context && self.fence.accepts(*key) && world.view_ready() {
                     match result {
                         Ok(mut done) => {
+                            // Resource readiness is independent of a stale light/environment frame.
+                            // Only the accepted root/publication/world may hand proofs to the controller.
+                            self.static2941_ready = std::mem::take(&mut done.static2941_ready);
+                            done.frame.receipt["static2941_resource_error"] = serde_json::json!(done.static2941_error);
                             self.finite_visual_history=Some((*key,source_root.clone(),done.model.finite_history()));
                             self.model = Some(done.model);
                             self.ambient_source_floor=self.model.as_ref().expect("accepted model").ambient_source_floor(world);
@@ -315,7 +360,7 @@ impl Presentation {
                                 done.frame.receipt["native_finite_audio_history"]=serde_json::json!(report);Ok(())
                             });
                             if let Err(e)=bound {self.error=Some(format!("native audio publication: {e:#}"));}
-                            else if Some(*captured_environment) == expected_environment {
+                            else if Some(*captured_environment) == expected_environment && done.frame.static_active(world) {
                                 if done.frame.environment_key() != expected_environment {
                                     self.error = Some("world frame environment binding mismatch".into());
                                 } else {
@@ -366,7 +411,7 @@ impl Presentation {
             changed |= self.frame.take().is_some();
         }
         if let Some(key) = target.filter(|_| world.view_ready() && bound.is_some()) {
-            if self.job.is_none()
+            if request && self.job.is_none()
                 && self.error.is_none()
                 && (self.rendered_revision != Some(world.visual_revision)
                     || self.rendered_environment != expected_environment
@@ -405,6 +450,9 @@ impl Presentation {
                     }
                 }
             }
+        }
+        if synchronous && request && self.job.is_some() {
+            changed |= self.tick_mode(root,connection,world,environment,active,true,false);
         }
         changed
     }
