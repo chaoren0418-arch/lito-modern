@@ -16,7 +16,13 @@ schema34：同一AMD64 EXE通過188 Rust／37組、54隔離TCP及93獨立像素�
 
 原版共用字串解析器對 FA 使用 17-byte destination，最多保留 16 bytes，仍消耗整個 wire 字串；現代端重現有效 CP950 邊界上的截斷。若截斷切開雙位元組字元，整包拒絕，避免引入無效 Unicode。這是明示的現代錯誤處理政策。全包長度、尾端、編碼與 object ID 驗證通過後才原子更新。S0B 新 incarnation 清除舊 marker flag。
 
-S69 在原版戰爭全域旗標 834F14 啟用時另有陣營顏色與狀態分支，本階段未實作該完整分支。FA 旗標相關輸入限制也尚未宣稱完整相容。
+S69 在原版戰爭全域旗標 834F14 啟用時另有陣營顏色與狀態分支；FA 旗標另有輸入限制。現況（2026-11-13，#335，細節見 `docs/reports/issue-335.md`）：
+
+- S69 的狀態分支（4E7690：敵盟 +20＝2、己盟 +20＝1，兩者都設 +1F；空血盟只清 +20）由 `native_actor_relations::Context::clan_changed` 處理，已有單元測試。
+- 指向名稱的顏色（48A624）：圖形 0xA9B 在 +1F 未設時固定用 0x7C00；其餘依 S0B 尾端的陣營 byte（0＝0x7C00、1＝0x001F、其他＝正義值顏色），地圖 500／560 一律用正義值顏色。`native_world_labels::hover_color`。
+- actor+13A 除了 FA 以外，S0B 在 status bit 4 時尾端的 dword 非零也會設它；現在兩個來源都接上。
+- FA 輸入限制是聊天指令 `title`／`emblem`／`ban`／`surrender`／`cease` 讀自身的 +13A：規則在 `native_fa_gate`，但現代客戶端沒有斜線指令輸入，還沒有呼叫端。
+- 敵盟（+20＝2）不按強制攻擊鍵也能選為攻擊目標、游標跟著變，這屬於盟戰玩法，沒有做。
 
 ## 原始標記與時計
 

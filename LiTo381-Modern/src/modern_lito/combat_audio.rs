@@ -27,6 +27,13 @@ pub const MAX_BANK_BYTES: usize = 64 * 1024 * 1024;
 pub const MAX_BANK_SOUNDS: usize = 512;
 pub const MAX_BANK_GROUPS: usize = 4096;
 pub const MAX_VOICES: usize = 16;
+/// Longest admitted cue. Every original shared `Sound/<1..9999>.wav` is at
+/// most 22.3 s (`Sound/361.wav`); a longer or near-zero-rate WAV would hold a
+/// fixed voice for an unbounded time and is refused before publication.
+pub const MAX_PLAYBACK_MILLIS: u64 = 60_000;
+/// Driver latency allowed beyond the PCM length before a voice that still
+/// reports "playing" is reset by the pool (never restarted or replaced).
+pub const VOICE_OVERRUN_GRACE_MILLIS: u64 = 5_000;
 
 #[derive(Clone, Copy, Debug)]
 pub struct BankLimits {
@@ -103,6 +110,10 @@ impl PreparedSound {
             "PCM range mismatch"
         );
         let format = wave.format();
+        ensure!(
+            playback_millis(wave.pcm_bytes().len(), format) <= MAX_PLAYBACK_MILLIS,
+            "shared battle PCM exceeds the bounded playback length"
+        );
         let padding = wave.padding();
         let sha256 = Sha256::digest(&bytes).into();
         Ok(Self {
@@ -212,12 +223,22 @@ impl PreparedSound {
     pub fn file_bytes(&self) -> usize {
         self.wav.len()
     }
+    /// Whole playback length, rounded up; 1..=MAX_PLAYBACK_MILLIS. Gain and
+    /// spatial variants keep the source frame count and therefore this value.
+    pub fn playback_millis(&self) -> u64 {
+        playback_millis(self.pcm_bytes().len(), self.format())
+    }
     pub fn padding(&self) -> WavePadding {
         self.padding
     }
     pub fn sha256(&self) -> [u8; 32] {
         self.sha256
     }
+}
+
+fn playback_millis(pcm_bytes: usize, format: PcmFormat) -> u64 {
+    // The strict parser guarantees byte_rate = sample_rate * block_align >= 1.
+    (pcm_bytes as u64 * 1000).div_ceil(u64::from(format.byte_rate))
 }
 
 #[derive(Debug)]
@@ -389,6 +410,7 @@ pub struct PoolStatus {
 mod output {
     use super::super::audio_output::{AudioOutputError, PcmVoice, VoiceStatus};
     use super::*;
+    use std::time::{Duration, Instant};
 
     #[derive(Clone, Debug, Eq, PartialEq)]
     pub enum PoolError {
@@ -436,10 +458,16 @@ mod output {
         voice: V,
         sound_id: Option<u32>,
         playing: bool,
+        /// Start time + bounded PCM length + grace. Only set by a successful
+        /// start; a voice still "playing" past it is reset by `poll`.
+        deadline: Option<Instant>,
     }
     struct Pool<V: OutputVoice> {
         slots: Vec<Slot<V>>,
         fault: Option<AudioOutputError>,
+        /// Monotonic; replaced only by deterministic tests.
+        clock: fn() -> Instant,
+        expired: u64,
     }
     impl<V: OutputVoice> Pool<V> {
         fn new(capacity: usize, mut create: impl FnMut() -> V) -> Result<Self, PoolError> {
@@ -452,9 +480,12 @@ mod output {
                         voice: create(),
                         sound_id: None,
                         playing: false,
+                        deadline: None,
                     })
                     .collect(),
                 fault: None,
+                clock: Instant::now,
+                expired: 0,
             })
         }
         fn status(&self) -> PoolStatus {
@@ -517,6 +548,9 @@ mod output {
             {
                 Ok(()) => {
                     slot.playing = true;
+                    slot.deadline = (self.clock)().checked_add(Duration::from_millis(
+                        sound.playback_millis() + VOICE_OVERRUN_GRACE_MILLIS,
+                    ));
                     Ok(PlayOutcome::Started {
                         sound_id: id,
                         slot: index,
@@ -534,15 +568,29 @@ mod output {
                 self.cleanup_once();
                 return Err(PoolError::Device(self.fault.as_ref().unwrap().clone()));
             }
+            let now = (self.clock)();
             for slot in &mut self.slots {
                 if slot.sound_id.is_none() {
                     continue;
                 }
-                match slot.voice.poll() {
+                let status = match slot.voice.poll() {
+                    // A finite cue never owns its voice past its own length:
+                    // a driver that keeps reporting "playing" (stalled or
+                    // looping device) is reset once, without a restart.
+                    Ok(VoiceStatus::Playing) if slot.deadline.is_some_and(|d| now >= d) => {
+                        slot.voice.stop().map(|()| {
+                            self.expired = self.expired.saturating_add(1);
+                            VoiceStatus::Finished
+                        })
+                    }
+                    other => other,
+                };
+                match status {
                     Ok(VoiceStatus::Playing) => slot.playing = true,
                     Ok(VoiceStatus::Idle | VoiceStatus::Finished) => {
                         slot.sound_id = None;
                         slot.playing = false;
+                        slot.deadline = None;
                     }
                     Err(error) => {
                         self.fault = Some(error);
@@ -566,6 +614,7 @@ mod output {
                     Ok(()) => {
                         slot.sound_id = None;
                         slot.playing = false;
+                        slot.deadline = None;
                     }
                     Err(error) => {
                         if self.fault.is_none() {
@@ -626,6 +675,12 @@ mod output {
         }
         pub fn status(&self) -> PoolStatus {
             self.inner.status()
+        }
+        /// Voices reset by `poll` because the driver still reported them
+        /// playing after PCM length + `VOICE_OVERRUN_GRACE_MILLIS`. Zero on a
+        /// healthy device; diagnostics only, never a reason to replay a cue.
+        pub fn expired_voices(&self) -> u64 {
+            self.inner.expired
         }
         /// Healthy pools can be reused after a match. A device fault stays
         /// latched even after later cleanup succeeds; no automatic re-enable.
@@ -862,6 +917,104 @@ mod output {
             assert!(traces[0].borrow().retained.is_none());
             assert_eq!(traces[1].borrow().stops, stopped_second);
         }
+        // Issue #340: deterministic clock for the bounded-voice watchdog.
+        thread_local! {
+            static NOW: std::cell::Cell<Option<Instant>> = const { std::cell::Cell::new(None) };
+        }
+        fn test_clock() -> Instant {
+            NOW.with(|now| now.get().expect("test clock is set before use"))
+        }
+        fn set_clock(base: Instant, millis: u64) {
+            NOW.with(|now| now.set(Some(base + Duration::from_millis(millis))));
+        }
+        #[test]
+        fn voice_reported_playing_past_its_bounded_length_is_reset_once_and_never_restarted() {
+            let bank = bank();
+            let (mut pool, traces) = pool(2);
+            pool.clock = test_clock;
+            let base = Instant::now();
+            set_clock(base, 0);
+            let millis = bank.get(1).unwrap().playback_millis();
+            assert_eq!(millis, 1);
+            pool.play(&bank, &group(b'<', &[1]), 0).unwrap();
+            // The fake driver never finishes: it models a stalled device.
+            set_clock(base, millis + VOICE_OVERRUN_GRACE_MILLIS - 1);
+            assert_eq!(pool.poll().unwrap().active, 1);
+            assert_eq!((traces[0].borrow().stops, pool.expired), (0, 0));
+            set_clock(base, millis + VOICE_OVERRUN_GRACE_MILLIS);
+            assert_eq!(
+                pool.poll().unwrap(),
+                PoolStatus {
+                    active: 0,
+                    retained: 0,
+                    faulted: false
+                }
+            );
+            assert_eq!((traces[0].borrow().stops, pool.expired), (1, 1));
+            assert!(traces[0].borrow().retained.is_none());
+            // Later ticks neither stop it again nor replay the expired cue.
+            set_clock(base, 3_600_000);
+            for _ in 0..8 {
+                pool.poll().unwrap();
+            }
+            assert_eq!((traces[0].borrow().starts, traces[0].borrow().stops), (1, 1));
+            assert_eq!(traces[1].borrow().starts, 0);
+            // The healthy pool stays usable and the reused slot has a new deadline.
+            assert_eq!(
+                pool.play(&bank, &group(b'<', &[2]), 0).unwrap(),
+                PlayOutcome::Started {
+                    sound_id: 2,
+                    slot: 0
+                }
+            );
+            assert_eq!(pool.poll().unwrap().active, 1);
+            assert_eq!(pool.expired, 1);
+        }
+        #[test]
+        fn naturally_finished_and_explicitly_stopped_voices_are_not_counted_as_expired() {
+            let bank = bank();
+            let (mut pool, traces) = pool(2);
+            pool.clock = test_clock;
+            let base = Instant::now();
+            set_clock(base, 0);
+            pool.play(&bank, &group(b'<', &[1]), 0).unwrap();
+            pool.play(&bank, &group(b'<', &[2]), 0).unwrap();
+            traces[0].borrow_mut().playing = false;
+            set_clock(base, 1);
+            assert_eq!(pool.poll().unwrap().active, 1);
+            pool.stop_all().unwrap();
+            set_clock(base, 3_600_000);
+            assert_eq!(pool.poll().unwrap().retained, 0);
+            assert_eq!(pool.expired, 0);
+            assert_eq!((traces[0].borrow().stops, traces[1].borrow().stops), (0, 1));
+            assert!(pool.slots.iter().all(|slot| slot.deadline.is_none()));
+        }
+        #[test]
+        fn failed_reset_of_an_overrunning_voice_latches_the_fault_without_another_start() {
+            let bank = bank();
+            let (mut pool, traces) = pool(2);
+            pool.clock = test_clock;
+            let base = Instant::now();
+            set_clock(base, 0);
+            pool.play(&bank, &group(b'<', &[1]), 0).unwrap();
+            traces[0].borrow_mut().stop_fail = true;
+            set_clock(base, MAX_PLAYBACK_MILLIS + VOICE_OVERRUN_GRACE_MILLIS);
+            assert!(matches!(pool.poll(), Err(PoolError::Device(_))));
+            assert_eq!(
+                pool.status(),
+                PoolStatus {
+                    active: 1,
+                    retained: 1,
+                    faulted: true
+                }
+            );
+            assert_eq!(pool.expired, 0);
+            assert!(pool.play(&bank, &group(b'<', &[2]), 0).is_err());
+            assert_eq!(traces[1].borrow().starts, 0);
+            traces[0].borrow_mut().stop_fail = false;
+            assert!(pool.stop_all().is_err());
+            assert_eq!(pool.status().retained, 0);
+        }
         #[test]
         fn invalid_capacity_creates_no_backends() {
             for cap in [0, MAX_VOICES + 1, usize::MAX] {
@@ -1070,6 +1223,59 @@ mod tests {
                 .is_err()
             );
         }
+    }
+    /// PCM8 mono at an arbitrary rate: one byte per frame.
+    fn wav_at(sample_rate: u32, frames: usize) -> Vec<u8> {
+        let mut bytes = [
+            b"RIFF".as_slice(),
+            &0u32.to_le_bytes(),
+            b"WAVEfmt ",
+            &16u32.to_le_bytes(),
+            &1u16.to_le_bytes(),
+            &1u16.to_le_bytes(),
+            &sample_rate.to_le_bytes(),
+            &sample_rate.to_le_bytes(),
+            &1u16.to_le_bytes(),
+            &8u16.to_le_bytes(),
+            b"data",
+            &(frames as u32).to_le_bytes(),
+        ]
+        .concat();
+        bytes.resize(bytes.len() + frames + (frames & 1), 128);
+        let size = (bytes.len() - 8) as u32;
+        bytes[4..8].copy_from_slice(&size.to_le_bytes());
+        bytes
+    }
+    /// Issue #340: no admitted cue can hold a voice for an unbounded time.
+    #[test]
+    fn playback_length_is_bounded_before_a_sound_can_be_published() {
+        let sound = PreparedSound::from_wav(1, wav()).unwrap();
+        assert_eq!(sound.playback_millis(), 1);
+        // Stereo expansion keeps the frame count, hence the same length.
+        assert_eq!(sound.with_spatial(64, 64).unwrap().playback_millis(), 1);
+        assert_eq!(sound.with_gain(50).unwrap().playback_millis(), 1);
+        // The longest original shared cue (Sound/361.wav, 22.3 s) stays valid.
+        let long = PreparedSound::from_wav(361, wav_at(11_025, 11_025 * 23)).unwrap();
+        assert_eq!(long.playback_millis(), 23_000);
+        // A parser-valid 1 Hz file of 61 bytes would otherwise play for 61 s;
+        // 16 MiB of it would play for more than six months.
+        let limit = (MAX_PLAYBACK_MILLIS / 1000) as usize;
+        assert_eq!(
+            PreparedSound::from_wav(1, wav_at(1, limit))
+                .unwrap()
+                .playback_millis(),
+            MAX_PLAYBACK_MILLIS
+        );
+        assert!(PreparedSound::from_wav(1, wav_at(1, limit + 1)).is_err());
+        assert!(PreparedSound::from_wav(1, wav_at(8_000, 8_000 * limit + 1)).is_err());
+        // The refusal fails the whole bank instead of publishing a subset.
+        assert!(SoundBank::load_with(
+            &[group(b'<', &[1])],
+            BankLimits::default(),
+            &AtomicBool::new(false),
+            |_, _| Ok(wav_at(1, limit + 1))
+        )
+        .is_err());
     }
     #[test]
     fn hit_is_never_interpreted_as_audio_and_zero_only_bank_is_valid_empty() {
