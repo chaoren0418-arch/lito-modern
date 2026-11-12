@@ -53,11 +53,14 @@ fn walk(c:&mut LoginController,model:&mut Model,npc:u32,cancel:&AtomicBool,start
 
 fn failure_player(root:&Path,peer:SocketAddr,role:&str,account:&str)->Result<()>{
  let scenario=std::env::var("LITO_TELEPORT_SCENARIO").unwrap_or_else(|_|"timeout".into());
- // This entry exercises the source TTL in addition to the staged TTL. The
- // other historical repeated-cancel scenarios remain a separate T023 slice.
+ // cancel-expiry-source exercises the source TTL in addition to the staged
+ // TTL. cancel-repeat／refused-cancel-repeat restore the historical repeated
+ // cancellation entries: before and after the destination worker is quiescent.
  let source_expiry=scenario=="cancel-expiry-source";
- let wrong_service=scenario=="wrong-service";let refused=scenario=="refused";let cancel_expiry=scenario=="cancel-expiry"||source_expiry;let cancel_retry=scenario=="cancel-retry";
- let mut manual_selection=false;let mut closed_samples=0u32;let mut expiry_wait_ms=0u128;let mut source_wait_ms=0u128;
+ let wrong_service=scenario=="wrong-service";let refused=matches!(scenario.as_str(),"refused"|"refused-cancel-repeat");
+ let cancel_expiry=scenario=="cancel-expiry"||source_expiry;let cancel_retry=matches!(scenario.as_str(),"cancel-retry"|"cancel-repeat");
+ let repeat_cancel=matches!(scenario.as_str(),"cancel-repeat"|"refused-cancel-repeat");
+ let mut manual_selection=false;let mut closed_samples=0u32;let mut expiry_wait_ms=0u128;let mut source_wait_ms=0u128;let mut cancellation_calls=0u32;
  let mut c=LoginController::default();let cancel=AtomicBool::new(false);let start=Instant::now();
  let result=(||->Result<()>{
   c.start(peer,Limits{read_chunk:2,write_chunk:3,..Limits::default()})?;
@@ -77,10 +80,19 @@ fn failure_player(root:&Path,peer:SocketAddr,role:&str,account:&str)->Result<()>
   let end=Instant::now()+Duration::from_secs(15);
   if cancel_expiry||cancel_retry {
    loop{c.poll();if c.snapshot().phase==P::GameConnecting&&c.transport().snapshot().epoch==old_epoch+1{break}ensure!(Instant::now()<end&&!matches!(c.snapshot().phase,P::Failed|P::Closed),"destination connecting not reached");thread::sleep(Duration::from_millis(10));}
-   c.cancel();let end=Instant::now()+Duration::from_secs(3);
+   c.cancel();cancellation_calls+=1;
+   if repeat_cancel {for _ in 0..3 {c.cancel();cancellation_calls+=1;}}
+   let end=Instant::now()+Duration::from_secs(3);
    loop{c.poll();if c.snapshot().phase==P::Closed&&c.is_quiescent(){break}ensure!(Instant::now()<end,"cancel did not reclaim destination");thread::sleep(Duration::from_millis(10));}
   } else {
    loop{c.poll();if c.snapshot().phase==P::Failed&&c.is_quiescent(){break}ensure!(Instant::now()<end,"failure wait exceeded");thread::sleep(Duration::from_millis(10));}
+  }
+  if repeat_cancel {
+   // After the destination worker is quiescent: must keep the unused
+   // correlation, the failure (if any) and the closed transport epoch.
+   let phase=c.snapshot().phase;let error=c.snapshot().error.clone();let epoch=c.transport().snapshot().epoch;
+   for _ in 0..2 {c.cancel();cancellation_calls+=1;c.poll();
+    ensure!(c.snapshot().phase==phase&&c.snapshot().error==error&&c.is_quiescent()&&c.transport().snapshot().epoch==epoch,"repeated cancel after quiescence changed retired session");}
   }
   let failed=c.snapshot().clone();let elapsed=requested.elapsed().as_millis();let failed_epoch=c.transport().snapshot().epoch;
   ensure!(failed_epoch==old_epoch+1&&failed.world.actors.is_empty()&&!failed.world.ready()&&failed.inventory.owner.is_none()&&failed.selected_character.is_none()&&failed.joined_room.is_none()&&failed.merchant.owner.is_none(),"failed destination retained previous authority");
@@ -117,6 +129,7 @@ fn failure_player(root:&Path,peer:SocketAddr,role:&str,account:&str)->Result<()>
   ensure!(!cancel_expiry||(manual_selection && expiry_wait_ms>=33000),"expired handoff skipped natural wait or fresh character selection");
   ensure!(!source_expiry||source_wait_ms>=31000,"source handoff skipped natural wait");
   ensure!(c.snapshot().selected_source.as_deref()==Some(REQUESTED_SOURCE),"recovery changed selected source");
+  ensure!(!repeat_cancel||cancellation_calls>=if refused{2}else{6},"repeated cancellation was not exercised");
   let continued=c.snapshot().clone();c.select_rental_set(1)?;wait(&mut c,15,|s|s.phase==P::RentalReady)?;c.join_rental_room(0)?;
   wait(&mut c,15,|s|s.phase==P::BattlePending&&s.world.ready()&&s.world.actors.contains_key(&npc))?;
   let reentered=c.snapshot().clone();ensure!(reentered.world.generation>before.world.generation&&reentered.world.map_id==Some(500),"reentry world generation missing");
@@ -127,7 +140,7 @@ fn failure_player(root:&Path,peer:SocketAddr,role:&str,account:&str)->Result<()>
   let heading=(0..8).find(|h|nav.can_step(i32::from(own.x),i32::from(own.y),*h)&&native_world::destination(own.x,own.y,*h).is_ok_and(|(x,y)|!c.snapshot().world.actors.values().any(|a|a.id!=own.id&&a.x==x&&a.y==y))).context("no open recovery step")?;
   let move_before=[own.x,own.y];let (x,y)=native_world::destination(own.x,own.y,heading)?;c.move_checked(heading,&nav)?;wait(&mut c,8,|s|s.world.own_actor().is_some_and(|a|[a.x,a.y]==[x,y]))?;
   let end=Instant::now()+Duration::from_secs(8);loop{c.poll();let frame=recovered_model.draw_at(&c.snapshot().world,&cancel,start.elapsed().as_nanos() as u64)?;if frame.movement_ready(&c.snapshot().world){break}if Instant::now()>=end{std::fs::write(root.join(format!("{role}-recovery-frame-error.json")),serde_json::to_vec_pretty(&frame.receipt)?)?;anyhow::bail!("recovery movement not presented")}thread::sleep(Duration::from_millis(10));}
-  std::fs::write(root.join(format!("{role}-failure.json")),serde_json::to_vec_pretty(&json!({"role":role,"action":action,"steps":steps,"before":before,"failed":failed,"recovery":recovery,"continued":continued,"reentered":reentered,"recovery_move":{"before":move_before,"after":[x,y],"heading":heading},"old_epoch":old_epoch,"failed_epoch":failed_epoch,"recovery_epoch":recovery_epoch,"reentered_epoch":c.transport().snapshot().epoch,"elapsed_ms":elapsed,"scenario":scenario,"manual_selection":manual_selection,"closed_samples":closed_samples,"expiry_wait_ms":expiry_wait_ms,"source_wait_ms":source_wait_ms,"requested_source":REQUESTED_SOURCE,"full_game_reentry_verified":true}))?)?;
+  std::fs::write(root.join(format!("{role}-failure.json")),serde_json::to_vec_pretty(&json!({"role":role,"action":action,"steps":steps,"before":before,"failed":failed,"recovery":recovery,"continued":continued,"reentered":reentered,"recovery_move":{"before":move_before,"after":[x,y],"heading":heading},"old_epoch":old_epoch,"failed_epoch":failed_epoch,"recovery_epoch":recovery_epoch,"reentered_epoch":c.transport().snapshot().epoch,"elapsed_ms":elapsed,"scenario":scenario,"manual_selection":manual_selection,"closed_samples":closed_samples,"expiry_wait_ms":expiry_wait_ms,"source_wait_ms":source_wait_ms,"cancellation_calls":cancellation_calls,"requested_source":REQUESTED_SOURCE,"full_game_reentry_verified":true}))?)?;
   std::fs::write(root.join(format!("{role}-failure-complete")),b"done")?;let other=if role=="a"{"b"}else{"a"};wait(&mut c,if cancel_expiry{120}else{PEER_WAIT_SECONDS},|_|root.join(format!("{other}-failure-complete")).exists())?;
   Ok(())
  })();
@@ -147,11 +160,23 @@ fn cancellation_retires_destination_and_expired_handoff_requires_fresh_selection
  assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("cancel-expiry"));
  run_owned_harness();
 }
+// Historical name restored (T023 2/4); it was briefly
+// source_handoff_expiry_confirms_c8_before_manual_selection in #169.
 #[test]
 #[ignore="requires owned E149 harness and natural 33s staged plus 31s source expiry"]
-fn source_handoff_expiry_confirms_c8_before_manual_selection(){
+fn expired_stage_and_source_handoff_require_the_requested_source_directory(){
  assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("cancel-expiry-source"));
  run_owned_harness();
+}
+#[test]
+#[ignore="requires owned E149 harness; repeated cancel before and after quiescence"]
+fn repeated_cancellation_preserves_only_one_authenticated_recovery(){
+ assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("cancel-repeat"));run_owned_harness();
+}
+#[test]
+#[ignore="requires owned E149 closed destination and failure/cancel recovery"]
+fn failed_handoff_then_repeated_cancel_preserves_the_authenticated_recovery(){
+ assert_eq!(std::env::var("LITO_TELEPORT_SCENARIO").as_deref(),Ok("refused-cancel-repeat"));run_owned_harness();
 }
 #[test]
 #[ignore="requires owned harness and immediate authenticated retry"]
@@ -202,6 +227,14 @@ mod recovery_wire {
  fn natural_eight_second_deadlines() { cases::recovery_natural_eight_second_waits_do_not_publish_or_retry(); }
  #[test]
  fn direct_teleport_cannot_refresh_source() { cases::recovery_refresh_is_not_available_to_a_direct_teleport(); }
+ #[test]
+ fn repeated_cancel_keeps_one_recovery() { cases::repeated_cancellation_before_and_after_quiescence_keeps_one_recovery(); }
+ #[test]
+ fn refused_then_repeated_cancel_keeps_recovery() { cases::failed_handoff_then_repeated_cancel_keeps_the_authenticated_recovery(); }
+ #[test]
+ fn stale_generation_endpoint_in_recovery_game() { cases::recovery_game_rejects_previous_generation_endpoint_reply(); }
+ #[test]
+ fn malformed_directory_in_recovery_game() { cases::recovery_game_malformed_directory_reply_fails_without_retry(); }
  #[test]
  fn natural_source_wait_then_complete_c8_and_manual_selection() {
   cases::recovery_after_source_wait_confirms_directory(super::observe_source_expiry);
