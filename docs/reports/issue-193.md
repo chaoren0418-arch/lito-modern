@@ -54,6 +54,7 @@
 
 ## 已驗證
 - 合併 main 後與本輪修改後，`cargo check --all-targets` 結束碼 `0`。
+- 第 2 次嘗試（2026-11-12）：PR #257 與 main 衝突（落後 27 commit），再合併 `origin/main`（`9729613`）。唯一衝突在 `native_skills.rs` 的 `reuse_millis`：保留 main 新增的 101–109 冷卻與本分支的 `68=>1500`。合併後 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 `0`（`Finished dev profile ... in 3m 51s`）。`cargo test` 本機未跑，交 CI。
 - 程式碼閱讀：客戶端所有技能／攻擊送出點（`cast_with_input`、`attack_with_input`）都經過 `native_target_policy::validate`；68 的目標 token 在「送出前」「延後送出前」「回覆等待中」三處都會重新解析。
 
 - CI（run `43152811171`）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2048 passed／0 failed，含本輪新測試與第 1 輪的 `target_policy_*` 測試。

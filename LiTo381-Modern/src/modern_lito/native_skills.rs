@@ -45,7 +45,7 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     Ok(())
 }
 /// Item object IDs must never pass through the actor-target request path.
-pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 100) }
+pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 100 | 107) }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemTarget {
@@ -149,6 +149,11 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
     can_cast(world,skill)?;
     let mut bytes=vec![0x14,7,3];bytes.extend_from_slice(&tick.0.to_le_bytes());Ok(bytes)
 }
+/// One classification for wire admission and clearing unrelated hovered actors.
+pub fn selector_only(skill: u16) -> bool {
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 206)
+}
+
 pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>> {
     can_cast(world, skill)?;
     let own = world.own_actor().unwrap();
@@ -175,7 +180,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
             }
             b.extend_from_slice(&id.to_le_bytes());
         }
-        14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 97 | 98 | 99 | 206 => {ensure!(target.is_none(), "此技能不接受指定目標");}
+        id if selector_only(id) => {ensure!(target.is_none(), "此技能不接受指定目標");}
         13 => {ensure!(target.is_none(), "偵測術不接受目標");}
         60 => {return self_tick_request(world,skill,target,ClientTick::now()?);}
         2 => {ensure!(target.is_none(), "日光術不接受目標");}
@@ -218,14 +223,14 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 b.extend_from_slice(&actor.y.to_le_bytes());
             }
         }
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 77 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 77 | 103 | 108 => {
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30=>8,33=>2,40=>3,10=>3,11|20=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30=>8,33=>2,40=>3,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -237,7 +242,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,27=>3000,22=>300,33|77=>5000,60=>0,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109=>0,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -261,8 +266,8 @@ impl Feedback {
             Self::Rejected(276) => "目前地圖無法使用此技能",
             Self::Rejected(278) => "MP 不足",
             Self::Rejected(279) => "HP 不足",
-            Self::Rejected(280) => "法術未生效",
             Self::Rejected(79) => "伺服器拒絕此物品附魔",
+            Self::Rejected(280) => "法術未生效",
             Self::Rejected(299) => "施法材料不足",
             Self::Rejected(319) => "可控制的同伴數量已達上限",
             Self::Rejected(_) => "伺服器限制施法",
@@ -313,13 +318,18 @@ impl CastContext {
     }
 }
 impl Pending {
+    /// Item casts (12/21/100/107) accept a sequenced S10 code 79 received after the
+    /// request, even if later S10 messages in the same poll replace last_message.
+    /// Ordinary casts never consult this field.
     pub fn observe_item(&self, world: &World, now: Instant) -> Feedback {
         let feedback = self.observe(world, now);
         if matches!(feedback, Feedback::Pending | Feedback::NoResponse)
-            && world.message_count > self.messages
-            && world.last_message.as_ref().is_some_and(|(code, _)| *code == 79) {
+            && world.last_item_skill_rejection.is_some_and(|sequence| sequence > self.messages)
+        {
             Feedback::Rejected(79)
-        } else { feedback }
+        } else {
+            feedback
+        }
     }
     pub fn observe(&self, world: &World, now: Instant) -> Feedback {
         if world.generation != self.generation
