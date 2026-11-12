@@ -116,3 +116,6 @@
 - 2026-11-12 — #150 T027-6: T027（M2 6/6）: src/：候選獨有的 48 個技能重做進 src（code，claude-local，PR 已合併）→ [報告](reports/issue-150.md)
 - 2026-11-12 — #324 T037-1: T037（M3 1/2）: docs/G01-G12-AUDIT.md：G12 稽核（code，claude-local，PR #348 已合併）→ [報告](reports/issue-324.md)
 - 2026-11-12 — #301 T035-1: T035（M3 1/2）: src/、維護工具/：已知 GUI 與輸入缺陷（code，claude-local，PR #349 已合併）→ [報告](reports/issue-301.md)
+- 2026-11-12 — #158 T022-8: T022（M2 8/10）: src/：未接的 91 個技能（code，claude-local，PR #294 已合併）→ [報告](reports/issue-158.md)
+- 2026-11-12 — #306 T036-1: T036（M3 1/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #350 已合併）→ [報告](reports/issue-306.md)
+- 2026-11-12 — #307 T036-2: T036（M3 2/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #351 已合併）→ [報告](reports/issue-307.md)

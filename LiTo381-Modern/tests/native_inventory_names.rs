@@ -90,12 +90,15 @@ fn labels_resolve_only_presentation_and_count_stays_authoritative() {
     let a = names::label(&i, Some(&c));
     assert_eq!(a.name, "Sword (2)");
     assert_eq!(a.count, 2);
-    assert_eq!(a.text, "Sword (2) × 2");
+    // The server's own `(count)` suffix is not shown again beside the count.
+    assert_eq!(a.text, "Sword × 2");
     assert_eq!(i, before);
     i.count = 1;
     let b = names::label(&i, Some(&c));
     assert_eq!(b.name, "Sword (2)");
     assert_eq!(b.count, 1);
+    // A number that is not the current count is kept as sent.
+    assert_eq!(b.text, "Sword (2) × 1");
     i.name = "$20001".into();
     assert_eq!(names::label(&i, Some(&c)).name, "Lito shield");
 }
