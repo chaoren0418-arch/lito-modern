@@ -53,7 +53,10 @@
 - `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`（在 `LiTo381-Modern/` 執行）**結束碼 0**，原文結尾 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 27s``。變更檔案沒有新增 warning。日誌在 `scratch/issue-165/logs/check.log`（不追蹤）。
   - 第一次 check 因新測試的 `forged[forged.len()/2]` 借用錯誤而結束碼 101，修正後重跑。
 - 靜態證據：上述 SHA、反組譯片段（`scratch/issue-165/sub_43DE10.asm`）、javap 輸出（`scratch/issue-165/BattleSpellCatalog.javap.txt`）、Python 盤點結果。
-- `cargo check` 不產生 `test result:`。本機沒有跑測試，所以本節**沒有任何 `test result:`**。
+- `cargo check` 不產生 `test result:`。本機沒有跑任何測試。
+- **PR #282 CI**（run 43169713010，commit `80d8ccf`）結論 **success**：`cargo check` 與 `cargo test (lib, no GUI)` 都通過。原文：`test result: ok. 2233 passed; 0 failed; 592 ignored; 0 measured; 0 filtered out; finished in 22.37s`。
+  - 本張的 5 個 lib 測試在 CI log 中都是 `... ok`：`native_43dcc0_colon_image_subframe_separator_matches_dot_and_stays_narrow`、`inspection_retains_unverified_body_and_ref_cannot_bypass_quarantine`，以及 3 個 `counter3934_*`。
+  - 2 個實資源測試在 CI 顯示 `ignored`（`real_shared_list_actions_are_bounded_and_resolvable`、`actual_counter3934_bank_keeps_blank_dwell_slots_and_one_audio_cue`），**不算通過**。CI 只跑 `--lib`，所以 `tests/native_t028_ground.rs` 只確認能編譯，沒有執行。
 
 ## 推測
 
