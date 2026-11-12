@@ -396,6 +396,7 @@ mod native_peer_hotel_probe;
 mod native_peer_hotel_share_probe;
 mod native_peer_merchants_probe;
 pub mod native_portal;
+pub mod native_rental_source;
 pub mod native_attributes;
 pub mod native_peer_actions;
 pub mod native_poison_probe;
