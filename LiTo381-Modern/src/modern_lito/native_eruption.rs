@@ -189,7 +189,7 @@ mod tests {
     fn cast()->Cast {
         let (positions,heading)=path([32768,32768],[32771,32768],2).unwrap();
         Cast{cue:ProjectileCue{heading:2,attacker_incarnation:1,target_incarnation:None,action_sequence:1,attacker:1,target:0,damage_marker:0,
-            projectile:crate::modern_lito::native_combat::Projectile{id:1,flight_type:0,graphics:129,from:[32768,32768],to:[32771,32768]}},
+            projectile:crate::modern_lito::native_combat::Projectile{id:1,flight_type:0,graphics:129,from:[32768,32768],to:[32771,32768],retain_on_arrival:0,name:Vec::new()}},
             nodes:vec![Node{gfx:129,position:positions[0],frame:0,serial:0,due:None,visible:false,final_draw:false}],positions,heading,endpoint:[32771,32768],order:0}
     }
     #[test]

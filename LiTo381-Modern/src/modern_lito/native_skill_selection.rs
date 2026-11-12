@@ -1,5 +1,10 @@
 //! Native skill choices are learned IDs scoped to a live caster, never combo indices.
 use super::{native_skills, native_world::World};
+#[path = "native_skill_catalog.rs"]
+pub mod catalog;
+#[cfg(test)]
+#[path = "native_skillbook_tests.rs"]
+mod skill_ui_tests;
 use anyhow::{ensure, Context, Result};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -15,6 +20,9 @@ impl Owner {
             return None;
         }
         let a = world.own_actor()?;
+        if a.dead || !world.hp.is_some_and(|hp| hp[0] > 0) {
+            return None;
+        }
         Some(Self {
             connection,
             generation: world.generation,
@@ -101,7 +109,7 @@ impl Ground {
 /// Shared by the actual native window and isolated ClientSession probes.
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
-    let target = if matches!(skill,2|3|13|14|31|32|49|52|53|54|60|72|78|131|206) {
+    let target = if matches!(skill,2|3|13|14|31|32|49|52|53|54|60|72|78|97|98|99|131|206) {
         None
     } else {
         target
@@ -120,6 +128,7 @@ pub struct Model {
     owner: Option<Owner>,
     rows: Vec<Row>,
     selected: Option<u16>,
+    bindings: [Option<u16>; 8],
 }
 impl Model {
     pub fn rows(&self) -> &[Row] {
@@ -127,6 +136,23 @@ impl Model {
     }
     pub fn selected(&self) -> Option<u16> {
         self.selected
+    }
+    pub fn bindings(&self) -> &[Option<u16>; 8] {
+        &self.bindings
+    }
+    /// Bind identities, never the current row index. None explicitly clears.
+    pub fn bind(&mut self, slot: usize, id: Option<u16>) -> Result<()> {
+        ensure!(slot < self.bindings.len(), "快捷格超出範圍");
+        ensure!(self.owner.is_some(), "技能書已失效");
+        ensure!(id.is_none_or(|id| self.rows.iter().any(|r| r.id == id)), "尚未學會此技能");
+        self.bindings[slot] = id;
+        Ok(())
+    }
+    pub fn bound(&self, connection: u64, world: &World, slot: usize) -> Result<u16> {
+        ensure!(self.owner.is_some() && self.owner == Owner::current(connection, world), "快捷列已失效");
+        let id = self.bindings.get(slot).copied().flatten().context("快捷格尚未綁定技能")?;
+        ensure!(world.learned_skills.contains(&id), "尚未學會此技能");
+        Ok(id)
     }
     pub fn sync(&mut self, connection: u64, world: &World, active: bool) -> bool {
         let owner = active.then(|| Owner::current(connection, world)).flatten();
@@ -138,6 +164,10 @@ impl Model {
                     id,
                     label: match id {
                         1 => "#1 治癒術（選取目標／自己）".into(),
+                        97 => "#97 暗隱術（自己）".into(),
+                        98 => "#98 附加劇毒（自己）".into(),
+                        99 => "#99 影之防護（自己）".into(),
+                        100 => "#100 提煉魔石（選取背包物品）".into(),
                         2 => "#2 日光術（自己）".into(),
                         3 => "#3 護盾（自己）".into(),
                         4 => "#4 光箭（選取目標）".into(),
@@ -199,7 +229,7 @@ impl Model {
                         60 => "#60 隱身術（自己，消耗 1 顆魔法寶石）".into(),
                         131 => "#131 世界樹的呼喚（自己）".into(),
                         63 => "#63 生命之泉（點選地面）".into(),
-                        _ => format!("#{id} 技能（尚未支援）"),
+                        _ => format!("#{id} {}（尚未支援）", catalog::name(id).unwrap_or("未知技能")),
                     },
                 })
                 .collect()
@@ -207,6 +237,15 @@ impl Model {
             Vec::new()
         };
         let changed = self.owner != owner || self.rows != rows;
+        if self.owner != owner {
+            self.bindings = [None; 8];
+        } else {
+            for binding in &mut self.bindings {
+                if binding.is_some_and(|id| !world.learned_skills.contains(&id)) {
+                    *binding = None;
+                }
+            }
+        }
         if self.owner != owner
             || self
                 .selected
@@ -245,11 +284,16 @@ impl Model {
         target: Option<Target>,
         ground: Option<Ground>,
     ) -> Result<Choice> {
+        let skill = self.selected.context("請先選擇已學會的技能")?;
+        self.choice_id_at(connection, world, skill, target, ground)
+    }
+    /// Hotbar and book share exactly the same selected-ground/target guards.
+    pub fn choice_id_at(&self, connection: u64, world: &World, skill: u16,
+        target: Option<Target>, ground: Option<Ground>) -> Result<Choice> {
         ensure!(
             self.owner.is_some() && self.owner == Owner::current(connection, world),
             "技能畫面已失效"
         );
-        let skill = self.selected.context("請先選擇已學會的技能")?;
         if matches!(skill, 58 | 63) {
             let position = ground
                 .and_then(|g| g.resolve(connection, world))

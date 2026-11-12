@@ -90,7 +90,7 @@ impl Effects {
         let live:BTreeSet<_>=w.projectiles.iter().map(|c|(c.attacker,c.action_sequence)).collect();self.seen.retain(|k|live.contains(k)||self.active.iter().any(|a|(a.cue.attacker,a.cue.action_sequence)==*k));
         for event in events.filter(|e|e.event=="Hit") {
             let key=(event.actor,event.sequence);
-            let Some(cue)=w.projectiles.iter().find(|c|(c.attacker,c.action_sequence)==key&&c.projectile.flight_type==0&&supports_graphics(c.projectile.graphics)) else {continue;};
+            let Some(cue)=w.projectiles.iter().find(|c|(c.attacker,c.action_sequence)==key&&supports_graphics(c.projectile.graphics)) else {continue;};
             if !self.seen.insert(key){continue;}
             if self.active.len()>=64||w.actors.get(&cue.attacker).is_none_or(|a|a.dead||a.incarnation!=cue.attacker_incarnation){self.omitted+=1;continue;}
             let Some(clip)=self.clips.get(&cue.projectile.graphics) else{self.omitted+=1;continue;};

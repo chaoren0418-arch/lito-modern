@@ -96,6 +96,19 @@ PR #250 因 main 前進（#143／#194／#195／#261／#267 等）變成 DIRTY。
 
 依 2026-11-09 本機限制，本輪**未在本機執行 `cargo test`／`run-local-test-suite.ps1`**（不得執行編譯產物）；上方 114／114 為第 1 次嘗試（合併前來源）結果，合併後的測試改以 PR CI 為準，屬「待驗證」。
 
+### 第 2 次嘗試：再同步 main（2026-11-12，落後 52 commit）
+
+`git merge origin/main` 衝突 7 檔，處理方式：
+- `native_login.rs`：main 把技能回覆觀察抽成 `observe_skill(now)`；本批的召喚分支（`observe_summon`、`hold_summon`）移入該函式，舊的內嵌區塊刪除。main 新增 `cast_request_at(..., now)`（測試在用，簽名不變），另加 `cast_request_full` 帶 `summon` 參數，`cast_request` 與 `cast_request_at` 都轉呼叫它。
+- `native_login_window.rs`：同時保留 `SUMMON_OPTIONS` 與 main 的技能書／F5–F12 快捷列；`SUMMON_OPTIONS` 位置跟 `TELEPORT_DEST` 一起上移到快捷列上方（bottom-190）。控制項 ID 218 與 399／400+ 不衝突。
+- `native_skills.rs`、`native_skill_selection.rs`：無目標技能清單取聯集（加入 main 的 97／98／99 和本批的 53）；`reuse_millis` 合併 main 的 97／98..=100 與本批 44–53 的值。
+- `native_world.rs`：保留召喚拒絕（353／743），技能拒絕碼採用 main 新加 279 的版本。
+- `native_spell_projectiles.rs`：採用 main（#167）改用 catalog class、不再限制 flight_type 的做法；另加 `graphics!=129`，讓 129 繼續只由 eruption 處理；上限計數保留 `flights+eruption.active_count()`。
+- `tests.tsv`：兩邊新增的列都保留。
+- 另外修了 `native_eruption.rs` 測試的 `Projectile` 初始化：main 新增了 `retain_on_arrival`／`name` 欄位，這裡補上 `0`／空值。
+
+合併後本機 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 2m 13s`）。本機仍未執行 `cargo test`（規定不得執行編譯產物），改看 PR CI，列為「待驗證」。
+
 ## 推測
 
 離線封包與原資源測試支持客戶端請求、解碼、守衛與指定呈現行為；不代表正式 E149 服務實際接受、機率／材料扣除或與原版逐像素、原生排程完全一致。

@@ -1,4 +1,5 @@
-//! Formal S23 type0 class4 and eight-direction class5 ice1797/1798 at caster Hit entry.
+//! S23 class4 and eight-direction class5 ice1797/1798 at caster Hit entry.
+//! Native 4A5ED0 dispatches by catalog class, retaining the wire type separately.
 //! Flight coordinates freeze at launch. Class5 secondary anchors freeze at arrival.
 //! Bounded lifetime and incarnation fences; no HP/MP mutation.
 use super::{
@@ -61,7 +62,7 @@ impl Projectiles {
         for (skill,graphics) in [(4,167),(6,1797),(7,1799),(15,1583),(50,756)] {
             if !self.assets.contains_key(&graphics) && !self.errors.contains_key(&graphics)
                 && (world.learned_skills.contains(&skill)||world.projectiles.iter().any(|c|
-                    c.projectile.flight_type==0 && c.projectile.graphics==graphics)||self.flights.iter().any(|f|f.cue.projectile.graphics==graphics)) {
+                    c.projectile.graphics==graphics)||self.flights.iter().any(|f|f.cue.projectile.graphics==graphics)) {
                 let loaded=(|| {
                     let context=super::shared_action_catalog::SharedActionCatalog::reuse_for_model(root,cancel,shared)?;
                     LightArrowAssets::load_effect_profile_with_reader(context,u32::from(graphics),cancel,&mut sprite_reader)
@@ -103,15 +104,15 @@ impl Projectiles {
             let Some(cue) = world
                 .projectiles
                 .iter()
-                .find(|c| (c.attacker, c.action_sequence) == key && c.projectile.flight_type == 0 && c.projectile.graphics!=129)
+                .find(|c| (c.attacker, c.action_sequence) == key
+                    && supports_graphics(c.projectile.graphics) && c.projectile.graphics!=129)
             else {
                 continue;
             };
             if !self.seen.insert(key) {
                 continue;
             }
-            if !supports_graphics(cue.projectile.graphics)
-                || self.flights.len()+self.eruption.active_count() >= 64
+            if self.flights.len()+self.eruption.active_count() >= 64
                 || !valid(world, cue)
                 || world.actors.get(&cue.attacker).is_none_or(|a| a.dead)
             {
@@ -238,6 +239,7 @@ impl Projectiles {
                     Ok(
                         serde_json::json!({"sequence":f.cue.action_sequence,"projectile":f.cue.projectile.id,
                         "attacker":f.cue.attacker,"target":f.cue.target,"graphics":visual.graphics_id,
+                        "flight_type":f.cue.projectile.flight_type,
                         "source_frame":visual.source_frame,"sprite":visual.sprite_name,"subframe":visual.subframe,
                         "drawn":drawn,"finished":sample.finished,"arrived":f.arrived,"heading":f.path.heading(),
                         "position":[position.x,position.y],"secondary":f.secondary,
