@@ -118,7 +118,8 @@ fn self_object_buffs_always_send_the_caster_id_and_never_a_hovered_actor() {
         assert_eq!(choice.target, None);
         assert_eq!(skills::request(&state.world, skill, None).unwrap(), [0x14, row, column, 1, 0, 0, 0]);
     }
-    for skill in (1..=220u16).filter(|id| !matches!(id, 148 | 149 | 151)) {
+    // 168 Iron Skin joined this classifier in batch 6 (#156).
+    for skill in (1..=220u16).filter(|id| !matches!(id, 148 | 149 | 151 | 168)) {
         assert!(!skills::self_object(skill), "skill={skill}");
     }
 }

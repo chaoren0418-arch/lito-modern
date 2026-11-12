@@ -53,6 +53,13 @@
 
 第三次同步後重跑：`cargo check … --all-targets` 結束碼 0；`cargo test … --test native_skills_181_188 --test native_t027_batch5 --test native_skills_156_166 --test native_skill_selection --test native_skills --lib --no-run` 結束碼 0（六個測試執行檔編譯成功，未執行）；`python -B 維護工具/test_native_skill_coverage.py` 結束碼 0（`Ran 10 tests`、`OK`）。
 
+第四次同步（2026-11-12）：合併 `origin/main`（`3e761f2`，含批 6／#156 的 167–176），三個檔案有衝突，兩邊的內容都保留：
+- `native_skills.rs`：`selector_only`（main 的 169、171、172、175、176＋本張的 181、182、185、186）、`request` 的 ⑩ 目標分支（main 的 167、173、174＋本張的 183、184、187、188；畫面菱形檢查為 152｜153｜174｜184）、`reuse_millis`、`client_clock_millis`（main 的 167–176＋本張的 182、183、188）。
+- `native_skill_selection.rs` 的選單標籤（167–176 與 181–188 都留）。
+- `tests.tsv`（167_176 排在 181_188 之前，維持 LF）。
+
+第四次同步後重跑：`cargo check … --all-targets` 結束碼 0；`cargo test … --test native_skills_181_188 --test native_skills_167_176 --test native_t027_batch5 --test native_skill_selection --test native_skills --lib --no-run` 結束碼 0（六個測試執行檔編譯成功，未執行）；`python -B 維護工具/test_native_skill_coverage.py` 結束碼 0（`Ran 11 tests`、`OK`）。
+
 ## 已驗證
 
 ### 來源（唯讀）
