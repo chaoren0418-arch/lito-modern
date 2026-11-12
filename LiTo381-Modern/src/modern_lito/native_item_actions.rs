@@ -106,7 +106,14 @@ pub fn default_use_type(t: u8) -> bool {
     // Verified signed-byte default branches: spellbooks, food, fruit, MPR,
     // collars and projectiles. 0xFF also includes ship tickets with another
     // envelope, so it cannot be dispatched solely from this wire byte.
-    matches!(t, 0 | 1 | 2 | 11 | 13 | 15 | 18..=25 | 0xf7..=0xfa | 0xfc..=0xfe)
+    matches!(t, 0 | 1 | 2 | 11 | 13 | 15 | 18..=25 | 0xf7..=0xfa | 0xfc..=0xfe) || armor_use_type(t)
+}
+/// E149 `InventoryCatalog$Definition.armorUseType`：2、18–25 之外，腰帶 37、耳環 40、
+/// 43–45、47–54、褲子 70 也是防具，裝卸走同一條路。原版 `sub_445C10` 0x445D96 對
+/// 1..36 以外的 useType（`dec eax; cmp eax, 23h; ja`）一律走普通使用分支，
+/// 所以這些型別送的是同一個 `1C d s("")`。
+pub fn armor_use_type(t: u8) -> bool {
+    matches!(t, 2 | 18..=25 | 37 | 40 | 43..=45 | 47..=54 | 70)
 }
 /// E149 useInventoryItem dispatch has no executor for these options. Keep the
 /// reason visible rather than inviting selection of a packet it cannot handle.
@@ -379,5 +386,38 @@ impl Pending {
         } else {
             Feedback::Pending
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn armor_use_types_follow_e149_and_take_the_plain_use_branch() {
+        // E149 armorUseType 的 tableswitch（2..70）回傳 true 的型別。
+        let armor = [2u8, 18, 19, 20, 21, 22, 23, 24, 25, 37, 40, 43, 44, 45, 47, 48, 49, 50, 51, 52, 53, 54, 70];
+        for t in 0..=255u8 {
+            assert_eq!(armor_use_type(t), armor.contains(&t), "{t}");
+        }
+        for t in armor {
+            assert!(default_use_type(t), "{t}");
+            assert!(server_blocker(t).is_none(), "{t}");
+            assert!(!inventory_target_type(t) && !world_target_type(t) && !text_choice_type(t) && !letter_choice_type(t), "{t}");
+        }
+        // 原有的普通使用型別不變。
+        for t in [0u8, 1, 11, 13, 15, 0xf7, 0xf8, 0xf9, 0xfa, 0xfc, 0xfd, 0xfe] {
+            assert!(default_use_type(t), "{t}");
+        }
+        // 沒有 E149 依據的型別仍然不送普通使用：食物 38、spell_long2 39、釣竿 42、
+        // enc 46、choice_doll 55，以及 0xFB／0xFF。
+        for t in [38u8, 39, 41, 42, 46, 55, 56, 69, 71, 127, 0xfb, 0xff] {
+            assert!(!default_use_type(t), "{t}");
+        }
+        // 需要目標或選項的型別、伺服器待定的型別都不會被當成普通使用。
+        for t in [3u8, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36] {
+            assert!(!default_use_type(t), "{t}");
+        }
+        assert_eq!(use_request(0xfedc_ba98).unwrap(), [0x1c, 0x98, 0xba, 0xdc, 0xfe, 0]);
     }
 }
