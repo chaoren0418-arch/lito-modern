@@ -408,6 +408,14 @@ pub struct LoginController {
     /// Foe Slayer (187): own physical-reply count at request time.
     skill_strike_pending: Option<u64>,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
+    /// Skill 69 caster only (#149): `Some(false)` waits for the server's own
+    /// S55, `Some(true)` after the single C4E reply. Written with every
+    /// `teleport_spell` request and read only while that request is live.
+    mass_return: Option<bool>,
+    /// Own-object S2A `monlist` offers (skill 67 with a control ring). The
+    /// selection menu and its C_HACTION reply are not wired: the offer is
+    /// consumed and counted, never answered.
+    shape_menu_offers: u64,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
     skill_context: Option<super::native_skills::CastContext>,
@@ -472,6 +480,8 @@ impl Default for LoginController {
             skill_release_pending: false,
             skill_strike_pending: None,
             teleport_spell: None,
+            mass_return: None,
+            shape_menu_offers: 0,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
             skill_context: None,
@@ -874,8 +884,14 @@ impl LoginController {
     pub fn teleport_choice_valid(&self,choice:&super::native_teleport_spell::Choice)->bool {
         choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks).is_ok()
     }
+    /// Own-object `monlist` offers consumed without a menu (skill 67, not wired).
+    pub fn shape_menu_offers(&self)->u64 { self.shape_menu_offers }
+    /// 5 or 69: the choice is bound to the skill it was made for.
+    pub fn teleport_choice_for(&self,skill:u16,index:usize)->Result<super::native_teleport_spell::Choice> {
+        self.teleport_bookmarks.choose_for(&self.state,self.transport.snapshot().epoch,skill,index)
+    }
     pub fn cast_teleport(&mut self,choice:&super::native_teleport_spell::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
-        self.cast_request(5,None,None,None,Some(choice),None,frame,CombatInput::default())
+        self.cast_request(choice.skill(),None,None,None,Some(choice),None,frame,CombatInput::default())
     }
     pub fn cast_summon(&mut self,choice:&super::native_skills::SummonTarget,frame:&super::native_world_scene::Frame)->Result<()> {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),"等待目前物品操作回覆");
@@ -967,7 +983,8 @@ impl LoginController {
             "等待施法動作完成"
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
-        ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
+        ensure!(teleport.is_none_or(|choice| super::native_skills::destination_skill(skill) && choice.skill()==skill
+            && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
         ensure!(summon.is_none() || (skill==51 && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none()),"混合召喚目標");
         ensure!(text.is_none() || (super::native_skills::text_skill(skill) && ground.is_none()
             && item.is_none() && teleport.is_none() && summon.is_none()), "混合文字施法目標");
@@ -997,6 +1014,7 @@ impl LoginController {
             self.transport.snapshot().epoch, &self.state.world, skill, target));
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
+        self.mass_return = teleport.filter(|choice| choice.skill()==69).map(|_| false);
         self.teleport_released = false;
         self.skill_item_pending = item.is_some() || skill==48;
         // 154／162: S10 353 (no-recall map) follows the committed cast action, like 51.
@@ -2044,6 +2062,19 @@ impl LoginController {
             self.rental_restart_quit_pending=false;
             self.deadline=Some(Instant::now()+Duration::from_secs(8));return Ok(());
         }
+        // Own-object `monlist` (skill 67 with a control ring, #149) is the server's
+        // form offer to this session, not an NPC dialog. Its menu is not wired:
+        // consume it so it can neither fail the connection nor enter companion or
+        // merchant state. No C_HACTION is sent, so no form is applied.
+        if body.first()==Some(&0x2a) {
+            if let Ok(super::native_merchant::Packet::Dialog(dialog)) = super::native_merchant::parse(body) {
+                if dialog.html=="monlist" && dialog.parameter.is_empty() && dialog.arguments.is_empty()
+                    && self.state.world.own_actor().is_some_and(|a| a.id==dialog.npc) {
+                    self.shape_menu_offers = self.shape_menu_offers.saturating_add(1);
+                    return Ok(());
+                }
+            }
+        }
         if self.receive_companion(body)? { return Ok(()); }
         if body.first()==Some(&0x5b){
             let owner=self.merchant_owner();self.state.merchant.tick(owner.as_ref(),Instant::now());
@@ -2107,12 +2138,34 @@ impl LoginController {
             self.deadline = Some(Instant::now() + Duration::from_secs(8));
             return Ok(());
         }
+        // Skill 69 caster (#149): the server reserves the portal and asks with S55;
+        // only this connection's own, still-current request is answered, once.
+        // The 2236 effect or the cast action never start this. Any other S55
+        // (116／118, an invitee without a consent UI) keeps the existing path.
+        if let Some(id) = super::native_skills::return_request_object(body) {
+            let epoch = self.transport.snapshot().epoch;
+            let current = self.teleport_spell.as_ref().is_some_and(|(stamp, since, _)|
+                *stamp == super::native_navigation::InputStamp::capture(epoch, &self.state.world)
+                && since.elapsed() < Duration::from_secs(2));
+            if self.mass_return == Some(false) && current
+                && self.state.world.own_actor().is_some_and(|a| a.id == id && !a.dead) {
+                self.transport.send(epoch, Zeroizing::new(super::native_skills::RETURN_REPLY.to_vec()))?;
+                self.mass_return = Some(true);
+                // The S5A wait restarts at the reply and uses the transition bound.
+                if let Some((_, since, _)) = self.teleport_spell.as_mut() { *since = Instant::now(); }
+                return Ok(());
+            }
+        }
         let mut town_transition=None;
         if body.first()==Some(&0x5a){
             let destination=super::native_portal::parse(body)?;
+            let mass = self.mass_return.take();
             let teleport = self.teleport_spell.take().filter(|(stamp, since, _)|
                 *stamp == super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world)
-                && since.elapsed() < Duration::from_secs(2));
+                // 5: within the two-second reply window. 69: only after this
+                // connection's C4E, within the eight-second transition bound.
+                && match mass { None => since.elapsed() < Duration::from_secs(2),
+                    Some(returned) => returned && since.elapsed() < Duration::from_secs(8) });
             let tree=self.world_tree_request.take().filter(|(stamp,since)|
                 *stamp==super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world)
                 && since.elapsed()<Duration::from_secs(2));
@@ -2120,7 +2173,8 @@ impl LoginController {
                 super::native_portal::admit_world_tree(&self.state,destination)?;
                 self.state.phase=LoginPhase::WorldEntering;
             } else if let Some((_,_,map)) = teleport {
-                super::native_portal::admit_teleport_spell(&self.state, destination, map)?;
+                if mass.is_some() { super::native_portal::admit_mass_teleport(&self.state, destination, map)?; }
+                else { super::native_portal::admit_teleport_spell(&self.state, destination, map)?; }
             }else{
                 super::native_portal::admit(&self.state,destination)?;
                 if self.state.joined_room.as_ref().is_some_and(|r|r.mode==super::native_rental_source::TOWN_MODE) {
@@ -2621,9 +2675,12 @@ impl LoginController {
             self.fail("room force notification was not followed by membership".into());
         }
         if self.world_tree_request.is_some_and(|(_,since)|since.elapsed()>=Duration::from_secs(2)){self.world_tree_request=None;}
-        if self.teleport_spell.is_some_and(|(stamp, since, _)| since.elapsed() >= Duration::from_secs(2)
+        // 69 after its C4E waits for S5A under the eight-second transition bound.
+        let teleport_window = Duration::from_secs(if self.mass_return == Some(true) { 8 } else { 2 });
+        if self.teleport_spell.is_some_and(|(stamp, since, _)| since.elapsed() >= teleport_window
             || stamp != super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world)) {
             self.teleport_spell = None;
+            self.mass_return = None;
         }
         if let Some(pending)=&self.portal_entry {
             self.portal_feedback=if self.state.phase==LoginPhase::BattlePending {
@@ -2905,6 +2962,8 @@ impl LoginController {
 #[doc(hidden)]
 #[path = "native_teleport_controller_tests.rs"]
 pub mod teleport_wire_tests;
+// native_t027_batch5_controller_tests.rs (#149) is a child of that module so it
+// can reuse the same synthetic FaultPeer.
 
 /// Exercises real authentication using isolated test credentials supplied via stdin.
 pub fn probe(

@@ -449,6 +449,11 @@ pub fn recovery_after_source_wait_confirms_directory(
 /// continuation replies; shares this module's FaultPeer and seeded scope.
 #[path = "native_teleport_continuation_tests.rs"]
 pub mod continuation;
+/// T027 batch 5 (#149): skill 69 caster S55 → C4E → S5A and the skill 67
+/// own-object `monlist` offer, on the same FaultPeer.
+#[cfg(test)]
+#[path = "native_t027_batch5_controller_tests.rs"]
+mod t027_batch5;
 
 impl Drop for FaultPeer {
     fn drop(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){if let Ok(Err(error))=h.join(){eprintln!("synthetic peer {} failed: {error:#}",self.peer);}} }
