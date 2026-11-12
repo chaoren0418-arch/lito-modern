@@ -422,6 +422,7 @@ pub mod native_teleport_spell;
 pub mod native_skill_selection;
 pub mod native_ground_effects;
 pub mod native_effect_timing;
+pub mod native_hud_policy;
 pub mod native_inventory;
 pub mod native_inventory_names;
 pub mod native_inventory_icons;
