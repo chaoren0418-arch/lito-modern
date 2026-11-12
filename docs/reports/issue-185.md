@@ -72,6 +72,8 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 
 改動的檔案沒有新的 warning。`native_player_callbacks.rs:23` 的 `Camera` never constructed 是原本就有的。
 
+**CI 結果（PR #287，run 43173335608，`cargo test (lib, no GUI)`）**：新增的 5 項一般測試都是 `... ok`，原資源測試 `original_first_frame_twelve_objects_and_spear_fallback` 是 `ignored`。原文：`test result: ok. 2255 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.70s`。
+
 **本機沒有執行 `cargo test`**：使用者 2026-11-09 規定，本機不能執行編譯出來的程式，測試二進位也算在內。所以本報告沒有 `test result:` 原文，新測試的結果以 PR 的 CI（`cargo test --lib`）為準。
 
 ## 推測
