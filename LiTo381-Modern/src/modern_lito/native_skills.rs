@@ -39,7 +39,9 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     );
     ensure!(world.movement_blocks.is_empty(), "目前狀態限制施法");
     ensure!(world.learned_skills.contains(&skill), "尚未學會此技能");
-    ensure!(hp_paid(skill) || world.mp.is_some_and(|v| v[0] > 0), "MP 不足或尚未取得");
+    // 130 Body to Mind costs HP only (formal `useBodyToMindSpell` never reads
+    // MP before the conversion), so an empty mana pool must not block it.
+    ensure!(skill == 130 || hp_paid(skill) || world.mp.is_some_and(|v| v[0] > 0), "MP 不足或尚未取得");
     let own = world.own_actor().context("own caster")?;
     ensure!(!own.dead, "角色已死亡");
     Ok(())
@@ -176,8 +178,15 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 146 | 147 | 150 | 154 | 155 | 181 | 182 | 185 | 186 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 181 | 182 | 185 | 186 | 206)
 }
+/// 132 Triple Arrow is suppressed by the original client unless the caster is
+/// in the bow stance; the formal server drops the request silently otherwise
+/// (`walkAction != BattleAnimationCatalog.BOW_WALK`).
+pub const BOW_WALK_ACTION: u8 = 20;
+/// 133 Elemental Fall Down: E149 catalog `maximumRange`, checked together with
+/// the native screen diamond by `useElementalFallDownSpell`.
+pub const ELEMENTAL_FALL_DOWN_RANGE: u16 = 10;
 /// ④ object requests whose formal handlers accept only the caster's own object ID
 /// (target_to=1 with maximumRange 0: Fire Weapon, Wind Shot, Earth Skin). A hovered
 /// actor is never sent; the request always carries the caster.
@@ -297,6 +306,25 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
             b.extend_from_slice(&actor.x.to_le_bytes());
             b.extend_from_slice(&actor.y.to_le_bytes());
         }
+        132 | 133 => {
+            // ⑩ d(target) h(x) h(y). Bow/arrow debit, three physical rolls, MP,
+            // line of sight, safety zones and the debuff roll stay server-owned.
+            let id = target.context(if skill == 132 { "請先選取三重矢目標" } else { "請先選取弱化屬性目標" })?;
+            let actor = world.actors.get(&id).context("技能目標已離開")?;
+            ensure!(id != own.id && !actor.dead && world.actor_visible(id)
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && in_native_screen([own.x, own.y], [actor.x, actor.y]),
+                "技能目標不可用或超出畫面");
+            if skill == 132 {
+                ensure!(own.walk_action == BOW_WALK_ACTION, "需裝備弓才能施放三重矢");
+            } else {
+                ensure!(own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= ELEMENTAL_FALL_DOWN_RANGE,
+                    "弱化屬性目標超出十格");
+            }
+            b.extend_from_slice(&id.to_le_bytes());
+            b.extend_from_slice(&actor.x.to_le_bytes());
+            b.extend_from_slice(&actor.y.to_le_bytes());
+        }
         // 61 shares 41's explicit corpse intent; the S24/321 consent, HP restore and
         // the new life are server-owned. Neither 3944 nor 230 is a success ACK.
         41 | 61 => {
@@ -346,7 +374,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,56|64=>500,59|62|66=>1500,65=>2000,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|145|147..=152|154|155|185=>0,146=>1200,153=>600,112|182|187=>2000,183|184|188=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64=>500,59|62|66=>1500,65=>2000,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155|185=>0,146=>1200,153=>600,112|182|187=>2000,130|132|133=>100,134|183|184|188=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206|188=>1200,182=>3600,183=>1800,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]

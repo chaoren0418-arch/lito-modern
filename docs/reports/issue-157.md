@@ -24,8 +24,17 @@
   - `CastContext` 多記一個送出時的物理攻擊回覆數：187 的連擊把目標打死時，不會被誤判成「施法已中止」。
 - **`native_login.rs`**：新增 `skill_strike_pending`（只有 187 會設值），`observe_skill` 據此改走 `observe_strikes`；中斷連線重置時一併清掉。
 - **`native_skill_selection.rs`**：選單加上 181–188 的中文標籤。
-- **coverage parser**：`維護工具/audit-native-E149-skill-catalog.py` 不用改。`維護工具/test_native_skill_coverage.py` 加 1 案（合計 8 案），確認 181–188 全部被辨識。
+- **coverage parser**：`維護工具/audit-native-E149-skill-catalog.py` 不用改。`維護工具/test_native_skill_coverage.py` 加 1 案（合併 main 後合計 9 案），確認 181–188 全部被辨識。
 - **測試**：新增 `LiTo381-Modern/tests/native_skills_181_188.rs` 共 8 案，已登錄到 `維護工具/test-whitelist/tests.tsv`（LF）。
+
+### 同步 main
+
+合併 `origin/main`（`b6a3a89`，含批 3／#153 的 129–138）時 `native_skills.rs` 有三處衝突，兩邊的內容都保留：
+- `can_cast`：main 的 `skill == 130` 例外＋本張的 `hp_paid`。
+- `selector_only`：main 的 129、130、134、137、138＋本張的 181、182、185、186。
+- `reuse_millis`：main 的 129–138＋本張的 181–188。
+
+其餘檔案（`native_login.rs`、`native_skill_selection.rs`、`tests.tsv`、coverage 測試）自動合併。
 
 ## 已驗證
 
@@ -43,20 +52,22 @@
     - 60350 起 `useSelectorOnlyTargetedAreaAttackSpell` → `resolveSelectorOnlyPrimary`（60436 先取 `DragonSkillRequests.current()`）→ `useAreaAttackSpell`（60732）：目標是自己就拒絕（60782）；`range > maximumRange`、不在畫面菱形或沒有視線就拒絕（60822–60828）。
 - E149 catalog：原專案唯讀 `驗證紀錄/current/native-E149-skill-catalog-audit/20261024-040044-690336/catalog-facts.json`，重算 SHA256 為 `1EE2338D209CE41154B42B9B51B2A564261AB07FF1340EC7BCCBB188E216B996`（與 #151／#152／#154 相同）。181–188 的 `mpCost` 全部是 0；`hpCost` 依序 15／10／25／35／1／30／20／30；`reuseDelayMillis` 10／2000／1000／1000／0／10／2000／1000；`clientCastClockMillis` 182＝3600、183＝1800、188＝1200，其餘 0（184 的紀錄型別沒有這個欄位）；`maximumRange` 183＝3、184＝10、187＝2、188＝3。
 
-### 命令與結果
+### 命令與結果（合併 main 之後重跑）
 
 依 2026-11-09 的本機限制，本機只編譯，不執行測試執行檔。Cargo 命令都在 `LiTo381-Modern/` 執行。
 
 ```text
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
-結束碼 0（首次完整編譯 Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 13s；最終原始碼重跑結束碼 0；只有既存警告）
+結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 43s；只有既存警告）
 
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_181_188 --test native_skills_145_155 --test native_skills_110_118 --test native_skills_101_109 --test native_skill_selection --test native_skills --no-run
-結束碼 0（六個測試執行檔都編譯成功，未執行；沒有 test result: 行）
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_181_188 --test native_skills_145_155 --test native_skills_129_138 --test native_skills_110_118 --test native_skills_101_109 --test native_skill_selection --test native_skills --no-run
+結束碼 0（七個測試執行檔都編譯成功，未執行；沒有 test result: 行）
 
 python -B 維護工具/test_native_skill_coverage.py
-結束碼 0；Ran 8 tests in 0.034s；OK
+結束碼 0；Ran 9 tests in 0.047s；OK
 ```
+
+合併前在 `693bc2f` 也跑過同樣的 `cargo check`（結束碼 0）與 `--no-run`（結束碼 0，當時不含 `native_skills_129_138`）。
 
 ## 推測
 
@@ -77,7 +88,7 @@ python -B 維護工具/test_native_skill_coverage.py
 
 ## 範圍外發現（沒有修改）
 
-- 146 魂體轉換 E149 的 `mpCost` 也是 0（扣 HP 40、回 MP 20），但 `can_cast` 仍要求 MP 大於 0。MP 歸零時正是需要這個技能的時候，客戶端卻會擋下。屬於批 4（#154）的範圍，本張沒有改；修法是把 146 加進 `hp_paid`。
+- 146 魂體轉換 E149 的 `mpCost` 也是 0（扣 HP 40、回 MP 20），但 `can_cast` 仍要求 MP 大於 0。MP 歸零時正是需要這個技能的時候，客戶端卻會擋下。屬於批 4（#154）的範圍，本張沒有改；main 已經用同樣理由放行 130（#153），146 可比照處理。
 
 ## 產出路徑
 
@@ -95,7 +106,7 @@ python -B 維護工具/test_native_skill_coverage.py
   - `hp_paid` 讓 181–188 跳過 MP 大於 0 的檢查，是否接受；146 是否比照處理。
   - 187 以物理攻擊回覆當作施法成立的做法，以及 `CastContext` 對 187 放寬「目標消失即中斷」。
   - 183／188 晚到的 280 不另外等待的取捨。
-- 需要 Codex 本機執行 `native_skills_181_188`（8 案）與回歸 `native_skills_145_155`、`native_skills_110_118`、`native_skills_101_109`、`native_skill_selection`、`native_skills`，回報 `test result:` 原文。
+- 需要 Codex 本機執行 `native_skills_181_188`（8 案）與回歸 `native_skills_145_155`、`native_skills_129_138`、`native_skills_110_118`、`native_skills_101_109`、`native_skill_selection`、`native_skills`，回報 `test result:` 原文。
 - 批 8（189–195）：
   - 192、193、194 也在 `DragonSkillRequests.TARGETED`，同樣必須送 11 bytes；192 走 `useSelectorOnlyTargetedAttackSpell`，193 與 183 共用 `useGuardBrakeSpell`，194 走 `useSelectorOnlyTargetedFreezeAttackSpell`（直線）。
   - 190、195 與 185 共用 `useAwakenSpell`，可直接加進 `selector_only`；`mpCost` 是否為 0 要逐一查 catalog 再決定要不要加進 `hp_paid`。
