@@ -1,0 +1,11 @@
+root	D:\lineage開發\3-lito開發\lito重建版
+scanned	2026-11-12 17:43:13
+files	357123
+bytes	398343559345
+A	bytes=116509290682	files=45320
+AH	bytes=16023617542	files=1989
+X	bytes=12502628204	files=12838
+E	bytes=216325506094	files=168268
+K	bytes=36982516823	files=128708
+reparse_points	0
+errors	0

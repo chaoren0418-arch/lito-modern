@@ -90,6 +90,28 @@ python -B 維護工具/test_native_skill_coverage.py
 
 同步前的 commit `67866b9` 在 PR #294 的 CI 只有 `cargo check` 一項，結果 SUCCESS；CI 沒有執行 `cargo test`，所以仍然沒有 `test result:` 可附。
 
+### 第三、四次同步 origin/main（`4d16f95` 與 `f8ed20e`，2026-11-12）
+
+PR #294 又與 main 衝突，分兩個合併 commit 處理，兩邊內容都保留：
+
+- **`4d16f95`（#157 T022 批 7 合併後）**，衝突 3 檔：
+  - `native_skills.rs`：`can_cast` 寫成 `hp_paid(skill) || hp_cost_only(skill)`，兩個 helper 並存；`selector_only`（181、182、185、186 與 189–191、195）；⑩ 分支清單與射程表（183／184／187／188 與 192／193／194）；菱形清單 `152 | 153 | 174 | 184 | 194`；`reuse_millis`；`client_clock_millis`。
+  - `維護工具/test-whitelist/tests.tsv`：`native_skills_181_188` 8 列與 `native_skills_189_195` 7 列並列。
+  - `維護工具/test_native_skill_coverage.py`：第七批與第八批的測試案並列。
+- **`f8ed20e`（#150 T027 批 6、#301、#324 合併後）**，衝突只有 `native_skills.rs` 4 處：`selector_only`（main 的 80、88–91）、⑩ 分支清單與射程表（main 的 76＝10、87＝1）、`reuse_millis`（main 的 76／80／87–91）。`docs/REPORT.md`、`docs/SKILLS-STATUS.md`、`skills.tsv`、`build.yml` 都是 main 版本。
+
+同步後重跑：
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 02s；只有既存警告）
+
+python 維護工具/test_native_skill_coverage.py
+結束碼 0；Ran 12 tests in 0.079s；OK
+```
+
+同步前的 commit `962ae94` 在 PR #294 的 CI 仍只有 `cargo check` 一項，結果 SUCCESS。`cargo test` 沒有在本機或 CI 執行，仍然沒有 `test result:` 可附。
+
 ## 推測
 
 - 194 加上畫面菱形是取 BATTLE 與 WORLD 兩個 handler 的交集：BATTLE 只看十格，WORLD 還看菱形。差別只在十格內但菱形外的角落（例如 dx＝10、dy＝9），這些位置的物件是否會出現在客戶端物件表沒有確認。
@@ -123,7 +145,7 @@ python -B 維護工具/test_native_skill_coverage.py
 
 ## 給下一棒的提示
 
-- **和 PR #293（批 7，`task/157`，尚未合併）會衝突**，後合併的一方自己同步 main，兩邊內容都要保留：
+- 批 7（#157）已合併進 main，本分支已同步（見「第三、四次同步」）。以下是當時的合併原則，批 9、批 10 改同幾行時照用：
   - `native_skills.rs`：`can_cast` 的 MP 條件、`selector_only`、⑩ 分支的技能清單與射程表、菱形清單（152／153／184／194）、`reuse_millis`、`client_clock_millis`。
   - `native_skill_selection.rs` 的選單標籤、`tests.tsv`、`test_native_skill_coverage.py`。
   - 批 7 的 helper 叫 `hp_paid`（181–188），本張叫 `hp_cost_only`（189–195）。刻意不同名：兩邊的測試都斷言「範圍外的技能不是 HP 付費」，同名合併後會讓對方的測試失敗。合併時 `can_cast` 寫成 `hp_paid(skill) || hp_cost_only(skill)` 即可；之後要合成一個 helper 的話，兩個測試檔的範圍斷言要一起改。

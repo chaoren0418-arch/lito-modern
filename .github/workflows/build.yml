@@ -22,5 +22,7 @@ jobs:
           workspaces: LiTo381-Modern
       - name: cargo check
         run: cargo check --locked --all-targets
+      - name: GUI window probe self-test (pure logic, no window access)
+        run: python -X utf8 ../維護工具/owned-gui-window-probe.py --self-test
       - name: cargo test (lib, no GUI)
         run: cargo test --locked --lib --no-fail-fast
