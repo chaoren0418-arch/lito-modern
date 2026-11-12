@@ -665,6 +665,12 @@ impl LoginController {
     pub fn skill_action_ready(&self, frame: &super::native_world_scene::Frame, now: Instant) -> bool {
         self.skill_gates_open(now) && frame.movement_ready(&self.state.world)
     }
+    /// Remaining server-paced reuse window for the HUD; `None` when ready.
+    pub fn skill_cooldown_ms(&self, now: Instant) -> Option<u64> {
+        self.skill_ready
+            .map(|deadline| deadline.saturating_duration_since(now).as_millis().min(u128::from(u64::MAX)) as u64)
+            .filter(|ms| *ms > 0)
+    }
     /// Every admission gate except body-animation completion; the send path
     /// adds main's moving-callback exception for untargeted casts.
     fn skill_gates_open(&self, now: Instant) -> bool {
@@ -2263,6 +2269,7 @@ impl LoginController {
         if let Err(error)=self.state.world.poll_status4183(super::native_status4183::now_ms()) {
             self.fail(format!("4183 visual clock: {error:#}"));
         }
+        self.state.world.poll_status_icons(super::native_status4183::now_ms());
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);
             if let Err(error)=self.state.environment.water_poll(epoch,generation) {
