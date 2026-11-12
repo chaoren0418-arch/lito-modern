@@ -658,6 +658,38 @@ impl LoginController {
         self.state.item_feedback = super::native_item_actions::Feedback::Pending;
         Ok(())
     }
+    pub fn item_selection_action(
+        &mut self,
+        selection: super::native_item_actions::Selection,
+        target: Option<super::native_item_actions::Choice>,
+        text: &str,
+    ) -> Result<()> {
+        ensure!(self.portal_entry.is_none(), "等待地圖入口回覆");
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "請等待上一筆物品更新");
+        ensure!(selection.source.owner.connection == self.transport.snapshot().epoch, "物品連線已變更");
+        let body = if let Some(target) = target {
+            selection.item_request(&self.state, &target)?
+        } else {
+            selection.text_request(&self.state, text)?
+        };
+        self.transport.send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+        self.item_pending = Some(super::native_item_actions::Pending::new(
+            &self.state, selection.source, Instant::now()));
+        self.state.item_feedback = super::native_item_actions::Feedback::Pending;
+        Ok(())
+    }
+    pub fn item_letter_action(&mut self, selection: super::native_item_actions::Selection,
+        receiver: &str, subject: &str, content: &str) -> Result<()> {
+        ensure!(self.portal_entry.is_none(), "等待地圖入口回覆");
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "請等待上一筆物品更新");
+        ensure!(selection.source.owner.connection == self.transport.snapshot().epoch, "物品連線已變更");
+        let body = selection.letter_request(&self.state, receiver, subject, content)?;
+        self.transport.send(self.transport.snapshot().epoch, Zeroizing::new(body))?;
+        self.item_pending = Some(super::native_item_actions::Pending::new(
+            &self.state, selection.source, Instant::now()));
+        self.state.item_feedback = super::native_item_actions::Feedback::Pending;
+        Ok(())
+    }
     pub fn continue_attack(
         &mut self,
         held: &mut super::native_combat::HeldAttack,
@@ -2894,6 +2926,8 @@ pub fn probe_lobby(
             "room-world-wall",
             "room-world-wall-refused",
             "room-world-item-heal",
+            "room-world-item-heal-194",
+            "room-world-item-heal-197",
             "room-world-item-drop",
             "room-world-item-drop-refused"
         ]
@@ -2950,6 +2984,8 @@ fn probe_flow(
                         | "room-world-wall"
                         | "room-world-wall-refused"
                         | "room-world-item-heal"
+                        | "room-world-item-heal-194"
+                        | "room-world-item-heal-197"
                         | "room-world-item-drop"
                         | "room-world-item-drop-refused"
                 )
@@ -3008,6 +3044,8 @@ fn probe_flow(
                 | "room-world-wall"
                 | "room-world-wall-refused"
                 | "room-world-item-heal"
+                | "room-world-item-heal-194"
+                | "room-world-item-heal-197"
                 | "room-world-item-drop"
                 | "room-world-item-drop-refused"
         )

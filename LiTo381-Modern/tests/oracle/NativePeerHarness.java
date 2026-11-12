@@ -8,7 +8,8 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Real two-player sessions. Reflection observes state; never mutates game authority. */
+/** Real two-player sessions. Initial memory fixtures precede all sessions;
+ * reflection during gameplay only observes authority. */
 public final class NativePeerHarness {
     static void write(Path p,String s)throws Exception{Files.writeString(p,s,StandardCharsets.UTF_8);}
     static Object field(Object o,String name)throws Exception{Field f=o.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(o);}
@@ -18,10 +19,53 @@ public final class NativePeerHarness {
     static boolean visibilityFixture(String profile) {
         return Set.of("detection-invisibility","detection-refused","invisibility-refused","invisibility-missing").contains(profile);
     }
+    static void initialStreamCatalog() throws Exception {
+        // The new E149 material transaction reads CombatDatabase, whereas the
+        // standalone memory harness does not run Main's SQL bootstrap. Publish
+        // only this scenario's immutable initial row from the pinned catalog,
+        // before creating any socket/session. Never call the SQL loader.
+        var source=BattleSpellCatalog.groundSpell(63);
+        if(source.mpCost()!=20||source.itemConsumeId()!=40318||source.itemConsumeCount()!=1)
+            throw new AssertionError("formal stream catalog drift");
+        var row=new CombatDatabase.Skill(source.mpCost(),0,source.reuseDelayMillis(),source.durationSeconds(),
+            0,0,0,Math.toIntExact(source.itemConsumeId()),source.itemConsumeCount());
+        Field current=CombatDatabase.class.getDeclaredField("current");current.setAccessible(true);
+        if(current.get(null)!=null)throw new IllegalStateException("unexpected preexisting static source");
+        current.set(null,new CombatDatabase.Snapshot(Map.of(63,row),null));
+        if(CombatDatabase.value(0,63,"NativeCastMaterial","itemConsumeId")!=40318
+            ||CombatDatabase.value(0,63,"NativeCastMaterial","itemConsumeCount")!=1)
+            throw new AssertionError("material source not installed");
+        System.out.println("[fixture] initial formal skill63: MP20, reagent40318x1; SQL not loaded; no sessions yet");
+    }
     static AccountRepository fixture(String profile) {
         return fixture(profile,new MemoryAccountRepository("PeerFixture","TestOnlyPassword"));
     }
     static AccountRepository fixture(String profile, MemoryAccountRepository original) {
+        if(profile.startsWith("item-stream")) {
+            return (AccountRepository)java.lang.reflect.Proxy.newProxyInstance(AccountRepository.class.getClassLoader(),new Class<?>[]{AccountRepository.class,NativeCastMaterialPolicy.Source.class},(proxy,method,values)->{
+                // E149 requires this source interface when an initial memory
+                // repository is decorated. Preserve ordinary memory access=0;
+                // never enable GM reagent bypass or touch live session state.
+                if(method.getName().equals("characterAccessLevel")) {
+                    boolean found=original.characters((String)values[0]).stream().anyMatch(c->c.objectId()==(long)values[1]&&c.name().equals(values[2]));
+                    if(!found)throw new IllegalArgumentException("unknown material fixture owner");
+                    return 0;
+                }
+                if(method.getName().equals("learnedSkills")) return Set.of(63);
+                if(method.getName().equals("characters")) {
+                    var fields=CharacterSummary.class.getRecordComponents();
+                    var types=Arrays.stream(fields).map(RecordComponent::getType).toArray(Class<?>[]::new);
+                    var ctor=CharacterSummary.class.getDeclaredConstructor(types);
+                    List<CharacterSummary> rows=new ArrayList<>();
+                    for(Object row:(List<?>)method.invoke(original,values)) {
+                        Object[] copy=new Object[fields.length];
+                        for(int i=0;i<fields.length;i++) copy[i]=fields[i].getName().equals("maxMp")?(profile.endsWith("no-mana")?2:80):fields[i].getAccessor().invoke(row);
+                        rows.add((CharacterSummary)ctor.newInstance(copy));
+                    } return rows;
+                }
+                try{return method.invoke(original,values);}catch(InvocationTargetException ex){throw ex.getCause();}
+            });
+        }
         if(profile.equals("siege-native")) {try {
             // Thirty distinct accounts/character identities exist before sessions.
             // Only identity fields differ from the original memory character rows.
@@ -136,10 +180,18 @@ public final class NativePeerHarness {
     public static void main(String[] args)throws Exception {
         Path root=Path.of(args[0]).toAbsolutePath().normalize();Files.createDirectories(root);
         String profile=args.length>1?args[1]:"melee";
-        if(!Set.of("melee","heal","heal19","heal19-full","heal19-refused","heal35","heal35-full","heal35-refused","heal57","heal57-full","heal57-refused","bolt","bolt-refused","fire-arrow","fire-arrow-refused","wind-cutter","wind-cutter-refused","ice-arrow","ice-arrow-refused","holy-weapon","holy-weapon-missing","holy-weapon-refused","poison-cure","poison-missing","poison-refused","cure-refused","chill-touch","chill-touch-full","chill-touch-refused","vampiric-touch","vampiric-touch-full","vampiric-touch-refused","stalac","stalac-refused","lightning","lightning-refused","lightning-multi","turn-undead-quest","turn-undead-refused","turn-undead-player","guardian-attack","wall","wall-refused","ranged","item-heal","doors","movement","honor-respawn","room-admin","siege-native","detection-invisibility","detection-refused","invisibility-refused","invisibility-missing","world-entry","world-tree-disabled","classic-entry","rental-entry","rental-shop","rental-citizen","rental-hotel","rental-hotel-entry","rental-hotel-middle-entry","rental-hotel-expiry","rental-hotel-middle-expiry","rental-hotel-share","rental-merchants","rental-weight","rental-item-expiry","rental-equipped-expiry","rental-return").contains(profile))throw new IllegalArgumentException("profile");
+        if(!Set.of("melee","heal","heal19","heal19-full","heal19-refused","heal35","heal35-full","heal35-refused","heal57","heal57-full","heal57-refused","bolt","bolt-refused","fire-arrow","fire-arrow-refused","wind-cutter","wind-cutter-refused","ice-arrow","ice-arrow-refused","holy-weapon","holy-weapon-missing","holy-weapon-refused","poison-cure","poison-missing","poison-refused","cure-refused","chill-touch","chill-touch-full","chill-touch-refused","vampiric-touch","vampiric-touch-full","vampiric-touch-refused","stalac","stalac-refused","lightning","lightning-refused","lightning-multi","turn-undead-quest","turn-undead-refused","turn-undead-player","guardian-attack","wall","wall-refused","ranged","item-heal","item-heal-194","item-heal-197","item-stream","item-stream-no-reagent","item-stream-no-mana","doors","movement","honor-respawn","room-admin","siege-native","detection-invisibility","detection-refused","invisibility-refused","invisibility-missing","world-entry","world-tree-disabled","classic-entry","rental-entry","rental-shop","rental-citizen","rental-hotel","rental-hotel-entry","rental-hotel-middle-entry","rental-hotel-expiry","rental-hotel-middle-expiry","rental-hotel-share","rental-merchants","rental-weight","rental-item-expiry","rental-equipped-expiry","rental-return").contains(profile))throw new IllegalArgumentException("profile");
         int peerCount=profile.equals("siege-native")?30:profile.equals("lightning-multi")?3:2;
         Path jar=Path.of(ClientSession.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         String sha=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(jar)));
+        if(profile.startsWith("item-")) {
+            // Windows sandbox entropy acquisition may exceed the wire's 5s
+            // deadline on first JVM use. Initialize the real provider before
+            // publishing readiness; never supply a seed or alter wire clocks.
+            new java.security.SecureRandom().nextInt();
+            System.out.println("[fixture] original SecureRandom provider initialized before readiness");
+        }
+        if(profile.startsWith("item-stream"))initialStreamCatalog();
         try(ServerSocket login=new ServerSocket(0,profile.equals("siege-native")?64:4,InetAddress.getByName("127.0.0.1"));
             ServerSocket game=new ServerSocket(0,profile.equals("siege-native")?64:4,InetAddress.getByName("127.0.0.2"))){
             login.setSoTimeout(45000);game.setSoTimeout(45000);
@@ -173,9 +225,14 @@ public final class NativePeerHarness {
                 if(config.cursePoisonFixtureDieRoll()!=0||config.cursePoisonFixturePercentileRoll()!=0||config.nativeTournamentEconomyEnabled())throw new IllegalStateException("natural poison fixture required");
                 for(var row:second.characters("PeerFixture2"))state.saveEconomyState(GameStateStore.sourceCharacter("測試乙",row.name()),1000L,profile.equals("poison-missing")?Map.of():Map.of(40318L,8),Map.of());
             }
-            if(profile.equals("item-heal")){
+            if(profile.startsWith("item-heal")){
                 if(config.nativeTournamentEconomyEnabled())throw new IllegalStateException("normal fixture economy required");
-                for(var row:second.characters("PeerFixture2"))state.saveEconomyState(GameStateStore.sourceCharacter("測試乙",row.name()),1000L,Map.of(40010L,2),Map.of());
+                for(var row:second.characters("PeerFixture2"))state.saveEconomyState(GameStateStore.sourceCharacter("測試乙",row.name()),1000L,Map.of(profile.endsWith("-194")?40011L:profile.endsWith("-197")?40012L:40010L,2),Map.of());
+            }
+            if(profile.startsWith("item-stream")) {
+                if(config.nativeTournamentEconomyEnabled()) throw new IllegalStateException("normal fixture economy required");
+                for(var row:second.characters("PeerFixture")) state.saveEconomyState(GameStateStore.sourceCharacter("測試乙",row.name()),1000L,
+                    profile.endsWith("no-reagent")?Map.of():Map.of(40318L,2),Map.of());
             }
             // These two peers both select test source 1 (測試乙). Supply its
             // actual memory backing to the hub's explicit memory-fixture policy
@@ -201,9 +258,19 @@ public final class NativePeerHarness {
                 try {
                     write(root.resolve("ready.json"),"{\"port\":"+login.getLocalPort()+",\"game_port\":"+game.getLocalPort()+",\"jar_sha256\":"+quote(sha)+"}");
                     var previous=new IdentityHashMap<Session,String>();int changes=0;long remainingArrows=-1;
+                    boolean startupStacks=false;
                     long start=System.nanoTime(),end=start+(profile.equals("siege-native")?600_000_000_000L:profile.endsWith("expiry")?8_000_000_000_000L:profile.equals("rental-merchants")?900_000_000_000L:profile.equals("turn-undead-quest")?630_000_000_000L:profile.equals("guardian-attack")?1_200_000_000_000L:profile.equals("honor-respawn")?390_000_000_000L:240_000_000_000L);
                     try(var trace=Files.newBufferedWriter(root.resolve("server-trace.jsonl"),StandardCharsets.UTF_8)){
                         while(System.nanoTime()<end){
+                            if(profile.startsWith("item-")&&!startupStacks&&System.nanoTime()-start>3_000_000_000L) {
+                                startupStacks=true;
+                                StringBuilder stacks=new StringBuilder();
+                                for(var e:Thread.getAllStackTraces().entrySet()) {
+                                    stacks.append(e.getKey().getName()).append('\n');
+                                    for(var frame:e.getValue())stacks.append("  ").append(frame).append('\n');
+                                }
+                                write(root.resolve("startup-stacks.txt"),stacks.toString());
+                            }
                             if(!failures.isEmpty())throw new IllegalStateException("session failure",failures.peek());
                             for(Session s:sessions)if(s.game()){
                                 String account=String.valueOf(field(s.owner(),"account"));
@@ -231,7 +298,7 @@ public final class NativePeerHarness {
                     if(hotelLeases!=0)throw new IllegalStateException("hotel lease leaked after disconnect");
                     write(root.resolve("result.json"),"{\"status\":\"sessions_closed\",\"actual_client_sessions\":"+(peerCount*2)+",\"game_sessions\":"+peerCount+",\"jar_sha256\":"+quote(sha)+
                         ",\"classic_world_members_after_disconnect\":"+classicMembers+",\"authority_mutations\":0,\"sql_access\":false,\"state_persistent\":false,\"trace_changes\":"+changes+",\"memberships_empty\":true,\"profile\":"+quote(profile)+
-                        ",\"active_hotel_leases_after_disconnect\":"+hotelLeases+",\"remaining_arrows\":"+remainingArrows+",\"initial_fixture\":"+quote(visibilityFixture(profile)?"initial ordinary memory characters; positive profile adds Knight learned13/60 only, Mage original book retained; eight initial magic gems per character, zero only in missing profile; refused profiles set Mage maxMP2; original remaining character/equipment fields retained; no runtime authority mutation":(profile.equals("world-entry")||profile.equals("world-tree-disabled"))?"initial learned skill131 added to both default memory characters; original class/stat/gfx/HP/MP retained":profile.equals("turn-undead-player")?"initial casterMP500 and INT40; original HP/class/level/book/equipment and target stats unchanged; natural player TU probability":profile.equals("turn-undead-quest")?"initial isolated characters: both requested HP60000 (character record preserved, game session cap32767); original Knight source INT40 and MP5000; original learned book unchanged; original Quest waves/NPC eligibility/dice/percentile/AI unchanged":profile.equals("rental-weight")?"initial memory characters strength/constitution/originalStrength/originalConstitution 1; default rental loadout retained":profile.equals("holy-weapon")?"player 1 initial source-equipment bow; player 3 uses its originally learned skill 8; no runtime authority mutation":profile.equals("ranged")?"player 1 bow and 20 arrows":profile.startsWith("poison-")?"player 3 initial formal skill11 memory bridge; natural dice/percentile; 8 magic gems except missing profile; low MP2 only refused profile":profile.equals("vampiric-touch-refused")?"player 3 max MP2; original skill28":profile.equals("chill-touch-refused")?"player 3 max MP2; original skill10":profile.equals("cure-refused")?"player 3 max MP2; original skill9":profile.equals("holy-weapon-refused")?"player 3 max MP 2; originally learned skill 8":profile.matches("heal(19|35|57)-refused")?"player 3 initial max MP2; original learned book, stats and HP retained; no runtime mutation":profile.endsWith("refused")?"player 1 max MP 2":profile.equals("item-heal")?"player 3 potion 40010 count 2":"default memory characters")+"}");
+                        ",\"active_hotel_leases_after_disconnect\":"+hotelLeases+",\"remaining_arrows\":"+remainingArrows+",\"initial_fixture\":"+quote(visibilityFixture(profile)?"initial ordinary memory characters; positive profile adds Knight learned13/60 only, Mage original book retained; eight initial magic gems per character, zero only in missing profile; refused profiles set Mage maxMP2; original remaining character/equipment fields retained; no runtime authority mutation":(profile.equals("world-entry")||profile.equals("world-tree-disabled"))?"initial learned skill131 added to both default memory characters; original class/stat/gfx/HP/MP retained":profile.equals("turn-undead-player")?"initial casterMP500 and INT40; original HP/class/level/book/equipment and target stats unchanged; natural player TU probability":profile.equals("turn-undead-quest")?"initial isolated characters: both requested HP60000 (character record preserved, game session cap32767); original Knight source INT40 and MP5000; original learned book unchanged; original Quest waves/NPC eligibility/dice/percentile/AI unchanged":profile.equals("rental-weight")?"initial memory characters strength/constitution/originalStrength/originalConstitution 1; default rental loadout retained":profile.equals("holy-weapon")?"player 1 initial source-equipment bow; player 3 uses its originally learned skill 8; no runtime authority mutation":profile.equals("ranged")?"player 1 bow and 20 arrows":profile.startsWith("poison-")?"player 3 initial formal skill11 memory bridge; natural dice/percentile; 8 magic gems except missing profile; low MP2 only refused profile":profile.equals("vampiric-touch-refused")?"player 3 max MP2; original skill28":profile.equals("chill-touch-refused")?"player 3 max MP2; original skill10":profile.equals("cure-refused")?"player 3 max MP2; original skill9":profile.equals("holy-weapon-refused")?"player 3 max MP 2; originally learned skill 8":profile.matches("heal(19|35|57)-refused")?"player 3 initial max MP2; original learned book, stats and HP retained; no runtime mutation":profile.endsWith("refused")?"player 1 max MP 2":profile.startsWith("item-heal")?"player 3 initial potion "+(profile.endsWith("-194")?40011:profile.endsWith("-197")?40012:40010)+" count 2":profile.startsWith("item-stream")?"initial memory skill63, access0 via formal Source interface, maxMP "+(profile.endsWith("no-mana")?2:80)+", player 1 magic gems "+(profile.endsWith("no-reagent")?0:2)+"; no runtime authority mutation":"default memory characters")+"}");
                 }finally{
                     login.close();game.close();
                     for(Session s:sessions)s.socket().close();

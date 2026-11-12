@@ -217,6 +217,7 @@ impl WorldProbe {
         c: &mut super::native_login::LoginController,
         frame: &super::native_world_scene::Frame,
         initial_hp: u16,
+        expected_effect: u16,
     ) -> anyhow::Result<bool> {
         use super::native_item_actions::{Action, Choice, Feedback};
         use anyhow::{ensure, Context};
@@ -260,6 +261,8 @@ impl WorldProbe {
                     && fx["omitted"] == 0,
                 "potion authority/effect mismatch"
             );
+            ensure!(s.world.effects.iter().filter(|e| e.graphics == expected_effect).count() == self.rows.len(),
+                "formal potion emitted the wrong effect");
             ensure!(
                 previous.validate(s).is_err(),
                 "stale potion selection remained valid"
@@ -269,6 +272,7 @@ impl WorldProbe {
             row["hp_after"] = serde_json::to_value(s.world.hp)?;
             row["feedback"] = serde_json::to_value(s.item_feedback)?;
             row["effect_finished"] = serde_json::json!(true);
+            row["effect_graphics"] = serde_json::json!(expected_effect);
             if self.rows.len() == 2 {
                 return Ok(true);
             }

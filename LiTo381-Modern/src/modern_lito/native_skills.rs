@@ -45,7 +45,7 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     Ok(())
 }
 /// Item object IDs must never pass through the actor-target request path.
-pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 100 | 107) }
+pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 73 | 100 | 107) }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemTarget {
