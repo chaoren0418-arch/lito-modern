@@ -485,3 +485,5 @@ pub(crate) mod native_cube;
 
 #[cfg(test)]
 mod native_t047_tests;
+#[cfg(test)]
+mod native_t047b_tests;

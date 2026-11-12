@@ -162,6 +162,8 @@ pub struct World {
     /// S_BLINK is independent of timed paralysis. Queueing C_BLINK does not unlock.
     pub movement_lock: MovementLock,
     pub orphan_updates: u64,
+    /// Accepted S_POLYMORPH (0x27) receipts, including restore packets.
+    pub polymorph_packets: u64,
     pub actors: BTreeMap<u32, Actor>,
     pub status: Option<status_receipt::Status>,
     pub time_limit: Option<u32>,
@@ -1182,6 +1184,27 @@ impl World {
                     self.visual_revision += 1;
                     if self.status.is_some_and(|s| s.object_id == id) {
                         self.local_corrections += 1;
+                    }
+                } else {
+                    self.orphan_updates += 1;
+                }
+            }
+            0x27 => {
+                // LiTo 3.81C S_POLYMORPH receiver sub_4A70B0 (`dhc`): object,
+                // gfx, current walk/weapon family. The same packet carries the
+                // morph and the server-timed restore (GM .polyme 7200 s expiry
+                // broadcasts the base gfx), so no client-side timer is kept.
+                let id = r.d()?;
+                let graphics = r.h()?;
+                let walk_action = r.c()?;
+                r.end()?;
+                ensure!(id != 0, "zero polymorph actor");
+                self.polymorph_packets = self.polymorph_packets.checked_add(1).context("polymorph counter")?;
+                if let Some(a) = self.actors.get_mut(&id) {
+                    if a.graphics != graphics || a.walk_action != walk_action {
+                        a.graphics = graphics;
+                        a.walk_action = walk_action;
+                        self.visual_revision += 1;
                     }
                 } else {
                     self.orphan_updates += 1;
