@@ -244,8 +244,15 @@ fn authenticated_recovery_redirect(accept_timeout: Duration) -> (LoginController
     pump(&mut c, |c| c.transport.snapshot().epoch == 2 && c.state.phase == LoginPhase::GameLoginPending);
     stop(&mut c); c.cancel(); c.poll(); retired(&c);
     old.close(); target.close();
+    explicit_recovery_redirect(c, old.peer, accept_timeout)
+}
+
+/// Fresh authenticated LOGIN to the original peer after any retirement that
+/// kept one unused correlation. The caller has already closed `login_peer`.
+fn explicit_recovery_redirect(mut c: LoginController, login_peer: SocketAddr, accept_timeout: Duration)
+    -> (LoginController, FaultPeer, FaultPeer) {
     assert!(c.teleport_recovery.is_some());
-    let login = FaultPeer::at(old.peer);
+    let login = FaultPeer::at(login_peer);
     let game = FaultPeer::waiting_at("127.0.0.1:0".parse().unwrap(), accept_timeout);
     c.start(login.peer, Limits::default()).unwrap();
     pump(&mut c, |c| c.state.phase == LoginPhase::ReadyForLogin);
@@ -265,7 +272,111 @@ fn authenticated_recovery_redirect(accept_timeout: Duration) -> (LoginController
 
 #[cfg_attr(test, test)]
 pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
+    let (c, login, game) = authenticated_recovery_redirect(Duration::from_secs(5));
+    complete_explicit_recovery(c, login, game);
+}
+
+fn pump_for(c: &mut LoginController, seconds: u64, ok: impl Fn(&LoginController) -> bool) {
+    let until = Instant::now() + Duration::from_secs(seconds);
+    loop { c.poll(); if ok(c) { return } assert!(Instant::now() < until, "controller {:?}: {:?}", c.state.phase, c.state.error); thread::sleep(Duration::from_millis(2)); }
+}
+
+fn assert_one_correlation(c: &LoginController, login_peer: SocketAddr) {
+    let r = c.teleport_recovery.as_ref().expect("unused recovery erased");
+    assert_eq!(r.login_peer, login_peer);
+    assert_eq!((r.account.as_str(), r.source.as_str(), r.character.as_str()), ("SyntheticAccount", "測試乙", "重建角色"));
+    assert!(c.credentials.is_none() && c.teleport.is_none() && c.recovery_character.is_none());
+}
+
+/// G06 `cancel-repeat`: cancels while the destination worker is still live,
+/// then again after quiescence. Only one unused correlation survives, the old
+/// peer saw exactly one C_D9 and no further epoch starts in the background.
+#[cfg_attr(test, test)]
+pub fn repeated_cancellation_before_and_after_quiescence_keeps_one_recovery() {
+    let mut old = FaultPeer::new(); let mut target = FaultPeer::new();
+    let mut c = seeded(&old);
+    c.teleport.as_mut().unwrap().character = "重建角色".into();
+    old.emit(vec![bytes("availability"), endpoint(target.peer)]);
+    pump(&mut c, |c| c.transport.snapshot().epoch == 2 && c.state.phase == LoginPhase::GameLoginPending);
+    for _ in 0..4 { c.cancel(); }
+    pump(&mut c, |c| c.is_quiescent());
+    for _ in 0..3 { c.cancel(); c.poll(); retired(&c); assert_one_correlation(&c, old.peer); }
+    assert_eq!(c.state.phase, LoginPhase::Closed);
+    assert!(c.state.error.is_none());
+    for _ in 0..16 { c.poll(); assert_eq!(c.transport.snapshot().epoch, 2); assert!(c.is_quiescent()); thread::sleep(Duration::from_millis(2)); }
+    old.close(); target.close();
+    assert_eq!(old.opcodes().iter().filter(|&&op| op == 0xd9).count(), 1);
+    assert!(target.accepted.load(Ordering::Acquire) <= 1);
+    assert!(!target.opcodes().contains(&0xc8) && !target.opcodes().contains(&0xc9));
+    let peer = old.peer;
+    let (c, login, game) = explicit_recovery_redirect(c, peer, Duration::from_secs(5));
+    complete_explicit_recovery(c, login, game);
+}
+
+/// G06 `refused-cancel-repeat`: a refused destination fails boundedly, and
+/// later repeated cancels neither erase the correlation nor hide the failure.
+#[cfg_attr(test, test)]
+pub fn failed_handoff_then_repeated_cancel_keeps_the_authenticated_recovery() {
+    let closed = { let l = TcpListener::bind("127.0.0.1:0").unwrap(); l.local_addr().unwrap() };
+    let mut old = FaultPeer::new();
+    let mut c = seeded(&old);
+    c.teleport.as_mut().unwrap().character = "重建角色".into();
+    old.emit(vec![bytes("availability"), endpoint(closed)]);
+    pump_for(&mut c, 10, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+    let error = c.state.error.clone().expect("refused destination error");
+    assert_eq!(c.transport.snapshot().epoch, 2);
+    retired(&c); assert_one_correlation(&c, old.peer);
+    for _ in 0..3 { c.cancel(); c.poll(); retired(&c); assert_one_correlation(&c, old.peer); }
+    assert_eq!(c.state.phase, LoginPhase::Failed);
+    assert_eq!(c.state.error.as_deref(), Some(error.as_str()));
+    old.close();
+    assert_eq!(old.opcodes().iter().filter(|&&op| op == 0xd9).count(), 1);
+    let peer = old.peer;
+    let (c, login, game) = explicit_recovery_redirect(c, peer, Duration::from_secs(5));
+    complete_explicit_recovery(c, login, game);
+}
+
+/// A previous teleport generation's F4 reply reaching the recovery GAME epoch
+/// is not a handoff: it fails without C8/C9/C_D9 and the consumed correlation
+/// is not revived for another LOGIN.
+#[cfg_attr(test, test)]
+pub fn recovery_game_rejects_previous_generation_endpoint_reply() {
     let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(5));
+    c.begin_game().unwrap();
+    pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+    let epoch = c.transport.snapshot().epoch;
+    game.emit(vec![endpoint(login.peer)]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+    retired(&c);
+    assert_eq!(c.transport.snapshot().epoch, epoch, "stale endpoint started another epoch");
+    assert_ne!(c.state.redirect, Some(login.peer), "stale endpoint retargeted the client");
+    assert!(c.teleport_recovery.is_none() && c.recovery_character.is_none() && c.credentials.is_none());
+    c.cancel(); c.poll();
+    assert!(c.teleport_recovery.is_none(), "consumed recovery revived by cancel");
+    login.close(); game.close();
+    for op in [0xc8, 0xc9, 0xd9] { assert!(!game.opcodes().contains(&op), "stale endpoint sent {op:02X}"); }
+}
+
+/// Malformed S03 directory envelopes in the recovery GAME fail closed: no
+/// C8 retry, no C9, and no recovery for a later LOGIN.
+#[cfg_attr(test, test)]
+pub fn recovery_game_malformed_directory_reply_fails_without_retry() {
+    for (name, body) in [("count-truncated", vec![3u8]), ("count-trailing", vec![3, 1, 0]), ("count-negative", vec![3, 0x80])] {
+        let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(5));
+        c.begin_game().unwrap();
+        pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+        let epoch = c.transport.snapshot().epoch;
+        game.emit(vec![game_packet("ready"), body]);
+        pump(&mut c, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+        retired(&c);
+        assert_eq!(c.transport.snapshot().epoch, epoch, "{name}: another epoch");
+        assert!(c.teleport_recovery.is_none() && c.recovery_character.is_none(), "{name}: recovery survived");
+        login.close(); game.close();
+        assert!(!game.opcodes().contains(&0xc8) && !game.opcodes().contains(&0xc9), "{name}: sent C8/C9");
+    }
+}
+
+fn complete_explicit_recovery(mut c: LoginController, mut login: FaultPeer, mut game: FaultPeer) {
     c.begin_game().unwrap();
     pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
     game.emit(vec![game_packet("ready"), vec![3, 1], game_packet("row"), vec![0xc8, 0], bytes("inventory")]);
