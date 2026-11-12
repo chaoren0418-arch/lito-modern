@@ -73,6 +73,8 @@ pub(super) fn observe_return(c:&mut LoginController,root:&Path,role:&str,other:&
     if after.phase!=P::CharactersReady {
         return Ok(json!({"before":before,"after":after,"phases":phases,"observed_ms":observed_ms,"characters_ready":false,"reentry_verified":false}));
     }
+    ensure!(after.rental_return_outcome==Some(super::native_login::RentalReturnOutcome::Normal),
+        "reconnected directory is recovery, not verified normal rental return");
     ensure!(after.joined_room.is_none()&&after.world.map_id.is_none()&&after.inventory.items.is_empty()
         &&after.merchant.dialog.is_none()&&after.rental_set.is_none(),"rental source refresh retained retired state");
     c.select_character(0)?;wait(c,|s|s.phase==P::CharacterSelected)?;
