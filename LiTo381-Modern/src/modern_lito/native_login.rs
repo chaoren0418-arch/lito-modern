@@ -402,6 +402,8 @@ pub struct LoginController {
     skill_summon_pending: bool,
     skill_clan_pending: bool,
     skill_release_pending: bool,
+    /// Foe Slayer (187): own physical-reply count at request time.
+    skill_strike_pending: Option<u64>,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
@@ -464,6 +466,7 @@ impl Default for LoginController {
             skill_summon_pending: false,
             skill_clan_pending: false,
             skill_release_pending: false,
+            skill_strike_pending: None,
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
@@ -769,6 +772,7 @@ impl LoginController {
                     else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
                     else if self.skill_clan_pending { pending.observe_clan(&self.state.world, now) }
                     else if self.skill_release_pending { pending.observe_release(&self.state.world, now) }
+                    else if let Some(attacks) = self.skill_strike_pending { pending.observe_strikes(&self.state.world, now, attacks) }
                     else { pending.observe(&self.state.world, now) };
                 // A coded rejection or cast action received in the same batch wins;
                 // otherwise the server's unlock is the terminal reply, not a 2s timeout.
@@ -988,6 +992,8 @@ impl LoginController {
         // 154: S10 353 (no-recall map) follows the committed cast action, like 51.
         self.skill_summon_pending = summon.is_some() || skill == 154;
         self.skill_release_pending = skill == 145;
+        // 187: the formal handler sends direct physical strikes, never a cast action.
+        self.skill_strike_pending = (skill == 187).then_some(self.state.world.own_attack_packets);
         self.skill_clan_pending = matches!(skill, 116 | 118);
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
@@ -2852,6 +2858,7 @@ impl LoginController {
         self.skill_item_pending = false;
         self.skill_clan_pending = false;
         self.skill_release_pending = false;
+        self.skill_strike_pending = None;
         self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_target_pending=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;

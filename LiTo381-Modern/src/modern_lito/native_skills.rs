@@ -39,11 +39,15 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
     );
     ensure!(world.movement_blocks.is_empty(), "目前狀態限制施法");
     ensure!(world.learned_skills.contains(&skill), "尚未學會此技能");
-    ensure!(world.mp.is_some_and(|v| v[0] > 0), "MP 不足或尚未取得");
+    ensure!(hp_paid(skill) || world.mp.is_some_and(|v| v[0] > 0), "MP 不足或尚未取得");
     let own = world.own_actor().context("own caster")?;
     ensure!(!own.dead, "角色已死亡");
     Ok(())
 }
+/// Dragon Knight 181–188: E149 `mpCost` is 0 and the formal handlers charge
+/// `hpCost` only (S10 279 when `playerHp <= hpCost`), so an empty MP bar must not
+/// block the request. The HP amount itself is never predicted here.
+pub fn hp_paid(skill: u16) -> bool { matches!(skill, 181..=188) }
 /// Item object IDs must never pass through the actor-target request path.
 pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 73 | 100 | 107) }
 
@@ -172,7 +176,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 146 | 147 | 150 | 154 | 155 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 146 | 147 | 150 | 154 | 155 | 181 | 182 | 185 | 186 | 206)
 }
 /// ④ object requests whose formal handlers accept only the caster's own object ID
 /// (target_to=1 with maximumRange 0: Fire Weapon, Wind Shot, Earth Skin). A hovered
@@ -319,16 +323,18 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 b.extend_from_slice(&actor.y.to_le_bytes());
             }
         }
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 77 | 103 | 108 | 152 | 153 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 77 | 103 | 108 | 152 | 153 | 183 | 184 | 187 | 188 => {
+            // 183／184／187／188: `DragonSkillRequests.TARGETED` requires the 11-byte
+            // explicit target and never guesses a nearby victim.
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33=>2,40|46|47|56|64=>3,50=>6,65|66=>10,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
-                    // 152／153: formal range 10 and the native screen diamond both apply.
-                    && (!matches!(skill, 152 | 153) || in_native_screen([own.x, own.y], [actor.x, actor.y])),
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33|187=>2,40|46|47|56|64=>3,50=>6,65|66=>10,10|103|183|188=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
+                    // 152／153／184: formal range 10 and the native screen diamond both apply.
+                    && (!matches!(skill, 152 | 153 | 184) || in_native_screen([own.x, own.y], [actor.x, actor.y])),
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -340,9 +346,9 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,56|64=>500,59|62|66=>1500,65=>2000,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|145|147..=152|154|155=>0,146=>1200,153=>600,112=>2000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64=>500,59|62|66=>1500,65=>2000,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|145|147..=152|154|155|185=>0,146=>1200,153=>600,112|182|187=>2000,183|184|188=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
-pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
+pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206|188=>1200,182=>3600,183=>1800,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub enum Feedback {
     #[default]
@@ -399,6 +405,7 @@ pub(crate) struct CastContext {
     interruptions: u64,
     skill: u16,
     casts: u64,
+    attacks: u64,
     target: Option<super::native_skill_selection::Target>,
 }
 impl CastContext {
@@ -406,7 +413,7 @@ impl CastContext {
         Self { connection, generation: world.generation,
             caster: world.own_actor().map(|a| (a.id, a.incarnation)),
             corrections: world.local_corrections, interruptions: world.control_interruptions,
-            skill, casts: world.own_cast_packets,
+            skill, casts: world.own_cast_packets, attacks: world.own_attack_packets,
             target: target.and_then(|id| super::native_skill_selection::Target::capture(world, id)) }
     }
     pub(crate) fn interrupted(&self, connection: u64, world: &World) -> bool {
@@ -421,7 +428,9 @@ impl CastContext {
             || world.movement_lock != super::native_world::MovementLock::Open
             || !world.learned_skills.contains(&self.skill)
             // An accepted cast may itself kill/remove its target in this batch.
+            // 187 is acknowledged by its own physical strikes, which may kill too.
             || (world.own_cast_packets == self.casts
+                && !(self.skill == 187 && world.own_attack_packets > self.attacks)
                 && self.target.is_some_and(|t| t.resolve(world).is_none()))
     }
 }
@@ -450,6 +459,18 @@ impl Pending {
             return Feedback::Rejected(79);
         }
         ordinary
+    }
+    /// Foe Slayer (187): the formal handler publishes no S_ACTION; after the HP
+    /// commit it runs `hitCount` direct physical attacks. An own physical reply
+    /// newer than `attacks` (the count captured at request time) is therefore the
+    /// acknowledgement. Coded rejections and interruption keep their priority.
+    pub fn observe_strikes(&self, world: &World, now: Instant, attacks: u64) -> Feedback {
+        let ordinary = self.observe(world, now);
+        if matches!(ordinary, Feedback::Pending | Feedback::NoResponse) && world.own_attack_packets > attacks {
+            Feedback::CastAction
+        } else {
+            ordinary
+        }
     }
     /// Call／Run Clan (116／118) also accept their sequenced name/clan/world
     /// rejections; other casts never consult `last_clan_skill_rejection`.
