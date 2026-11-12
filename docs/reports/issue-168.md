@@ -60,7 +60,15 @@ test modern_lito::native_combat_ops::tests::chase_step_is_greedy_bounded_and_res
 test result: FAILED. 2139 passed; 1 failed; 590 ignored; 0 measured; 0 filtered out; finished in 19.67s
 ```
 
-原因是測試期望寫錯，不是程式錯：目標在正對角時，直行被擋後左右相鄰方向都不會縮短 Chebyshev 距離，`chase_step` 回 `Blocked` 符合設計（不做會來回擺盪的側移）。已改成用非正對角目標測「繞相鄰方向」，並另加正對角回 `Blocked` 的斷言；修正後的結果見 PR 最新 commit 的 CI 與 PR 留言。其他 15 個新測試與既有 lib 測試在第一輪都通過。整合測試 `tests/native_combat.rs` 不在 CI 範圍（部分案例要讀本機客戶端資源），本輪**未執行**。
+原因是測試期望寫錯，不是程式錯：目標在正對角時，直行被擋後左右相鄰方向都不會縮短 Chebyshev 距離，`chase_step` 回 `Blocked` 符合設計（不做會來回擺盪的側移）。已改成用非正對角目標測「繞相鄰方向」，並另加正對角回 `Blocked` 的斷言；其他 15 個新測試與既有 lib 測試在第一輪都通過。
+
+第二輪（run 43161715235，commit `b972e1a`）**通過**：`cargo check` 綠；16 個 `native_combat_ops::tests` 全部 `ok`。
+
+```text
+test result: ok. 2154 passed; 0 failed; 591 ignored; 0 measured; 0 filtered out; finished in 19.60s
+```
+
+591 個 ignored 是專案既有的資源／實機測試，不算通過。整合測試 `tests/native_combat.rs` 不在 CI 範圍（部分案例要讀本機客戶端資源），本輪**未執行**。
 
 ## 推測
 
@@ -70,7 +78,6 @@ test result: FAILED. 2139 passed; 1 failed; 590 ignored; 0 measured; 0 filtered 
 
 ## 待驗證／未驗證什麼
 
-- **CI 的 `cargo test --lib` 結果**（新 16 個與既有 lib 測試）。
 - 整合測試 `tests/native_combat.rs` 等未執行。
 - 實機（交給 Codex／使用者）：Space 空揮動作與伺服器回覆、各拒絕提示文字、追擊行走（含門、牆、目標移動）、目標圈位置／顏色／DPI、再點目標啟動追擊的手感、110 提示。本輪不啟動遊戲、不連正式服務或 DB。
 - 攻擊專用間隔目前**沒有在 GUI 啟用**：GUI 尚未取得自己攻擊動作的時長，呼叫 `empty_attack_with_input(heading, None, …)`，所以太快的空揮由伺服器靜默丟棄，客戶端兩秒後顯示「未收到攻擊回覆」。攻擊動畫播放速度也沒有改成攻擊專用倍率（缺反組譯證據）。
