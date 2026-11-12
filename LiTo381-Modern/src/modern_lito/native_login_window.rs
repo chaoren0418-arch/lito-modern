@@ -46,6 +46,8 @@ const ROOM_SECRET:u16=215;
 const ROOM_LOCK:u16=216;
 const TELEPORT_DEST:u16=217;
 const SUMMON_OPTIONS:u16=218;
+/// 113 True Target annotation or 116／118 clan member name (MS950 `s`).
+const SKILL_TEXT:u16=230;
 const ROOM_HELP:u16=313;
 const CONNECT: u16 = 101;
 const LOGIN: u16 = 102;
@@ -272,6 +274,7 @@ impl Ui {
             (skill_ui::FIRST + 6, w!("BUTTON"), "F11".into(), BS_OWNERDRAW as u32),
             (skill_ui::FIRST + 7, w!("BUTTON"), "F12".into(), BS_OWNERDRAW as u32),
             (TELEPORT_DEST, w!("COMBOBOX"), String::new(), CBS_DROPDOWNLIST as u32 | WS_VSCROLL.0),
+            (SKILL_TEXT, w!("EDIT"), String::new(), ES_AUTOHSCROLL as u32),
             (INVENTORY_TOGGLE, w!("BUTTON"), "背包".into(), 0),
             (GROUND_TOGGLE, w!("BUTTON"), "附近物品".into(), 0),
             (ITEM_USE, w!("BUTTON"), "使用／裝卸".into(), 0),
@@ -510,6 +513,8 @@ impl Ui {
                 SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.ground_view,
                 SUMMON_OPTIONS => self.world_view && !self.result_view && !self.inventory_view && !self.rental.open && self.skills.selected()==Some(51),
                 TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected()==Some(5),
+                SKILL_TEXT => self.world_view && !self.result_view && !self.inventory_view && !self.ground_view
+                    && self.skills.selected().is_some_and(super::native_skills::text_skill),
                 SCORES => self.result_view && !self.inventory_view,
                 _ => !self.world_view || matches!(*id, CANCEL | STATUS | RETURN),
             };
@@ -611,6 +616,7 @@ impl Ui {
             // Above the F5–F12 hotbar (bottom-155..-97); a closed combo is ~24px.
             let _ = MoveWindow(self.control(SUMMON_OPTIONS),px(16),area.bottom-px(190),area.right-px(32),px(300),true);
             let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),area.bottom-px(190),area.right-px(32),px(220),true);
+            let _ = MoveWindow(self.control(SKILL_TEXT),px(16),area.bottom-px(190),area.right-px(32),px(24),true);
             let _ = MoveWindow(
                 self.control(SCORES),
                 px(16),
@@ -983,6 +989,15 @@ impl Ui {
         let choice = self.skills.choice_id_at(
             self.controller.transport().snapshot().epoch,
             &self.controller.snapshot().world, skill, self.target, self.ground)?;
+        if super::native_skills::text_skill(skill) {
+            // The edit box belongs to the selected book skill; a hotbar cast of
+            // another text skill must not reuse it.
+            let text = if self.skills.selected()==Some(skill) && !self.inventory_view {
+                self.read(SKILL_TEXT, 64)?
+            } else { Zeroizing::new(String::new()) };
+            let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+            return self.controller.cast_text(choice.skill, choice.target, &text, frame, input);
+        }
         let frame = self
             .world_presentation
             .frame
@@ -1266,6 +1281,7 @@ impl Ui {
         let _ = EnableWindow(self.control(CAST_SKILL), enabled);
         let _ = EnableWindow(self.control(SUMMON_OPTIONS), active && self.skills.selected()==Some(51));
         let _ = EnableWindow(self.control(TELEPORT_DEST), active && self.skills.selected()==Some(5));
+        let _ = EnableWindow(self.control(SKILL_TEXT), active && self.skills.selected().is_some_and(super::native_skills::text_skill));
         let _ = EnableWindow(self.control(SKILLS), active && !self.skills.rows().is_empty());
         self.refresh_skill_art();
     }

@@ -128,14 +128,15 @@ impl Ground {
 /// Shared by the actual native window and isolated ClientSession probes.
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
-    let target = if native_skills::selector_only(skill) || matches!(skill,2|3|13|60|131) {
+    let named = matches!(skill, 116 | 118);
+    let target = if native_skills::selector_only(skill) || named || matches!(skill,2|3|13|60|131) {
         None
     } else {
         target
             .map(|t| t.resolve_for_skill(world, skill).context("選取的目標已失效，請重新點選"))
             .transpose()?
     };
-    native_skills::request(world, skill, target)?;
+    if named { native_skills::admit_named(world, skill)?; } else { native_skills::request(world, skill, target)?; }
     Ok(Choice {
         skill,
         target,
@@ -245,6 +246,15 @@ impl Model {
                         107 => "#107 暗影之牙（對裝備中的武器）".into(),
                         108 => "#108 會心一擊（選取目標，一格內）".into(),
                         109 => "#109 力量提升（自己）".into(),
+                        110 => "#110 敏捷提升（自己）".into(),
+                        111 => "#111 閃避提升（自己）".into(),
+                        112 => "#112 破壞盔甲（伺服器判定一格內目標；消耗 HP）".into(),
+                        113 => "#113 精準目標（選取目標／自己，畫面內；可輸入標記文字）".into(),
+                        114 => "#114 激勵士氣（自己與周圍隊員）".into(),
+                        115 => "#115 鋼鐵士氣（自己與周圍隊員／盟友）".into(),
+                        116 => "#116 呼喚盟友（輸入盟友名稱）".into(),
+                        117 => "#117 衝擊士氣（自己與周圍隊員）".into(),
+                        118 => "#118 援護盟友（輸入盟友名稱）".into(),
                         13 => "#13 偵測術（自己）".into(),
                         15 => "#15 火箭（選取目標）".into(),
                         18 => "#18 起死回生術（選取目標，十格內）".into(),
