@@ -1,6 +1,6 @@
 # Issue #149 — T027 批 5：技能 67、68、69、70、71、73、74、75
 
-日期：2026-11-12。分支：`task/149`。runner：claude-local（第 1 次嘗試）。本張只做第五批八個技能，T027 與 M2 整體都還沒完成。
+日期：2026-11-12。分支：`task/149`，PR #291。runner：claude-local（第 1 次嘗試）。本張只做第五批八個技能，T027 與 M2 整體都還沒完成。
 
 ## 做了什麼
 
@@ -39,7 +39,7 @@
 
 ## 已驗證
 - 本機 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：**exit 0**，原文 `Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 3m 27s`（`scratch/issue-149/check1.log`）。新增與修改的檔案沒有新的 warning（`native_login.rs` 的 `cast_request_at`／`accept_game` never used 是既有的）。
-- CI 結果見下方「CI」一節（本機不能執行測試，以 PR 的 CI 為準）。
+- CI：**PR #291 的 run 43181326594 通過**，lib 測試 `test result: ok. 2310 passed; 0 failed; 597 ignored`，本批 13 案全部 ok；細節見下方「CI」一節（本機不能執行測試，以 PR 的 CI 為準）。
 
 ### 新增的 lib 測試（都不需要資源，CI 的 `cargo test --lib` 會跑）
 `native_skills::t027_batch5_tests`（9 案）：
@@ -60,7 +60,8 @@
 4. `shape67_own_monlist_offer_is_consumed_without_a_reply_or_dialog_state`：自己的 `monlist` 被消化兩次、狀態 JSON 不變、沒有送出任何封包（含 C_HACTION）；別人的 `monlist`、帶參數的 `monlist`、`summonlist` 維持原本的拒絕。
 
 ### CI
-- （推送後補上 PR 編號、run 編號與 `test result:` 原文。）
+- 第 1 次推送（`2caa94c`）：PR #291 一開就是 CONFLICTING（main 已前進到 `a09f6cf`，含 #154 技能 145–155），GitHub 不會對衝突中的 PR 跑 CI。依常設授權 `git merge origin/main`，只有 `native_skills.rs` 衝突，四處都是同一行的清單，兩邊的項目都保留：`selector_only`（本批 70 加上 main 的 146／147／150／154／155）、角色＋座標分支（本批 71／74 加上 main 的 152／153）、距離表（本批 71=3、74=10，保留 main 對 152／153 的畫面菱形條件）、`reuse_millis`（本批 70=2000、71=500、73=0、74=3000，加上 main 的 145／146／147..=152／153／154／155）。合併後本機 `cargo check …--all-targets`：**exit 0**，`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 07s`（`scratch/issue-149/check2.log`）；另外跑了靜態的 `python 維護工具/test_native_skill_coverage.py`（只解析原始碼，不是編譯產物）：`Ran 7 tests … OK`。
+- **PR #291 的 run 43181326594（`5eb0807`）：通過**。`cargo check --locked --all-targets` 原文 `Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 19s`；`cargo test --locked --lib --no-fail-fast` 原文 `test result: ok. 2310 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 23.33s`。本批 13 案（`native_skills::t027_batch5_tests` 9 案、`native_login::teleport_wire_tests::t027_batch5` 4 案）逐案都是 `ok`（log 存在 `scratch/issue-149/ci-43181326594.log`）。597 個 ignored 不算通過，原資源 opt-in 案仍待 Codex。之後只再推了報告與狀態表的文字更新，CI 以 PR 最新 commit 為準。
 
 ## 推測
 - 送包形狀、範圍與 reuse 是依正式 contract、候選說明與相鄰伺服器原始碼做的靜態對照，不代表正式 E149 服務一定接受（血盟資格、材料、機率等）。相鄰伺服器原始碼是工作目錄現況，不等於正式唯讀 JAR `E1498871…`；兩者在 69 的 S55／C4E 流程上和歷史候選說明（讀 E149 JAR 得出）一致。
