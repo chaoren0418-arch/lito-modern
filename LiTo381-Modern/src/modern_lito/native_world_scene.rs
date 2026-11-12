@@ -1419,6 +1419,8 @@ impl Model {
         label_receipt["all_names_switch"] = serde_json::json!(self.all_names);
         label_receipt["name_privilege"] = serde_json::json!(super::native_world_labels::name_privilege(world));
         label_receipt["flag_1f_unresolved"] = serde_json::json!(flag_1f_unresolved);
+        label_receipt["hover_flag_1f"] = serde_json::json!(hover_id.is_some_and(|id| name_policy.flag_1f.contains(&id)));
+        label_receipt["own_fa_flag"] = serde_json::json!(super::native_fa_gate::own_flag(world));
         let marker_centers: std::collections::BTreeMap<u32, super::world_map::PixelPoint> =
             prepared_bodies.iter().map(|(id, _, _, center, _)| (*id, *center)).collect();
         let emblem_receipt = super::native_emblems::draw(&world.emblems, world, &label_lines, hover_id, &marker_centers, &mut canvas, cancel)?;

@@ -51,6 +51,22 @@ pub fn lawful_color(lawful: i16) -> u16 {
         (low << 10) | (low << 5) | 31
     }
 }
+/// Native 48A631: this body keeps the fixed colour while its 1F flag is clear.
+pub const FIXED_HOVER_COLOR_GRAPHICS: u16 = 0x0a9b;
+/// Native hover name colour, 48A624..48A6F1. `side` is actor+0x128 as returned
+/// by 4E9220 (the S_PUT_OBJECT tail byte); `flag_1f` is the relation flag that
+/// S0B, S36 and the S69 clan setter (4E7690) maintain while the war gate
+/// 834F14 is active. Maps 500/560 always use the lawful colour (actor+0x28).
+pub fn hover_color(a: &Actor, flag_1f: bool, special: bool) -> u16 {
+    if !flag_1f && a.graphics == FIXED_HOVER_COLOR_GRAPHICS {
+        return 0x7c00;
+    }
+    match a.tail_byte {
+        0 if !special => 0x7c00,
+        1 if !special => 0x001f,
+        _ => lawful_color(a.lawful),
+    }
+}
 fn width(text: &str) -> Result<i32> {
     let bytes = super::native_login::encode_text(text, 256)?;
     Ok(bytes.len() as i32 * 6)
@@ -320,9 +336,10 @@ pub fn layout_with(
         } else {
             left + (rect_width - nw) / 2
         } + if a.emblem != 0 { 10 } else { 0 };
-        let color = if special || (!is_own && a.tail_byte > 1) {
-            lawful_color(a.lawful)
+        let color = if as_hover {
+            hover_color(a, policy.flag_1f.contains(id), special)
         } else if a.tail_byte != 0 {
+            // 489EFD: the own label only distinguishes zero from nonzero.
             0x001f
         } else {
             0x7c00
@@ -521,6 +538,47 @@ mod tests {
             kinds(&layout_with(&w, &c, &h, 424, hover, &policy)),
             ["own", "hover"]
         );
+    }
+    #[test]
+    fn hover_colour_follows_side_byte_war_flag_and_fixed_body() {
+        let mut w = world();
+        let own = w.own_actor().unwrap().id;
+        let c = catalog();
+        let h = hits(&w);
+        let hover = Hover::capture(&w, 2);
+        let mut policy = Policy::default();
+        let colour = |w: &World, policy: &Policy, id: u32| {
+            layout_with(w, &c, &h, 424, hover, policy)
+                .into_iter()
+                .find(|l| l.id == id && l.kind != "title")
+                .unwrap()
+                .color
+        };
+        w.actors.get_mut(&2).unwrap().lawful = 1000;
+        let lawful = lawful_color(1000);
+        for (side, expected) in [(0, 0x7c00), (1, 0x001f), (2, lawful)] {
+            w.actors.get_mut(&2).unwrap().tail_byte = side;
+            assert_eq!(colour(&w, &policy, 2), expected, "side {side}");
+        }
+        // 48A631: the fixed body ignores the side byte until 1F is set.
+        w.actors.get_mut(&2).unwrap().graphics = FIXED_HOVER_COLOR_GRAPHICS;
+        assert_eq!(colour(&w, &policy, 2), 0x7c00);
+        policy.flag_1f.insert(2);
+        assert_eq!(colour(&w, &policy, 2), lawful);
+        w.actors.get_mut(&2).unwrap().tail_byte = 1;
+        assert_eq!(colour(&w, &policy, 2), 0x001f);
+        // Maps 500/560 use the lawful colour for both sides, except the fixed body.
+        w.map_id = Some(500);
+        assert_eq!(colour(&w, &policy, 2), lawful);
+        policy.flag_1f.clear();
+        assert_eq!(colour(&w, &policy, 2), 0x7c00);
+        // The own label (489EFD) is unaffected by 1F and the fixed body.
+        w.map_id = Some(564);
+        policy.flag_1f.insert(own);
+        for (side, expected) in [(0, 0x7c00), (1, 0x001f), (2, 0x001f)] {
+            w.actors.get_mut(&own).unwrap().tail_byte = side;
+            assert_eq!(colour(&w, &policy, own), expected, "own side {side}");
+        }
     }
     #[test]
     fn hover_suffix_needs_title_without_flag_or_class_body() {

@@ -139,3 +139,36 @@ impl Context {
         Ok(changes)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn war()->Context {
+        Context{owner:Some(1),active:true,own_clan:b"Own".to_vec(),enemies:vec![b"Foe".to_vec()]}
+    }
+    fn relations(clan:&[u8],side:u8,flag:bool)->Relations {
+        let mut a=Relations{clan:clan.to_vec(),side_20:side,..Default::default()};
+        a.flag_1f.reset(flag); a
+    }
+    fn after(context:&Context,mut a:Relations)->(u8,bool) {
+        context.clan_changed(&mut a); (a.side_20,a.flag_1f.set)
+    }
+    /// Native 4E7690 (S69 clan setter) under the war gate 834F14.
+    #[test]
+    fn s69_clan_update_sets_side_and_flag_only_while_war_is_active() {
+        let idle=Context::default();
+        assert_eq!(after(&idle,relations(b"Foe",0,false)),(0,false));
+        assert_eq!(after(&idle,relations(b"",2,true)),(2,true));
+        let war=war();
+        assert_eq!(after(&war,relations(b"Foe",0,false)),(2,true));
+        assert_eq!(after(&war,relations(b"fOE",1,false)),(2,true));
+        assert_eq!(after(&war,relations(b"Own",0,false)),(1,true));
+        // An unrelated clan keeps both fields; an empty clan clears only +0x20.
+        assert_eq!(after(&war,relations(b"Other",2,true)),(2,true));
+        assert_eq!(after(&war,relations(b"Other",0,false)),(0,false));
+        assert_eq!(after(&war,relations(b"",2,true)),(0,true));
+        // The own-clan compare runs after the enemy loop and wins.
+        let both=Context{enemies:vec![b"Own".to_vec()],..war};
+        assert_eq!(after(&both,relations(b"Own",0,false)),(1,true));
+    }
+}
