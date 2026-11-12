@@ -123,3 +123,4 @@
 - 2026-11-12 — #159 T022-9: T022（M2 9/10）: src/：未接的 91 個技能（code，claude-local，PR #343 已合併）→ [報告](reports/issue-159.md)
 - 2026-11-12 — #319 T036-14: T036（M3 14/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #353 已合併）→ [報告](reports/issue-319.md)
 - 2026-11-12 — #310 T036-5: T036（M3 5/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #354 已合併）→ [報告](reports/issue-310.md)
+- 2026-11-12 — #309 T036-4: T036（M3 4/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #355 已合併）→ [報告](reports/issue-309.md)
