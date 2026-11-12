@@ -43,4 +43,4 @@ pwsh -NoProfile -File .\啟動現代客戶端.ps1 -NativeLoginEndpoint 127.0.0.1
 
 本輪使用正式 JAR 的普通 Tournament 模式。`rental-source` 服務模式會將相同 C_CA 解作租裝組選擇，並使用 S_FB 目錄、租装村與跨服務交接，仍需獨立接入；不是四頻道成功即代表此分支完成。ARGO 99 封包可解析，但未開放 UI 入口。專用 channel ports 在現行 ServerConfig 被移除，四個普通頻道共用端口。
 
-原版 UI／LTstring、完整角色狀態、世界、移動、戰鬥、勝敗及返回尚待完成，不能以 LOBBY/CHANNEL/ROOM 伺服器 phase 宣告完整可玩。
+LTstring 已接上選角、進頻道、進房三種拒絕訊息（#329，對應表與其餘尚未接的列見 [NATIVE-MESSAGES](NATIVE-MESSAGES.zh-TW.md)）。原版 UI 版面與其餘 LTstring 文字、完整角色狀態、世界、移動、戰鬥、勝敗及返回尚待完成，不能以 LOBBY/CHANNEL/ROOM 伺服器 phase 宣告完整可玩。

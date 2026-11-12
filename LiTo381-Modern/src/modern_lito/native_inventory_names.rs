@@ -31,6 +31,11 @@ pub struct Catalog {
     base: DescriptionCatalog,
     lito: DescriptionCatalog,
     pub sources: Vec<Source>,
+    /// `string-c.tbl`／`LTstring-c.tbl` for notices and system messages. A
+    /// failure here never withholds the item names; see `strings_error`.
+    pub strings: Option<super::native_messages::Strings>,
+    pub strings_error: Option<String>,
+    pub string_sources: Vec<Source>,
 }
 fn active(cancel: &AtomicBool) -> Result<()> {
     ensure!(!cancel.load(Ordering::Acquire), "inventory names cancelled");
@@ -45,7 +50,56 @@ impl Catalog {
             base: DescriptionCatalog::parse_cancellable(base, cancel)?,
             lito: DescriptionCatalog::parse_cancellable(lito, cancel)?,
             sources,
+            strings: None,
+            strings_error: None,
+            string_sources: Vec::new(),
         })
+    }
+    /// The base table comes from the shared Text archive and the LiTo table
+    /// from LiTo/LTtext, the same routing as the description tables.
+    fn load_strings(
+        lt: &Path,
+        index: super::native_resources::BytePin,
+        pak: super::native_resources::BytePin,
+        base_archive: &mut Option<SharedArchive>,
+        root: &Path,
+        sources: &mut Vec<Source>,
+        cancel: &AtomicBool,
+    ) -> Result<super::native_messages::Strings> {
+        use super::native_messages::{Strings, Table, MAX_TABLE_BYTES};
+        let mut tables = Vec::new();
+        for member in ["string-c.tbl", "ltstring-c.tbl"] {
+            active(cancel)?;
+            let (bytes, archive) = match super::native_resources::read_native_text_optional(
+                lt, index, pak, member, cancel,
+            )? {
+                Some(bytes) => (bytes, "LiTo/LTtext"),
+                None => {
+                    if base_archive.is_none() {
+                        *base_archive = Some(SharedArchive::open(root, SharedArchiveKind::Text)?);
+                    }
+                    let a = base_archive.as_mut().unwrap();
+                    ensure!(
+                        a.entry(member)?.size as usize <= MAX_TABLE_BYTES,
+                        "string table budget"
+                    );
+                    (a.read_entry(member)?, "Text")
+                }
+            };
+            let table = Table::parse(&bytes).with_context(|| member.to_owned())?;
+            sources.push(Source {
+                archive: archive.into(),
+                member: member.into(),
+                bytes: bytes.len(),
+                sha256: format!("{:X}", Sha256::digest(&bytes)),
+                declared: table.declared(),
+                available: table.len(),
+            });
+            tables.push(table);
+        }
+        let lito = tables.pop().context("string tables")?;
+        let base = tables.pop().context("string tables")?;
+        Ok(Strings { base, lito })
     }
     pub fn load(root: &Path, cancel: &AtomicBool) -> Result<Self> {
         active(cancel)?;
@@ -85,7 +139,32 @@ impl Catalog {
             });
             tables.push(bytes);
         }
-        Self::parse(&tables[0], &tables[1], sources, cancel)
+        let mut string_sources = Vec::new();
+        let strings = Self::load_strings(
+            &lt,
+            index,
+            pak,
+            &mut base_archive,
+            root,
+            &mut string_sources,
+            cancel,
+        );
+        active(cancel)?;
+        let mut catalog = Self::parse(&tables[0], &tables[1], sources, cancel)?;
+        match strings {
+            Ok(strings) => {
+                catalog.string_sources = string_sources;
+                catalog.strings = Some(strings);
+            }
+            Err(error) => catalog.strings_error = Some(format!("{error:#}")),
+        }
+        Ok(catalog)
+    }
+    /// 4A44D0 expands every S10 argument with 4D44A0; text this module
+    /// would reject is shown as received.
+    pub fn expand_argument(&self, argument: &str, character: Option<&str>) -> String {
+        self.expand(argument, character)
+            .unwrap_or_else(|_| argument.to_owned())
     }
     /// [`Self::expand`] without a runtime name: an entry holding the `%i`
     /// template is then an error, so the caller keeps the original text.
