@@ -71,3 +71,4 @@
 - 2026-11-12 — #194 T062-1: T062（M2 1/1）: src/：選角 8 角色分頁與選服流程（code，codex-local，PR 已合併）→ [報告](reports/issue-194.md)
 - 2026-11-12 — #261 參考主伺服器原始碼：整理封包與規則對照表（之後封包任務一律查表）（resource，codex-local，PR 已合併）→ [報告](reports/issue-261.md)
 - 2026-11-12 — #267 T900: 現成資源對照表——TW BIN 引擎（C#）與 LiTo 伺服器原始碼可直接參考的部分（code，claude-local，PR #269 已合併）→ [報告](reports/issue-267.md)
+- 2026-11-12 — #169 T023-1: T023（M2 1/4）: src/、tests/native_teleport_failure.rs：G06.3d 傳送與失敗（code，claude-local，PR #201 已合併）→ [報告](reports/issue-169.md)
