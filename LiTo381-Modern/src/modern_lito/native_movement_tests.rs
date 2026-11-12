@@ -50,6 +50,7 @@ fn navigation(map_id: u32, closed: bool) -> Arc<Navigation> {
 pub(crate) fn frame(world: &World, arrived: bool) -> Frame {
     let a = world.own_actor().unwrap();
     Frame {
+        status4183_leases: Vec::new(),
         player_walk_plan: None,
         static2941: Default::default(),
         ground_items: vec![],
@@ -61,6 +62,7 @@ pub(crate) fn frame(world: &World, arrived: bool) -> Frame {
         native_ambient: vec![],
         ambient_owner: Arc::new(()),
         finite_hurt_callbacks: vec![],
+        local_impacts: Default::default(),
         navigation: navigation(u32::from(world.map_id.unwrap()), false),
         movement_key: (
             a.id,

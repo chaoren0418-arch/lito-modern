@@ -37,6 +37,15 @@ pub fn record(w:&World,id:u32)->Option<&Record>{
 pub fn blocks(w:&World,x:u16,y:u16)->bool {
     w.door_attributes.values().any(|r|r.attribute.position==[x,y]&&r.attribute.passable==65&&current_owner(w,r).is_some())
 }
+/// Unowned attributes are directional terrain updates (including boundaries).
+/// Qualified arena doors use BattleDoor.blocks(destination) instead: their
+/// attribute must not trap an actor already on the closing door's source cell,
+/// or open a static wall the server still checks independently.
+pub fn edge_override(w: &World, x: u16, y: u16, direction: u8) -> Option<bool> {
+    let key = Attribute { position: [x, y], direction, passable: 0 }.key();
+    let r = w.door_attributes.get(&key)?;
+    r.owner.is_none().then_some(r.attribute.passable == 65)
+}
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct Choice {
     pub epoch:u64,pub generation:u64,pub id:u32,pub incarnation:u64,
