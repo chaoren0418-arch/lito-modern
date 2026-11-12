@@ -469,6 +469,7 @@ pub struct Model {
         u16,
         std::result::Result<super::native_actor_layers::Plan, String>,
     >,
+    actor_switches: super::native_actor_switch::Cache,
     map_id: u32,
     sector_count: usize,
     classic_sector: Option<[u16;2]>,
@@ -791,6 +792,7 @@ impl Model {
             effect_catalog,
             sprite_bank,
             layer_plans: Default::default(),
+            actor_switches: Default::default(),
             map_id,
             sector_count,
             classic_sector,
@@ -909,15 +911,8 @@ impl Model {
             ensure!(world.view_ready(),"observer view not ready");
             (world.status.unwrap().object_id,0,world.observer_camera.unwrap())
         } else {let own=world.own_actor().context("local actor")?;(own.id,own.incarnation,[own.x,own.y])};
-        let roofs = self.roofs.sample(
-            scene.roofs(),
-            [world.generation, u64::from(local_id), if observer {world.generation} else {local_incarnation}],
-            WorldCell {
-                x: i32::from(view_position[0]),
-                y: i32::from(view_position[1]),
-            },
-            elapsed_ns,
-        )?;
+        let (roof_identity, roof_cell) = super::native_world_roofs::scope(world)?;
+        let roofs = self.roofs.sample(scene.roofs(), roof_identity, roof_cell, elapsed_ns)?;
         let project = |x: f64, y: f64| {
             let dx = x - f64::from(anchor.x);
             let dy = y - f64::from(anchor.y);
@@ -1160,10 +1155,21 @@ impl Model {
                 if let Some(member) = &bindings.shadow {
                     layer_receipts.push(serde_json::json!({"kind":"shadow","mix":"Shadow","source":self.sprite_bank.get(member)?.source,"subframe":subframe,"body_linked":true}));
                 }
-                let presentation = super::native_actor_states::Presentation {
-                    state: style,
-                    body_half: bindings.body_half,
-                };
+                // list.spr attribute 100: 48AFC0 compares the local actor's
+                // logical cell, not the camera or the interpolated pose.
+                let occlusion_switch = self.actor_switches.decide(
+                    self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(),
+                    actor.graphics,
+                    [actor.x, actor.y],
+                    (!observer).then_some(view_position),
+                );
+                let presentation = super::native_actor_switch::present(
+                    super::native_actor_states::Presentation {
+                        state: style,
+                        body_half: bindings.body_half,
+                    },
+                    occlusion_switch.switched,
+                );
                 actor_states.push(presentation);
                 audible_actors.push(actor.id);
                 prepared_bodies.push((
@@ -1181,7 +1187,7 @@ impl Model {
                 }
                 hits.push((actor.id, bounds));
                 Ok(
-                    serde_json::json!({"rendered":true,"id":actor.id,"draw_state":actor.draw_state,"draw_style":style,"body_presentation":presentation,"body_draw_style":presentation.body_style(),"logical_graphics":actor.graphics,"resolved_graphics":graphics,"heading":actor.heading,"world":[actor.x,actor.y],"screen":[x-camera.x,y-camera.y],"archive":body_source.archive,"speed":actor.speed,"brave":actor.brave,"stance":actor.walk_action,"action":pose.action,"phase":pose.phase,"display_position":pose.position,"source_frame":pose.source_frame,"source_frame_events":pose.events,"action_complete":pose.action_complete,"entered_events":pose.entered_events,"sprite_member":name,"sprite_subframe":subframe,"body_source":body_source,"layers":layer_receipts,"layer_error":layer_error,"missing_attachments":missing_attachments,"missing_shadow":missing_shadow,"native_dynamic_draw_flags_complete":false}),
+                    serde_json::json!({"rendered":true,"id":actor.id,"draw_state":actor.draw_state,"draw_style":style,"body_presentation":presentation,"body_draw_style":presentation.body_style(),"occlusion_switch":occlusion_switch,"logical_graphics":actor.graphics,"resolved_graphics":graphics,"heading":actor.heading,"world":[actor.x,actor.y],"screen":[x-camera.x,y-camera.y],"archive":body_source.archive,"speed":actor.speed,"brave":actor.brave,"stance":actor.walk_action,"action":pose.action,"phase":pose.phase,"display_position":pose.position,"source_frame":pose.source_frame,"source_frame_events":pose.events,"action_complete":pose.action_complete,"entered_events":pose.entered_events,"sprite_member":name,"sprite_subframe":subframe,"body_source":body_source,"layers":layer_receipts,"layer_error":layer_error,"missing_attachments":missing_attachments,"missing_shadow":missing_shadow,"native_dynamic_draw_flags_complete":false}),
                 )
             })();
             match draw_result {

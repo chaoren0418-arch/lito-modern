@@ -22,6 +22,35 @@ impl Definition {
         self.map.receipt()
     }
 }
+/// Roof identity and trigger cell of the current formal world.
+///
+/// A player uses the own actor's logical cell, which already contains an
+/// accepted predicted step, and its incarnation. An observer has no own actor;
+/// the local camera cell selects the groups and the world generation stands in
+/// for the incarnation. Native 48AFC0 is only reached from the own step
+/// (4E2F2F) and S_PUT_OBJECT (4E7F5D/4E7F9A), so the observer branch is a
+/// modern presentation choice, not a reconstructed native path.
+pub fn scope(world: &super::native_world::World) -> Result<([u64; 3], WorldCell)> {
+    let cell = |p: [u16; 2]| WorldCell {
+        x: i32::from(p[0]),
+        y: i32::from(p[1]),
+    };
+    if world.observer_mode {
+        ensure!(world.view_ready(), "observer view not ready");
+        let status = world.status.as_ref().context("observer status")?;
+        let camera = world.observer_camera.context("observer camera")?;
+        Ok((
+            [world.generation, u64::from(status.object_id), world.generation],
+            cell(camera),
+        ))
+    } else {
+        let own = world.own_actor().context("local actor")?;
+        Ok((
+            [world.generation, u64::from(own.id), own.incarnation],
+            cell([own.x, own.y]),
+        ))
+    }
+}
 pub struct Runtime {
     origin: Instant,
     last_ns: Option<u64>,
