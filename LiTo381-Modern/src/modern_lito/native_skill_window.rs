@@ -102,8 +102,9 @@ impl Ui {
             return;
         }
         let width = (area.right - px(32)).max(px(80));
-        // Skill 5 shows the teleport row and lifts the status box by 40.
-        let lift = if self.skills.selected() == Some(5) { px(40) } else { 0 };
+        // The option row (teleport 5／69, summon 51, skill text) lifts the status
+        // box; the open book moves by the same amount so they never overlap.
+        let lift = px(hud::option_lift(self.option_row()));
         let _ = MoveWindow(
             self.control(BOOK),
             px(16),
@@ -115,17 +116,17 @@ impl Ui {
         let _ = MoveWindow(
             self.control(SKILL_LABEL),
             px(16),
-            area.bottom - px(453) - lift,
+            area.bottom - px(hud::strip::BOOK_LABEL_TOP) - lift,
             width,
-            px(24),
+            px(hud::strip::BOOK_LABEL_HEIGHT),
             true,
         );
         let _ = MoveWindow(
             self.control(SKILLS),
             px(16),
-            area.bottom - px(425) - lift,
+            area.bottom - px(hud::strip::BOOK_TOP) - lift,
             width,
-            px(170),
+            px(hud::strip::BOOK_HEIGHT),
             true,
         );
         send(
@@ -140,9 +141,9 @@ impl Ui {
             let _ = MoveWindow(
                 self.control(FIRST + slot as u16),
                 left,
-                area.bottom - px(155),
+                area.bottom - px(hud::strip::HOTBAR_TOP),
                 (right - left - px(2)).max(1),
-                px(58),
+                px(hud::strip::HOTBAR_HEIGHT),
                 true,
             );
         }
