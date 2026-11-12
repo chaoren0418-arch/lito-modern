@@ -66,14 +66,14 @@ main 在 T027 已經有原生時序的 `batch1::Flight`（首步立即、60ms �
 
 ## 已驗證
 
-- **`cargo check`**：在 `LiTo381-Modern/` 執行 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`，**結束碼 0**，原文結尾 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 54.93s``（最後一次；日誌 `scratch/issue-166/logs/check-3.log`，不追蹤）。`--all-targets` 涵蓋上面改過的 6 個整合測試檔的編譯。變更檔案沒有新增 warning（原本因本次改動變成未使用的 `LightArrowPlayback::without_secondary` 已移除）。`cargo check` 不產生 `test result:`。
+- **`cargo check`**：在 `LiTo381-Modern/` 執行 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`，**結束碼 0**，原文結尾 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 54.93s``（日誌 `scratch/issue-166/logs/check-3.log`，不追蹤）。合併 origin/main（18 個 commit，自動合併、無衝突）後重跑，仍是**結束碼 0**，結尾 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 54s``（`check-merged.log`）。`--all-targets` 涵蓋上面改過的 6 個整合測試檔的編譯。變更檔案沒有新增 warning（原本因本次改動變成未使用的 `LightArrowPlayback::without_secondary` 已移除）。`cargo check` 不產生 `test result:`。
 - **靜態逆向**（唯讀，`lito登入器/舊版分析與驗收/ida-client-oep-v2/full-disassembly.asm`，SHA256 `2A3A6E10…7DEA9A`，和 #165 用的是同一份；片段在 `scratch/issue-166/*.asm`，不追蹤）。以下是本輪自己讀指令確認的，不是只引用候選說明：
   - `sub_424540`（class4 移動）：累加 16.16 向量、四捨五入後清 x 低位元；未到終點時 `mov ecx,3Ch`＋`call sub_4D65F0`（回呼 `loc_424760` 再呼叫自己）；之後 `call sub_4E5B50`（+18D＝4246CD）；計數歸零時才以 `[esi+158h]` 的 gfx 在 `[esi+2Ch],[esi+30h]`（飛行終點）建立次級並刪除自己。
   - `sub_42F300`（class5 移動）：同樣的移動與 60ms 重排（回呼 `sub_42F550`）；抵達時走目標清單，逐一對解析得到的目標做受傷判斷，並在**該目標的座標** `[edi+2Ch],[edi+30h]` 建立次級；清單空或目標解析不到就不建立；**之後**才 `call sub_4E5B50`（+200＝42F500）。
   - `sub_4E5B50`：`inc` 物件的影格欄位，`>=` 影格數時歸 0，兩條路徑都呼叫 `sub_4E5C00`。
   - 首步立即：`sub_424540` 的呼叫者有 `sub_424780+AD`，`sub_42F300` 的呼叫者有 `sub_42F570+9A`（都是直接 call，不是排程）。
   - `sub_44F350`：比較鏈如上文第 3 點；`loc_44FFFB` 只有 +28、+32 兩個 xref（就是 0x9B3／0x9B4 那兩個 `jz`）。
-- **PR CI**：待 push 後填入（見文末「CI 結果」）。
+- **PR #288 CI**（run 43175430275，commit `aa17212`，已含合併 main）結論 **success**；原文見文末「CI 結果」。本張 20 個新 lib 測試在 log 中全部是 `... ok`。
 
 ## 推測
 
@@ -138,4 +138,15 @@ main 在 T027 已經有原生時序的 `batch1::Flight`（首步立即、60ms �
 
 ## CI 結果
 
-（push 後補上）
+PR #288，run 43175430275（`pull_request`，head `aa17212`），結論 **success**：`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast` 都通過。
+
+`test result:` 原文：
+
+```
+test result: ok. 2288 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.19s
+```
+
+- 597 個 ignored 是需要共享資源的測試，**不算通過**。
+- 本張的 20 個新 lib 測試在 log 中逐一為 `... ok`：`native_s23_clock_tests` 11 個、`native_s23_history_tests` 3 個、`canonical_latch_tests` 2 個、`native_class1::origin_tests` 2 個、`native_origin_tests` 1 個、`fireball_fractional_launch_origin_does_not_delay_the_sixty_ms_step` 1 個。
+- CI 只跑 `--lib`：`tests/` 下改過的 6 個整合測試檔**只有編譯通過，沒有執行**。
+- 本報告之後的 commit 只改這份報告；它的 CI 結果以 PR 頁面為準。
