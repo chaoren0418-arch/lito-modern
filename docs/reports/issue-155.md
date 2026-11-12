@@ -67,6 +67,33 @@ python -B 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 7 tests in 0.054s；OK
 ```
 
+### 同步 main（2026-11-12，第二次 push）
+
+分支落後 main 23 個 commit（批 3 #153、批 4 #154、T027 批 4 等已合併），`git merge origin/main` 有五個檔案衝突，兩邊內容都保留：
+
+- `native_skills.rs`
+  - `selector_only`、`reuse_millis`、「④ 目標或自己」分支：兩邊的技能編號合併。
+  - main 的 `self_object`（148／149／151）與本張的 `self_bound`（163／166）並存，沒有合成一個，因為 `tests/native_skills_145_155.rs` 斷言 `self_object` 只含那三個技能。
+  - `corpse_targeted` 改為 41／61／165（main 把 61 加進屍體選取）。
+  - `summon_feedback` 改為 51／154／162（main 原本寫 `skill == 154`）。
+  - 157 與 main 的 `132 | 133` 分成兩個獨立分支。
+- `native_skill_selection.rs`：`choice` 同時清掉 `self_object` 與 `self_bound` 的 hover；`resolve_for_skill` 用 `corpse_targeted`；選單標籤 129–155 與 156–166 都保留。
+- `native_login.rs`：`skill_summon_pending` 用 `summon_feedback(skill)`，保留 main 的 `skill_release_pending`。
+- `tests.tsv`：`native_skills_156_166` 排在 `native_skills_145_155` 之後、`native_t027_batch4` 之前。
+- `test_native_skill_coverage.py`：第三、四、五批的測試都保留，共 9 案。
+
+合併後的副作用：`native_login_window.rs` 的 T 鍵循環用 `corpse_targeted`，所以選到 61 時也只挑屍體（main 原本只認 41）。這和 main 對 61 的屍體選取規則一致，但沒有專屬測試。
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+結束碼 0（Finished `dev` profile；只有既存警告）
+
+python -B 維護工具/test_native_skill_coverage.py
+結束碼 0；Ran 9 tests in 0.050s；OK
+```
+
+合併後沒有重跑 `cargo test --no-run`；`--all-targets` 的 check 已涵蓋所有測試目標的型別檢查。上面第一次 push 的 `--no-run` 與「7 案」是合併前的結果。
+
 ## 推測
 
 - 原版客戶端對 163／166 是否也送自己的物件 ID，本張沒有反組譯確認。依據是伺服器 parser 要求 7 bytes 且目標不得為 0，而 handler 只接受施法者自己的 ID。`docs/SKILLS-STATUS.md` 已把這點列為 T061 核對項。

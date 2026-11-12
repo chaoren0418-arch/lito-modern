@@ -130,7 +130,8 @@ pub struct World {
     pub last_message: Option<(u16, Vec<String>)>,
     pub last_skill_rejection: Option<(u64, u16)>,
     pub last_summon_rejection: Option<(u64, u16)>,
-    /// Message sequence of the last S10 code 79; read only by item-targeted casts.
+    /// Message sequence of the last S10 code 79; read only by item-targeted casts
+    /// and Return to Nature (145).
     pub last_item_skill_rejection: Option<u64>,
     /// Sequenced S10 73／414／629／647／1192; read only by Call／Run Clan casts.
     pub last_clan_skill_rejection: Option<(u64, u16)>,

@@ -8,7 +8,9 @@ pub(super) fn origin(
     attack: &Attack,
     actors: &BTreeMap<u32, super::super::native_world::Actor>,
 ) -> Option<[i32; 2]> {
-    if !matches!(attack.graphics, 1804 | 1805 | 171) {
+    // 3924 (#148): original class1 freezes the first listed target (even a miss)
+    // at receipt; an absent first target falls back one heading step, never the second.
+    if !matches!(attack.graphics, 1804 | 1805 | 171 | 3924) {
         return None;
     }
     if let Some(actor) = attack.targets.first().and_then(|t| actors.get(&t.id)) {

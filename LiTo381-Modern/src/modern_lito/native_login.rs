@@ -401,6 +401,10 @@ pub struct LoginController {
     skill_item_pending: bool,
     skill_summon_pending: bool,
     skill_clan_pending: bool,
+    /// Arrow snapshot of the last sent Triple Arrow (132); cleared by any later
+    /// cast, attack or interruption so ordinary shots are never attributed to it.
+    triple_arrow: Option<super::native_triple_arrow::Ledger>,
+    skill_release_pending: bool,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
@@ -462,6 +466,8 @@ impl Default for LoginController {
             skill_item_pending: false,
             skill_summon_pending: false,
             skill_clan_pending: false,
+            triple_arrow: None,
+            skill_release_pending: false,
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
@@ -766,6 +772,7 @@ impl LoginController {
                     else if self.skill_summon_pending { pending.observe_summon(&self.state.world, now) }
                     else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
                     else if self.skill_clan_pending { pending.observe_clan(&self.state.world, now) }
+                    else if self.skill_release_pending { pending.observe_release(&self.state.world, now) }
                     else { pending.observe(&self.state.world, now) };
                 // A coded rejection or cast action received in the same batch wins;
                 // otherwise the server's unlock is the terminal reply, not a 2s timeout.
@@ -777,7 +784,7 @@ impl LoginController {
             };
             self.state.skill_feedback = feedback;
             if feedback != super::native_skills::Feedback::Pending
-                && !(self.skill_summon_pending && pending.hold_summon(feedback, now)) {
+                && !((self.skill_summon_pending || self.skill_release_pending) && pending.hold_summon(feedback, now)) {
                 self.player_callbacks.cancel_pending();
                 self.skill_pending = None;
                 self.skill_context = None;
@@ -870,6 +877,11 @@ impl LoginController {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),"等待目前物品操作回覆");
         self.cast_request(51,None,None,None,None,Some(choice),frame,CombatInput::default())
     }
+    /// Server-receipt arrow debit of the last Triple Arrow; never a prediction.
+    pub fn triple_arrow_receipt(&self) -> Option<String> {
+        self.triple_arrow.as_ref()
+            .and_then(|ledger| super::native_triple_arrow::receipt(ledger, &self.state.inventory))
+    }
     /// 113 True Target annotation (may be empty) or 116／118 clan member name.
     pub fn cast_text(&mut self, skill: u16, target: Option<u32>, text: &str,
         frame: &super::native_world_scene::Frame, input: CombatInput) -> Result<()> {
@@ -955,6 +967,7 @@ impl LoginController {
         ensure!(summon.is_none() || (skill==51 && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none()),"混合召喚目標");
         ensure!(text.is_none() || (super::native_skills::text_skill(skill) && ground.is_none()
             && item.is_none() && teleport.is_none() && summon.is_none()), "混合文字施法目標");
+        let arrows = super::native_triple_arrow::preflight(skill, &self.state.inventory)?;
         let mut body = if let Some(choice)=summon {super::native_skills::summon_request(&self.state,self.transport.snapshot().epoch,choice)?}
         else if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
@@ -982,8 +995,11 @@ impl LoginController {
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
         self.teleport_released = false;
         self.skill_item_pending = item.is_some() || skill==48;
+        // 154／162: S10 353 (no-recall map) follows the committed cast action, like 51.
         self.skill_summon_pending = summon.is_some() || super::native_skills::summon_feedback(skill);
+        self.skill_release_pending = skill == 145;
         self.skill_clan_pending = matches!(skill, 116 | 118);
+        self.triple_arrow = arrows;
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
             casts: self.state.world.own_cast_packets,
@@ -1016,6 +1032,7 @@ impl LoginController {
         super::native_target_policy::validate(&self.state, &body, input)?;
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
+        self.triple_arrow = None;
         self.attack_pending = Some(super::native_combat::Pending::capture(&self.state.world, target, Instant::now()));
         self.state.attack_feedback = super::native_combat::Feedback::Pending;
         Ok(())
@@ -2846,6 +2863,8 @@ impl LoginController {
         self.teleport_spell = None;
         self.skill_item_pending = false;
         self.skill_clan_pending = false;
+        self.triple_arrow = None;
+        self.skill_release_pending = false;
         self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_target_pending=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;
