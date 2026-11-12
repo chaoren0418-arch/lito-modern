@@ -355,6 +355,8 @@ pub struct Snapshot {
     pub environment: super::native_environment::State,
     pub inventory: super::native_inventory::Inventory,
     pub companions: super::native_companions::Session,
+    /// S_SAY／S_SAY_CODE／S_TELL history of the selected character (T060).
+    pub chat: super::native_chat::Log,
     pub room_result: Option<u8>,
     pub room_system_message: Option<String>,
     pub observer: bool,
@@ -526,6 +528,7 @@ impl Default for LoginController {
                 environment: Default::default(),
                 inventory: Default::default(),
                 companions: Default::default(),
+                chat: Default::default(),
                 room_result: None,
                 room_system_message: None,
                 observer: false,
@@ -1231,6 +1234,38 @@ impl LoginController {
         self.portal_entry=Some(super::native_portal::EntryPending{choice,since:Instant::now()});
         self.portal_feedback=super::native_portal::EntryFeedback::Pending;
         Ok(())
+    }
+    fn bind_chat(&mut self) {
+        let epoch = self.transport.snapshot().epoch;
+        self.state.chat.bind(epoch, self.state.selected_character.as_deref());
+    }
+    fn chat_ready(&mut self) -> Result<u64> {
+        ensure!(self.game && self.state.selected_character.is_some()
+            && super::native_chat::sendable(self.state.phase),
+            "目前不能聊天：需在大廳、房間或場景中");
+        self.bind_chat();
+        Ok(self.transport.snapshot().epoch)
+    }
+    /// C_SAY／C_CHAT. The line appears only when the server echoes S_SAY.
+    pub fn chat_say(&mut self, channel: super::native_chat::Channel, message: &str) -> Result<()> {
+        let epoch = self.chat_ready()?;
+        let body = super::native_chat::say_request(channel, message)?;
+        self.transport.send(epoch, Zeroizing::new(body))
+    }
+    /// C_TELL. E149 sends the sender neither an echo nor a failure notice, so
+    /// the queued request is recorded locally as sent, not as delivered.
+    pub fn chat_tell(&mut self, target: &str, message: &str) -> Result<()> {
+        let epoch = self.chat_ready()?;
+        let body = super::native_chat::tell_request(target, message)?;
+        self.transport.send(epoch, Zeroizing::new(body))?;
+        self.state.chat.whisper_sent(target, message);
+        Ok(())
+    }
+    /// C_ONOFF for the world／whisper／trade delivery preference.
+    pub fn chat_preference(&mut self, preference: super::native_chat::Preference, enabled: bool) -> Result<()> {
+        let epoch = self.chat_ready()?;
+        self.transport.send(epoch, Zeroizing::new(
+            super::native_chat::preference_request(preference, enabled).to_vec()))
     }
     pub fn door_feedback(&self)->super::native_doors::Feedback {self.door_feedback}
     pub fn toggle_door(&mut self,choice:super::native_doors::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
@@ -2014,6 +2049,13 @@ impl LoginController {
             // Already queued old-world updates cannot repopulate its authority.
             return Ok(());
         }
+        // Chat receipts (T060) are valid in channel, room, battle and world, so
+        // they are taken before any scene owner; no other receiver uses them.
+        if super::native_chat::Log::owns(body) {
+            self.bind_chat();
+            self.state.chat.accept(body)?;
+            return Ok(());
+        }
         if self.teleport_bookmarks.receive(&self.state,self.transport.snapshot().epoch,body)? {return Ok(());}
         let environment_packet = self.state.environment.accept(self.transport.snapshot().epoch, body)?;
         if environment_packet && !matches!(body.first(), Some(0x0c | 0x21)) {
@@ -2570,6 +2612,8 @@ impl LoginController {
     }
     fn poll_inner(&mut self, mut presentation: Option<(&std::path::Path,&mut super::native_world_view::Presentation)>) {
         self.tick_companions();
+        // Another connection or character must not see the previous chat history.
+        self.bind_chat();
         for event in self.transport.poll() {
             if matches!(
                 self.state.phase,
@@ -3697,6 +3741,10 @@ mod resurrection_tests;
 #[cfg(test)]
 #[path = "native_integrity_controller_tests.rs"]
 mod integrity_controller_tests;
+
+#[cfg(test)]
+#[path = "native_chat_controller_tests.rs"]
+mod chat_controller_tests;
 
 #[cfg(test)]
 mod native_integrity_tests {
