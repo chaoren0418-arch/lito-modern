@@ -340,6 +340,10 @@ pub struct Snapshot {
     pub rental_town_transition: Option<super::native_rental_source::TownTransition>,
     pub battle_withdrawal_pending: bool,
     pub shop_points: Option<u32>,
+    /// 擂台點數商店（C_DA／C_DE→S_DF／S_E0→C_DB），T045-2。
+    pub tournament_shop: super::native_tournament_shop::Session,
+    /// 最近一次 S_SHOW_MAP 指定的地圖頁，T045-2。
+    pub map_view: super::native_map_item::View,
     pub merchant: super::native_merchant::Session,
     pub game_connected: bool,
     pub channel: Option<super::native_lobby::Channel>,
@@ -396,6 +400,7 @@ pub struct LoginController {
     skill_target_pending: Option<super::native_skill_selection::Target>,
     skill_item_pending: bool,
     skill_summon_pending: bool,
+    skill_clan_pending: bool,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
@@ -456,6 +461,7 @@ impl Default for LoginController {
             skill_target_pending: None,
             skill_item_pending: false,
             skill_summon_pending: false,
+            skill_clan_pending: false,
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
@@ -488,6 +494,8 @@ impl Default for LoginController {
                 rental_town_transition: None,
                 battle_withdrawal_pending: false,
                 shop_points: None,
+                tournament_shop: Default::default(),
+                map_view: Default::default(),
                 merchant: Default::default(),
                 game_connected: false,
                 channel: None,
@@ -576,6 +584,29 @@ impl LoginController {
         }
         self.transport.send(owner.connection,Zeroizing::new(body))?;self.state.merchant.submitted();Ok(())
     }
+    /// 正式 `tournamentShopPhaseAllowed`：GAME 端點、已選角色、LOBBY／CHANNEL／ROOM。
+    /// 客戶端只在確定對應的大廳（LobbyReady）與房間（RoomReady）開放。
+    pub(crate) fn tournament_scope(&self)->Option<super::native_tournament_shop::Scope>{
+        if !self.state.game_connected||!matches!(self.state.phase,LoginPhase::LobbyReady|LoginPhase::RoomReady){return None;}
+        Some(super::native_tournament_shop::Scope{connection:self.transport.snapshot().epoch,
+            character:self.state.selected_character.clone()?,phase:self.state.phase,
+            channel:self.state.channel.as_ref().map(|c|c.id),room:self.state.joined_room.as_ref().map(|r|r.id),
+            inventory:self.state.inventory.owner.clone()})
+    }
+    pub fn open_tournament_shop(&mut self,sell:bool)->Result<()>{
+        let scope=self.tournament_scope().context("目前不能開啟擂台商店")?;
+        let connection=scope.connection;
+        let body=self.state.tournament_shop.begin(scope,sell,Instant::now())?;
+        if let Err(error)=self.transport.send(connection,Zeroizing::new(body)){self.state.tournament_shop.clear();return Err(error);}
+        Ok(())
+    }
+    pub fn tournament_order(&mut self,revision:u64,index:usize,quantity:u32)->Result<()>{
+        let scope=self.tournament_scope();
+        let body=self.state.tournament_shop.order(revision,scope.as_ref(),&self.state.inventory,index,quantity,Instant::now())?;
+        self.transport.send(scope.context("擂台商店範圍已變更")?.connection,Zeroizing::new(body))?;
+        self.state.tournament_shop.submitted(self.state.shop_points);Ok(())
+    }
+    pub fn close_map_view(&mut self){self.state.map_view.close();}
     pub fn rental_npc_quantity(&mut self,revision:u64,quantity:u32)->Result<()>{
         let npc=self.state.merchant.npc.context("no NPC quantity target")?;let owner=self.merchant_target(npc)?;
         ensure!(self.state.merchant.owner.as_ref()==Some(&owner),"NPC quantity character changed");
@@ -734,6 +765,7 @@ impl LoginController {
                 let observed = if self.player_callbacks.pending() { super::native_skills::Feedback::Pending }
                     else if self.skill_summon_pending { pending.observe_summon(&self.state.world, now) }
                     else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
+                    else if self.skill_clan_pending { pending.observe_clan(&self.state.world, now) }
                     else { pending.observe(&self.state.world, now) };
                 // A coded rejection or cast action received in the same batch wins;
                 // otherwise the server's unlock is the terminal reply, not a 2s timeout.
@@ -838,6 +870,12 @@ impl LoginController {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),"等待目前物品操作回覆");
         self.cast_request(51,None,None,None,None,Some(choice),frame,CombatInput::default())
     }
+    /// 113 True Target annotation (may be empty) or 116／118 clan member name.
+    pub fn cast_text(&mut self, skill: u16, target: Option<u32>, text: &str,
+        frame: &super::native_world_scene::Frame, input: CombatInput) -> Result<()> {
+        ensure!(super::native_skills::text_skill(skill), "此技能不帶文字欄位");
+        self.cast_request_text(skill, target, None, None, None, None, Some(text), frame, input, Instant::now())
+    }
     fn cast_request(
         &mut self,
         skill: u16,
@@ -878,6 +916,22 @@ impl LoginController {
         input: CombatInput,
         now: Instant,
     ) -> Result<()> {
+        self.cast_request_text(skill, target, ground, item, teleport, summon, None, frame, input, now)
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn cast_request_text(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        ground: Option<[u16; 2]>,
+        item: Option<&super::native_skills::ItemTarget>,
+        teleport: Option<&super::native_teleport_spell::Choice>,
+        summon: Option<&super::native_skills::SummonTarget>,
+        text: Option<&str>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+        now: Instant,
+    ) -> Result<()> {
         self.observe_skill(now);
         ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
         ensure!(!self.state.observer && !self.state.world.observer_mode
@@ -892,13 +946,15 @@ impl LoginController {
             self.skill_gates_open(now)
                 && (frame.movement_ready(&self.state.world)
                     || (self.presentation_callbacks && self.player_callbacks.moving()
-                        && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none() && !matches!(skill,60|131)
+                        && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none() && text.is_none() && !matches!(skill,60|131)
                         && frame.input_ready(&self.state.world))),
             "等待施法動作完成"
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
         ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
         ensure!(summon.is_none() || (skill==51 && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none()),"混合召喚目標");
+        ensure!(text.is_none() || (super::native_skills::text_skill(skill) && ground.is_none()
+            && item.is_none() && teleport.is_none() && summon.is_none()), "混合文字施法目標");
         let mut body = if let Some(choice)=summon {super::native_skills::summon_request(&self.state,self.transport.snapshot().epoch,choice)?}
         else if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
@@ -908,6 +964,8 @@ impl LoginController {
             }
             None => if let Some(item) = item {
                 super::native_skills::item_request(&self.state, self.transport.snapshot().epoch, skill, item)?
+            } else if let Some(text) = text {
+                super::native_skills::text_request(&self.state.world, skill, target, text)?
             } else { super::native_skills::request(&self.state.world, skill, target)? },
         }};
         super::native_target_policy::validate(&self.state, &body, input)?;
@@ -925,6 +983,7 @@ impl LoginController {
         self.teleport_released = false;
         self.skill_item_pending = item.is_some() || skill==48;
         self.skill_summon_pending = summon.is_some();
+        self.skill_clan_pending = matches!(skill, 116 | 118);
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
             casts: self.state.world.own_cast_packets,
@@ -1976,6 +2035,18 @@ impl LoginController {
             ensure!(self.state.selected_character.as_deref()==Some(name.as_str()),"points for a different character");
             self.state.shop_points=Some(points);return Ok(());
         }
+        if let Some(listing)=super::native_tournament_shop::parse(body)? {
+            let scope=self.tournament_scope();
+            self.state.tournament_shop.tick(scope.as_ref(),Instant::now());
+            // 格式錯誤的清單是協定錯誤；格式正確但沒有對應開單（已逾時、換頻道）只計數忽略。
+            if self.state.tournament_shop.accept(listing,scope.as_ref(),Instant::now()).is_err() {
+                self.state.tournament_shop.unsolicited=self.state.tournament_shop.unsolicited.saturating_add(1);
+            }
+            return Ok(());
+        }
+        if body.first()==Some(&super::native_map_item::S_SHOW_MAP) {
+            self.state.map_view.accept(&self.state.inventory,body)?;return Ok(());
+        }
         if body.first()==Some(&0xfb){
             let directory=super::native_services::parse(body)?;
             // 進村交接中（C_D9→S_F0→S_F5→C_CF→加入結果）目錄仍須提供已快取的房間 id。
@@ -2519,6 +2590,8 @@ impl LoginController {
             }
         }
         let owner=self.merchant_owner();self.state.merchant.tick(owner.as_ref(),Instant::now());
+        let shop=self.tournament_scope();self.state.tournament_shop.tick(shop.as_ref(),Instant::now());
+        self.state.map_view.tick(&self.state.inventory);
         if self.state.phase==LoginPhase::BattlePending && self.teleport.as_ref().is_some_and(|t|
             owner.as_ref()!=Some(&t.owner)||!self.state.merchant.waiting) {self.teleport=None;}
         if self.pending_roster_forces.expired(Instant::now()) {
@@ -2772,6 +2845,7 @@ impl LoginController {
         self.state.companions.clear();
         self.teleport_spell = None;
         self.skill_item_pending = false;
+        self.skill_clan_pending = false;
         self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_target_pending=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;
