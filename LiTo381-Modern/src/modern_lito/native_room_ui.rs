@@ -125,6 +125,22 @@ impl MemberChoice {
 pub fn room_page(s:&Snapshot)->bool {
     matches!(s.phase,LoginPhase::LobbyReady|LoginPhase::LoadingRooms|LoginPhase::RoomCreating
         |LoginPhase::RoomJoining|LoginPhase::RoomAwaitSelf|LoginPhase::RoomReady|LoginPhase::ReadyPending
-        |LoginPhase::ForcePending|LoginPhase::ModePending|LoginPhase::RoomEditing|LoginPhase::KickPending
+        |LoginPhase::ForcePending|LoginPhase::ModePending|LoginPhase::MapPending|LoginPhase::RoomEditing|LoginPhase::KickPending
         |LoginPhase::RoomLeaving) || (s.phase==LoginPhase::ObserverPending && s.channel.is_some())
+}
+
+pub fn status(s: &Snapshot) -> String {
+    let Some(room) = &s.joined_room else { return String::new(); };
+    let mode = ["寵物競賽", "死鬥", "任務戰", "攻城戰", "限時挑戰", "榮譽戰", "租裝村"]
+        .get(usize::from(room.mode)).copied().unwrap_or("未知");
+    let countdown = room.countdown.filter(|value| *value > 0)
+        .map(|value| format!("　倒數 {value}"))
+        .unwrap_or_default();
+    let mut text = format!("{}　房主：{}\r\n模式 {}　地圖 {}　已收到 {} 位成員{}",
+        room.name, room.owner, mode, room.map_id, room.members.len(), countdown);
+    if let Some(message) = &s.room_system_message {
+        text.push_str("\r\n");
+        text.push_str(message);
+    }
+    text
 }

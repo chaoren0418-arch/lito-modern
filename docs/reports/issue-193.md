@@ -19,6 +19,12 @@
 - 新增 `Control::defer_for_test`（僅 `#[cfg(test)]`）讓離線 fixture 能放入延後 body。
 - 新增測試 `target_policy_68_deferred_body_is_dropped_when_receiver_retires_before_frame_zero`：對「他人目標」與「自施」各 6 種情形（target_revision、incarnation、死亡、隱形／替換、世代變更、未變更對照組）檢查：失效時延後 body 被丟棄、transport 沒有排入、`poll` 回 `Interrupted` 並清掉 pending、背包與 MP 不變；未變更時 body 保留。
 
+### 第 3 輪（2026-11-12，同步 main）
+- main 前進 59 個 commit，再次 `git merge origin/main`。衝突在 `native_login.rs`（5 處）與 `native_skills.rs`（1 處）。
+- main 把技能 pending 觀察抽成 `observe_skill()`，並新增 `skill_context: CastContext`。處理方式：兩個欄位都保留；所有重設點（登出、重選角色、場景 `0x5a`、`interrupt_world_actions`）同時清 `skill_context` 與 `skill_target_pending`；`observe_skill()` 在 main 的 `CastContext::interrupted` 判斷外再加上「68 目標 token 必須還能 resolve」，結束時一併清 `skill_target_pending`。
+- `reuse_millis`：採用 main 的版本（新增 `97=>9990,98..=100=>0`），再補回本張的 `68=>1500`。
+- 合併後 `cargo check ... --all-targets` 結束碼 `0`（`Finished dev profile ... in 4m 06s`）。合併後的 CI 結果看 PR #257 最新 commit。
+
 ## 怎麼驗證
 
 ### 本輪（2026-11-12，claude-local）

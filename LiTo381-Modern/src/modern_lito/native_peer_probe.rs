@@ -313,7 +313,7 @@ impl VisibilityProbe {
         ensure!(before["world"]["mp"]==after["world"]["mp"]&&before["inventory"]==after["inventory"],
             "client spent authority while queuing visibility spell");
         self.actions.push(json!({"round":self.round+1,"skill":skill,"before":before,"immediately_after":after,
-            "self_intent":true,"real_os_uptime_provider":skill==60}));
+            "self_intent":true,"native_4D69F0_clock_provider":skill==60}));
         std::fs::write(root.join(format!("{role}-visibility-{}-cast-{skill}",self.round)),b"queued")?;
         Ok(())
     }

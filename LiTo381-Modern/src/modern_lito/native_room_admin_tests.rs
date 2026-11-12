@@ -2,7 +2,7 @@
 use super::*;
 use crate::modern_lito::{native_lobby, native_room::Settings, native_room_ui};
 
-fn z(body: &mut Vec<u8>, text: &str) {
+pub(super) fn z(body: &mut Vec<u8>, text: &str) {
     if !text.is_empty() {
         body.extend_from_slice(&encode_text(text, 89).unwrap());
     }
@@ -13,17 +13,17 @@ fn header(op: u8, id: u32) -> Vec<u8> {
     body.extend(id.to_le_bytes());
     body
 }
-fn info(kind: u8, id: u32) -> Vec<u8> {
+pub(super) fn info(kind: u8, id: u32) -> Vec<u8> {
     let mut body = vec![0xd5, kind];
     body.extend(id.to_le_bytes());
     body
 }
-fn named(op: u8, id: u32, name: &str) -> Vec<u8> {
+pub(super) fn named(op: u8, id: u32, name: &str) -> Vec<u8> {
     let mut body = header(op, id);
     z(&mut body, name);
     body
 }
-fn joined(id: u32, name: &str, password: &str, owner: &str) -> Vec<u8> {
+pub(super) fn joined(id: u32, name: &str, password: &str, owner: &str) -> Vec<u8> {
     let mut body = vec![0xce, 0];
     body.extend(id.to_le_bytes());
     z(&mut body, name);
@@ -35,7 +35,7 @@ fn joined(id: u32, name: &str, password: &str, owner: &str) -> Vec<u8> {
     body.extend([0; 5]);
     body
 }
-fn member(id: u32, name: &str) -> Vec<u8> {
+pub(super) fn member(id: u32, name: &str) -> Vec<u8> {
     let mut body = named(0xcd, id, name);
     body.extend([0, 0, 0]);
     body.extend([0; 12]);
@@ -48,7 +48,7 @@ fn member(id: u32, name: &str) -> Vec<u8> {
     body.extend([0; 21]);
     body
 }
-fn summary(id: u32, name: &str, owner: &str) -> Vec<u8> {
+pub(super) fn summary(id: u32, name: &str, owner: &str) -> Vec<u8> {
     let mut body = info(0, id);
     z(&mut body, name);
     body.extend([1, 0x34, 2, 0]);
@@ -64,14 +64,14 @@ fn configuration(id: u32, name: &str, password: &str) -> Vec<u8> {
     body.extend([0; 5]);
     body
 }
-fn row(id: u32, name: &str) -> Vec<u8> {
+pub(super) fn row(id: u32, name: &str) -> Vec<u8> {
     let mut body = vec![0xcc, 0];
     body.extend(id.to_le_bytes());
     z(&mut body, name);
     body.extend([0, 2, 0, 8, 0, 0, 0, 1]);
     body
 }
-fn delta(kind: u8, id: u32, tail: &[u8]) -> Vec<u8> {
+pub(super) fn delta(kind: u8, id: u32, tail: &[u8]) -> Vec<u8> {
     let mut body = vec![0xcc, kind];
     body.extend(id.to_le_bytes());
     body.extend(tail);
@@ -91,14 +91,14 @@ fn pending(phase: LoginPhase) -> LoginController {
     c.deadline = Some(Instant::now() + Duration::from_secs(8));
     c
 }
-fn active() -> LoginController {
+pub(super) fn active() -> LoginController {
     let mut c = pending(LoginPhase::RoomCreating);
     c.accept_game(&joined(1, "Room", "1234", "Owner")).unwrap();
     c.accept_game(&member(1, "Owner")).unwrap();
     c.accept_game(&member(1, "Peer(SourceB)")).unwrap();
     c
 }
-fn unchanged(c: &mut LoginController, packet: &[u8]) {
+pub(super) fn unchanged(c: &mut LoginController, packet: &[u8]) {
     let before = serde_json::to_value(&c.state).unwrap();
     let deadline = c.deadline;
     assert!(
