@@ -1045,7 +1045,9 @@ impl World {
                 let id = r.d()?;
                 let ratio = r.c()?;
                 r.end()?;
-                ensure!(id != 0 && ratio <= 100, "invalid HP ratio");
+                ensure!(id != 0, "invalid HP ratio");
+                // S_HIT_RATIO: 0..=100 shows the HPBAR, 0xFF (hide255) hides it.
+                let ratio = super::native_hp_meter::receive(ratio)?;
                 self.resurrection_relocations.remove(&id);
                 if let Some(a) = self.actors.get_mut(&id) {
                     a.hp_ratio = ratio;
