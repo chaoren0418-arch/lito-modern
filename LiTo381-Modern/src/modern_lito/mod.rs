@@ -378,6 +378,7 @@ pub mod native_status_icons;
 pub mod native_terrain_cache;
 
 pub mod native_combat;
+pub mod native_combat_ops;
 pub mod native_forced_combat;
 pub mod native_combat_animation;
 pub mod native_combat_probe;

@@ -197,6 +197,14 @@ impl Frame {
             && self.navigation.contains(cell.x, cell.y))
         .then_some(cell)
     }
+    /// Selected-target ring in this frame's camera; only for the rendered
+    /// authority (no ring over a stale frame).
+    pub fn target_ring(&self, world: &World, target: Option<u32>)
+        -> Option<(super::native_combat_ops::TargetRing, [i32; 4])> {
+        if !self.input_ready(world) { return None; }
+        let ring = super::native_combat_ops::target_ring(world, target)?;
+        Some((ring, super::native_combat_ops::ring_bounds(self.projection, ring.cell)?))
+    }
     fn identity(&self)->FrameIdentity {
         FrameIdentity{map:self.navigation.map_id,generation:self.movement_generation,
             caster_incarnation:self.caster_incarnation,movement_key:self.movement_key,observer_key:self.observer_key}

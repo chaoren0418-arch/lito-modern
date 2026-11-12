@@ -137,6 +137,8 @@ pub struct World {
     pub scores: Vec<Score>,
     pub attack_packets: u64,
     pub own_attack_packets: u64,
+    /// Bounded (own_attack_packets after the reply, named target) history.
+    pub own_attack_log: Vec<(u64, u32)>,
     pub last_attack: Option<super::native_combat::Attack>,
     pub projectiles: Vec<super::native_combat::ProjectileCue>,
     /// S15 retirement of the native retained-projectile sentinel (-1).
@@ -417,6 +419,23 @@ impl World {
         })
     }
 
+    /// Every local attack gate except distance passes, but the target is
+    /// outside the presentation reach. Only this case may start a chase step.
+    pub fn attack_out_of_reach(&self, target: u32) -> bool {
+        let Some((distance, reach)) = self.attack_reach(target) else { return false; };
+        distance > reach
+    }
+    /// Chebyshev distance and presentation reach after all non-range gates.
+    pub fn attack_reach(&self, target: u32) -> Option<(u16, u16)> {
+        if self.battle_result.is_some() || !self.ready() || !self.hp.is_some_and(|v| v[0] > 0)
+            || !self.movement_blocks.is_empty() { return None; }
+        let own = self.own_actor()?;
+        let other = self.actors.get(&target)?;
+        if target == own.id || own.dead || other.dead || super::native_obstacles::destroyed_guardian(other)
+            || !self.actor_visible(target) { return None; }
+        let reach = if matches!(own.walk_action, 20 | 62) { 19 } else { 1 };
+        Some((own.x.abs_diff(other.x).max(own.y.abs_diff(other.y)), reach))
+    }
     pub fn attack_request(&self, target: u32) -> Result<Vec<u8>> {
         ensure!(self.battle_result.is_none(), "battle has ended");
         ensure!(
@@ -1020,6 +1039,13 @@ impl World {
                         self.own_cast_packets += 1;
                     } else {
                         self.own_attack_packets += 1;
+                        // C17 has no request sequence. Retain which target each
+                        // own reply named so a late reply for an earlier target
+                        // cannot acknowledge a newer request.
+                        if self.own_attack_log.len() == super::native_combat::REPLY_LOG {
+                            self.own_attack_log.remove(0);
+                        }
+                        self.own_attack_log.push((self.own_attack_packets, attack.target));
                     }
                 }
                 self.last_attack = Some(attack);

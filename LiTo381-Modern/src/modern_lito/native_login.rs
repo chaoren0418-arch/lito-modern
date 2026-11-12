@@ -313,6 +313,8 @@ pub struct Snapshot {
     pub item_feedback: super::native_item_actions::Feedback,
     pub skill_feedback: super::native_skills::Feedback,
     pub attack_feedback: super::native_combat::Feedback,
+    /// Own S23 replies that did not acknowledge the pending request.
+    pub attack_replies: super::native_combat::Ledger,
     pub phase: LoginPhase,
     pub sources: Vec<Source>,
     pub selected_source: Option<String>,
@@ -391,6 +393,7 @@ pub struct LoginController {
     skill_context: Option<super::native_skills::CastContext>,
     world_tree_request: Option<(super::native_navigation::InputStamp,Instant)>,
     attack_pending: Option<super::native_combat::Pending>,
+    empty_attack_pacer: super::native_combat_ops::Pacer,
     transport: Controller,
     state: Snapshot,
     deadline: Option<Instant>,
@@ -434,6 +437,7 @@ impl Default for LoginController {
             pickup_pending: None,
             item_pending: None,
             attack_pending: None,
+            empty_attack_pacer: Default::default(),
             skill_pending: None,
             skill_item_pending: false,
             skill_summon_pending: false,
@@ -447,6 +451,7 @@ impl Default for LoginController {
                 pickup_feedback: Default::default(),
                 item_feedback: Default::default(),
                 attack_feedback: Default::default(),
+                attack_replies: Default::default(),
                 skill_feedback: Default::default(),
                 phase: LoginPhase::Disconnected,
                 sources: vec![],
@@ -859,8 +864,35 @@ impl LoginController {
         let mut body = self.state.world.attack_request(target)?;
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
-        self.attack_pending = Some(super::native_combat::Pending::capture(
-            &self.state.world, target, Instant::now()));
+        self.attack_pending = Some(super::native_combat::Pending::capture(&self.state.world, target, Instant::now()));
+        self.state.attack_feedback = super::native_combat::Feedback::Pending;
+        Ok(())
+    }
+    /// Native target-zero swing toward `heading` (C17 target 0, damage 0).
+    /// Local refusals mirror formal EmptyMelee and send nothing. `interval_ms`
+    /// is the attack-only interval when the attack clip duration is known.
+    pub fn empty_attack_with_input(&mut self, heading: u8, interval_ms: Option<u32>, input: CombatInput) -> Result<()> {
+        ensure!(!self.player_callbacks.moving(),"等待目前步伐完成");
+        ensure!(self.world_tree_request.is_none() && self.teleport_spell.is_none(),"等待傳送回覆");
+        ensure!(
+            self.state.phase.active_world()
+                && self.attack_pending.is_none()
+                && self.skill_pending.is_none() && self.door_pending.is_none() && self.portal_entry.is_none(),
+            "attack unavailable or awaiting server"
+        );
+        let now = Instant::now();
+        let mut body = match self.empty_attack_pacer.admit(now)
+            .and_then(|()| super::native_combat_ops::empty_melee_request(&self.state.world, self.state.observer, heading)) {
+            Ok(body) => body,
+            Err(refusal) => {
+                self.state.attack_feedback = super::native_combat::Feedback::Refused(refusal);
+                anyhow::bail!("{}", refusal.text());
+            }
+        };
+        native_forced_combat::append(&mut body, input, &self.state);
+        self.send_player_action(body)?;
+        if let Some(ms) = interval_ms { self.empty_attack_pacer.commit(now, ms); }
+        self.attack_pending = Some(super::native_combat::Pending::capture(&self.state.world, 0, now));
         self.state.attack_feedback = super::native_combat::Feedback::Pending;
         Ok(())
     }
@@ -2396,6 +2428,7 @@ impl LoginController {
             }
         }
         self.observe_skill(Instant::now());
+        self.state.attack_replies.observe(&self.state.world, self.attack_pending.as_ref());
         if let Some(pending) = &self.attack_pending {
             let feedback = if self.state.phase.active_world() {
                 pending.observe(&self.state.world, Instant::now())

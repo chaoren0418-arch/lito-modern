@@ -131,6 +131,7 @@ fn attack_feedback_distinguishes_reply_timeout_and_interrupted_authority() {
         Feedback::NoResponse
     );
     w.own_attack_packets = 1;
+    w.own_attack_log.push((1, 2));
     assert_eq!(
         pending.observe(&w, start + Duration::from_secs(3)),
         Feedback::Acknowledged
@@ -139,6 +140,7 @@ fn attack_feedback_distinguishes_reply_timeout_and_interrupted_authority() {
     assert_eq!(pending.observe(&w, start), Feedback::Interrupted);
     w.generation -= 1;
     w.own_attack_packets = 0;
+    w.own_attack_log.clear();
     w.actors.remove(&2);
     assert_eq!(pending.observe(&w, start), Feedback::Interrupted);
     assert!(!native_combat::target_label(w.own_actor().unwrap()).contains("255%"));
