@@ -1434,3 +1434,7 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "tower_assets_selector_blank_tests.rs"]
+mod selector_blank_tests;

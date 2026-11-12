@@ -837,7 +837,13 @@ impl Parser {
                 // original #871 therefore accepts the image/subframe comma
                 // in `0,0:1`. Admit this verified separator directly, without
                 // rewriting source bytes or relaxing command/event syntax.
-                if c.peek() == Some(b',') { c.pos += 1; } else { c.expect(b'.')?; }
+                // The same 43DCC0 skip loop (4271D92F, full-disassembly SHA
+                // 2A3A6E10) also reads list.spr 523C61AD line 614
+                // `0:0:4` as image 0, subframe 0, ticks 4. Only this
+                // image/subframe position admits `:`; the ticks separator
+                // stays `:` and other punctuation (`-1.`, `0:3.2`) stays
+                // rejected or quarantined.
+                if matches!(c.peek(), Some(b',' | b':')) { c.pos += 1; } else { c.expect(b'.')?; }
                 c.number()?
             } else {
                 c.spaced_number()?
@@ -1288,6 +1294,47 @@ mod tests {
     }
 
     #[test]
+    fn native_43dcc0_colon_image_subframe_separator_matches_dot_and_stays_narrow() {
+        // Exact list.spr 523C61AD line 614 command (#266 orim action 2).
+        let colon = parse(b"#266 40=183 orim\n2.damage(1 2,0:0:4 24.0:6[79)\n").unwrap();
+        let dot = parse(b"#266 40=183 orim\n2.damage(1 2,0.0:4 24.0:6[79)\n").unwrap();
+        let a = colon.resolve_action(266, ActionKey::new(2)).unwrap().animation;
+        assert_eq!(a, dot.resolve_action(266, ActionKey::new(2)).unwrap().animation);
+        assert_eq!(
+            a.frames.iter().map(|f| (f.image_id, f.subframe, f.duration_ticks)).collect::<Vec<_>>(),
+            vec![(0, 0, 4), (24, 0, 6)]
+        );
+        assert_eq!(a.frames[1].events, vec![FrameEvent::Sound(79)]);
+        // Mid-sequence `80:3:4` (list.spr line 1858 #1245 death) also matches.
+        let mid = parse(b"#1 80\n8.death(1 2,80.2:4 80:3:4)\n").unwrap();
+        let m = mid.resolve_action(1, ActionKey::new(8)).unwrap().animation;
+        assert_eq!((m.frames[1].image_id, m.frames[1].subframe, m.frames[1].duration_ticks), (80, 3, 4));
+        // Still strict: ticks separator, swapped order, double separators,
+        // signed images and compact syntax are not widened.
+        for input in [
+            b"#1 80\n0.a(0 1,0.0.4)".as_slice(),
+            b"#1 80\n0.a(0 1,0:3.2)",
+            b"#1 80\n0.a(0 1,0::0:4)",
+            b"#1 80\n0.a(0 1,40.10.:4)",
+            b"#1 80\n0.a(0 1,-1.0:4)",
+            b"#1 80\n0.a(0 1,0;0:4)",
+        ] {
+            assert!(parse(input).is_err(), "unexpected acceptance: {:?}", input);
+        }
+        // Inspection keeps the unverified forms quarantined, never animated.
+        let inspected = SpriteActionCatalog::parse_for_inspection(
+            b"#1 80\n0.a(0 1,0:3.2) 1.b(0 1,0:0:4)\n",
+            ActionLimits::default(),
+        )
+        .unwrap();
+        assert!(matches!(
+            inspected.sprites[&1].actions[&ActionKey::new(0)],
+            ActionDefinition::Quarantined { .. }
+        ));
+        assert!(inspected.resolve_action(1, ActionKey::new(1)).is_ok());
+    }
+
+    #[test]
     fn real_attack_zero_tick_setup_frame_is_retained() {
         let catalog =
             parse(b"#0 312=3225 prince\n1.attack(1 3,0.0:0 16.0:3[1539 16.1:2!)\n").unwrap();
@@ -1342,7 +1389,17 @@ mod tests {
             });
         let strict_error =
             parse(&bytes).expect_err("known unverified source syntax must fail strict parsing");
-        assert_eq!(strict_error.line, 614);
+        // #165: line 614 `2.damage(1 2,0:0:4 ...)` is admitted per native
+        // 43DCC0. The next strict blocker is line 2419 `-1.0:4` (signed
+        // image id), which stays rejected until its semantics are verified.
+        assert_eq!(strict_error.line, 2419);
+        assert_eq!(strict_error.kind, ActionErrorKind::Malformed("expected unsigned integer"));
+        let orim = catalog.resolve_action(266, ActionKey::new(2)).unwrap().animation;
+        assert_eq!(
+            orim.frames.iter().map(|f| (f.image_id, f.subframe, f.duration_ticks)).collect::<Vec<_>>(),
+            vec![(0, 0, 4), (24, 0, 6)]
+        );
+        assert_eq!(orim.frames[1].events, vec![FrameEvent::Sound(79)]);
         eprintln!("Strict source validation remains rejected: {strict_error}");
         let mut frames = 0usize;
         let mut actions = 0usize;
@@ -1480,7 +1537,10 @@ mod tests {
 
     #[test]
     fn inspection_retains_unverified_body_and_ref_cannot_bypass_quarantine() {
-        let bytes = b"#266 40=183 orim\n2.damage(1 2,0:0:4 24.0:6[79)\n#267 40\n2=266\n";
+        // #165: the former `0:0:4` example is native-verified (43DCC0) and
+        // now parses; the signed-image form from list.spr line 2419 stays
+        // unverified and keeps exercising quarantine plus reference blocking.
+        let bytes = b"#266 40=183 orim\n2.damage(1 2,-1.0:4 24.0:6[79)\n#267 40\n2=266\n";
         assert!(parse(bytes).is_err());
         let catalog =
             SpriteActionCatalog::parse_for_inspection(bytes, ActionLimits::default()).unwrap();
@@ -1490,7 +1550,11 @@ mod tests {
             panic!("expected explicit quarantine");
         };
         assert_eq!(reason.line, 2);
-        assert_eq!(raw_bytes, b"2.damage(1 2,0:0:4 24.0:6[79)");
+        assert_eq!(raw_bytes, b"2.damage(1 2,-1.0:4 24.0:6[79)");
+        let admitted = b"#266 40=183 orim\n2.damage(1 2,0:0:4 24.0:6[79)\n#267 40\n2=266\n";
+        let resolved = parse(admitted).unwrap();
+        let through = resolved.resolve_action(267, ActionKey::new(2)).unwrap();
+        assert_eq!((through.definition_sprite_id, through.animation.frames.len()), (266, 2));
         for id in [266, 267] {
             assert!(matches!(
                 catalog
