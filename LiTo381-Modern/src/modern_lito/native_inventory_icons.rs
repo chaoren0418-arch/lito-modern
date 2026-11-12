@@ -40,6 +40,59 @@ pub struct Icon {
     pub cell_sha256: String,
     #[serde(skip)]
     pub cell: Vec<u8>,
+    /// Per cell pixel: how many of the two native halo passes cover it (0..=2).
+    #[serde(skip)]
+    pub halo: Vec<u8>,
+}
+/// Native 442A30 draw variant, chosen from the item's identified byte (+0x78)
+/// and blessing (+0x70). Recovered PE 4271D92F…5C2AB6E9, static decode only.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
+pub enum IconStyle {
+    /// Unidentified, blessing 1 or 3 (identity palettes 835B3C / 83633C).
+    /// Also used for a blessing above 3, where the original indexes past its
+    /// palette array.
+    Plain,
+    /// Identified, blessing 0: two halo passes, then the unchanged icon.
+    Blessed,
+    /// Identified, blessing 2: every icon pixel through the curse tint.
+    Cursed,
+}
+impl IconStyle {
+    pub fn of(identified: u8, blessing: u8) -> Self {
+        match (identified != 0, blessing) {
+            (true, 0) => Self::Blessed,
+            (true, 2) => Self::Cursed,
+            _ => Self::Plain,
+        }
+    }
+}
+/// 4B9BF0 stamps the icon's coverage into a 36x36 byte mask at these offsets,
+/// one group per pass; 4B9E80 then blends the 32x32 window that starts at
+/// (2,2) of the mask. Net effect: the shape moved by two pixels, then by one,
+/// in the four axis directions.
+const HALO_STAMPS: [[[i32; 2]; 4]; 2] = [
+    [[0, 2], [2, 0], [4, 2], [2, 4]],
+    [[1, 2], [2, 1], [3, 2], [2, 3]],
+];
+const HALO_MASK: i32 = 36;
+/// Palette 83533C (4EC1C0 / 4EC1F0 through 41A2B0), RGB555 mode: each
+/// destination channel moves a third of the way to white. Green is built
+/// from its low three and high two bits separately, as the original's
+/// per-byte tables do.
+pub fn halo_blend([r, g, b]: [u16; 3]) -> [u16; 3] {
+    [
+        (2 * r + 31) / 3,
+        (2 * (g & 7) + 7) / 3 + (2 * (g & 0x18) + 24) / 3,
+        (2 * b + 31) / 3,
+    ]
+}
+/// 4B9A90 → 4C1170 with colour `dword_50352C` (RGB555 1C00 = red 7): the
+/// blend table 7A789C holds `colour + pixel / 2` per five-bit channel.
+pub fn curse_tint([r, g, b]: [u16; 3]) -> [u16; 3] {
+    [7 + r / 2, g / 2, b / 2]
+}
+fn expand5(v: u16) -> u8 {
+    ((v << 3) | (v >> 2)) as u8
 }
 impl Icon {
     pub fn decode(
@@ -58,6 +111,7 @@ impl Icon {
         let mut cell = vec![0; CELL * CELL * 4];
         let mut covered_pixels = 0;
         let mut covered_zero = 0;
+        let mut masks = [[false; (HALO_MASK * HALO_MASK) as usize]; 2];
         for (i, &v) in image.rgb555().iter().enumerate() {
             if !image.coverage()[i] {
                 continue;
@@ -66,6 +120,16 @@ impl Icon {
             covered_zero += usize::from(v == 0);
             let x = (i % image.width()) as i32 + i32::from(offset[0]);
             let y = (i / image.width()) as i32 + i32::from(offset[1]);
+            for (pass, stamps) in HALO_STAMPS.iter().enumerate() {
+                for [dx, dy] in stamps {
+                    // The original has no bounds check here; a stamp outside
+                    // its mask is dropped instead of reproducing the overrun.
+                    let (mx, my) = (x + dx, y + dy);
+                    if (0..HALO_MASK).contains(&mx) && (0..HALO_MASK).contains(&my) {
+                        masks[pass][(my * HALO_MASK + mx) as usize] = true;
+                    }
+                }
+            }
             if !(0..CELL as i32).contains(&x) || !(0..CELL as i32).contains(&y) {
                 continue;
             }
@@ -79,7 +143,14 @@ impl Icon {
             cell[at..at + 4].copy_from_slice(&[rgb[0], rgb[1], rgb[2], 255]);
         }
         active(cancel)?;
+        let halo = (0..CELL * CELL)
+            .map(|i| {
+                let at = (i / CELL + 2) * HALO_MASK as usize + i % CELL + 2;
+                u8::from(masks[0][at]) + u8::from(masks[1][at])
+            })
+            .collect();
         Ok(Self {
+            halo,
             id,
             source: Source {
                 archive: archive.into(),
@@ -99,13 +170,33 @@ impl Icon {
     /// Native span coverage, including encoded black, is opaque. Uncovered
     /// pixels alone show the list background; no RGB-zero preview key is used.
     pub fn bgra(&self, background: [u8; 3]) -> Vec<u8> {
+        self.bgra_styled(background, IconStyle::Plain)
+    }
+    /// The cell over `background` in the native draw order: for a blessed
+    /// item the halo passes lighten the background first, then the icon's
+    /// covered pixels are copied (cursed: through the tint). The original
+    /// blends its RGB555 surface; here the background is reduced to five
+    /// bits per channel only where a halo pixel is produced.
+    pub fn bgra_styled(&self, background: [u8; 3], style: IconStyle) -> Vec<u8> {
         self.cell
             .chunks_exact(4)
-            .flat_map(|p| {
-                let c = if p[3] == 0 {
-                    background
+            .zip(&self.halo)
+            .flat_map(|(p, &passes)| {
+                let c = if p[3] != 0 {
+                    let rgb = [p[0], p[1], p[2]];
+                    if style == IconStyle::Cursed {
+                        curse_tint(rgb.map(|v| u16::from(v >> 3))).map(expand5)
+                    } else {
+                        rgb
+                    }
+                } else if style == IconStyle::Blessed && passes > 0 {
+                    let mut v = background.map(|v| u16::from(v >> 3));
+                    for _ in 0..passes {
+                        v = halo_blend(v);
+                    }
+                    v.map(expand5)
                 } else {
-                    [p[0], p[1], p[2]]
+                    background
                 };
                 [c[2], c[1], c[0], 255]
             })
@@ -552,5 +643,100 @@ mod skill_ui_tests {
         assert_eq!(service.cached(), 0);
         service.cancel();
         assert!(service.quiescent());
+    }
+}
+
+#[cfg(test)]
+mod style_tests {
+    use super::*;
+    fn icon(bytes: &[u8]) -> Icon {
+        Icon::decode(1, "test", "1.tbt", bytes, &AtomicBool::new(false)).unwrap()
+    }
+    fn pixel(bgra: &[u8], x: usize, y: usize) -> [u8; 4] {
+        let at = (y * CELL + x) * 4;
+        bgra[at..at + 4].try_into().unwrap()
+    }
+    #[test]
+    fn style_follows_identified_then_blessing() {
+        assert_eq!(IconStyle::of(1, 0), IconStyle::Blessed);
+        assert_eq!(IconStyle::of(1, 1), IconStyle::Plain);
+        assert_eq!(IconStyle::of(1, 2), IconStyle::Cursed);
+        assert_eq!(IconStyle::of(1, 3), IconStyle::Plain);
+        assert_eq!(IconStyle::of(255, 2), IconStyle::Cursed);
+        for blessing in [0, 1, 2, 3, 128, 130] {
+            assert_eq!(IconStyle::of(0, blessing), IconStyle::Plain);
+        }
+        assert_eq!(IconStyle::of(1, 128), IconStyle::Plain);
+        assert_eq!(IconStyle::of(1, 130), IconStyle::Plain);
+    }
+    #[test]
+    fn channel_formulas_match_the_native_tables() {
+        assert_eq!(halo_blend([0, 0, 0]), [10, 10, 10]);
+        assert_eq!(halo_blend([10, 10, 10]), [17, 16, 17]);
+        assert_eq!(halo_blend([31, 31, 31]), [31, 31, 31]);
+        assert_eq!(halo_blend([1, 9, 30]), [11, 16, 30]);
+        for v in 0..32 {
+            let out = halo_blend([v, v, v]);
+            assert!(out.iter().all(|c| (v..=31).contains(c)), "{v}");
+        }
+        assert_eq!(curse_tint([0, 0, 0]), [7, 0, 0]);
+        assert_eq!(curse_tint([31, 31, 31]), [22, 15, 15]);
+        assert_eq!(curse_tint([9, 8, 7]), [11, 4, 3]);
+    }
+    #[test]
+    fn blessed_halo_is_the_shape_moved_two_then_one_pixel() {
+        // One white pixel at cell (4,4).
+        let i = icon(&[4, 4, 1, 1, 1, 0, 1, 0xff, 0x7f]);
+        let lit: Vec<(usize, usize, u8)> = (0..CELL * CELL)
+            .filter(|n| i.halo[*n] != 0)
+            .map(|n| (n % CELL, n / CELL, i.halo[n]))
+            .collect();
+        assert_eq!(
+            lit,
+            [(4, 2, 1), (4, 3, 1), (2, 4, 1), (3, 4, 1), (5, 4, 1), (6, 4, 1), (4, 5, 1), (4, 6, 1)]
+        );
+        let plain = i.bgra_styled([0, 0, 0], IconStyle::Plain);
+        assert_eq!(plain, i.bgra([0, 0, 0]));
+        assert_eq!(pixel(&plain, 3, 4), [0, 0, 0, 255]);
+        let blessed = i.bgra_styled([0, 0, 0], IconStyle::Blessed);
+        assert_eq!(pixel(&blessed, 4, 4), [255, 255, 255, 255]);
+        assert_eq!(pixel(&blessed, 3, 4), [82, 82, 82, 255]);
+        assert_eq!(pixel(&blessed, 2, 4), [82, 82, 82, 255]);
+        assert_eq!(pixel(&blessed, 3, 3), [0, 0, 0, 255]);
+        assert_eq!(pixel(&blessed, 1, 4), [0, 0, 0, 255]);
+        // Untouched background keeps its full eight-bit value.
+        let tinted = i.bgra_styled([1, 2, 3], IconStyle::Blessed);
+        assert_eq!(pixel(&tinted, 0, 0), [3, 2, 1, 255]);
+    }
+    #[test]
+    fn overlapping_passes_blend_twice_and_cursed_tints_only_the_icon() {
+        // Two white pixels at cells (4,4) and (5,4).
+        let i = icon(&[4, 4, 2, 1, 1, 0, 2, 0xff, 0x7f, 0xff, 0x7f]);
+        assert_eq!(i.halo[4 * CELL + 3], 2);
+        assert_eq!(i.halo[4 * CELL + 6], 2);
+        assert_eq!(i.halo[4 * CELL + 2], 1);
+        assert_eq!(i.halo[4 * CELL + 7], 1);
+        // Covered cells are in the mask too; the icon is drawn over them.
+        assert_eq!(i.halo[4 * CELL + 4], 1);
+        let blessed = i.bgra_styled([0, 0, 0], IconStyle::Blessed);
+        assert_eq!(pixel(&blessed, 3, 4), [140, 132, 140, 255]);
+        assert_eq!(pixel(&blessed, 2, 4), [82, 82, 82, 255]);
+        assert_eq!(pixel(&blessed, 4, 4), [255, 255, 255, 255]);
+        let cursed = i.bgra_styled([9, 9, 9], IconStyle::Cursed);
+        assert_eq!(pixel(&cursed, 4, 4), [123, 123, 181, 255]);
+        assert_eq!(pixel(&cursed, 5, 4), [123, 123, 181, 255]);
+        assert_eq!(pixel(&cursed, 3, 4), [9, 9, 9, 255]);
+    }
+    #[test]
+    fn halo_near_the_cell_edge_is_clipped_not_wrapped() {
+        // One pixel at cell (0,0): the left and upper stamps leave the cell.
+        let i = icon(&[0, 0, 1, 1, 1, 0, 1, 0xff, 0x7f]);
+        let lit: Vec<usize> = (0..CELL * CELL).filter(|n| i.halo[*n] != 0).collect();
+        assert_eq!(lit, [1, 2, CELL, 2 * CELL]);
+        // One pixel at cell (-1,0), outside the cell, still lights (0,0) and (1,0).
+        let i = icon(&[255, 0, 1, 1, 1, 0, 1, 0xff, 0x7f]);
+        assert_eq!(i.covered_pixels, 1);
+        assert!(i.cell.iter().all(|v| *v == 0));
+        assert_eq!((i.halo[0], i.halo[1]), (1, 1));
     }
 }

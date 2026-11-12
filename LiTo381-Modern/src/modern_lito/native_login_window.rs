@@ -750,20 +750,20 @@ impl Ui {
     }
     unsafe fn draw_inventory(&self, draw: &DRAWITEMSTRUCT) {
         let selected = draw.itemState.0 & ODS_SELECTED.0 != 0;
-        let background = GetSysColor(if selected {
-            COLOR_HIGHLIGHT
-        } else {
-            COLOR_WINDOW
-        });
+        // Rows are black, as the native name colours (white, pale yellow) and
+        // the blessed halo assume a dark surface; this is a layout choice of
+        // this list, not the original inventory frame.
+        let background = if selected { GetSysColor(COLOR_HIGHLIGHT) } else { 0 };
         FillRect(
             draw.hDC,
             &draw.rcItem,
-            GetSysColorBrush(if selected {
-                COLOR_HIGHLIGHT
+            if selected {
+                GetSysColorBrush(COLOR_HIGHLIGHT)
             } else {
-                COLOR_WINDOW
-            }),
+                HBRUSH(GetStockObject(BLACK_BRUSH).0)
+            },
         );
+        let mut name_color = super::native_text_format::WHITE;
         if self.inventory_owner != self.controller.snapshot().inventory.owner {
             return;
         }
@@ -780,9 +780,14 @@ impl Ui {
             .get(id)
             .filter(|_| !self.ground_view)
         {
+            name_color = super::native_text_format::name_color(item.identified, item.blessing)
+                .unwrap_or(name_color);
             if let Some(icon) = self.inventory_icons.icon(item.icon) {
                 let b = background;
-                let pixels = icon.bgra([b as u8, (b >> 8) as u8, (b >> 16) as u8]);
+                let pixels = icon.bgra_styled(
+                    [b as u8, (b >> 8) as u8, (b >> 16) as u8],
+                    super::native_inventory_icons::IconStyle::of(item.identified, item.blessing),
+                );
                 let mut info = BITMAPINFO::default();
                 info.bmiHeader = BITMAPINFOHEADER {
                     biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
@@ -813,13 +818,14 @@ impl Ui {
             }
         }
         let old_font = SelectObject(draw.hDC, self.font.into());
+        let [r, g, b] = super::native_text_format::rgb(name_color);
         let old_color = SetTextColor(
             draw.hDC,
-            COLORREF(GetSysColor(if selected {
-                COLOR_HIGHLIGHTTEXT
+            if selected {
+                COLORREF(GetSysColor(COLOR_HIGHLIGHTTEXT))
             } else {
-                COLOR_WINDOWTEXT
-            })),
+                COLORREF(u32::from(r) | u32::from(g) << 8 | u32::from(b) << 16)
+            },
         );
         let old_mode = SetBkMode(draw.hDC, TRANSPARENT);
         let mut text: Vec<u16> = label.encode_utf16().collect();
@@ -1674,7 +1680,12 @@ impl Ui {
                 super::native_equipment::Row::Item(id) => inventory.items.get(&id).map(|i| {
                     (
                         id,
-                        super::native_inventory_names::label(i, self.inventory_names.catalog()).text,
+                        super::native_inventory_names::label_as(
+                            i,
+                            self.inventory_names.catalog(),
+                            inventory.owner.as_ref().map(|o| o.character.as_str()),
+                        )
+                        .text,
                     )
                 }),
             })
@@ -1704,10 +1715,13 @@ impl Ui {
                 .iter()
                 .map(|choice| {
                     let a = &choice.item;
+                    // Ground rows are plain text: inline format codes of the
+                    // resolved name are not drawn as characters.
                     let name = self
                         .inventory_names
                         .catalog()
                         .and_then(|c| c.resolve(&a.name).ok())
+                        .map(|n| super::native_inventory_names::plain(&n))
                         .unwrap_or_else(|| a.name.clone());
                     (
                         a.id,
@@ -2633,6 +2647,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                 ui.release_input(release == hud::Release::InputAndAudio);
             }
             match msg {
+                // Empty list area matches the black owner-drawn rows.
+                WM_CTLCOLORLISTBOX if HWND(lparam.0 as *mut _) == ui.control(INVENTORY_LIST) => {
+                    return LRESULT(GetStockObject(BLACK_BRUSH).0 as isize);
+                }
                 WM_DRAWITEM => {
                     let draw = &*(lparam.0 as *const DRAWITEMSTRUCT);
                     if draw.CtlID == u32::from(SKILLS)
