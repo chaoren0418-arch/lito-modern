@@ -8,7 +8,7 @@
 - **排序**：「附近物品」清單改成先近後遠（同距離依 Y、X、物件 ID）。**畫面上的繪製先後沒有改**，原因見「未完成事項」。
 - **特殊物品選項**：目標、文字、信件這些選項在 #179 已經接好，這張查到一個實際缺口並補上：腰帶（useType 37）等 E149 視為防具的型別，客戶端原本會拒絕使用，現在走普通使用（裝卸）。6／28／29／31–36 仍然等伺服器，沒有動。
 
-`cargo check --all-targets` 的結果見最後一節。單元測試本機沒跑（2026-11-09 規定），交 PR 的 CI。**真機畫面沒看過**，列在「待驗證」。
+`cargo check --all-targets` 結束碼 0。單元測試本機沒跑（2026-11-09 規定），由 PR #365 的 CI 執行：新增 7 個全過，lib 整體 2374 passed／0 failed。**真機畫面沒看過**，列在「待驗證」。
 
 ## 做了什麼
 
@@ -89,7 +89,7 @@
 
 ## 待驗證（需要 CI、真機或本機執行測試；本張沒有做）
 
-1. **單元測試**（交 PR 的 CI，`cargo test --locked --lib`）：`native_ground_pickup::tests` 6 個、`native_item_actions::tests` 1 個。結果見最後一節。
+1. ~~單元測試~~：已由 PR #365 的 CI 完成，7 個都過（見最後的「CI 結果」）。
 2. **真機畫面**（交 Codex 或使用者）：
    - 站在物品旁（一格內）左鍵點它：直接撿起，不開面板；堆疊整疊進背包。
    - 站在兩格以上左鍵點物品：角色走到旁邊後撿起；途中按 Esc、方向鍵或點別處會停下來。
@@ -131,3 +131,11 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 - 結束碼 **0**（第 1 次就過），原文 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 4m 15s``。`--all-targets` 包含 lib 的測試目標，所以新增的 7 個測試有編譯過，但沒有執行。
 - 這次改的三個檔案沒有新的 warning；其餘是原本就有的 warnings。`Cargo.lock` 沒有變動。
 - 本機沒有執行 `cargo test`、沒有執行任何編譯出來的程式、沒有啟動遊戲、沒有連正式服務或 DB。
+- 合併 `origin/main`（5 個 commit，無衝突，合併 commit `b0f0642`；main 這段也改了 `native_login_window.rs`，自動合併）之後再跑一次：結束碼 **0**，``Finished `dev` profile [unoptimized + debuginfo] target(s) in 4m 00s``。
+
+## CI 結果（PR #365，commit `b0f0642`，run 43264899412）
+
+- `cargo check (x86_64-pc-windows-msvc)`：pass（5m22s）。合併前的 commit `797c578`（run 43264032108）也是 success。
+- 同一個 job 的 `cargo test --lib`：`test result: ok. 2374 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.51s`。
+- 新增的 7 個測試都是 `ok`：`native_ground_pickup::tests` 的 `click_follows_the_native_reach_then_stack_order`、`prompt_quantity_matches_the_native_callback`、`throttle_uses_the_native_986_ms_window`、`facing_and_wall_check_use_the_step_toward_the_item`、`nearby_rows_sort_nearest_first_then_y_x_id`、`approach_steps_toward_the_item_and_ends_on_any_authority_change`，以及 `native_item_actions::tests::armor_use_types_follow_e149_and_take_the_plain_use_branch`。
+- 這些測試只涵蓋純邏輯；視窗接線（點選、走向物品、提示列）沒有自動測試，仍在「待驗證」第 2 點。這一節之後只多了本段文字的 commit，程式沒有再改。
