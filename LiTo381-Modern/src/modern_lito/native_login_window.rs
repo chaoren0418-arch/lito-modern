@@ -36,6 +36,8 @@ mod rental;
 mod skill_ui;
 #[path="native_companion_window.rs"]
 mod companions;
+#[path = "native_chat_window.rs"]
+mod chat_ui;
 const CREATE_ROOM:u16=119;
 const EDIT_ROOM:u16=120;
 const SAVE_ROOM:u16=121;
@@ -100,6 +102,7 @@ struct Ui {
     character_pages: Pages,
     rental:rental::View,
     companions:companions::View,
+    chat: chat_ui::View,
     parent: HWND,
     room_tools_view: bool,
     room_editor: Option<super::native_room_ui::Draft>,
@@ -447,6 +450,7 @@ impl Ui {
         }
         self.create_rental_controls()?;
         self.create_companion_controls()?;
+        self.create_chat_controls()?;
         let ids:std::collections::BTreeSet<_>=self.controls.iter().map(|(id,_)|*id).collect();
         ensure!(ids.len()==self.controls.len(),"duplicate native child control id");
         self.layout(parent, true);
@@ -583,7 +587,7 @@ impl Ui {
                 }
                 INVENTORY_TOGGLE => true,
                 ROOMS => !self.world_view && !self.inventory_view,
-                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !(self.rental.open || self.companions.open),
+                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !(self.rental.open || self.companions.open || self.chat.open),
                 SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.ground_view,
                 SUMMON_OPTIONS => self.world_view && !self.result_view && !self.inventory_view && !self.rental.open && self.skills.selected()==Some(51),
                 TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected().is_some_and(super::native_skills::destination_skill),
@@ -743,6 +747,7 @@ impl Ui {
         self.layout_rental();
         self.layout_skill_book(area, dpi);
         self.layout_companions();
+        self.layout_chat();
         self.follow_status(self.control(STATUS), status_before);
     }
     unsafe fn score_extent(&self) {
@@ -938,7 +943,7 @@ impl Ui {
         // Hover is sampled against the actual painted viewport, including when
         // the pointer leaves this window or a child control receives input.
         let hover = (|| {
-            if !active || self.closing || self.inventory_view || self.rental.open || self.companions.open || GetForegroundWindow() != parent {
+            if !active || self.closing || self.inventory_view || self.rental.open || self.companions.open || self.chat.open || GetForegroundWindow() != parent {
                 return None;
             }
             let mut point = POINT::default();
@@ -1179,7 +1184,7 @@ impl Ui {
             }
             return;
         }
-        if self.inventory_view || self.rental.open || self.companions.open {
+        if self.inventory_view || self.rental.open || self.companions.open || self.chat.open {
             self.held.clear();
             self.held_attack.clear();
             self.pickup_approach = None;
@@ -1351,7 +1356,7 @@ impl Ui {
         let dc = BeginPaint(parent, &mut paint);
         let mut area = RECT::default();
         let _ = GetClientRect(parent, &mut area);
-        if self.rental.open || self.companions.open {
+        if self.rental.open || self.companions.open || self.chat.open {
             FillRect(dc,&area,GetSysColorBrush(COLOR_BTNFACE));
             let _=EndPaint(parent,&paint);self.painted=None;self.painted_input=None;return;
         }
@@ -2323,6 +2328,7 @@ impl Ui {
         }
         self.refresh_rental();
         self.refresh_companions();
+        self.refresh_chat();
         self.restore_keyboard_focus_after_update();
     }
     unsafe fn restore_keyboard_focus_after_update(&self) {
@@ -2338,6 +2344,7 @@ impl Ui {
             Err(error)=>{self.companions.error=Some(format!("{error:#}"));self.refresh_companions();return Err(error);}
         }
         if self.rental_action(id)? {return Ok(());}
+        if self.chat_action(id)? {return Ok(());}
         match id {
             skill_ui::BOOK => {
                 self.skill_book_open = !self.skill_book_open;
@@ -2667,7 +2674,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                         return LRESULT(1);
                     }
                 }
-                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !(ui.rental.open || ui.companions.open) => {
+                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open) => {
                     let _ = SetFocus(Some(hwnd));
                     // 任何新的點選都取消走向地面物品。
                     ui.pickup_approach = None;
@@ -2927,6 +2934,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 character_pages: Pages::default(),
                 rental:rental::View::new(resource_root.clone())?,
                 companions:companions::View::default(),
+                chat: chat_ui::View::default(),
                 parent: HWND::default(),
                 room_tools_view:false,
                 room_editor:None,
@@ -3052,6 +3060,17 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                     ui.held.clear();
                     ui.held_attack.clear();
                 }
+                // Enter in a chat field sends the line instead of pressing the
+                // dialog's default button; a held key does not repeat the send.
+                if message.message == WM_KEYDOWN && message.wParam.0 == 0x0d {
+                    let chat_field = state.0.borrow().chat_input_focus(GetFocus());
+                    if chat_field {
+                        if message.lParam.0 & (1 << 30) == 0 {
+                            send(hwnd, WM_COMMAND, WPARAM(chat_ui::SEND as usize), LPARAM(0));
+                        }
+                        continue;
+                    }
+                }
                 // Submit a received numeric NPC request from its quantity field.
                 // The ordinary button path still validates owner, target and deadline.
                 if message.message == WM_KEYDOWN && message.wParam.0 == 0x0d {
@@ -3086,7 +3105,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if matches!(message.message, WM_KEYDOWN | WM_SYSKEYDOWN) {
                     if let Some((slot, first)) = skill_ui::hotbar_key(message.message, message.wParam.0, message.lParam.0) {
                         let mut ui = state.0.borrow_mut();
-                        if ui.skill_input_focus(GetFocus()) && ui.world_view && !ui.inventory_view && !ui.rental.open {
+                        if ui.skill_input_focus(GetFocus()) && ui.world_view && !ui.inventory_view && !ui.rental.open && !ui.chat.open {
                             if first {
                                 let result = ui.skill_slot(slot);
                                 ui.refresh();
@@ -3099,7 +3118,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if world_focus && message.message == WM_KEYDOWN && message.wParam.0 == 0x1b {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         ui.held.clear();
@@ -3114,7 +3133,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if message.message == WM_KEYDOWN && matches!(message.wParam.0, 0x70 | 0x71 | 0x72) {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.lParam.0 & (1 << 30) == 0 {
@@ -3135,7 +3154,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x50 {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open || ui.chat.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             let result=ui.enter_nearby_portal();
                             if let Err(e)=result{ui.text(STATUS,&format!("{e:#}"));}
@@ -3145,7 +3164,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x54 {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open || ui.chat.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             if let Err(e)=ui.cycle_target(){ui.text(STATUS,&format!("{e:#}"));}
                         }
@@ -3154,7 +3173,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x4f {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open || ui.chat.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             if let Err(e)=ui.toggle_selected_door(){ui.text(STATUS,&format!("{e:#}"));}
                         }
@@ -3167,7 +3186,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.message == WM_KEYUP {
@@ -3186,7 +3205,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open || ui.chat.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if ui.controller.snapshot().observer {
