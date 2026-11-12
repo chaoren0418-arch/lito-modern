@@ -334,6 +334,27 @@ pub struct Snapshot {
     pub error: Option<String>,
     pub game_timers: super::native_game_timers::Snapshot,
 }
+/// Full packet decode completion, before event-channel backpressure. This is
+/// neither server time nor the native callback clock. Only the worker creates it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct IngressReceipt {
+    connection: u64,
+    counter: u64,
+    decoded_at: Instant,
+}
+#[cfg(test)]
+#[path = "native_connection_ingress_tests.rs"]
+mod ingress_tests;
+impl IngressReceipt {
+    fn decoded(connection: u64, counter: u64) -> Self {
+        Self { connection, counter, decoded_at: Instant::now() }
+    }
+    pub fn connection_epoch(self) -> u64 { self.connection }
+    pub fn rx_counter(self) -> u64 { self.counter }
+    pub fn decoded_at(self) -> Instant { self.decoded_at }
+    #[cfg(test)]
+    pub(crate) fn for_test(connection: u64, counter: u64) -> Self { Self::decoded(connection, counter) }
+}
 pub enum Event {
     Sent {
         epoch: u64,
@@ -347,6 +368,7 @@ pub enum Event {
         epoch: u64,
         body: Vec<u8>,
         rx_counter: u64,
+        receipt: IngressReceipt,
     },
 }
 pub struct Controller {
@@ -545,6 +567,7 @@ impl Controller {
                             }
                         }
                         if let Some(body) = session.poll_body(&worker_cancel)? {
+                            let receipt = IngressReceipt::decoded(epoch, session.rx.counter());
                             emit_running(
                                 &tx,
                                 &worker_cancel,
@@ -552,6 +575,7 @@ impl Controller {
                                     epoch,
                                     body,
                                     rx_counter: session.rx.counter(),
+                                    receipt,
                                 },
                                 &mut session,
                                 &command_rx,

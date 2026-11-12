@@ -142,6 +142,54 @@ fn retired(c:&LoginController) {
     assert!(c.state.selected_character.is_none() && c.state.services.is_none());
 }
 fn stop(c:&mut LoginController) { c.cancel(); pump(c,|c|c.is_quiescent()); }
+
+#[cfg_attr(test, test)]
+pub fn skill5_portal_ack_is_once_and_cancel_retires_the_request() {
+    let mut peer=FaultPeer::new();let mut c=seeded(&peer);
+    c.teleport=None;c.state.merchant.clear();c.state.joined_room=None;
+    c.state.phase=LoginPhase::WorldReady;
+    let epoch=c.transport.snapshot().epoch;
+    c.state.environment.begin(epoch).unwrap();
+    c.state.world.learned_skills.insert(5);
+    let map=c.state.world.map_id.unwrap();let own=c.state.world.own_actor().unwrap();
+    let destination=super::super::native_portal::Destination{map,x:own.x+1,y:own.y};
+    c.teleport_spell=Some((super::super::native_navigation::InputStamp::capture(epoch,&c.state.world),Instant::now(),map));
+    let mut portal=vec![0x5a];portal.extend(map.to_le_bytes());portal.extend(destination.x.to_le_bytes());portal.extend(destination.y.to_le_bytes());
+    peer.emit(vec![portal.clone()]);
+    pump(&mut c,|c|c.state.world.portal.is_some());
+    assert!(c.teleport_spell.is_none());assert_eq!(c.state.world.portal.unwrap().destination,destination);
+    pump(&mut c,|_|peer.opcodes().contains(&8));
+    let before=serde_json::to_value(&c.state).unwrap();
+    assert!(c.accept_game(&portal).is_err());assert_eq!(serde_json::to_value(&c.state).unwrap(),before);
+    assert_eq!(peer.opcodes().iter().filter(|&&op|op==8).count(),1);
+    stop(&mut c);peer.close();assert!(c.teleport_spell.is_none());
+}
+#[cfg_attr(test, test)]
+pub fn skill5_cancel_eof_rejection_and_timeout_never_send_portal_ack() {
+    for case in 0..4 {
+        let mut peer=FaultPeer::new();let mut c=seeded(&peer);
+        c.teleport=None;c.state.merchant.clear();c.state.joined_room=None;
+        c.state.phase=LoginPhase::WorldReady;c.state.world.learned_skills.insert(5);
+        let epoch=c.transport.snapshot().epoch;let now=Instant::now();
+        let since=if case==3 {now-Duration::from_secs(3)} else {now};
+        c.teleport_spell=Some((super::super::native_navigation::InputStamp::capture(epoch,&c.state.world),since,c.state.world.map_id.unwrap()));
+        c.skill_pending=Some(super::super::native_skills::Pending{since,
+            casts:c.state.world.own_cast_packets,messages:c.state.world.message_count,
+            generation:c.state.world.generation,incarnation:c.state.world.own_actor().unwrap().incarnation});
+        c.state.skill_feedback=super::super::native_skills::Feedback::Pending;
+        let position=c.state.world.own_actor().map(|a|(a.x,a.y));
+        match case {
+            0=>stop(&mut c),
+            1=>{peer.write(vec![],None,true);pump(&mut c,|c|c.state.phase==LoginPhase::Failed&&c.is_quiescent());},
+            2=>{peer.emit(vec![vec![0x10,0x14,1,0]]);pump(&mut c,|c|c.skill_pending.is_none());
+                assert_eq!(c.state.skill_feedback,super::super::native_skills::Feedback::Rejected(276));},
+            _=>{c.poll();assert_eq!(c.state.skill_feedback,super::super::native_skills::Feedback::NoResponse);},
+        }
+        assert!(c.teleport_spell.is_none());assert!(c.state.world.portal.is_none());
+        if case>=2 {assert_eq!(c.state.world.own_actor().map(|a|(a.x,a.y)),position);}
+        stop(&mut c);peer.close();assert!(!peer.opcodes().contains(&8));
+    }
+}
 fn record(name:&str,c:&LoginController,peers:&[&FaultPeer],extra:serde_json::Value) {
     let profile=if cfg!(debug_assertions){"Debug"}else{"Release"};
     let path=Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current/verification/native-teleport-wire").join(profile);

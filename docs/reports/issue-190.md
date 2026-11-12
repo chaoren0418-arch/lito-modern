@@ -61,6 +61,15 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 2490 filtered ou
 
 原因：有活躍世界時，過早 SF5 先經 `World::accept` 寫入 `unhandled_opcodes`，才由返回守門拒絕，違反「拒絕時狀態不變」。已將返回期間的 SD0／SF5 直接送往控制封包驗證，再完成上述 5 案重跑。
 
+## 第 2 次嘗試（CI 退回修正，2026-11-12）
+
+- PR #218 CI（run 42174575421）失敗原文：`test result: FAILED. 1919 passed; 1 failed; 575 ignored`，失敗案為 `native_login::teleport_wire_tests::malformed_and_misordered_teleport_replies_over_tcp_retire_pending_owner`，訊息 `native TCP write: An existing connection was forcibly closed by the remote host. (os error 10054)`，合成 peer 同時回報 `Overlapped I/O operation is in progress. (os error 997)`。
+- 判斷（推測）：非本張返回邏輯錯誤，而是測試用 `FaultPeer` 以 `SO_RCVTIMEO` 10 ms 輪詢讀取；Windows 在接收逾時後 socket 狀態不定，之後 I/O 可能以 997 失敗並重設連線。本分支新增的 lifecycle 測試共用同一 peer，增加觸發機率。
+- 修正：`native_teleport_controller_tests.rs` 的 `FaultPeer` 交握後改為非阻塞模式輪詢（WouldBlock 時 sleep 1 ms），寫入改為帶 2 秒期限的非阻塞寫入迴圈；不再使用 read／write timeout。只改測試輔助，不改產品程式。
+- 合併 `origin/main`（9a5b887）：`native_login.rs` 衝突，main 新增 `accept_game_received`（ingress epoch 檢查）；解法為保留 main 的 ingress 檢查在前，本張租裝返回 fence 接在其後。
+- 已驗證：合併後 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 0（`Finished dev profile`）。
+- 待驗證：依 2026-11-09 本機限制，本次未在本機執行 `cargo test`；測試結果以 push 後 PR #218 的 CI 為準。
+
 ## 推測
 
 - 正式端若依契約提供完整 C10 → S65 → CD9 → SF0 → CD0 → SD0 → SF5 → CC8 → S03／SCB 回覆，客戶端應可在同一 GAME 連線完成正常返回及重選入村；合成測試不能證明現行正式伺服器已提供此路徑。

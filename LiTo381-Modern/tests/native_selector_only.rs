@@ -36,6 +36,7 @@ fn counter72_malformed_capture_is_atomic_and_unknown_profiles_stay_quarantined()
  for (at,n) in [(2,4),(11,4),(15,2),(22,4)]{let mut b=packet.clone();b[at..at+n].fill(0);bad.push(b);}
  let mut b=packet.clone();b[20]=2;bad.push(b);let mut b=packet.clone();b.push(0);bad.push(b);
  for b in bad{let mut w=w.clone();assert!(w.accept(&b).is_err());assert_eq!(serde_json::to_value(&w).unwrap(),before);}
- for (action,gfx,kind) in [(18,3934u16,0),(19,3934,8),(19,170,0),(18,171,8)]{let mut b=packet.clone();b[1]=action;b[15..17].copy_from_slice(&gfx.to_le_bytes());b[17]=kind;assert!(many::decode(&b).unwrap().is_none());}
- let mut lightning=packet;lightning[1]=18;lightning[15..17].copy_from_slice(&170u16.to_le_bytes());lightning[17]=8;let old=many::decode(&lightning).unwrap().unwrap();assert_eq!((old.action,old.graphics),(18,170));
+ // T027 batches 1/2 qualify 171/1804/1805 only for action18/type8. Unknown 1808 stays quarantined.
+ for (action,gfx,kind) in [(18,3934u16,0),(19,3934,8),(19,170,0),(18,1808,8),(19,171,8),(18,171,0),(19,1804,8),(18,1804,0),(19,1805,8),(18,1805,0)]{let mut b=packet.clone();b[1]=action;b[15..17].copy_from_slice(&gfx.to_le_bytes());b[17]=kind;assert!(many::decode(&b).unwrap().is_none());}
+ for gfx in [170u16,171,1804,1805]{let mut b=packet.clone();b[1]=18;b[15..17].copy_from_slice(&gfx.to_le_bytes());b[17]=8;let known=many::decode(&b).unwrap().unwrap();assert_eq!((known.action,known.graphics),(18,gfx));}
 }

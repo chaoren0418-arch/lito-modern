@@ -33,8 +33,21 @@ pub enum Packet {
     },
     Channel(Channel),
     Room(Room),
+    RoomUpdate {
+        id: u32,
+        update: RoomUpdate,
+    },
     SourceRefresh,
     Other,
+}
+/// S_CC deltas carry a room ID, never a source database or a row index.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RoomUpdate {
+    Name(String),
+    Attributes(u8),
+    Users(u16),
+    Capacity(u16),
+    Mode { reserved: u16, option: u8 },
 }
 fn active(id: u8) -> bool {
     id <= 3 || id == 99
@@ -78,6 +91,43 @@ pub fn parse(b: &[u8]) -> Result<Packet> {
         }
         S_LITO_ROOM_INFO => {
             ensure!(b.len() >= 2, "room subtype missing");
+            if (1..=5).contains(&b[1]) {
+                ensure!(b.len() >= 7, "room update header");
+                let id = u32::from_le_bytes(b[2..6].try_into()?);
+                ensure!(id != 0, "zero room update identity");
+                let tail = &b[6..];
+                let update = match b[1] {
+                    1 => {
+                        ensure!(
+                            (2..=90).contains(&tail.len()) && tail.last() == Some(&0),
+                            "room rename bound"
+                        );
+                        RoomUpdate::Name(decode_text(&tail[..tail.len() - 1])?)
+                    }
+                    2 => {
+                        ensure!(tail.len() == 1, "room attributes width");
+                        RoomUpdate::Attributes(tail[0])
+                    }
+                    3 | 4 => {
+                        ensure!(tail.len() == 2, "room count width");
+                        let value = u16::from_le_bytes(tail.try_into()?);
+                        if b[1] == 3 {
+                            RoomUpdate::Users(value)
+                        } else {
+                            RoomUpdate::Capacity(value)
+                        }
+                    }
+                    5 => {
+                        ensure!(tail.len() == 3, "room mode width");
+                        RoomUpdate::Mode {
+                            reserved: u16::from_le_bytes([tail[0], tail[1]]),
+                            option: tail[2],
+                        }
+                    }
+                    _ => unreachable!(),
+                };
+                return Ok(Packet::RoomUpdate { id, update });
+            }
             if b[1] != 0 {
                 return Ok(Packet::Other);
             }
@@ -88,6 +138,7 @@ pub fn parse(b: &[u8]) -> Result<Packet> {
                 .context("room name missing NUL")?;
             ensure!(end <= 95 && b.len() == end + 9, "room row tail");
             let t = &b[end + 1..];
+            ensure!(b[2..6] != [0; 4], "zero room row identity");
             Packet::Room(Room {
                 id: u32::from_le_bytes(b[2..6].try_into()?),
                 name: decode_text(&b[6..end])?,
@@ -104,6 +155,23 @@ pub fn parse(b: &[u8]) -> Result<Packet> {
         }
         _ => Packet::Other,
     })
+}
+/// A delta cannot invent a missing/deleted row, or authorize room membership.
+/// Ignore absent IDs (e.g. a deleted row during a refresh), as the native list does.
+pub fn apply_update(rows: &mut [Room], id: u32, update: RoomUpdate) {
+    let Some(row) = rows.iter_mut().find(|row| row.id == id) else {
+        return;
+    };
+    match update {
+        RoomUpdate::Name(name) => row.name = name,
+        RoomUpdate::Attributes(attributes) => row.attributes = attributes,
+        RoomUpdate::Users(users) => row.users = users,
+        RoomUpdate::Capacity(capacity) => row.capacity = capacity,
+        RoomUpdate::Mode { reserved, option } => {
+            row.reserved = reserved;
+            row.option = option;
+        }
+    }
 }
 pub fn enter(id: u8) -> Result<Vec<u8>> {
     ensure!(id <= 3, "ordinary channel index");
