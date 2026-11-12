@@ -65,7 +65,7 @@ JAR唯讀引用相鄰登入器的 `LiTo381-Launcher/app/server/LiTo381-SharedRes
 
 以原 `維護工具/run-local-test-suite.ps1` 的 `Measure-TestResult` 判讀。要求結束碼0、可解析的 `running N tests`／`test result:`、N大於0、failed為0。TEMP／TMP導向本worktree的 `scratch/issue-167/tmp`。
 
-```powershell
+``powershell
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
 $common = @('--locked','--offline','-j1','--target','x86_64-pc-windows-msvc','--target-dir','target/current')
 cargo test @common --test native_ranged -- --test-threads=1
@@ -76,7 +76,7 @@ cargo test @common --test native_world
 cargo test @common --test native_fire_arrow -- --test-threads=1
 cargo test @common --test native_ice_arrow -- --test-threads=1
 cargo test @common --lib ranged_effect::tests
-```
+``
 
 最終 `cargo check --all-targets` 結束碼 **0**，gate **PASS**。八組測試合計 **61 passed、0 failed、0 ignored**，每組結束碼0且gate PASS。完成全部測試後再執行一次同參數cargo check，結束碼同為0。
 
@@ -96,28 +96,28 @@ cargo test @common --lib ranged_effect::tests
 ## 第 2 輪（2026-11-12，claude-local）
 
 ### 做了什麼
-- 合入 ``origin/main``（``120c7be``）。``native_world.rs`` 的 S15 移除分支有衝突，兩邊都保留：先處理 -1 留地投射物的 revision，再移除 ``resurrection_relocations``。合併 commit ``1f95428``。
-- ``ranged_effect.rs``：把 1156／2349 寫死的檢查改成 ``PINNED_CLASS3`` 表，每筆逐欄釘住原 ``Text/list.spr`` 定義：影像數、各影格的 subframe／ticks／聲音、屬性 bytes、shadow、Screen 混合、secondary。shadow 載入、``declared_secondary``、Screen 判斷都改讀這張表。66／2989 的三影格路徑沒動。
-- 新接 8 種：**2740、3584（shadow 3595）、4026（secondary 4027）、5526、7288、8916、9545、10699（secondary 10700）**。``PHYSICAL_GRAPHICS`` 從 4 種增為 12 種，``native_projectiles::supports_graphics`` 會一起分派到這些圖形。
-- 收錄條件：每個影格的事件只能是 ``[`` 聲音或沒有事件；shadow 必須是單影像且 type0；屬性只能有 102.type、104.attr(8)、109.effect(3 N)。這些都是第 1 輪已經對過原生碼的語意：40E2E0／40E420／40E8F0 不讀 secondary；40E7E0 設 0/1/2 之後，4E5B50 加一並回繞；attr8 用 Screen。
-- 新增單元測試（``ranged_effect::tests``）3 個：8 種用原定義全部通過資格檢查；``<``／``]`` 事件、改聲音、Hit、影像數、shadow、屬性 128、cloth、影格順序、class 改變都會被拒絕；未收錄的 2748、3692、8904 會被拒絕。
-- 新增整合測試 ``native_ranged_profiles::plain_class3_original_resources_draw_and_retire``：8 種 × 8 方向，用原資源載入、檢查各自的 SPR 名稱、source／subframe 與 shadow／secondary、確認有畫出像素、抵達後退休。
+- 合入 `origin/main`（`120c7be`）。`native_world.rs` 的 S15 移除分支有衝突，兩邊都保留：先處理 -1 留地投射物的 revision，再移除 `resurrection_relocations`。合併 commit `1f95428`。
+- `ranged_effect.rs`：把 1156／2349 寫死的檢查改成 `PINNED_CLASS3` 表，每筆逐欄釘住原 `Text/list.spr` 定義：影像數、各影格的 subframe／ticks／聲音、屬性 bytes、shadow、Screen 混合、secondary。shadow 載入、`declared_secondary`、Screen 判斷都改讀這張表。66／2989 的三影格路徑沒動。
+- 新接 8 種：**2740、3584（shadow 3595）、4026（secondary 4027）、5526、7288、8916、9545、10699（secondary 10700）**。`PHYSICAL_GRAPHICS` 從 4 種增為 12 種，`native_projectiles::supports_graphics` 會一起分派到這些圖形。
+- 收錄條件：每個影格的事件只能是 `[` 聲音或沒有事件；shadow 必須是單影像且 type0；屬性只能有 102.type、104.attr(8)、109.effect(3 N)。這些都是第 1 輪已經對過原生碼的語意：40E2E0／40E420／40E8F0 不讀 secondary；40E7E0 設 0/1/2 之後，4E5B50 加一並回繞；attr8 用 Screen。
+- 新增單元測試（`ranged_effect::tests`）3 個：8 種用原定義全部通過資格檢查；`<`／`]` 事件、改聲音、Hit、影像數、shadow、屬性 128、cloth、影格順序、class 改變都會被拒絕；未收錄的 2748、3692、8904 會被拒絕。
+- 新增整合測試 `native_ranged_profiles::plain_class3_original_resources_draw_and_retire`：8 種 × 8 方向，用原資源載入、檢查各自的 SPR 名稱、source／subframe 與 shadow／secondary、確認有畫出像素、抵達後退休。
 
 ### 已驗證（第 2 輪）
-- ``cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets``：合併後結束碼 **0**，改完後再跑一次結束碼也是 **0**（``Finished `dev` profile``）。只有原本就有的 warnings，新程式沒有新增 warning。
-- 用唯讀 Python（``scratch/issue-167/find_spr.py``，直接讀 ``0-客戶端/Sprite*.idx``／``.pak``，沒有寫入）查過 8 種共 51 個 SPR，全部找得到（``missing: []``）。看得到明文檔頭的 4 種，影格數與定義相符：10699 為 3、7288 為 3、9545 為 2、3584 為 1。
-- 定義原文來自 ``scratch/issue-167/list.spr``（解碼 SHA ``523C61AD…``），已經逐行對過表內的值。
+- `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：合併後結束碼 **0**，改完後再跑一次結束碼也是 **0**（`Finished `dev` profile`）。只有原本就有的 warnings，新程式沒有新增 warning。
+- 用唯讀 Python（`scratch/issue-167/find_spr.py`，直接讀 `0-客戶端/Sprite*.idx`／`.pak`，沒有寫入）查過 8 種共 51 個 SPR，全部找得到（`missing: []`）。看得到明文檔頭的 4 種，影格數與定義相符：10699 為 3、7288 為 3、9545 為 2、3584 為 1。
+- 定義原文來自 `scratch/issue-167/list.spr`（解碼 SHA `523C61AD…`），已經逐行對過表內的值。
 
 ### 待驗證（第 2 輪）
-- **本機依使用者 2026-11-09 規定沒有執行任何測試程式。** 新的 3 個 ``--lib`` 單元測試要等 PR #205 的 CI（``cargo test --locked --lib``）跑出結果。CI 沒有客戶端資源，整合測試 ``plain_class3_original_resources_draw_and_retire`` 和第 1 輪的資源型測試要交給 Codex 在本機跑：``cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_ranged_profiles``。
+- **本機依使用者 2026-11-09 規定沒有執行任何測試程式。** 新的 3 個單元測試改由 CI 跑：PR #205 的 `d1e8b75`（run 43153067096）中 cargo check 與 `cargo test --locked --lib --no-fail-fast` 都通過，原文 `test result: ok. 2044 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 19.03s`。`ranged_effect::tests` 的 13 個（含新增的 3 個 `plain_class3_*`）全部是 ok。CI 沒有客戶端資源，整合測試 `plain_class3_original_resources_draw_and_retire` 和第 1 輪的資源型測試要交給 Codex 在本機跑：`cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_ranged_profiles`。
 - 2740、3595、4026、5526、8916 的 SPR 是 0xFF 調色盤格式，這次沒有解出 subframe 數，要靠上面的整合測試確認。
-- 這 8 種多半是怪物投射物（伺服器的 ``ClassicWorldMonsterPopulation``／``BattleCompanion`` 都會呼叫 ``Protocol.rangedPhysicalAttack``），實際送出哪個 gfx 由 DB 決定，要靠 T043 的實機收據確認。
+- 這 8 種多半是怪物投射物（伺服器的 `ClassicWorldMonsterPopulation`／`BattleCompanion` 都會呼叫 `Protocol.rangedPhysicalAttack`），實際送出哪個 gfx 由 DB 決定，要靠 T043 的實機收據確認。
 
 ### 仍未接入的 class3（15 種，第 2 輪沒做）
 | 原因 | 圖形 |
 | --- | --- |
-| ``<`` Effect 事件（要先逆向 4E5B50 的 effect 生成路徑） | 2748、3705、4530、4547、4552、4621、4799、6767、8721、8771 |
-| ``]`` Overlay 事件 | 3692 |
+| `<` Effect 事件（要先逆向 4E5B50 的 effect 生成路徑） | 2748、3705、4530、4547、4552、4621、4799、6767、8721、8771 |
+| `]` Overlay 事件 | 3692 |
 | 105.cloth | 5415 |
 | 104.attr(128) | 8904 |
 | 8 影像 shadow（要先確認 40E854／4CD9D0 怎麼選 shadow 的影像） | 4523（另有 duration0 影格）、10782 |
