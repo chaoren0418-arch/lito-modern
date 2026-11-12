@@ -41,15 +41,43 @@ function Read-Whitelist {
     }
 }
 
+function Read-TargetTestNames {
+    param([string]$Target, [string]$TestsRoot)
+    # Static source scan only; nothing is compiled or executed here. Files with
+    # modules or include! cannot be enumerated reliably and need manual mapping.
+    if ($Target -notmatch '^[A-Za-z0-9_]+$') { throw "Invalid T026 test target: $Target" }
+    $path = Join-Path $TestsRoot ($Target + '.rs')
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Unknown T026 test target: $Target" }
+    $text = [IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)
+    if ($text -match '(?m)^\s*(?:pub(?:\([^)]*\))?\s+)?mod\s+[A-Za-z0-9_]+\s*[;{]' -or $text -match 'include!\s*\(') {
+        throw "T026 target needs manual review (mod/include!): $Target"
+    }
+    $attributes = [regex]::Matches($text, '(?m)^[ \t]*#\[test\][ \t]*\r?$').Count
+    $found = [regex]::Matches($text, '(?m)^[ \t]*#\[test\][ \t]*\r?\n(?:[ \t]*#\[[^\r\n]*\][ \t]*\r?\n)*[ \t]*fn[ \t]+([A-Za-z0-9_]+)[ \t]*\(')
+    if ($attributes -eq 0 -or $found.Count -ne $attributes) { throw "Cannot enumerate tests in T026 target: $Target" }
+    $result = @{}
+    foreach ($match in $found) {
+        $name = $match.Groups[1].Value
+        if ($result.ContainsKey($name)) { throw "Duplicate test in T026 target: $($Target)::$($name)" }
+        $result[$name] = $true
+    }
+    $result
+}
+
 function Read-SkillEntries {
     param(
         [string]$StatusPath = (Join-Path $repoRoot 'docs/SKILLS-STATUS.md'),
-        [string]$ManifestPath = (Join-Path $PSScriptRoot 'test-whitelist/skills.tsv')
+        [string]$ManifestPath = (Join-Path $PSScriptRoot 'test-whitelist/skills.tsv'),
+        [string]$TestsRoot = (Join-Path $project 'tests')
     )
     # The reviewed manifest resolves short names, duplicate names across targets,
     # nested modules and include! tests. Never discover/run arbitrary Rust tests.
+    # A bare target reference (e.g. native_t027_batch1) must list every #[test]
+    # in that file; an optional "(N cases)" note must match the count.
     $entries = @(Read-Whitelist $ManifestPath -Integration)
-    $names = @{}; $ids = @{}; $withoutTests = 0; $inTable = $false
+    $entryTargets = @{}
+    foreach ($entry in $entries) { $entryTargets[$entry.Target] = $true }
+    $names = @{}; $ids = @{}; $targetCounts = @{}; $withoutTests = 0; $inTable = $false
     foreach ($line in [IO.File]::ReadAllLines($StatusPath, [Text.Encoding]::UTF8)) {
         if ($line -match '^\|\s*ID\s*\|') { $inTable = $true; continue }
         if (-not $inTable) { continue }
@@ -67,22 +95,52 @@ function Read-SkillEntries {
         }
         foreach ($ref in $refs) {
             if ($ref.Groups[1].Value -notmatch '^([A-Za-z0-9_:]+)(?:$|\s|\uFF08)') { throw "Invalid skill test: $id" }
-            $names[$Matches[1]] = $true
+            $name = $Matches[1]
+            $names[$name] = $true
+            $after = $cells[12].Substring($ref.Index + $ref.Length)
+            if ($after -match '^\uFF08(\d+)\s*\u6848') {
+                $count = [int]$Matches[1]
+                if ($targetCounts.ContainsKey($name) -and $targetCounts[$name] -ne $count) { throw "Conflicting T026 case counts: $name" }
+                $targetCounts[$name] = $count
+            }
         }
     }
     if ($ids.Count -ne 181 -or $names.Count -eq 0) { throw 'Expected 181 skill rows and nonempty test references' }
+    # Whole-target references: the manifest must match the file's #[test] set exactly.
+    $targetRefs = @{}
+    foreach ($name in @($names.Keys)) {
+        if ($name -notmatch '::' -and $entryTargets.ContainsKey($name)) {
+            $sourceNames = Read-TargetTestNames $name $TestsRoot
+            $listed = @{}
+            foreach ($entry in $entries) { if ($entry.Target -ceq $name) { $listed[$entry.Name] = $true } }
+            foreach ($test in $sourceNames.Keys) {
+                if (-not $listed.ContainsKey($test)) { throw "Unmapped T026 target test: $($name)::$($test); update test-whitelist/skills.tsv" }
+            }
+            foreach ($test in $listed.Keys) {
+                if (-not $sourceNames.ContainsKey($test)) { throw "Stale skill manifest entry: $($name)::$($test)" }
+            }
+            if ($targetCounts.ContainsKey($name) -and $targetCounts[$name] -ne $sourceNames.Count) {
+                throw "T026 case count mismatch: $name lists $($targetCounts[$name]), source has $($sourceNames.Count)"
+            }
+            $targetRefs[$name] = $true
+        }
+    }
     $mapped = @{}
     foreach ($entry in $entries) {
         $short = ($entry.Name -split '::')[-1]
-        if (-not $names.ContainsKey($short) -and -not $names.ContainsKey($entry.Name)) {
-            throw "Stale skill manifest entry: $($entry.Target)::$($entry.Name)"
+        $qualified = $entry.Target + '::' + $entry.Name
+        if (-not $names.ContainsKey($short) -and -not $names.ContainsKey($entry.Name) -and
+            -not $names.ContainsKey($qualified) -and -not $targetRefs.ContainsKey($entry.Target)) {
+            throw "Stale skill manifest entry: $qualified"
         }
-        $mapped[$short] = $true; $mapped[$entry.Name] = $true
+        $mapped[$short] = $true; $mapped[$entry.Name] = $true; $mapped[$qualified] = $true
     }
     foreach ($name in $names.Keys) {
-        if (-not $mapped.ContainsKey($name)) { throw "Unmapped T026 test: $name; review and update test-whitelist/skills.tsv" }
+        if (-not $mapped.ContainsKey($name) -and -not $targetRefs.ContainsKey($name)) {
+            throw "Unmapped T026 test: $name; review and update test-whitelist/skills.tsv"
+        }
     }
-    Write-Host "Skills: $($ids.Count) catalog rows; $($names.Count) references; $($entries.Count) exact tests; $withoutTests rows have no tests (not verified)."
+    Write-Host "Skills: $($ids.Count) catalog rows; $($names.Count) references ($($targetRefs.Count) whole targets); $($entries.Count) exact tests; $withoutTests rows have no tests (not verified)."
     $entries
 }
 
@@ -223,7 +281,9 @@ function Read-G06SupportedScenarios {
     # Get-Command cannot expose a #Requires 7 script's metadata on PS 5.1.
     # Read literal ValidateSet values without executing the owned runner.
     $tokens = $null; $errors = $null
-    $ast = [Management.Automation.Language.Parser]::ParseFile($RunnerPath, [ref]$tokens, [ref]$errors)
+    # ParseFile on PS 5.1 decodes BOM-less UTF-8 as ANSI; decode explicitly.
+    $source = [IO.File]::ReadAllText($RunnerPath, (New-Object Text.UTF8Encoding($false, $true)))
+    $ast = [Management.Automation.Language.Parser]::ParseInput($source, [ref]$tokens, [ref]$errors)
     if ($errors.Count -gt 0) { throw 'Cannot parse owned G06 runner' }
     $parameter = @($ast.ParamBlock.Parameters | Where-Object { $_.Name.VariablePath.UserPath -eq 'Scenario' })
     if ($parameter.Count -ne 1) { throw 'Missing G06 runner scenario parameter' }

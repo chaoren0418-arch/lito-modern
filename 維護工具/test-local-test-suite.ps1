@@ -66,6 +66,44 @@ Reject { Read-SkillEntries $statusPath $manifestFixture } 'duplicate manifest en
 [IO.File]::WriteAllText($manifestFixture, "native_skills`tbad;name`tno`t-`n", $utf8)
 Reject { Read-SkillEntries $statusPath $manifestFixture } 'invalid identifier accepted'
 
+# Whole-target references (native_t027_batch1/2) and target::name references.
+$testsRoot = Join-Path $project 'tests'
+foreach ($target in @('native_t027_batch1','native_t027_batch2')) {
+    $sourceCount = (Read-TargetTestNames $target $testsRoot).Count
+    $listedCount = @($entries | Where-Object { $_.Target -ceq $target }).Count
+    Assert ($sourceCount -gt 0 -and $sourceCount -eq $listedCount) "whole target not fully listed: $target"
+}
+Assert (@($entries | Where-Object { $_.Target -ceq 'native_t021' -and $_.Name -ceq 'wire_shapes_and_menu_keep_selectors_separate_from_inventory_objects' }).Count -eq 1) 'qualified target::name reference not listed'
+$manifestLines = @($manifest -split "\r?\n" | Where-Object { $_ })
+$dropped = @($manifestLines | Where-Object { $_ -notmatch '^native_t027_batch1\tall_eight_complete_wire_shapes_are_pure_and_use_learned_ids\t' })
+Assert ($dropped.Count -eq $manifestLines.Count - 1) 'fixture did not drop exactly one target test'
+[IO.File]::WriteAllText($manifestFixture, ($dropped -join "`n") + "`n", $utf8)
+Reject { Read-SkillEntries $statusPath $manifestFixture } 'whole-target test silently dropped'
+[IO.File]::WriteAllText($manifestFixture, $manifest + "native_t027_batch2`tinvented_case`tno`t-`n", $utf8)
+Reject { Read-SkillEntries $statusPath $manifestFixture } 'stale whole-target entry accepted'
+$withoutT021 = @($manifestLines | Where-Object { $_ -notmatch '^native_t021\t' })
+[IO.File]::WriteAllText($manifestFixture, ($withoutT021 -join "`n") + "`n", $utf8)
+Reject { Read-SkillEntries $statusPath $manifestFixture } 'qualified reference silently dropped'
+Assert ($doc.Contains('`native_t027_batch1`' + [char]0xFF08 + '13 ')) 'batch1 case-count note missing'
+[IO.File]::WriteAllText($docFixture, $doc.Replace('`native_t027_batch1`' + [char]0xFF08 + '13 ', '`native_t027_batch1`' + [char]0xFF08 + '14 '), $utf8)
+Reject { Read-SkillEntries $docFixture $manifestPath } 'case-count mismatch accepted'
+$fakeTests = Join-Path $qa 'tests'
+New-Item -ItemType Directory $fakeTests -Force | Out-Null
+foreach ($target in @('native_t027_batch1','native_t027_batch2')) {
+    Copy-Item -LiteralPath (Join-Path $testsRoot ($target + '.rs')) -Destination $fakeTests
+}
+Assert ((Read-SkillEntries $statusPath $manifestPath $fakeTests).Count -eq $entries.Count) 'fake tests root fixture invalid'
+$batch2 = Join-Path $fakeTests 'native_t027_batch2.rs'
+$batch2Text = [IO.File]::ReadAllText($batch2, [Text.Encoding]::UTF8)
+[IO.File]::WriteAllText($batch2, $batch2Text + "`ninclude!(`"extra.rs`");`n", $utf8)
+Reject { Read-SkillEntries $statusPath $manifestPath $fakeTests } 'include! in whole target accepted'
+[IO.File]::WriteAllText($batch2, $batch2Text + "`n#[test]`nfn added_after_review() {}`n", $utf8)
+Reject { Read-SkillEntries $statusPath $manifestPath $fakeTests } 'new whole-target test silently dropped'
+[IO.File]::WriteAllText($batch2, $batch2Text + "`n#[test]`n// comment between`nfn hidden() {}`n", $utf8)
+Reject { Read-SkillEntries $statusPath $manifestPath $fakeTests } 'unparseable #[test] accepted'
+Remove-Item -LiteralPath $batch2 -Confirm:$false
+Reject { Read-SkillEntries $statusPath $manifestPath $fakeTests } 'missing whole-target source accepted'
+
 # Actual subprocess round trip: spaces, trailing slash, environment isolation,
 # UTF-8 and both output pipes. Only this QA child is started.
 $scratch = Join-Path $qa 'temp with spaces'
@@ -108,6 +146,9 @@ Assert (@($rows | Where-Object Status -eq 'PASS').Count -eq 0) 'G06 incomplete p
 Assert (($rows.Step -join ',') -eq 'timeout,refused,wrong-service,cancel-retry,cancel-expiry,cancel-repeat,refused-cancel-repeat,cancel-expiry-source') 'G06 inventory changed'
 $supported = @(Read-G06SupportedScenarios (Join-Path $PSScriptRoot 'run-teleport-failure.ps1'))
 Assert ($supported -contains 'timeout' -and $supported -contains 'cancel-expiry') 'owned runner metadata unavailable'
+foreach ($name in @('cancel-repeat','refused-cancel-repeat','cancel-expiry-source')) {
+    Assert ($supported -ccontains $name) "owned runner lacks T023-2 scenario: $name"
+}
 
 # Synthetic owned-runner adapter exercises selection, evidence parsing and
 # fail-stop. No Java, Cargo, network or game process runs in this section.

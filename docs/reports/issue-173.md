@@ -1,201 +1,97 @@
-# Issue #173 — T041 第 3 次執行報告
+# Issue #173 — T041 第 4 次執行報告（claude-local）
 
 ## 結論
 
-**驗收仍受 T023 第 2 張前置缺項阻擋。** 2026-11-06 本輪完整套件結束碼 **1**。基線 80／80、技能 41／41 通過，G06 八案均因前置不足而未執行。T041 要求的完整套件結束碼 0 尚待達成。
+T023 第 2 張（#170）合併以後，G06 的前置阻擋**已經解除**。`run-teleport-failure.ps1` 的 `ValidateSet` 和 `native_teleport_failure.rs` 都已經有八個 scenario，跟本套件的對照表逐字相同。
+
+本輪把分支同步到 main，修正同步後出現的兩個腳本缺口：
+
+1. 技能表新增了整檔參照與 `target::name` 參照。
+2. PowerShell 5.1 讀 runner 原始碼時編碼錯誤，導致 G06 預檢失敗。
+
+修正後，腳本自身回歸在 5.1／7 都通過，`cargo check` 結束碼 0。
+
+依使用者 2026-11-09 的本機限制，本輪**沒有在本機跑任何 Rust 測試執行檔**，所以完整套件（基線、技能 66 項、G06 八案）的實跑結果是**待驗證**，要交給 Codex 本機執行。
 
 ## 做了什麼
 
-- 沿用指定 worktree 與 `task/173`，起始提交 `359dcdef436fc551da6ff5f2034c23ecabf471c2`。
-- 讀取 AGENTS.md、docs/REPORT.md、TASKS 的 T012／T026／T023／T041，以及前次報告與既有腳本。
-- 核對遠端 main、owned runner 的 Scenario 契約與本輪 Cargo artifact 的實際 Rust 測試名稱。
-- 重跑完整套件及 PowerShell 5.1／7 腳本回歸，更新本報告。本輪追蹤檔變更只有本報告，既有兩次提交的技能／G06 調度及門檻供後續整合驗收使用。
-- 依分張範圍將三案實作留給 T023 第 2 張，保留缺項失敗門檻。
+- `git merge origin/main`：分支原本落後 137 個提交，合併沒有衝突。
+- `維護工具/run-local-test-suite.ps1`
+  - 新增 `Read-TargetTestNames`：靜態掃描 `tests/<target>.rs` 的 `#[test]` 函式，不編譯、不執行。
+  - `Read-SkillEntries` 支援兩種新參照：
+    - 整檔參照（`native_t027_batch1`、`native_t027_batch2`）：清單必須和原始碼的 `#[test]` 集合完全一致。狀態表若寫了「（N 案」，數量也要相符。檔案內有 `mod`／`include!`、有無法解析的 `#[test]`、或檔案不存在，一律失敗。
+    - 限定參照（`native_t021::…`）。
+  - `Read-G06SupportedScenarios` 改成先以 UTF-8 讀 runner 原始碼，再用 `ParseInput` 解析。原本用 `ParseFile`，在 5.1 會把沒有 BOM 的 UTF-8 中文當成 ANSI 解碼，造成解析錯誤，G06 八列因此全部預檢失敗。
+- `維護工具/test-whitelist/skills.tsv`：從 41 項增加到 66 項。新增的是 batch1 13 項、batch2 11 項、t021 1 項，各列內容取自 main 已審查的 `tests.tsv`。
+- `維護工具/test-local-test-suite.ps1`：新增 17 條合成斷言，涵蓋：
+  - 整檔清單完整
+  - 漏列、多列、限定參照遺漏
+  - 「N 案」數量不符
+  - `include!`
+  - 原始碼新增測試
+  - 註解夾在 `#[test]` 與 `fn` 之間
+  - 檔案缺失
+  - runner 已支援 T023-2 的三案
+- `維護工具/test-whitelist/README.md`：同步新的範圍與數量。
+- 成功門檻沒有改，和 T012 相同：每項只能有一個 harness，`running 1 test`、1 passed、failed／ignored／measured 都是 0，結束碼 0。0 tests、`failed>0`、解析失敗都不算通過。G06 只要有一案失敗，後續各案就列為「未執行」的失敗。
 
 ## 已驗證
 
-### 遠端與前置缺項
+- **G06 契約靜態對照。** 合併後的 runner `ValidateSet` 是 `timeout, cancel-expiry, cancel-expiry-source, cancel-retry, cancel-repeat, refused, refused-cancel-repeat, wrong-service`。`native_teleport_failure.rs` 裡有八個 `#[ignore]` 測試，名稱和套件對照表逐字相同：
+  - `destination_timeout_…`
+  - `refused_destination_…`
+  - `wrong_service_destination_…`
+  - `cancellation_then_immediate_retry_…`
+  - `cancellation_retires_destination_…`
+  - `repeated_cancellation_preserves_only_one_authenticated_recovery`
+  - `failed_handoff_then_repeated_cancel_preserves_the_authenticated_recovery`
+  - `expired_stage_and_source_handoff_require_the_requested_source_directory`
 
-`git -c http.sslBackend=openssl ls-remote origin refs/heads/main refs/heads/task/170 refs/heads/task/173` 結束碼 0，回傳 main `59f0c2bcd7dc4435ba43186f7767130ab7869af1` 與 task/173 `359dcdef436fc551da6ff5f2034c23ecabf471c2`。本機 origin/main 與遠端 main 一致。以 `git diff origin/main HEAD -- LiTo381-Modern/tests/native_teleport_failure.rs 維護工具/run-teleport-failure.ps1` 核對，兩檔無差異。
-
-當版 owned runner 的 ValidateSet 只有 `timeout`、`cancel-expiry`、`cancel-retry`、`refused`、`wrong-service`。缺少 `cancel-repeat`、`refused-cancel-repeat`、`cancel-expiry-source`，對應 TASKS.md 的 T023 第 2 張。
-
-本輪在 `LiTo381-Modern/` 執行下列建置與列舉，兩者結束碼均 0。建置使用 worktree 內 TEMP／TMP，執行檔取自這次 Cargo JSON artifact。
-
-```powershell
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_teleport_failure --no-run --message-format=json
-& $binary --list --ignored --format terse
-```
-
-列舉原文如下。此步僅取得 inventory，沒有執行 Rust 測試。
-
-```text
-cancellation_retires_destination_and_expired_handoff_requires_fresh_selection: test
-cancellation_then_immediate_retry_consumes_staged_character_once: test
-destination_timeout_retires_old_authority_and_allows_fresh_login: test
-refused_destination_retires_authority_and_allows_fresh_login: test
-wrong_service_destination_retires_authority_and_allows_fresh_login: test
-```
-
-證據位於 `scratch/issue-173/attempt3-inventory-build.log`、`attempt3-inventory-build.stderr.log`、`attempt3-inventory.log`，重現腳本為 `scratch/issue-173/attempt3-inventory.ps1`。
-
-### 腳本回歸
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File 維護工具/test-local-test-suite.ps1
-& 'D:\lineage開發\3-lito開發\lito重建版\scratch\wt\task-118\scratch\tools\pwsh\pwsh.exe' -NoProfile -File 維護工具/test-local-test-suite.ps1
-```
-
-兩者結束碼均 0，原文如下。
-
-```text
-Runner QA: 77 assertions passed; PowerShell=5.1.19041.6456. Synthetic checks only.
-Runner QA: 77 assertions passed; PowerShell=7.6.5. Synthetic checks only.
-```
-
-回歸涵蓋八案合成調度、缺案拒絕且無子程序、inventory 缺項／重複／大小寫／非零碼／空輸出、0 tests、結果解析失敗、receipt／清理錯誤與首敗停止。合成 adapter 的結果僅驗證腳本行為，G06 實跑仍待前置完成。原始輸出為 `scratch/issue-173/attempt3-qa-ps51.log` 與 `attempt3-qa-ps7.log`。
-
-### 完整套件與 Cargo
-
-在 worktree 根目錄執行下列命令，結束碼 1。
-
-```powershell
-& 'D:\lineage開發\3-lito開發\lito重建版\scratch\wt\task-118\scratch\tools\pwsh\pwsh.exe' -NoProfile -File 維護工具/run-local-test-suite.ps1
-```
-
-實際以 `scratch/issue-173/run-attempt3.ps1` 包裝相同入口，保存 console 與結束碼至 `attempt3-suite.log`／`attempt3-suite.exit`。
-
-| 類別 | 列數 | PASS | FAIL／未執行 |
-|---|---:|---:|---:|
-| Baseline | 80 | 80 | 0 |
-| 技能 (Skills) | 41 | 41 | 0 |
-| G06 | 8 | 0 | 8，前置不足 |
-
-完整總表與 001–121.log 位於 `LiTo381-Modern/target/current/verification/local-test-suite/20261106-160954-518-476/`。
-
-指定的 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 **0**，證據為 001.log 與 summary.txt 的 check 列。check 本身無 `test result:`。
-
-Debug／Release 的命令為 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast`，Release 另加 `--release`。兩者結束碼均 0。基線其餘 77 項與技能 41 項逐一通過 Exact 門檻，每項結束碼 0、`running 1 test`、1 passed、0 failed／ignored／measured。相關 `test result:` 原文附於文末。
-
-八個 G06 列的失敗原因與最終結果原文如下。
-
-```text
-FAIL: precondition: incomplete-owned-scenarios (T023-2): cancel-repeat, refused-cancel-repeat, cancel-expiry-source
-Steps=129 | Final exit code=1
-```
-
-G06 八列的程序結束碼與計數均為 N/A。本輪 G06 harness 未啟動，未啟動遊戲、GUI、正式服務或 DB。新產物寫入本 worktree 的 scratch／target。
+  runner 的 receipt 欄位也和套件的檢查一致：`status=verified_<scenario>`、`test_binary`、`jar_sha256`、`inputs_unchanged`、`cleanup_errors`、`drift_errors`、`root`（位於 `target/current/native-teleport-failure/`），以及 `rust.stdout.txt`。
+- **技能清單對照**（以 PowerShell 靜態解析，未執行 Rust）：`Skills: 181 catalog rows; 36 references (2 whole targets); 66 exact tests; 123 rows have no tests (not verified).`
+- **腳本自身回歸**：只跑 PowerShell 合成檢查，沒有 Cargo、Java 或 Rust 執行檔。
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 維護工具/test-local-test-suite.ps1`：結束碼 0，輸出 `Runner QA: 94 assertions passed; PowerShell=5.1.19041.6456. Synthetic checks only.`
+  - `pwsh -NoProfile -File 維護工具/test-local-test-suite.ps1`：結束碼 0，輸出 `Runner QA: 94 assertions passed; PowerShell=7.6.5. Synthetic checks only.`
+  - 修正前，5.1 版在 `Cannot parse owned G06 runner` 失敗，這是本輪修正的依據。
+  - 原始輸出存放在 `scratch/issue-173/attempt4-qa-ps51.log` 和 `attempt4-qa-ps7.log`。
+- **cargo check**：`cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 **0**（`Finished dev profile … in 3m 53s`，log：`scratch/issue-173/attempt4-cargo-check.log`）。check 不會產生 `test result:`。
 
 ## 推測
 
-三案整合後，既有八案調度可進入完整實跑階段，仍須以實際輸出驗收。整合後的成功率及結果待驗證。
+- 本機資源（`0-客戶端`）與 E149 JAR 備妥後，技能 66 項應能逐項通過 Exact 門檻。理由是這 25 個新增項目已經在 main 的基線 `tests.tsv` 裡，由 #145、#146 回報通過。這一點尚未在本分支實跑。
+- G06 八案能否全部通過，取決於 owned harness 的實際環境（JDK、E149 JAR、loopback 埠、自然 33 秒與 31 秒的到期觀察），本輪無法推定。
 
-## 待驗證／未完成事項
+## 待驗證（交 Codex 本機執行）
 
-- T023 第 2 張的三案 Rust／Java／owned runner 實作與整合。
-- G06 八案實跑全通過及完整套件結束碼 0。
-- 技能表 143 列「尚無」測試、完整 GUI 與伺服器同源性。本次只對表內已有名稱的 41 項測試回報結果。
-- GitHub CLI 查詢 Issue #173 與 T023 清單時回傳 HTTP 401，最新審查留言無法取得。本輪依使用者提供的退回內容與實際 Git／測試證據處理。
+1. 在本 worktree（或合併後的 main）把已驗證的 E149 JAR 放到 `LiTo381-Modern/target/current/server-reference/formal-server-E1498871.jar`，然後執行 `pwsh -NoProfile -File 維護工具/run-local-test-suite.ps1`。
+2. 驗收條件：
+   - 總表的 Baseline、技能（66 列）、G06（8 列）全部是 `PASS`。
+   - 最後一行是 `Final exit code=0`。
+   - 附上 summary.txt 和各 log 的 `test result:` 原文。
+3. 也可以分類執行 `-Category Skills` 和 `-Category G06`，方便定位問題，但 M2 完成定義以 `-Category All` 的結果為準。
+4. CI（`build.yml`）只跑 `cargo check` 和 `cargo test --lib`，不會執行本套件；本套件的實跑一律在本機完成。
+
+## Cargo 原文
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+exit=0
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 53s
+```
+
+本輪沒有執行 `cargo test`，原因是本機限制禁止執行編譯出的測試程式，所以沒有 `test result:` 可以附。測試結果以 PR CI 和 Codex 本機實跑為準。
 
 ## 產出路徑
 
-- 本輪更新 `docs/reports/issue-173.md`。
-- 既有實作 `維護工具/run-local-test-suite.ps1`、`維護工具/test-local-test-suite.ps1`、`維護工具/test-whitelist/skills.tsv`、`維護工具/test-whitelist/README.md`。
-- 本輪原始證據位於上述 `scratch/issue-173/attempt3-*` 與 `target/current/verification/local-test-suite/20261106-160954-518-476/`，皆為未追蹤產物。
+- `維護工具/run-local-test-suite.ps1`
+- `維護工具/test-local-test-suite.ps1`
+- `維護工具/test-whitelist/skills.tsv`
+- `維護工具/test-whitelist/README.md`
+- `docs/reports/issue-173.md`
+- 未追蹤的證據：`scratch/issue-173/attempt4-*.log`
 
 ## 給下一棒的提示
 
-調度器先安排 T023 第 2 張完成三案、精確測試名稱及 runner 契約，經審查整合後再排本機 codex-local 執行 T041。相同五案基準已重現相同阻擋，應將 #173 設為等待前置。Claude 審查以八案真實結果及完整套件結束碼為準。REPORT 索引由調度器處理。
-
-## 附錄 — 本輪相關 Cargo 測試原文
-
-下列每個 log 的命令結束碼均為 0，可與完整 summary.txt 逐列核對。002／003 為 Debug／Release lib，081–121 為技能類。
-
-```text
-002.log; exit=0
-test result: ok. 1915 passed; 0 failed; 575 ignored; 0 measured; 0 filtered out; finished in 3.32s
-003.log; exit=0
-test result: ok. 1915 passed; 0 failed; 575 ignored; 0 measured; 0 filtered out; finished in 1.83s
-081.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
-082.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.01s
-083.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
-084.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
-085.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
-086.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-087.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-088.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
-089.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.01s
-090.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-091.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.34s
-092.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.01s
-093.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.01s
-094.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
-095.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
-096.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
-097.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-098.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-099.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
-100.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
-101.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
-102.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
-103.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-104.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-105.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.01s
-106.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
-107.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
-108.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-109.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-110.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
-111.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
-112.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
-113.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
-114.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.01s
-115.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
-116.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
-117.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
-118.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2489 filtered out; finished in 0.01s
-119.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2489 filtered out; finished in 0.00s
-120.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2489 filtered out; finished in 0.00s
-121.log; exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
-```
+- 前置（#170）已完成，現在只差本機實跑。請由 Codex 本機（`codex-local`）依「待驗證」的步驟跑完整套件，以八案真實結果和完整套件結束碼 0 驗收。
+- 以後 `docs/SKILLS-STATUS.md` 新增測試參照時，技能類會因為「Unmapped」或「case count mismatch」而失敗。修法是依錯誤訊息補 `skills.tsv`（可以從 `tests.tsv` 取已審查的列），不能放寬門檻。
+- 123 列「尚無」測試的技能不在本套件的驗證範圍內；套件通過不代表那些技能已驗證。
