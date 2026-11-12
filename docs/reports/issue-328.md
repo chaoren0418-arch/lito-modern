@@ -89,4 +89,6 @@
 
 ## 建置結果
 
-本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，3 分 16 秒；只有既有的命名風格警告）。這只代表可編譯，測試結果看 PR 的 CI。
+本機 `cargo check --locked --offline -j1 --all-targets --target-dir target/current`：通過（exit 0，3 分 16 秒；只有既有的命名風格警告）。這只代表可編譯。
+
+PR #360 第一個 commit 的 CI（run 43219191327）：`cargo check --all-targets` 與 `cargo test --lib` 通過，2350 passed／0 failed／597 ignored；本張新增的 14 個單元測試都在通過清單內。之後只改了本報告這一段。
