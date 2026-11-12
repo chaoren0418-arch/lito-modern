@@ -6,7 +6,7 @@ use std::{net::SocketAddr,path::{Path,PathBuf},sync::atomic::AtomicBool,time::{D
 pub fn run(peer:SocketAddr,account:&str,password:&str,source:usize,mode:&str)->Result<Value>{
     ensure!(peer.ip().is_loopback()&&peer.port()!=0&&matches!(mode,"room"|"world"),"invalid recovery fixture");
     let root=PathBuf::from(std::env::var("LITO_NATIVE_RECOVERY_ROOT")?).canonicalize()?;
-    ensure!(root.starts_with(Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current/native-recovery").canonicalize()?),"recovery root");
+    ensure!(root.starts_with(super::native_startup::diagnostic_project_root()?.join("target/current/native-recovery").canonicalize()?),"recovery root");
     let limits=Limits{read_chunk:2,write_chunk:3,..Limits::default()};
     let mut c=LoginController::default();c.start(peer,limits)?;
     let start=Instant::now();let mut submitted=false;let mut restarted=false;let mut fault_requested=false;
@@ -51,7 +51,7 @@ pub fn run(peer:SocketAddr,account:&str,password:&str,source:usize,mode:&str)->R
                         ensure!(w.generation>before["world"]["generation"].as_u64().unwrap(),"world generation reused after reconnect");
                         ensure!(!old.movement_ready(w)&&!old.input_ready(w)&&!old.death_ready(w),"stale frame authorizes reconnected world");
                     }
-                    let mut model=Model::load(Path::new(r"D:\lineage開發\0-客戶端"),w,&cancel)?;
+                    let mut model=Model::load(&super::native_startup::diagnostic_resource_root()?,w,&cancel)?;
                     let frame=model.draw_at(w,&cancel,0)?;
                     ensure!(frame.movement_ready(w),"fresh frame unavailable");
                     super::native_peer_probe::capture(&root,"recovery",if restarted{2}else{1},"world",&frame)?;

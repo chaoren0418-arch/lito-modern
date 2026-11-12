@@ -6,9 +6,18 @@
 //! storage and bounded index/chunk metadata). The pool only consumes prepared PCM: no filenames, decoding,
 //! combat RNG, hit processing, LT fallback, or distance (`^`) approximation.
 //!
-//! A failed native device permanently faults this pool. Its fixed voice objects
-//! remain owned and cleanup is retried without allocating replacements. Keep one
-//! pool for the window lifetime; recreating faulted pools would evade that bound.
+//! Device lifecycle (issue #341). Keep one pool for the window lifetime; its
+//! fixed voice objects are never replaced, so recreating pools would evade the
+//! bounds below.
+//! - No output device (open refused, nothing handed to the driver): not a
+//!   fault. The cue is dropped, the slot stays free and the next open is
+//!   attempted no sooner than `DEVICE_RETRY_MILLIS` later.
+//! - Any other device failure faults the pool: every voice is stopped and
+//!   cleanup is retried without allocating replacements. Once the driver owns
+//!   nothing and `FAULT_RECOVERY_MILLIS` passed without a new failure, `poll`
+//!   re-enables the pool, at most `MAX_FAULT_RECOVERIES` times; after that the
+//!   fault is permanent.
+//! - Dropped cues are never queued or replayed.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
@@ -34,6 +43,16 @@ pub const MAX_PLAYBACK_MILLIS: u64 = 60_000;
 /// Driver latency allowed beyond the PCM length before a voice that still
 /// reports "playing" is reset by the pool (never restarted or replaced).
 pub const VOICE_OVERRUN_GRACE_MILLIS: u64 = 5_000;
+/// After an open that found no usable output device, cues are dropped without
+/// touching the driver for this long. Bounds a 256-cue batch on a machine
+/// without speakers to one failed open, and lets a plugged-in device be picked
+/// up by the first cue after the interval.
+pub const DEVICE_RETRY_MILLIS: u64 = 2_000;
+/// Quiet time (no new device error, nothing owned by the driver) before a
+/// faulted pool is re-enabled by `poll`.
+pub const FAULT_RECOVERY_MILLIS: u64 = 5_000;
+/// Re-enables per pool. A driver that keeps failing ends permanently faulted.
+pub const MAX_FAULT_RECOVERIES: u8 = 8;
 
 #[derive(Clone, Copy, Debug)]
 pub struct BankLimits {
@@ -397,6 +416,9 @@ pub enum PlayOutcome {
     Silent,
     /// Deliberately drops this cue, never steals or restarts an active voice.
     VoiceLimit,
+    /// No usable output device (none present, audio service stopped, or held
+    /// exclusively). The cue is dropped; nothing is retained or replayed.
+    DeviceUnavailable,
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PoolStatus {
@@ -404,6 +426,9 @@ pub struct PoolStatus {
     /// Slots that may still own a native header/buffer, including failed starts.
     pub retained: usize,
     pub faulted: bool,
+    /// The most recent open found no usable output device. Cleared by the
+    /// next successful start; a state of the host, not a fault of the pool.
+    pub device_unavailable: bool,
 }
 
 #[cfg(windows)]
@@ -442,8 +467,13 @@ mod output {
         fn start(&mut self, sound: &PreparedSound) -> Result<(), AudioOutputError>;
         fn poll(&mut self) -> Result<VoiceStatus, AudioOutputError>;
         fn stop(&mut self) -> Result<(), AudioOutputError>;
+        /// The driver owns nothing of this voice. No driver call.
+        fn is_idle(&self) -> bool;
     }
     impl OutputVoice for PcmVoice {
+        fn is_idle(&self) -> bool {
+            PcmVoice::is_idle(self)
+        }
         fn start(&mut self, sound: &PreparedSound) -> Result<(), AudioOutputError> {
             self.start_prepared(sound)
         }
@@ -468,6 +498,14 @@ mod output {
         /// Monotonic; replaced only by deterministic tests.
         clock: fn() -> Instant,
         expired: u64,
+        /// Time of the latest device failure while faulted (latch or a
+        /// failed cleanup retry). Recovery counts quiet time from here.
+        fault_at: Option<Instant>,
+        recoveries: u8,
+        /// Set by an open that found no device; cues before it are dropped
+        /// without a driver call. Kept (expired) until a start succeeds.
+        retry_open_at: Option<Instant>,
+        unavailable_cues: u64,
     }
     impl<V: OutputVoice> Pool<V> {
         fn new(capacity: usize, mut create: impl FnMut() -> V) -> Result<Self, PoolError> {
@@ -486,7 +524,35 @@ mod output {
                 fault: None,
                 clock: Instant::now,
                 expired: 0,
+                fault_at: None,
+                recoveries: 0,
+                retry_open_at: None,
+                unavailable_cues: 0,
             })
+        }
+        fn latch(&mut self, error: AudioOutputError) {
+            if self.fault.is_none() {
+                self.fault = Some(error);
+            }
+            self.fault_at = Some((self.clock)());
+        }
+        /// Re-enable a faulted pool only when the driver owns nothing, the
+        /// failure has been quiet for `FAULT_RECOVERY_MILLIS`, and the bounded
+        /// number of re-enables is not used up. Called from `poll` only.
+        fn recover_if_quiet(&mut self) {
+            let quiet = self.fault_at.is_none_or(|at| {
+                (self.clock)().saturating_duration_since(at)
+                    >= Duration::from_millis(FAULT_RECOVERY_MILLIS)
+            });
+            if self.fault.is_some()
+                && quiet
+                && self.recoveries < MAX_FAULT_RECOVERIES
+                && self.slots.iter().all(|slot| slot.sound_id.is_none())
+            {
+                self.fault = None;
+                self.fault_at = None;
+                self.recoveries += 1;
+            }
         }
         fn status(&self) -> PoolStatus {
             PoolStatus {
@@ -497,6 +563,7 @@ mod output {
                     .filter(|slot| slot.sound_id.is_some())
                     .count(),
                 faulted: self.fault.is_some(),
+                device_unavailable: self.retry_open_at.is_some(),
             }
         }
         fn play(
@@ -531,6 +598,13 @@ mod output {
             {
                 return Ok(PlayOutcome::Suppressed { sound_id: id });
             }
+            let now = (self.clock)();
+            // No device a moment ago: drop the cue without another open.
+            // Voices that are already playing are left alone.
+            if self.retry_open_at.is_some_and(|at| now < at) {
+                self.unavailable_cues = self.unavailable_cues.saturating_add(1);
+                return Ok(PlayOutcome::DeviceUnavailable);
+            }
             let Some((index, slot)) = self
                 .slots
                 .iter_mut()
@@ -548,16 +622,26 @@ mod output {
             {
                 Ok(()) => {
                     slot.playing = true;
-                    slot.deadline = (self.clock)().checked_add(Duration::from_millis(
+                    slot.deadline = now.checked_add(Duration::from_millis(
                         sound.playback_millis() + VOICE_OVERRUN_GRACE_MILLIS,
                     ));
+                    self.retry_open_at = None;
                     Ok(PlayOutcome::Started {
                         sound_id: id,
                         slot: index,
                     })
                 }
+                // Nothing reached the driver and the host says there is no
+                // usable device: free the slot, back off, do not fault.
+                Err(error) if error.device_unavailable() && slot.voice.is_idle() => {
+                    slot.sound_id = None;
+                    self.retry_open_at =
+                        now.checked_add(Duration::from_millis(DEVICE_RETRY_MILLIS));
+                    self.unavailable_cues = self.unavailable_cues.saturating_add(1);
+                    Ok(PlayOutcome::DeviceUnavailable)
+                }
                 Err(error) => {
-                    self.fault = Some(error.clone());
+                    self.latch(error.clone());
                     self.cleanup_once();
                     Err(PoolError::Device(error))
                 }
@@ -566,7 +650,10 @@ mod output {
         fn poll(&mut self) -> Result<PoolStatus, PoolError> {
             if self.fault.is_some() {
                 self.cleanup_once();
-                return Err(PoolError::Device(self.fault.as_ref().unwrap().clone()));
+                self.recover_if_quiet();
+                if let Some(error) = &self.fault {
+                    return Err(PoolError::Device(error.clone()));
+                }
             }
             let now = (self.clock)();
             for slot in &mut self.slots {
@@ -594,6 +681,7 @@ mod output {
                     }
                     Err(error) => {
                         self.fault = Some(error);
+                        self.fault_at = Some(now);
                         break;
                     }
                 }
@@ -606,6 +694,7 @@ mod output {
             }
         }
         fn cleanup_once(&mut self) {
+            let mut failed = None;
             for slot in &mut self.slots {
                 if slot.sound_id.is_none() {
                     continue;
@@ -617,11 +706,13 @@ mod output {
                         slot.deadline = None;
                     }
                     Err(error) => {
-                        if self.fault.is_none() {
-                            self.fault = Some(error);
-                        }
+                        failed.get_or_insert(error);
                     }
                 }
+            }
+            // A failed stop (re)starts the quiet period before recovery.
+            if let Some(error) = failed {
+                self.latch(error);
             }
         }
         fn stop_all(&mut self) -> Result<(), PoolError> {
@@ -645,8 +736,11 @@ mod output {
     /// The caller must poll once before each tick's cue batch. `play` never
     /// polls the driver: a just-finished voice conservatively stays occupied
     /// until the next poll, bounding a 256-cue batch to one native query pass.
-    /// Keep polling independently of focus/WM_PAINT; fault reports must disable
-    /// audio for this window, not trigger a replacement-pool retry loop.
+    /// Keep polling independently of focus/WM_PAINT; a fault report must mute
+    /// the window's audio, never trigger a replacement-pool retry loop. The
+    /// only re-enable is this pool's own bounded recovery inside `poll`
+    /// (`Ok` again after an `Err`); a missing device is not reported as a
+    /// fault at all (`PlayOutcome::DeviceUnavailable`).
     pub struct CombatVoicePool {
         inner: Pool<PcmVoice>,
     }
@@ -682,8 +776,19 @@ mod output {
         pub fn expired_voices(&self) -> u64 {
             self.inner.expired
         }
-        /// Healthy pools can be reused after a match. A device fault stays
-        /// latched even after later cleanup succeeds; no automatic re-enable.
+        /// Cues dropped because no usable output device existed. Diagnostics
+        /// only; dropped cues are never replayed.
+        pub fn unavailable_cues(&self) -> u64 {
+            self.inner.unavailable_cues
+        }
+        /// Times `poll` re-enabled this pool after a device fault
+        /// (0..=`MAX_FAULT_RECOVERIES`).
+        pub fn fault_recoveries(&self) -> u8 {
+            self.inner.recoveries
+        }
+        /// Healthy pools can be reused after a match (scene switch, exit).
+        /// A device fault stays latched here even when this cleanup succeeds;
+        /// only `poll` re-enables the pool, after the bounded quiet period.
         pub fn stop_all(&mut self) -> Result<(), PoolError> {
             self.inner.stop_all()
         }
@@ -705,6 +810,11 @@ mod output {
             poll_fail: bool,
             stop_fail: bool,
             retained: Option<PreparedSound>,
+            /// Issue #341: the open is refused with this code; like WinMM,
+            /// nothing is handed to the driver.
+            no_device: Option<u32>,
+            /// Replaces the generic error of a `start_fail` (buffer retained).
+            start_error: Option<AudioOutputError>,
         }
         struct Fake(Rc<RefCell<Trace>>);
         fn error() -> AudioOutputError {
@@ -717,9 +827,15 @@ mod output {
             fn start(&mut self, sound: &PreparedSound) -> Result<(), AudioOutputError> {
                 let mut trace = self.0.borrow_mut();
                 trace.starts += 1;
+                if let Some(code) = trace.no_device {
+                    return Err(AudioOutputError::Device(DriverError {
+                        operation: "waveOutOpen",
+                        code,
+                    }));
+                }
                 trace.retained = Some(sound.clone());
                 if trace.start_fail {
-                    Err(error())
+                    Err(trace.start_error.clone().unwrap_or_else(error))
                 } else {
                     trace.playing = true;
                     Ok(())
@@ -736,6 +852,9 @@ mod output {
                     trace.retained = None;
                     Ok(VoiceStatus::Finished)
                 }
+            }
+            fn is_idle(&self) -> bool {
+                self.0.borrow().retained.is_none()
             }
             fn stop(&mut self) -> Result<(), AudioOutputError> {
                 let mut trace = self.0.borrow_mut();
@@ -889,7 +1008,8 @@ mod output {
                 PoolStatus {
                     active: 0,
                     retained: 1,
-                    faulted: true
+                    faulted: true,
+                    device_unavailable: false,
                 }
             );
             assert_eq!(traces[0].borrow().starts, 1);
@@ -947,7 +1067,8 @@ mod output {
                 PoolStatus {
                     active: 0,
                     retained: 0,
-                    faulted: false
+                    faulted: false,
+                    device_unavailable: false,
                 }
             );
             assert_eq!((traces[0].borrow().stops, pool.expired), (1, 1));
@@ -1005,7 +1126,8 @@ mod output {
                 PoolStatus {
                     active: 1,
                     retained: 1,
-                    faulted: true
+                    faulted: true,
+                    device_unavailable: false,
                 }
             );
             assert_eq!(pool.expired, 0);
@@ -1014,6 +1136,289 @@ mod output {
             traces[0].borrow_mut().stop_fail = false;
             assert!(pool.stop_all().is_err());
             assert_eq!(pool.status().retained, 0);
+        }
+        // ---- Issue #341: device lifecycle ----
+        fn legacy(pool: &mut Pool<Fake>, bank: &SoundBank, id: u32) -> Result<PlayOutcome, PoolError> {
+            pool.play_prepared(bank.get(id).unwrap(), NativeAudioMode::AllowOverlappingVoices)
+        }
+        fn starts(traces: &[Rc<RefCell<Trace>>]) -> usize {
+            traces.iter().map(|t| t.borrow().starts).sum()
+        }
+        #[test]
+        fn no_output_device_drops_cues_without_fault_and_opens_once_per_retry_interval() {
+            let bank = bank();
+            let (mut pool, traces) = pool(2);
+            pool.clock = test_clock;
+            let base = Instant::now();
+            set_clock(base, 0);
+            for trace in &traces {
+                trace.borrow_mut().no_device = Some(6);
+            }
+            assert_eq!(
+                pool.play(&bank, &group(b'<', &[1]), 0).unwrap(),
+                PlayOutcome::DeviceUnavailable
+            );
+            let silent = PoolStatus {
+                active: 0,
+                retained: 0,
+                faulted: false,
+                device_unavailable: true,
+            };
+            assert_eq!(pool.status(), silent);
+            // A full cue batch inside the interval never reaches the driver.
+            for _ in 0..256 {
+                assert_eq!(
+                    pool.play(&bank, &group(b'<', &[1]), 0).unwrap(),
+                    PlayOutcome::DeviceUnavailable
+                );
+                assert_eq!(
+                    legacy(&mut pool, &bank, 2).unwrap(),
+                    PlayOutcome::DeviceUnavailable
+                );
+            }
+            assert_eq!(starts(&traces), 1);
+            assert_eq!(pool.poll().unwrap(), silent);
+            assert_eq!(traces.iter().map(|t| t.borrow().polls).sum::<usize>(), 0);
+            assert_eq!(traces.iter().map(|t| t.borrow().stops).sum::<usize>(), 0);
+            // After the interval exactly one more open is attempted.
+            set_clock(base, DEVICE_RETRY_MILLIS);
+            for _ in 0..2 {
+                assert_eq!(
+                    pool.play(&bank, &group(b'<', &[1]), 0).unwrap(),
+                    PlayOutcome::DeviceUnavailable
+                );
+            }
+            assert_eq!(starts(&traces), 2);
+            assert_eq!(pool.unavailable_cues, 1 + 512 + 2);
+            // A device is connected. Cues inside the running interval are
+            // still dropped; the first cue after it plays. Nothing dropped
+            // earlier is replayed.
+            for trace in &traces {
+                trace.borrow_mut().no_device = None;
+            }
+            set_clock(base, 2 * DEVICE_RETRY_MILLIS - 1);
+            assert_eq!(
+                pool.play(&bank, &group(b'<', &[1]), 0).unwrap(),
+                PlayOutcome::DeviceUnavailable
+            );
+            assert_eq!(starts(&traces), 2);
+            set_clock(base, 2 * DEVICE_RETRY_MILLIS);
+            assert_eq!(
+                pool.play(&bank, &group(b'<', &[1]), 0).unwrap(),
+                PlayOutcome::Started {
+                    sound_id: 1,
+                    slot: 0
+                }
+            );
+            assert_eq!(
+                pool.poll().unwrap(),
+                PoolStatus {
+                    active: 1,
+                    retained: 1,
+                    faulted: false,
+                    device_unavailable: false,
+                }
+            );
+            assert_eq!(starts(&traces), 3);
+            pool.stop_all().unwrap();
+        }
+        #[test]
+        fn device_lost_for_new_cues_leaves_already_playing_voices_alone() {
+            let bank = bank();
+            let (mut pool, traces) = pool(3);
+            assert!(matches!(
+                legacy(&mut pool, &bank, 1).unwrap(),
+                PlayOutcome::Started { slot: 0, .. }
+            ));
+            traces[1].borrow_mut().no_device = Some(2);
+            assert_eq!(
+                legacy(&mut pool, &bank, 2).unwrap(),
+                PlayOutcome::DeviceUnavailable
+            );
+            let status = pool.poll().unwrap();
+            assert_eq!((status.active, status.retained), (1, 1));
+            assert!(status.device_unavailable && !status.faulted);
+            traces[0].borrow_mut().playing = false;
+            assert_eq!(pool.poll().unwrap().retained, 0);
+            assert_eq!(
+                (traces[0].borrow().starts, traces[0].borrow().stops),
+                (1, 0)
+            );
+            assert_eq!(traces[2].borrow().starts, 0);
+        }
+        #[test]
+        fn no_device_code_with_a_buffer_still_owned_by_the_driver_is_a_fault() {
+            let bank = bank();
+            let (mut pool, traces) = pool(2);
+            traces[0].borrow_mut().start_fail = true;
+            traces[0].borrow_mut().start_error = Some(AudioOutputError::Device(DriverError {
+                operation: "waveOutWrite",
+                code: 6,
+            }));
+            assert!(matches!(
+                legacy(&mut pool, &bank, 1),
+                Err(PoolError::Device(_))
+            ));
+            let status = pool.status();
+            assert!(status.faulted && !status.device_unavailable);
+            assert_eq!(traces[0].borrow().stops, 1);
+            assert!(legacy(&mut pool, &bank, 2).is_err());
+            assert_eq!(starts(&traces), 1);
+            assert_eq!(pool.unavailable_cues, 0);
+        }
+        #[test]
+        fn device_fault_recovers_only_after_quiet_time_with_nothing_owned_and_only_a_bounded_number_of_times(
+        ) {
+            let bank = bank();
+            let (mut pool, traces) = pool(2);
+            pool.clock = test_clock;
+            let base = Instant::now();
+            set_clock(base, 0);
+            legacy(&mut pool, &bank, 1).unwrap();
+            legacy(&mut pool, &bank, 2).unwrap();
+            // The device is removed while two voices play: the driver errors
+            // on voice 0 and refuses to release it.
+            traces[0].borrow_mut().poll_fail = true;
+            traces[0].borrow_mut().stop_fail = true;
+            assert!(pool.poll().is_err());
+            assert_eq!(pool.status().retained, 1);
+            assert_eq!(traces[1].borrow().stops, 1);
+            // Time alone does not re-enable a pool whose voice is still owned.
+            set_clock(base, 3 * FAULT_RECOVERY_MILLIS);
+            assert!(pool.poll().is_err());
+            assert!(legacy(&mut pool, &bank, 2).is_err());
+            // The driver lets go. Quiet time counts from the last failure.
+            traces[0].borrow_mut().poll_fail = false;
+            traces[0].borrow_mut().stop_fail = false;
+            set_clock(base, 3 * FAULT_RECOVERY_MILLIS + 1);
+            assert!(pool.poll().is_err());
+            assert_eq!(pool.status().retained, 0);
+            assert!(pool.stop_all().is_err());
+            set_clock(base, 4 * FAULT_RECOVERY_MILLIS - 1);
+            assert!(pool.poll().is_err());
+            assert!(legacy(&mut pool, &bank, 2).is_err());
+            assert_eq!((starts(&traces), pool.recoveries), (2, 0));
+            set_clock(base, 4 * FAULT_RECOVERY_MILLIS);
+            assert_eq!(
+                pool.poll().unwrap(),
+                PoolStatus {
+                    active: 0,
+                    retained: 0,
+                    faulted: false,
+                    device_unavailable: false,
+                }
+            );
+            // Recovery itself restarts nothing; only a new cue plays.
+            assert_eq!((starts(&traces), pool.recoveries), (2, 1));
+            assert_eq!(
+                legacy(&mut pool, &bank, 1).unwrap(),
+                PlayOutcome::Started {
+                    sound_id: 1,
+                    slot: 0
+                }
+            );
+            pool.stop_all().unwrap();
+            // A driver that fails again after every re-enable ends disabled.
+            traces[0].borrow_mut().start_fail = true;
+            let mut now = 4 * FAULT_RECOVERY_MILLIS;
+            let mut recovered = 1;
+            loop {
+                assert!(legacy(&mut pool, &bank, 1).is_err());
+                assert_eq!(pool.status().retained, 0);
+                now += FAULT_RECOVERY_MILLIS;
+                set_clock(base, now);
+                if recovered == MAX_FAULT_RECOVERIES {
+                    break;
+                }
+                pool.poll().unwrap();
+                recovered += 1;
+                assert_eq!(pool.recoveries, recovered);
+            }
+            for _ in 0..4 {
+                now += 3_600_000;
+                set_clock(base, now);
+                assert!(pool.poll().is_err());
+                assert!(legacy(&mut pool, &bank, 2).is_err());
+            }
+            assert_eq!(pool.recoveries, MAX_FAULT_RECOVERIES);
+            assert_eq!(traces[1].borrow().starts, 1);
+        }
+        #[test]
+        fn sixteen_simultaneous_voices_are_independent_and_a_seventeenth_cue_is_dropped() {
+            let bank = bank();
+            let (mut pool, traces) = pool(MAX_VOICES);
+            for slot in 0..MAX_VOICES {
+                let id = 1 + (slot as u32 % 2);
+                assert_eq!(
+                    legacy(&mut pool, &bank, id).unwrap(),
+                    PlayOutcome::Started { sound_id: id, slot }
+                );
+            }
+            assert_eq!(legacy(&mut pool, &bank, 1).unwrap(), PlayOutcome::VoiceLimit);
+            assert_eq!(pool.poll().unwrap().active, MAX_VOICES);
+            // Two voices finish; the other fourteen are neither stopped nor
+            // restarted, and only the two freed slots are reused.
+            traces[3].borrow_mut().playing = false;
+            traces[9].borrow_mut().playing = false;
+            assert_eq!(pool.poll().unwrap().active, MAX_VOICES - 2);
+            for slot in [3, 9] {
+                assert_eq!(
+                    legacy(&mut pool, &bank, 2).unwrap(),
+                    PlayOutcome::Started { sound_id: 2, slot }
+                );
+            }
+            assert_eq!(legacy(&mut pool, &bank, 2).unwrap(), PlayOutcome::VoiceLimit);
+            for (slot, trace) in traces.iter().enumerate() {
+                let expected = if slot == 3 || slot == 9 { 2 } else { 1 };
+                assert_eq!((trace.borrow().starts, trace.borrow().stops), (expected, 0));
+            }
+            pool.stop_all().unwrap();
+            assert_eq!(pool.status().retained, 0);
+            assert!(traces
+                .iter()
+                .all(|t| t.borrow().stops == 1 && t.borrow().retained.is_none()));
+        }
+        #[test]
+        fn scene_switches_and_exit_release_every_voice_exactly_once() {
+            let bank = bank();
+            let (mut pool, traces) = pool(4);
+            // Each scene switch stops what is playing and leaves the same
+            // fixed voices reusable; idle voices are never touched.
+            for _ in 0..50 {
+                legacy(&mut pool, &bank, 1).unwrap();
+                legacy(&mut pool, &bank, 2).unwrap();
+                pool.stop_all().unwrap();
+                pool.stop_all().unwrap();
+                let status = pool.poll().unwrap();
+                assert_eq!((status.active, status.retained), (0, 0));
+            }
+            for (slot, trace) in traces.iter().enumerate() {
+                let expected = if slot < 2 { 50 } else { 0 };
+                assert_eq!((trace.borrow().starts, trace.borrow().stops), (expected, expected));
+                assert_eq!(trace.borrow().polls, 0);
+            }
+            // Exit with sound still playing: Drop stops the two voices.
+            legacy(&mut pool, &bank, 1).unwrap();
+            legacy(&mut pool, &bank, 2).unwrap();
+            drop(pool);
+            for (slot, trace) in traces.iter().enumerate() {
+                assert_eq!(trace.borrow().stops, if slot < 2 { 51 } else { 0 });
+                assert!(trace.borrow().retained.is_none() && !trace.borrow().playing);
+            }
+        }
+        #[test]
+        fn exit_on_a_failing_device_attempts_one_release_per_voice_and_does_not_panic() {
+            let bank = bank();
+            let (mut pool, traces) = pool(2);
+            legacy(&mut pool, &bank, 1).unwrap();
+            legacy(&mut pool, &bank, 2).unwrap();
+            traces[0].borrow_mut().stop_fail = true;
+            traces[1].borrow_mut().stop_fail = true;
+            assert!(pool.stop_all().is_err()); // WM_CLOSE
+            assert!(pool.poll().is_err()); // one more timer tick while closing
+            drop(pool); // window destroyed
+            assert_eq!((traces[0].borrow().stops, traces[1].borrow().stops), (3, 3));
+            assert_eq!(starts(&traces), 2);
         }
         #[test]
         fn invalid_capacity_creates_no_backends() {

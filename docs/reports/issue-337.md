@@ -83,6 +83,7 @@ runner：claude-local。分支：`task/337`。本張做 G07.4 與地圖相關四
 
 **編譯**
 - `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：結束碼 0（含測試目標的編譯）。
+- 合併 `origin/main`（落後 23 個 commit，`native_world_scene.rs` 一處衝突：取 main 的那一列再補回 `layer_error_kind`）後重跑同一個指令，結束碼 0；兩個 Python 自測也重跑通過。
 
 **工具**
 - `map_domains.py --self-test`、`resource_matrix.py --self-test`：都印出 `self-test ok`。

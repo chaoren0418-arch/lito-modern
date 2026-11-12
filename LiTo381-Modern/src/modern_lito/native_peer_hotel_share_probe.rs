@@ -53,14 +53,14 @@ pub(super) fn run(c:&mut LoginController,model:&mut Model,root:&Path,role:&str,o
   wait(c,8,|s|s.world.ready()&&s.world.map_id==Some(502)&&s.world.completed_portals==before.world.completed_portals+1)?;settle(c)?;
   let w=&c.snapshot().world;let own=w.own_actor().context("guest arrival")?;
   ensure!(w.actors.len()==1&&[own.x,own.y]==[32800,32793],"guest room arrival");
-  proof["entered"]=json!(c.snapshot());*model=Model::load(Path::new(r"D:\lineage開發\0-客戶端"),w,&cancel)?;
+  proof["entered"]=json!(c.snapshot());*model=Model::load(&super::native_startup::diagnostic_resource_root()?,w,&cancel)?;
   let frame=model.draw_at(w,&cancel,start.elapsed().as_nanos() as u64)?;proof["entry_render"]=super::native_peer_probe::capture(root,role,2,"hotel-shared-entry",&frame)?;
   std::fs::write(root.join("b-hotel-shared-entered"),b"entered")?;
   wait(c,12,|s|s.world.ready()&&s.world.map_id==Some(500)&&s.world.completed_portals==before.world.completed_portals+2&&s.inventory.items==before.inventory.items)?;settle(c)?;
   let w=&c.snapshot().world;let own=w.own_actor().context("guest returned")?;
   ensure!([own.x,own.y]==[32779,32832]&&w.generation==before.world.generation+2,"guest forced return destination/generation");
   ensure!(w.actors.contains_key(&NPC)&&(owner_exit||w.actors.contains_key(&1))&&c.snapshot().merchant.owner.is_none(),"village did not rebuild or old NPC survived");
-  proof["returned"]=json!(c.snapshot());*model=Model::load(Path::new(r"D:\lineage開發\0-客戶端"),w,&cancel)?;
+  proof["returned"]=json!(c.snapshot());*model=Model::load(&super::native_startup::diagnostic_resource_root()?,w,&cancel)?;
   let frame=model.draw_at(w,&cancel,start.elapsed().as_nanos() as u64)?;proof["return_render"]=super::native_peer_probe::capture(root,role,3,"hotel-shared-return",&frame)?;
   if owner_exit {
    proof["return_observation"]=super::native_peer_rental_probe::observe_return(c,root,role,other)?;
