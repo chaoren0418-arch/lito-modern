@@ -23,8 +23,11 @@ use windows::{
     },
 };
 use zeroize::Zeroizing;
+use super::native_game::pages::{Pages, Turn};
 #[path="native_rental_window.rs"]
 mod rental;
+#[path="native_companion_window.rs"]
+mod companions;
 const CREATE_ROOM:u16=119;
 const EDIT_ROOM:u16=120;
 const SAVE_ROOM:u16=121;
@@ -73,8 +76,12 @@ const PASSWORD: u16 = 202;
 const SOURCES: u16 = 203;
 const STATUS: u16 = 204;
 const SCORES: u16 = 207;
+const CHARACTER_PREV: u16 = 138;
+const CHARACTER_NEXT: u16 = 139;
 struct Ui {
+    character_pages: Pages,
     rental:rental::View,
+    companions:companions::View,
     parent: HWND,
     room_tools_view: bool,
     room_editor: Option<super::native_room_ui::Draft>,
@@ -138,6 +145,11 @@ fn wide(text: &str) -> Vec<u16> {
     text.encode_utf16().chain(Some(0)).collect()
 }
 impl Ui {
+    fn character_paging_enabled(&self) -> bool {
+        !self.closing && !self.world_view && !self.inventory_view && !self.room_tools_view
+            && Pages::enabled(self.controller.snapshot())
+    }
+
     fn control(&self, id: u16) -> HWND {
         self.controls
             .iter()
@@ -174,6 +186,8 @@ impl Ui {
             (CONNECT, w!("BUTTON"), "連線".into(), 0),
             (LOGIN, w!("BUTTON"), "登入".into(), 0),
             (304, w!("STATIC"), "來源伺服器".into(), 0),
+            (CHARACTER_PREV, w!("BUTTON"), "上一頁".into(), 0),
+            (CHARACTER_NEXT, w!("BUTTON"), "下一頁".into(), 0),
             (
                 SOURCES,
                 w!("COMBOBOX"),
@@ -324,6 +338,7 @@ impl Ui {
             send(self.control(id),EM_SETLIMITTEXT,WPARAM(max),LPARAM(0));
         }
         self.create_rental_controls()?;
+        self.create_companion_controls()?;
         let ids:std::collections::BTreeSet<_>=self.controls.iter().map(|(id,_)|*id).collect();
         ensure!(ids.len()==self.controls.len(),"duplicate native child control id");
         self.layout(parent, true);
@@ -363,7 +378,9 @@ impl Ui {
             (CONNECT, 90, 142, px(110), 32),
             (LOGIN, 220, 142, px(110), 32),
             (INVENTORY_TOGGLE, 350, 142, px(120), 32),
-            (304, 20, 198, width, 25),
+            (304, 20, 198, px(290), 25),
+            (CHARACTER_PREV, 320, 192, px(80), 30),
+            (CHARACTER_NEXT, 410, 192, px(80), 30),
             (SOURCES, 20, 228, width, 150),
             (SELECT, 20, 274, px(130), 32),
             (CANCEL, 170, 274, px(130), 32),
@@ -423,6 +440,9 @@ impl Ui {
         }
         for (id, hwnd) in &self.controls {
             let visible = match *id {
+                CHARACTER_PREV | CHARACTER_NEXT => matches!(self.controller.snapshot().phase,
+                    LoginPhase::CharactersReady | LoginPhase::CharacterPending)
+                    && !self.world_view && !self.inventory_view && !self.room_tools_view,
                 MAP_PREV|MAP_NEXT => self.room_tools_view && self.room_editor.is_none() && !self.inventory_view,
                 CREATE_ROOM|EDIT_ROOM|OBSERVER|KICK_MEMBER|MODE_PREV|MODE_NEXT => self.room_tools_view && !self.inventory_view,
                 ROOM_NAME|ROOM_CAPACITY|ROOM_SECRET|ROOM_LOCK|SAVE_ROOM|DISCARD_ROOM|314|315|316 => self.room_tools_view && self.room_editor.is_some() && !self.inventory_view,
@@ -438,7 +458,7 @@ impl Ui {
                 }
                 INVENTORY_TOGGLE => true,
                 ROOMS => !self.world_view && !self.inventory_view,
-                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !self.rental.open,
+                SKILL_LABEL => self.world_view && !self.result_view && !self.ground_view && !(self.rental.open || self.companions.open),
                 SKILLS | CAST_SKILL => self.world_view && !self.result_view && !self.ground_view,
                 SUMMON_OPTIONS => self.world_view && !self.result_view && !self.inventory_view && !self.rental.open && self.skills.selected()==Some(51),
                 TELEPORT_DEST => self.world_view && !self.result_view && !self.inventory_view && self.skills.selected()==Some(5),
@@ -581,6 +601,7 @@ impl Ui {
             self.inventory_rows.iter().map(|r| r.1.as_str()),
         );
         self.layout_rental();
+        self.layout_companions();
     }
     unsafe fn score_extent(&self) {
         self.list_extent(SCORES, self.score_labels.iter().map(String::as_str));
@@ -748,7 +769,7 @@ impl Ui {
         // Hover is sampled against the actual painted viewport, including when
         // the pointer leaves this window or a child control receives input.
         let hover = (|| {
-            if !active || self.closing || self.inventory_view || self.rental.open || GetForegroundWindow() != parent {
+            if !active || self.closing || self.inventory_view || self.rental.open || self.companions.open || GetForegroundWindow() != parent {
                 return None;
             }
             let mut point = POINT::default();
@@ -787,6 +808,14 @@ impl Ui {
         if let Err(error) = self.controller.enqueue_static2941(&self.resource_root, prepared) {
             self.world_presentation.error = Some(format!("static2941: {error:#}"));
         }
+        if self.world_presentation.prune_static_frame(&self.controller.snapshot().world, epoch) {
+            let _ = InvalidateRect(Some(parent), None, true);
+        }
+        if let Some(frame)=&self.world_presentation.frame {
+            if let Err(error)=self.controller.observe_player_frame(frame) {
+                self.world_presentation.error=Some(format!("player draw clock: {error:#}"));
+            }
+        }
         if let Err(e)=self.voices.poll() {self.audio_error=Some(e.to_string());}
         let native_scope=self.world_presentation.audio_scope(self.controller.transport().snapshot().epoch,
             self.controller.snapshot().world.generation);
@@ -822,6 +851,15 @@ impl Ui {
                 }
             }
         }
+    }
+    unsafe fn poll_presented(&mut self,parent:HWND) {
+        let input_active=!self.closing && self.world_view && !self.inventory_view && !self.rental.open
+            && GetForegroundWindow()==parent;
+        let before=self.world_presentation.frame.as_ref().and_then(|f|f.receipt["elapsed_ns"].as_u64());
+        self.controller.player_input(if input_active {self.held.direction()} else {None},!input_active);
+        self.controller.poll_presented(&self.resource_root,&mut self.world_presentation);
+        let after=self.world_presentation.frame.as_ref().and_then(|f|f.receipt["elapsed_ns"].as_u64());
+        if before!=after {let _=InvalidateRect(Some(parent),None,true);}
     }
     unsafe fn combat_input(&self) -> super::native_forced_combat::Input {
         super::native_forced_combat::Input {
@@ -932,7 +970,7 @@ impl Ui {
             }
             return;
         }
-        if self.inventory_view || self.rental.open {
+        if self.inventory_view || self.rental.open || self.companions.open {
             self.held.clear();
             self.held_attack.clear();
             return;
@@ -971,12 +1009,13 @@ impl Ui {
         let dc = BeginPaint(parent, &mut paint);
         let mut area = RECT::default();
         let _ = GetClientRect(parent, &mut area);
-        if self.rental.open {
+        if self.rental.open || self.companions.open {
             FillRect(dc,&area,GetSysColorBrush(COLOR_BTNFACE));
             let _=EndPaint(parent,&paint);self.painted=None;self.painted_input=None;return;
         }
         FillRect(dc, &area, HBRUSH(GetStockObject(BLACK_BRUSH).0));
-        if let Some(frame) = &self.world_presentation.frame {
+        if let Some(frame) = self.world_presentation.frame.as_ref().filter(|frame|
+            frame.static_current(&self.controller.snapshot().world, self.controller.transport().snapshot().epoch)) {
             let dpi = GetDpiForWindow(parent).max(96) as i32;
             if let Some(view) = super::compositor::Viewport::fit(
                 area.right,
@@ -1438,6 +1477,13 @@ impl Ui {
             phase,
             LoginPhase::CharactersReady | LoginPhase::CharacterPending
         );
+        self.character_pages.sync(epoch, snapshot);
+        for (id, turn) in [(CHARACTER_PREV, Turn::Previous), (CHARACTER_NEXT, Turn::Next)] {
+            let _ = ShowWindow(self.control(id), if is_character && !self.inventory_view
+                && !self.room_tools_view && !self.world_view { SW_SHOW } else { SW_HIDE });
+            let _ = EnableWindow(self.control(id), !self.closing && Pages::enabled(snapshot)
+                && self.character_pages.can_turn(turn));
+        }
         let is_channel = matches!(
             phase,
             LoginPhase::CharacterSelected
@@ -1456,10 +1502,13 @@ impl Ui {
             snapshot
                 .characters
                 .iter()
+                .skip(self.character_pages.range().start)
+                .take(self.character_pages.range().len())
                 .map(|c| {
                     format!(
-                        "{}  Lv.{}  HP {} / MP {}",
-                        c.name, c.fields.level, c.fields.max_hp, c.fields.max_mp
+                        "{}  Lv.{}  HP {} / MP {}　血盟：{}",
+                        c.name, c.fields.level, c.fields.max_hp, c.fields.max_mp,
+                        if c.clan.is_empty() { "無" } else { &c.clan }
                     )
                 })
                 .collect::<Vec<_>>()
@@ -1470,12 +1519,13 @@ impl Ui {
                 .map(|s| s.name.clone())
                 .collect::<Vec<_>>()
         };
+        let character_label = self.character_pages.label();
         self.text(
             304,
             if is_channel {
                 "頻道"
             } else if is_character {
-                "角色"
+                &character_label
             } else {
                 "來源伺服器"
             },
@@ -1629,7 +1679,13 @@ impl Ui {
                     if snapshot.characters.is_empty() {
                         "此來源目前沒有角色。".into()
                     } else {
-                        "請選擇角色。".into()
+                        let refusal = match snapshot.character_result {
+                            Some(1) => "伺服器未接受角色選取，請重試。",
+                            Some(7) => "此角色目前不能參與，請選擇其他角色。",
+                            Some(8) => "伺服器未接受角色名稱，請重新選取。",
+                            _ => "請選擇角色。",
+                        };
+                        format!("{refusal}\r\n每頁 4 筆；PgUp／PgDn、滾輪或上一頁／下一頁翻頁。")
                     }
                 }
                 LoginPhase::CharacterPending => "正在選擇角色…".into(),
@@ -1872,6 +1928,7 @@ impl Ui {
             );
         }
         self.refresh_rental();
+        self.refresh_companions();
         self.restore_keyboard_focus_after_update();
     }
     unsafe fn restore_keyboard_focus_after_update(&self) {
@@ -1882,6 +1939,10 @@ impl Ui {
         if retired { let _ = SetFocus(Some(self.parent)); }
     }
     unsafe fn action(&mut self, id: u16) -> Result<()> {
+        match self.companion_action(id) {
+            Ok(true)=>return Ok(()), Ok(false)=>{},
+            Err(error)=>{self.companions.error=Some(format!("{error:#}"));self.refresh_companions();return Err(error);}
+        }
         if self.rental_action(id)? {return Ok(());}
         match id {
             CREATE_ROOM|EDIT_ROOM=>{
@@ -2028,9 +2089,16 @@ impl Ui {
                 ) {
                     self.controller.enter_channel(index as u8)?;
                 } else if self.controller.snapshot().phase == LoginPhase::CharactersReady {
-                    self.controller.select_character(index as usize)?;
+                    let index = self.character_pages.index(self.controller.transport().snapshot().epoch,
+                        self.controller.snapshot(), index as usize)?;
+                    self.controller.select_character(index)?;
                 } else {
                     self.controller.select_source(index as usize)?;
+                }
+            }
+            CHARACTER_PREV | CHARACTER_NEXT => {
+                if self.character_paging_enabled() {
+                    self.character_pages.turn(if id == CHARACTER_PREV { Turn::Previous } else { Turn::Next });
                 }
             }
             GAME => self.controller.begin_game()?,
@@ -2118,7 +2186,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                         return LRESULT(1);
                     }
                 }
-                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !ui.rental.open => {
+                WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !(ui.rental.open || ui.companions.open) => {
                     let _ = SetFocus(Some(hwnd));
                     let mut area = RECT::default();
                     let _ = GetClientRect(hwnd, &mut area);
@@ -2274,7 +2342,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     return LRESULT(0);
                 }
                 WM_TIMER => {
-                    ui.controller.poll();
+                    ui.poll_presented(hwnd);
                     ui.world_tick(hwnd);
                     ui.input_tick();
                     ui.refresh();
@@ -2390,7 +2458,9 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 ..Default::default()
             });
             let state = Box::new(State(RefCell::new(Ui {
+                character_pages: Pages::default(),
                 rental:rental::View::new(resource_root.clone())?,
+                companions:companions::View::default(),
                 parent: HWND::default(),
                 room_tools_view:false,
                 room_editor:None,
@@ -2478,6 +2548,30 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                     break;
                 }
                 ensure!(read != -1, "native login message loop");
+                // Handle child controls before their default combo-box key/wheel
+                // behavior, so these inputs change pages rather than local rows.
+                if message.hwnd == hwnd || IsChild(hwnd, message.hwnd).as_bool() {
+                    let mut ui = state.0.borrow_mut();
+                    if ui.character_paging_enabled() {
+                        let turn = match (message.message, message.wParam.0) {
+                            (WM_KEYDOWN, 0x21) => Some(Turn::Previous),
+                            (WM_KEYDOWN, 0x22) => Some(Turn::Next),
+                            _ => None,
+                        };
+                        if turn.is_some() || message.message == WM_MOUSEWHEEL {
+                            let changed = if let Some(turn) = turn {
+                                message.lParam.0 & (1 << 30) == 0 && ui.character_pages.turn(turn)
+                            } else {
+                                ui.character_pages.wheel((message.wParam.0 >> 16) as i16)
+                            };
+                            if changed {
+                                send(ui.control(SOURCES), CB_SHOWDROPDOWN, WPARAM(0), LPARAM(0));
+                                ui.refresh();
+                            }
+                            continue;
+                        }
+                    }
+                }
                 let world_focus = GetFocus() == hwnd;
                 if !world_focus && matches!(message.message, WM_KEYDOWN | WM_KEYUP | WM_LBUTTONDOWN)
                 {
@@ -2508,7 +2602,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if world_focus && message.message == WM_KEYDOWN && message.wParam.0 == 0x1b {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         ui.held.clear();
@@ -2522,7 +2616,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 if message.message == WM_KEYDOWN && matches!(message.wParam.0, 0x70 | 0x71 | 0x72) {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.lParam.0 & (1 << 30) == 0 {
@@ -2543,7 +2637,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x50 {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!ui.rental.open&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             let result=ui.enter_nearby_portal();
                             if let Err(e)=result{ui.text(STATUS,&format!("{e:#}"));}
@@ -2553,7 +2647,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 }
                 if world_focus && message.message==WM_KEYDOWN && message.wParam.0==0x4f {
                     let mut ui=state.0.borrow_mut();
-                    if ui.world_view&&!ui.inventory_view&&!ui.rental.open&&ui.controller.snapshot().phase.active_world() {
+                    if ui.world_view&&!ui.inventory_view&&!(ui.rental.open || ui.companions.open)&&ui.controller.snapshot().phase.active_world() {
                         if message.lParam.0&(1<<30)==0 {
                             if let Err(e)=ui.toggle_selected_door(){ui.text(STATUS,&format!("{e:#}"));}
                         }
@@ -2566,7 +2660,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if message.message == WM_KEYUP {
@@ -2585,7 +2679,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 {
                     let mut ui = state.0.borrow_mut();
                     if ui.world_view
-                        && !ui.inventory_view && !ui.rental.open
+                        && !ui.inventory_view && !(ui.rental.open || ui.companions.open)
                         && ui.controller.snapshot().phase.active_world()
                     {
                         if ui.controller.snapshot().observer {

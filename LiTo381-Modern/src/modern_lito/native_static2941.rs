@@ -1,6 +1,6 @@
 //! #97 receive -> resource proof -> fresh zero-delay enqueue -> retirement.
-//! Controller owns timers; workers own resource decoding. Rendering and the
-//! shared/reentrant callback bridge are a separate T020 integration boundary.
+//! Controller owns timers; workers own resource decoding and may compose
+//! speculatively, but only a queued, live lease may publish.
 use super::{
     native_clock, native_connection::IngressReceipt, native_skills::Effect, native_world::World,
     shared_action_catalog::SharedActionCatalog, tower_assets::Static2941Bank,
@@ -191,14 +191,52 @@ struct Due {
     deadline: u32,
     _bank: Arc<Static2941Bank>,
 }
+type Producer = Box<dyn FnOnce(&mut Queue, &mut World, u64) -> Result<()> + Send>;
+enum Callback {
+    Retire(Due),
+    Shared {
+        owner: Owner,
+        producer: Producer,
+    },
+    Native {
+        owner: Owner,
+        event: super::native_player_callbacks::Event,
+    },
+}
+/// The host is borrowed only after the event has been removed. Recursive
+/// drains therefore use the same queue and host, without a lock or a side queue.
+pub(crate) trait CallbackHost {
+    fn sample(&mut self) -> Result<u32>;
+    fn dispatch(
+        &mut self,
+        queue: &mut Queue,
+        world: &mut World,
+        connection: u64,
+        event: super::native_player_callbacks::Event,
+    ) -> Result<()>;
+    fn draw(&mut self, queue: &mut Queue, world: &mut World, connection: u64) -> Result<()>;
+}
+struct Event {
+    deadline: u32,
+    callback: Callback,
+}
 #[derive(Default)]
 pub(crate) struct Queue {
     owner: Option<Owner>,
+    // Reset identity is separate from numeric connection/generation. A
+    // reentrant callback can retire and rebind to the very same Owner.
+    scope: Arc<()>,
     floor: u64,
     pending: Vec<Lease>,
-    due: Vec<Due>,
+    due: Vec<Event>,
 }
 impl Queue {
+    pub(crate) fn scope_token(&self) -> Arc<()> {
+        self.scope.clone()
+    }
+    pub(crate) fn same_scope(&self, token: &Arc<()>) -> bool {
+        Arc::ptr_eq(token, &self.scope)
+    }
     pub(crate) fn synchronize(&mut self, world: &World, connection: u64) {
         let owner =
             (connection != 0 && world.generation != 0 && world.map_id.is_some()).then_some(Owner {
@@ -217,7 +255,11 @@ impl Queue {
                 false
             }
         });
-        self.due.retain(|entry| entry.lease.active());
+        self.due.retain(|entry| match &entry.callback {
+            Callback::Retire(due) => due.lease.active(),
+            Callback::Shared { owner, .. } => Some(*owner) == self.owner,
+            Callback::Native { owner, .. } => Some(*owner) == self.owner,
+        });
     }
 
     pub(crate) fn admit_received(
@@ -332,25 +374,115 @@ impl Queue {
         let position = self.due.partition_point(|entry| entry.deadline <= deadline);
         self.due.insert(
             position,
-            Due {
-                lease: prepared.lease,
+            Event {
                 deadline,
-                _bank: prepared.bank,
+                callback: Callback::Retire(Due {
+                    lease: prepared.lease,
+                    deadline,
+                    _bank: prepared.bank,
+                }),
             },
         );
         world.visual_revision = revision;
         Ok(true)
     }
 
-    /// Single sampled cutoff, pop before retirement. Never called by painting.
-    /// Shared callback/reentrant producers will use this same unsigned domain.
+    /// Shared producers and retirement use one ordered queue. A callback owns
+    /// its arguments, never a borrowed Vec entry, so it may enqueue or nest a
+    /// drain. The caller supplies a fresh enqueue sample, not the outer cutoff.
+    pub(crate) fn enqueue_callback(
+        &mut self,
+        world: &World,
+        connection: u64,
+        delay: u32,
+        clock: impl FnOnce() -> Result<u32>,
+        producer: Producer,
+    ) -> Result<bool> {
+        self.synchronize(world, connection);
+        let Some(owner) = self.owner else {
+            return Ok(false);
+        };
+        ensure!(self.due.len() < 4096, "shared native callback queue budget");
+        let deadline = clock()?.wrapping_add(delay);
+        let at = self.due.partition_point(|entry| entry.deadline <= deadline);
+        self.due.insert(
+            at,
+            Event {
+                deadline,
+                callback: Callback::Shared { owner, producer },
+            },
+        );
+        Ok(true)
+    }
+
+    /// 4D6570: one cutoff per invocation, remove before invoking the callback.
+    /// A nested drain has its own cutoff; resuming this loop keeps the outer
+    /// value, even if a callback sampled a newer time. Painting never drains.
     pub(crate) fn drain_due(
         &mut self,
         world: &mut World,
         connection: u64,
         cutoff: u32,
     ) -> Result<Vec<u64>> {
+        struct Unbound;
+        impl CallbackHost for Unbound {
+            fn sample(&mut self) -> Result<u32> {
+                native_clock::sample()
+            }
+            fn dispatch(
+                &mut self,
+                _: &mut Queue,
+                _: &mut World,
+                _: u64,
+                _: super::native_player_callbacks::Event,
+            ) -> Result<()> {
+                anyhow::bail!("player callback requires its presentation host")
+            }
+            fn draw(&mut self, _: &mut Queue, _: &mut World, _: u64) -> Result<()> {
+                anyhow::bail!("player draw requires its presentation host")
+            }
+        }
+        self.drain_with(world, connection, cutoff, &mut Unbound)
+    }
+    pub(crate) fn enqueue_native(
+        &mut self,
+        world: &World,
+        connection: u64,
+        delay: u32,
+        sampled: u32,
+        event: super::native_player_callbacks::Event,
+    ) -> Result<bool> {
         self.synchronize(world, connection);
+        let Some(owner) = self.owner else {
+            return Ok(false);
+        };
+        ensure!(self.due.len() < 4096, "shared native callback queue budget");
+        let deadline = sampled.wrapping_add(delay);
+        let at = self.due.partition_point(|entry| entry.deadline <= deadline);
+        self.due.insert(
+            at,
+            Event {
+                deadline,
+                callback: Callback::Native { owner, event },
+            },
+        );
+        Ok(true)
+    }
+    pub(crate) fn cancel_native(&mut self, kind: super::native_player_callbacks::Kind) {
+        self.due.retain(|entry| {
+            !matches!(&entry.callback,
+            Callback::Native { event, .. } if event.kind() == kind)
+        });
+    }
+    pub(crate) fn drain_with(
+        &mut self,
+        world: &mut World,
+        connection: u64,
+        cutoff: u32,
+        host: &mut impl CallbackHost,
+    ) -> Result<Vec<u64>> {
+        self.synchronize(world, connection);
+        let scope = self.scope.clone();
         if self
             .due
             .first()
@@ -358,25 +490,130 @@ impl Queue {
         {
             return Ok(vec![]);
         }
-        let revision = world
-            .visual_revision
-            .checked_add(1)
-            .context("static retirement revision overflow")?;
         let mut retired = Vec::new();
         while self
             .due
             .first()
             .is_some_and(|entry| native_clock::due(entry.deadline, cutoff))
         {
+            // Validate before removal so overflow cannot silently lose a live
+            // retirement. Shared callbacks do not themselves change revision.
+            let revision = if matches!(self.due[0].callback, Callback::Retire(_)) {
+                Some(
+                    world
+                        .visual_revision
+                        .checked_add(1)
+                        .context("static retirement revision overflow")?,
+                )
+            } else {
+                None
+            };
             let entry = self.due.remove(0);
-            entry.lease.retire();
-            retired.push(entry.lease.sequence());
+            match entry.callback {
+                Callback::Retire(due) => {
+                    debug_assert_eq!(entry.deadline, due.deadline);
+                    due.lease.retire();
+                    retired.push(due.lease.sequence());
+                    world.visual_revision = revision.expect("retirement revision");
+                }
+                Callback::Shared { owner, producer } => {
+                    if self.owner == Some(owner) {
+                        producer(self, world, connection)?;
+                    }
+                }
+                Callback::Native { owner, event } => {
+                    if self.owner == Some(owner) {
+                        host.dispatch(self, world, connection, event)?;
+                    }
+                }
+            }
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                // The callback replaced the queue. Its new events require a
+                // new invocation/sample, never this retired stack's cutoff.
+                break;
+            }
+            self.synchronize(world, connection);
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                break;
+            }
         }
         self.pending.retain(Lease::active);
-        world.visual_revision = revision;
         Ok(retired)
     }
+    /// Full host version of the same do/while pump. False means retirement,
+    /// and the caller must not write the source completion flag in that case.
+    pub(crate) fn drain_4857b0_with_host(
+        &mut self,
+        world: &mut World,
+        connection: u64,
+        host: &mut impl CallbackHost,
+    ) -> Result<bool> {
+        self.synchronize(world, connection);
+        if self.owner.is_none() {
+            return Ok(false);
+        }
+        let scope = self.scope.clone();
+        let mut previous = host.sample()?;
+        let mut elapsed = 0i32;
+        loop {
+            let cutoff = host.sample()?;
+            self.drain_with(world, connection, cutoff, host)?;
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                return Ok(false);
+            }
+            host.draw(self, world, connection)?;
+            self.synchronize(world, connection);
+            if !Arc::ptr_eq(&scope, &self.scope) {
+                return Ok(false);
+            }
+            let now = host.sample()?;
+            elapsed = elapsed.wrapping_add(now.wrapping_sub(previous) as i32);
+            previous = now;
+            if elapsed >= 500 {
+                return Ok(true);
+            }
+        }
+    }
+    /// 4857B0's timer/draw portion. Each iteration has a fresh 4D6570 sample,
+    /// then redraw, then a separate relative-time sample. The native loop is
+    /// do/while with signed accumulated dword deltas (including wrap).
+    /// The caller must establish the S37/169 own-actor/control-flag branch;
+    /// receiving 2941 alone never authorizes entering this pump.
+    pub(crate) fn drain_4857b0(
+        &mut self,
+        world: &mut World,
+        connection: u64,
+        clock: impl FnMut() -> Result<u32>,
+        draw: impl FnMut(&mut Self, &mut World, u64) -> Result<()>,
+    ) -> Result<()> {
+        struct Host<C, D> {
+            clock: C,
+            draw: D,
+        }
+        impl<C: FnMut() -> Result<u32>, D: FnMut(&mut Queue, &mut World, u64) -> Result<()>>
+            CallbackHost for Host<C, D>
+        {
+            fn sample(&mut self) -> Result<u32> {
+                (self.clock)()
+            }
+            fn draw(&mut self, q: &mut Queue, w: &mut World, c: u64) -> Result<()> {
+                (self.draw)(q, w, c)
+            }
+            fn dispatch(
+                &mut self,
+                _: &mut Queue,
+                _: &mut World,
+                _: u64,
+                _: super::native_player_callbacks::Event,
+            ) -> Result<()> {
+                anyhow::bail!("player callback requires its presentation host")
+            }
+        }
+        self.drain_4857b0_with_host(world, connection, &mut Host { clock, draw })
+            .map(|_| ())
+    }
     pub(crate) fn retire(&mut self) {
+        self.scope = Arc::new(());
         for lease in self.pending.drain(..) {
             lease.retire();
         }
@@ -398,8 +635,120 @@ pub(crate) struct Stage {
     root: Option<PathBuf>,
     bank: Option<Arc<Static2941Bank>>,
     error: Option<String>,
+    history: History,
+}
+
+/// History shares the original one-way tokens. Changing resource roots or
+/// merging a late worker may preserve evidence, never manufacture a lifetime.
+#[derive(Clone, Default)]
+pub(crate) struct History {
+    leases: Vec<Lease>,
+    source_error: Option<(PathBuf, String)>,
+}
+impl History {
+    pub(crate) fn for_world(world: &World) -> Self {
+        Self {
+            leases: world
+                .static_effect_receipts
+                .values()
+                .filter_map(Receipt::lease)
+                .filter(|lease| lease.current(world, lease.connection()))
+                .cloned()
+                .collect(),
+            source_error: None,
+        }
+    }
+    pub(crate) fn for_source(&self, same: bool) -> Self {
+        let mut next = self.clone();
+        next.leases.retain(Lease::active);
+        if !same {
+            next.source_error = None;
+        }
+        next
+    }
+    pub(crate) fn merge(&mut self, other: &Self) {
+        self.leases.retain(Lease::active);
+        for lease in &other.leases {
+            if lease.active() && !self.leases.contains(lease) && self.leases.len() < CAPACITY {
+                self.leases.push(lease.clone());
+            }
+        }
+    }
+}
+
+/// Retained by frames and painted input surfaces, including speculative ones.
+#[derive(Clone, Default)]
+pub(crate) struct DrawGuard(Vec<Lease>);
+impl DrawGuard {
+    pub(crate) fn current(&self, world: &World, connection: u64) -> bool {
+        self.0
+            .iter()
+            .all(|lease| lease.drawable() && lease.current(world, connection))
+    }
+    pub(crate) fn active(&self, world: &World) -> bool {
+        self.0
+            .iter()
+            .all(|lease| lease.current(world, lease.connection()))
+    }
+    pub(crate) fn publishable(&self, world: &World) -> bool {
+        self.0
+            .iter()
+            .all(|lease| lease.drawable() && lease.current(world, lease.connection()))
+    }
+    pub(crate) fn sequences(&self) -> Vec<u64> {
+        self.0.iter().map(Lease::sequence).collect()
+    }
 }
 impl Stage {
+    pub(crate) fn history(&self) -> History {
+        let mut history = self.history.clone();
+        history.source_error = self.root.clone().zip(self.error.clone());
+        history
+    }
+    pub(crate) fn restore(&mut self, history: &History) {
+        self.history.merge(history);
+        if let Some((root, error)) = &history.source_error {
+            self.root = Some(root.clone());
+            self.error = Some(error.clone());
+        }
+    }
+
+    /// Pure composition may precede enqueue on the worker. The returned guard
+    /// prevents those pixels from publication until the real controller sample,
+    /// and revokes them immediately after callback, even in copied snapshots.
+    pub(crate) fn draw_to<'s>(
+        &'s self,
+        world: &World,
+        target: &mut super::native_world_effects::Target<'_, 's>,
+        view: super::world_map::ViewProjection,
+        cancel: &AtomicBool,
+    ) -> Result<DrawGuard> {
+        let mut guard = DrawGuard::default();
+        let Some(bank) = &self.bank else {
+            return Ok(guard);
+        };
+        for cue in &world.effects {
+            let Some(lease) = world
+                .static_effect_receipts
+                .get(&cue.sequence)
+                .and_then(Receipt::lease)
+                .filter(|lease| lease.current(world, lease.connection()))
+            else {
+                continue;
+            };
+            bank.submit_frame_zero(
+                target,
+                super::world_map::WorldCell {
+                    x: i32::from(cue.position[0]),
+                    y: i32::from(cue.position[1]),
+                },
+                view,
+                cancel,
+            )?;
+            guard.0.push(lease.clone());
+        }
+        Ok(guard)
+    }
     pub(crate) fn prepare(
         &mut self,
         root: &Path,
@@ -408,6 +757,7 @@ impl Stage {
         shared: &mut Option<SharedActionCatalog>,
     ) -> Result<Vec<Prepared>> {
         super::tower_assets::active(cancel)?;
+        self.history = History::for_world(world);
         if self.root.as_deref() != Some(root) {
             self.root = Some(root.to_owned());
             self.bank = None;
@@ -417,7 +767,7 @@ impl Stage {
             .static_effect_receipts
             .values()
             .filter_map(Receipt::lease)
-            .filter(|lease| lease.waiting() && lease.current(world, lease.connection()))
+            .filter(|lease| lease.current(world, lease.connection()))
             .collect();
         if leases.is_empty() {
             return Ok(vec![]);

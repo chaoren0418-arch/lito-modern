@@ -84,12 +84,25 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; fini
 
 開發階段保留紀錄：`scratch/check-initial.log`（cargo exit101，新增模組的引用路徑）、`scratch/check-second.log`（cargo exit101，資源錯誤型別轉換）均為編譯失敗，尚未執行測試，修正後才進入驗證。`scratch/batch3-first.log` 曾整批 exit0，原文 `test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.26s`。
 
+### 第 2 次嘗試（claude-local，2026-11-12）：同步 main
+
+PR #250 因 main 前進（#143／#194／#195／#261／#267 等）變成 DIRTY。本輪 `git merge origin/main`，解三處衝突：
+
+- `native_login.rs`：技能 pending 判斷改為先看主線 `player_callbacks.pending()`，再走本批召喚 `observe_summon`／道具／一般；結束條件保留本批 `hold_summon`，並加回主線 `player_callbacks.cancel_pending()`。
+- `native_world_scene.rs`：`FiniteHistory` 同時保留主線 `static2941` 與本批 `spells`／`class1`（`for_source`、`merge_disintegrate_admission`、`finite_history` 三處合併兩邊欄位）。
+- `維護工具/test-whitelist/tests.tsv`：兩邊新增列全保留。
+
+合併後本機 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 7m 38s`）。
+
+依 2026-11-09 本機限制，本輪**未在本機執行 `cargo test`／`run-local-test-suite.ps1`**（不得執行編譯產物）；上方 114／114 為第 1 次嘗試（合併前來源）結果，合併後的測試改以 PR CI 為準，屬「待驗證」。
+
 ## 推測
 
 離線封包與原資源測試支持客戶端請求、解碼、守衛與指定呈現行為；不代表正式 E149 服務實際接受、機率／材料扣除或與原版逐像素、原生排程完全一致。
 
 ## 待驗證／未驗證什麼
 
+- 合併 main（2026-11-12）後的 `cargo test` 與 `run-local-test-suite.ps1` 未在本機重跑，需由 CI 或 Codex 重驗（特別是 `native_t027_batch3` 十案與主線 player callback 與召喚等待的交錯）。
 - 未啟動遊戲或客戶端、未連正式服務或 DB、未做 GUI、DPI、實體滑鼠鍵盤、音效裝置或原版並排驗收。
 - 45／46／50 原生相對 graphics 的 hurt guard／LT 家族仍未核定；目前不產生通用受擊替代。45 保留節點影格記錄、46 保留原 Hit 診斷，50 arrival 不更動狀態。原 action0 可選倍率、長 uptime／u32 rollover、全域 native callback 交錯與最大共存壓力亦未宣告完成。
 - 51 的正式控制能力、等級／地圖／容量、材料、同伴指令、自然到期與伺服器生命週期未驗；44／47／51 原有「伺服器待定」分類保留。

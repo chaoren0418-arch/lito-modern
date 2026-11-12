@@ -70,6 +70,8 @@ pub struct Actor {
 }
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct World {
+    #[serde(skip)]
+    pub(crate) player_walk: Option<super::native_player_callbacks::WalkPose>,
     /// GAME-owned clan context survives scene replacement, not reconnection.
     pub relations: super::native_actor_relations::Context,
     /// Role comes from S_E5, never inferred from the bounds sent to all peers.
