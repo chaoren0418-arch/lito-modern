@@ -161,6 +161,13 @@ pub struct World {
     pub game_time: Option<u32>,
     pub hp: Option<[u16; 2]>,
     pub mp: Option<[u16; 2]>,
+    /// Counts S_MANA_POINT/S_STATUS receipts that actually changed `mp`.
+    pub mp_notifications: u64,
+    /// Server-timed status icons (ICONS1, ICON_I2H, doll, S_MAGE_SHIELD, own S_SPEED).
+    pub status_icons: super::native_status_icons::Leases,
+    /// Receipt clock of the packet currently being accepted (lease start).
+    #[serde(skip)]
+    packet_ms: u64,
     pub integrity_challenge: Option<[u32; 3]>,
     pub minimap: super::native_minimap::State,
     pub unhandled_opcodes: BTreeSet<u8>,
@@ -558,6 +565,7 @@ impl World {
         // Keep the previous scheduler across world resets long enough to retire
         // its leases. Failed parsing must not consume any scheduler state.
         let mut status = std::mem::take(&mut self.status4183);
+        self.packet_ms = received_ms;
         let accepted = match self.accept_inner(b) {
             Ok(accepted)=>accepted,
             Err(error)=>{self.status4183=status;return Err(error);}
@@ -571,6 +579,28 @@ impl World {
     }
     pub(crate) fn poll_status4183(&mut self, now_ms: u64) -> Result<()> {
         self.status4183.poll(now_ms, &mut self.visual_revision)
+    }
+    /// Retires server-timed leases. An elapsed own S_SPEED timer returns the
+    /// local actor to normal speed, as the native local timer does.
+    pub fn poll_status_icons(&mut self, now_ms: u64) -> bool {
+        let expired = self.status_icons.poll(now_ms);
+        if expired.is_empty() {
+            return false;
+        }
+        if expired.contains(&super::native_status_icons::Key::Speed) {
+            if let Some(a) = self.status.and_then(|s| self.actors.get_mut(&s.object_id)) {
+                a.speed = 0;
+                a.speed_seconds = 0;
+            }
+        }
+        self.visual_revision += 1;
+        true
+    }
+    fn set_mp(&mut self, value: [u16; 2]) {
+        if self.mp != Some(value) {
+            self.mp = Some(value);
+            self.mp_notifications += 1;
+        }
     }
     fn accept_inner(&mut self, b: &[u8]) -> Result<bool> {
         let op = *b.first().context("empty world packet")?;
@@ -1158,6 +1188,10 @@ impl World {
                 );
                 if op == 0x29 {
                     super::native_speed::factor(mode, 0, 0)?;
+                    // Only the local actor turns the writeH duration into a timer.
+                    if self.status.is_some_and(|s| s.object_id == id) {
+                        self.status_icons.speed(mode, seconds, self.packet_ms);
+                    }
                 } else {
                     super::native_speed::factor(0, mode, 0)?;
                 }
@@ -1183,8 +1217,18 @@ impl World {
                 }
                 self.hp = Some([s.current_hp, s.maximum_hp]);
                 self.resurrection_relocations.remove(&s.object_id);
-                self.mp = Some([s.current_mp, s.maximum_mp]);
+                self.set_mp([s.current_mp, s.maximum_mp]);
                 self.status = Some(s);
+            }
+            0x7b if matches!(b.get(1), Some(&20 | &40 | &56)) => {
+                if self.status_icons.accept_event(b, self.packet_ms)? {
+                    self.visual_revision += 1;
+                }
+            }
+            0x6d => {
+                if self.status_icons.accept_shield(b, self.packet_ms)? {
+                    self.visual_revision += 1;
+                }
             }
             0xe9 => {
                 let t = r.d()?;
@@ -1210,7 +1254,7 @@ impl World {
                 let value = [r.h()?, r.h()?];
                 r.end()?;
                 if op == 0x4d {
-                    self.mp = Some(value)
+                    self.set_mp(value)
                 } else {
                     self.hp = Some(value);
                     if let Some(s) = self.status { self.resurrection_relocations.remove(&s.object_id); }
