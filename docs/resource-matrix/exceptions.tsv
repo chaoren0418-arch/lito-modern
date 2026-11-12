@@ -1454,8 +1454,8 @@ SHARED	Sprite	977-0.spr	16259	spr	spr.unlisted_empty_frame_marker	rejected_by_de
 SHARED	Sprite	978-0.spr	12865	spr	spr.unlisted_empty_frame_marker	rejected_by_decoder_gate	
 SHARED	Sprite	crown.raw	4608	unknown	not_inspected	no_decoder	
 SHARED	Sprite	list.lst	336	unknown	not_inspected	no_decoder	
-SHARED	Sprite	source.lmp	152736	unknown	not_inspected	no_decoder	literal_in_src
-SHARED	Sprite	spellicon.idx	336	unknown	not_inspected	no_decoder	literal_in_src
+SHARED	Sprite	source.lmp	152736	unknown	not_inspected	no_decoder	
+SHARED	Sprite	spellicon.idx	336	unknown	not_inspected	no_decoder	
 SHARED	Sprite	vssver.scc	16640	junk	not_inspected	not_game_resource	
 SHARED	Sprite00	10071-16.spr	296071	spr	spr.unlisted_empty_frame_marker	rejected_by_decoder_gate	
 SHARED	Sprite00	10071-25.spr	121	spr	spr.unlisted_empty_frame_marker	rejected_by_decoder_gate	
@@ -22313,7 +22313,7 @@ SHARED/Sound	Sound	6492.wav	43944	wav	wav.fmt_size_invalid	rejected_by_decoder_g
 SHARED/Sound	Sound	6493.wav	44824	wav	wav.fmt_size_invalid	rejected_by_decoder_gate	
 SHARED/Sound	Sound	vssver.scc	2656	junk	not_inspected	not_game_resource	
 SHARED/map	map/12004	7ffc7ff6.s32	74284	s32	s32.ok_layers1to8_unknown_trailing	supported_container_ok	
-SHARED/map	map/12004	7ffc7ff7.s32	100518	s32	s32.ok_layers1to8_unknown_trailing	supported_container_ok	literal_in_src
+SHARED/map	map/12004	7ffc7ff7.s32	100518	s32	s32.ok_layers1to8_unknown_trailing	supported_container_ok	
 SHARED/map	map/12004	7ffc7ff8.s32	71384	s32	s32.ok_layers1to8_unknown_trailing	supported_container_ok	
 SHARED/map	map/12004	7ffc7ff9.s32	78528	s32	s32.ok_layers1to8_unknown_trailing	supported_container_ok	
 SHARED/map	map/12004	7ffc7ffa.s32	73817	s32	s32.ok_layers1to8_unknown_trailing	supported_container_ok	

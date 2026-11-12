@@ -1,10 +1,10 @@
 # RESOURCE-MATRIX — 資源命名空間與格式矩陣（G07.1）
 
-本檔由 `維護工具/resource-matrix/resource_matrix.py` 產生（工具版本 1，#336／T057），**不要手改**；要更新就重跑工具。內容只取決於客戶端資源與 `LiTo381-Modern/src` 的現況，沒有時間戳，同一份資源重跑會得到相同位元組。
+本檔由 `維護工具/resource-matrix/resource_matrix.py` 產生（工具版本 1，#336／T057），**不要手改**；要更新就重跑工具。內容只取決於客戶端資源與本工具的規則，沒有時間戳，同一份資源重跑會得到相同位元組。
 
 - 資源集合雜湊（下表所有來源的路徑／大小／SHA-256 串接後再取 SHA-256）：`74DCB59C7C1235A2A4F7A3F2EFA74F3EBF4EE9E2010B35D4D194C6F2DCC9F951`
 - 列舉成員總數：**322,822**（封存記錄＋納入雜湊的散檔），每一個都落在 §2 的某一列；工具以加總核對。
-- 逐成員清單（含每個成員的 SHA-256，約 48 MB）不入庫，重跑後在 `scratch/resource-matrix/members.tsv`；其 SHA-256 應為 `288B79D8CC0DC60E7CE5D9FFF893024EFF000C29ADD563970379970AE572A76C`。
+- 逐成員清單（含每個成員的 SHA-256，約 48 MB）不入庫，重跑後在 `scratch/resource-matrix/members.tsv`；其 SHA-256 應為 `E220AB883F6822152B94CD5068E7CCDDE499A95ADCA147E0AA339770B8841116`。
 - 例外清單（被關卡拒絕、未知格式、非資源、同名重複、分片路由不符等）：`docs/resource-matrix/exceptions.tsv`（22,844 筆）。
 - 機器可讀版：`docs/resource-matrix/matrix.json`。
 
@@ -18,7 +18,6 @@
 | 狀態 `selected_members_only` | Rust 只消費指名的成員（例如特定 tbl／html），沒有通用解析器。 |
 | 狀態 `no_decoder` | Rust 沒有這個格式的解碼器。 |
 | 狀態 `not_game_resource` | 開發殘留、版控檔、壓縮檔等，不是遊戲資源。 |
-| 字面引用 | 成員檔名以字面值出現在 `src` 非測試程式碼的個數；`format!` 組出來的名稱（例如 `{id}.spr`）抓不到，所以這是下限。 |
 
 **界線**：判定是把 Rust 解碼器在解像素前的檢查照抄成 Python 逐成員跑的結果（已驗證的是「Python 關卡的結果」）。SPR／TIL 的 RLE 像素本體、影格尺寸與總像素上限沒有在這裡驗；「Rust 解碼器實際逐成員跑過」仍是待驗證，由 `LiTo381-Modern/tests/resource_matrix_exhaustive.rs`（`#[ignore]`）負責。
 
@@ -90,76 +89,76 @@
 
 共用 Sprite 分片（Sprite00–15）在這裡合併成一列，逐分片的數字在 `matrix.json`；地圖目錄合併為 `map/*`、`LiTo/LTmap/*`，逐目錄見 §4.4。
 
-| 命名空間 | 容器 | 格式 | 狀態 | 成員數 | bytes | 字面引用 | 判定（成員數） |
-|---|---|---|---|---:|---:|---:|---|
-| LAUNCHER | `launcher` | loose_other | no_decoder | 1 | 1,406,534 | 1 | `not_inspected` 1 |
-| NATIVE_LITO | `LiTo/LTicon` | ico_list | selected_members_only | 1 | 5 | 1 | `not_inspected` 1 |
-| NATIVE_LITO | `LiTo/LTicon` | lbt | supported_container_ok | 226 | 274,253 | 0 | `tbt.ok` 226 |
-| NATIVE_LITO | `LiTo/LTsprite` | spr | rejected_by_decoder_gate | 26 | 12,668,570 | 0 | `spr.unlisted_empty_frame_marker` 26 |
-| NATIVE_LITO | `LiTo/LTsprite` | spr | supported_container_ok | 443 | 50,335,542 | 0 | `spr.container_ok_rgb555` 443 |
-| NATIVE_LITO | `LiTo/LTsurf` | img | rejected_by_decoder_gate | 2 | 4,718,608 | 0 | `img.decode_budget` 2 |
-| NATIVE_LITO | `LiTo/LTsurf` | img | supported_container_ok | 1,611 | 84,977,494 | 1 | `img.ok_flag0` 967；`img.ok_flag1` 644 |
-| NATIVE_LITO | `LiTo/LTsurf` | spr | rejected_by_decoder_gate | 3 | 1,634,767 | 0 | `spr.unlisted_empty_frame_marker` 3 |
-| NATIVE_LITO | `LiTo/LTsurf` | spr | supported_container_ok | 7 | 1,458,010 | 0 | `spr.container_ok_rgb555` 7 |
-| NATIVE_LITO | `LiTo/LTtext` | html | selected_members_only | 256 | 129,502 | 37 | `text.ascii_head` 251；`text.non_ascii_head` 4；`text.utf8_bom` 1 |
-| NATIVE_LITO | `LiTo/LTtext` | list_spr_text | selected_members_only | 1 | 39,135 | 1 | `text.ascii_head` 1 |
-| NATIVE_LITO | `LiTo/LTtext` | tbl | selected_members_only | 88 | 88,432 | 4 | `text.non_ascii_head` 78；`text.ascii_head` 10 |
-| NATIVE_LITO | `LiTo/LTtext` | text_misc | no_decoder | 8 | 35,484 | 0 | `text.ascii_head` 6；`text.non_ascii_head` 2 |
-| NATIVE_LITO | `LiTo/LTtile` | junk | not_game_resource | 2 | 841,243 | 0 | `not_inspected` 2 |
-| NATIVE_LITO | `LiTo/LTtile` | til | rejected_by_decoder_gate | 14 | 13,420 | 0 | `til.empty_slots_not_terminal_suffix` 13；`til.limit_tile_count` 1 |
-| NATIVE_LITO | `LiTo/LTtile` | til | supported_container_ok | 1,191 | 138,266,003 | 0 | `til.container_ok` 1,179；`til.container_ok_empty_tail` 12 |
-| NATIVE_LITO | `LiTo/LTtile` | unknown | no_decoder | 3 | 9,364,640 | 0 | `not_inspected` 3 |
-| NATIVE_LITO/LTSurf | `LiTo/LTSurf` | img | supported_container_ok | 1 | 614,408 | 0 | `img.ok_flag0` 1 |
-| NATIVE_LITO/LTmap | `LiTo/LTmap/*` | loose_other | no_decoder | 2 | 36 | 0 | `file.zero_size` 1；`not_inspected` 1 |
-| NATIVE_LITO/LTmap | `LiTo/LTmap/*` | s32 | supported_container_ok | 495 | 52,285,859 | 0 | `s32.ok_layers1to8` 495 |
-| NATIVE_LITO/LTsound | `LiTo/LTsound` | mp3 | no_decoder | 18 | 33,976,228 | 0 | `mp3.id3` 17；`mp3.frame_sync` 1 |
-| NATIVE_LITO/LTsound | `LiTo/LTsound` | wav | supported_container_ok | 31 | 6,667,640 | 1 | `wav.ok` 31 |
-| NATIVE_LITO/loose | `LiTo` | bmp | no_decoder | 17 | 669,472 | 0 | `bmp.signature_ok` 17 |
-| NATIVE_LITO/loose | `LiTo` | junk | not_game_resource | 1 | 33,280 | 0 | `not_inspected` 1 |
-| NATIVE_LITO/loose | `LiTo` | loose_other | no_decoder | 7 | 260 | 0 | `not_inspected` 7 |
-| SHARED | `Sprite` | ico_list | selected_members_only | 1 | 6 | 1 | `not_inspected` 1 |
-| SHARED | `Sprite` | img | rejected_by_decoder_gate | 5 | 12,759,340 | 0 | `img.decode_budget` 5 |
-| SHARED | `Sprite` | img | supported_container_ok | 1,857 | 85,226,776 | 0 | `img.ok_flag0` 973；`img.ok_flag1` 884 |
-| SHARED | `Sprite` | junk | not_game_resource | 1 | 16,640 | 0 | `not_inspected` 1 |
-| SHARED | `Sprite` | png | no_decoder | 803 | 9,006,294 | 0 | `png.signature_ok` 802；`png.bad_signature_89504e58` 1 |
-| SHARED | `Sprite` | spr | rejected_by_decoder_gate | 1,392 | 139,632,115 | 0 | `spr.unlisted_empty_frame_marker` 1,386；`spr.reversed_frame_bounds_with_blocks` 5；`spr.zero_frame_count` 1 |
-| SHARED | `Sprite` | spr | supported_container_ok | 85,952 | 1,648,949,827 | 23 | `spr.container_ok_palette` 83,684；`spr.container_ok_rgb555` 2,268 |
-| SHARED | `Sprite` | tbl | selected_members_only | 3 | 30,156 | 0 | `not_inspected` 3 |
-| SHARED | `Sprite` | tbt | supported_container_ok | 2,334 | 2,603,435 | 2 | `tbt.ok` 2,334 |
-| SHARED | `Sprite` | unknown | no_decoder | 8 | 324,959 | 2 | `not_inspected` 8 |
-| SHARED | `Sprite00–15` | img | rejected_by_decoder_gate | 2 | 5,160,316 | 0 | `img.decode_budget` 2 |
-| SHARED | `Sprite00–15` | img | supported_container_ok | 5,715 | 112,033,488 | 10 | `img.ok_flag0` 3,776；`img.ok_flag1` 1,939 |
-| SHARED | `Sprite00–15` | junk | not_game_resource | 3 | 157,494 | 0 | `not_inspected` 3 |
-| SHARED | `Sprite00–15` | png | no_decoder | 1,435 | 278,158,123 | 0 | `png.signature_ok` 1,417；`png.bad_signature_89504e58` 18 |
-| SHARED | `Sprite00–15` | spr | rejected_by_decoder_gate | 10,877 | 1,150,760,112 | 0 | `spr.unlisted_empty_frame_marker` 10,806；`spr.reversed_frame_bounds_with_blocks` 40；`spr.limit_block_count` 27；`spr.truncated` 3；`spr.zero_frame_count` 1 |
-| SHARED | `Sprite00–15` | spr | supported_container_ok | 147,983 | 5,041,157,952 | 6 | `spr.container_ok_palette` 108,372；`spr.container_ok_rgb555` 39,611 |
-| SHARED | `Sprite00–15` | tbt | rejected_by_decoder_gate | 6 | 4,932 | 0 | `tbt.truncated` 6 |
-| SHARED | `Sprite00–15` | tbt | supported_container_ok | 3,116 | 3,968,644 | 1 | `tbt.ok` 3,116 |
-| SHARED | `Sprite00–15` | unknown | no_decoder | 3 | 52,861 | 0 | `not_inspected` 3 |
-| SHARED | `Sprite00–15` | ico_list | selected_members_only | 1 | 7 | 1 | `not_inspected` 1 |
-| SHARED | `Text` | html | selected_members_only | 37,130 | 15,003,719 | 4 | `text.ascii_head` 34,119；`text.non_ascii_head` 2,829；`text.utf16le_bom` 176；`text.utf8_bom` 6 |
-| SHARED | `Text` | junk | not_game_resource | 120 | 172,026 | 0 | `text.ascii_head` 111；`text.non_ascii_head` 9 |
-| SHARED | `Text` | list_spr_text | selected_members_only | 1 | 4,067,417 | 1 | `text.ascii_head` 1 |
-| SHARED | `Text` | tbl | selected_members_only | 217 | 1,930,942 | 6 | `text.non_ascii_head` 133；`text.ascii_head` 84 |
-| SHARED | `Text` | text_misc | no_decoder | 13 | 222,746 | 0 | `text.ascii_head` 7；`text.non_ascii_head` 6 |
-| SHARED | `Text` | unknown | no_decoder | 17 | 4,870,854 | 0 | `text.ascii_head` 16；`text.non_ascii_head` 1 |
-| SHARED | `Tile` | spr | supported_container_ok | 8 | 131,844 | 0 | `spr.container_ok_rgb555` 8 |
-| SHARED | `Tile` | til | rejected_by_decoder_gate | 20 | 19,613 | 0 | `til.empty_slots_not_terminal_suffix` 19；`til.limit_tile_count` 1 |
-| SHARED | `Tile` | til | supported_container_ok | 5,344 | 590,520,943 | 1 | `til.container_ok` 5,328；`til.container_ok_empty_tail` 16 |
-| SHARED | `Tile` | unknown | no_decoder | 9 | 1,348,986 | 0 | `not_inspected` 9 |
-| SHARED | `Tile` | xml_tile | no_decoder | 65 | 1,299,582 | 1 | `magic.583f786d` 65 |
-| SHARED/Font | `Font` | fnt | no_decoder | 11 | 519,940 | 0 | `not_inspected` 11 |
-| SHARED/Sound | `Sound` | junk | not_game_resource | 1 | 2,656 | 0 | `not_inspected` 1 |
-| SHARED/Sound | `Sound` | mid | no_decoder | 1 | 25,916 | 0 | `mid.mthd` 1 |
-| SHARED/Sound | `Sound` | mp3 | no_decoder | 163 | 278,616,608 | 0 | `mp3.id3` 105；`mp3.frame_sync` 58 |
-| SHARED/Sound | `Sound` | wav | rejected_by_decoder_gate | 617 | 30,407,649 | 0 | `wav.unsupported_encoding_17` 351；`wav.fmt_size_invalid` 266 |
-| SHARED/Sound | `Sound` | wav | supported_container_ok | 4,949 | 426,294,472 | 2 | `wav.ok` 4,947；`wav.ok_terminal_unpadded_data` 2 |
-| SHARED/Sound | `Sound/voice` | mp3 | no_decoder | 1 | 732,335 | 0 | `mp3.id3` 1 |
-| SHARED/map | `map/*` | junk | not_game_resource | 19 | 14,864 | 0 | `not_inspected` 19 |
-| SHARED/map | `map/*` | loose_other | no_decoder | 24 | 360,448 | 0 | `not_inspected` 22；`file.zero_size` 2 |
-| SHARED/map | `map/*` | s32 | supported_container_ok | 7,807 | 898,035,022 | 2 | `s32.ok_layers1to8` 6,821；`s32.ok_layers1to8_unknown_trailing` 512；`s32.ok_layers1to7` 474 |
-| SHARED/map | `map/*` | seg | no_decoder | 330 | 24,170,311 | 0 | `not_inspected` 330 |
-| SHARED/root | `(root)` | loose_other | no_decoder | 3 | 6,464,485 | 2 | `not_inspected` 3 |
+| 命名空間 | 容器 | 格式 | 狀態 | 成員數 | bytes | 判定（成員數） |
+|---|---|---|---|---:|---:|---|
+| LAUNCHER | `launcher` | loose_other | no_decoder | 1 | 1,406,534 | `not_inspected` 1 |
+| NATIVE_LITO | `LiTo/LTicon` | ico_list | selected_members_only | 1 | 5 | `not_inspected` 1 |
+| NATIVE_LITO | `LiTo/LTicon` | lbt | supported_container_ok | 226 | 274,253 | `tbt.ok` 226 |
+| NATIVE_LITO | `LiTo/LTsprite` | spr | rejected_by_decoder_gate | 26 | 12,668,570 | `spr.unlisted_empty_frame_marker` 26 |
+| NATIVE_LITO | `LiTo/LTsprite` | spr | supported_container_ok | 443 | 50,335,542 | `spr.container_ok_rgb555` 443 |
+| NATIVE_LITO | `LiTo/LTsurf` | img | rejected_by_decoder_gate | 2 | 4,718,608 | `img.decode_budget` 2 |
+| NATIVE_LITO | `LiTo/LTsurf` | img | supported_container_ok | 1,611 | 84,977,494 | `img.ok_flag0` 967；`img.ok_flag1` 644 |
+| NATIVE_LITO | `LiTo/LTsurf` | spr | rejected_by_decoder_gate | 3 | 1,634,767 | `spr.unlisted_empty_frame_marker` 3 |
+| NATIVE_LITO | `LiTo/LTsurf` | spr | supported_container_ok | 7 | 1,458,010 | `spr.container_ok_rgb555` 7 |
+| NATIVE_LITO | `LiTo/LTtext` | html | selected_members_only | 256 | 129,502 | `text.ascii_head` 251；`text.non_ascii_head` 4；`text.utf8_bom` 1 |
+| NATIVE_LITO | `LiTo/LTtext` | list_spr_text | selected_members_only | 1 | 39,135 | `text.ascii_head` 1 |
+| NATIVE_LITO | `LiTo/LTtext` | tbl | selected_members_only | 88 | 88,432 | `text.non_ascii_head` 78；`text.ascii_head` 10 |
+| NATIVE_LITO | `LiTo/LTtext` | text_misc | no_decoder | 8 | 35,484 | `text.ascii_head` 6；`text.non_ascii_head` 2 |
+| NATIVE_LITO | `LiTo/LTtile` | junk | not_game_resource | 2 | 841,243 | `not_inspected` 2 |
+| NATIVE_LITO | `LiTo/LTtile` | til | rejected_by_decoder_gate | 14 | 13,420 | `til.empty_slots_not_terminal_suffix` 13；`til.limit_tile_count` 1 |
+| NATIVE_LITO | `LiTo/LTtile` | til | supported_container_ok | 1,191 | 138,266,003 | `til.container_ok` 1,179；`til.container_ok_empty_tail` 12 |
+| NATIVE_LITO | `LiTo/LTtile` | unknown | no_decoder | 3 | 9,364,640 | `not_inspected` 3 |
+| NATIVE_LITO/LTSurf | `LiTo/LTSurf` | img | supported_container_ok | 1 | 614,408 | `img.ok_flag0` 1 |
+| NATIVE_LITO/LTmap | `LiTo/LTmap/*` | loose_other | no_decoder | 2 | 36 | `file.zero_size` 1；`not_inspected` 1 |
+| NATIVE_LITO/LTmap | `LiTo/LTmap/*` | s32 | supported_container_ok | 495 | 52,285,859 | `s32.ok_layers1to8` 495 |
+| NATIVE_LITO/LTsound | `LiTo/LTsound` | mp3 | no_decoder | 18 | 33,976,228 | `mp3.id3` 17；`mp3.frame_sync` 1 |
+| NATIVE_LITO/LTsound | `LiTo/LTsound` | wav | supported_container_ok | 31 | 6,667,640 | `wav.ok` 31 |
+| NATIVE_LITO/loose | `LiTo` | bmp | no_decoder | 17 | 669,472 | `bmp.signature_ok` 17 |
+| NATIVE_LITO/loose | `LiTo` | junk | not_game_resource | 1 | 33,280 | `not_inspected` 1 |
+| NATIVE_LITO/loose | `LiTo` | loose_other | no_decoder | 7 | 260 | `not_inspected` 7 |
+| SHARED | `Sprite` | ico_list | selected_members_only | 1 | 6 | `not_inspected` 1 |
+| SHARED | `Sprite` | img | rejected_by_decoder_gate | 5 | 12,759,340 | `img.decode_budget` 5 |
+| SHARED | `Sprite` | img | supported_container_ok | 1,857 | 85,226,776 | `img.ok_flag0` 973；`img.ok_flag1` 884 |
+| SHARED | `Sprite` | junk | not_game_resource | 1 | 16,640 | `not_inspected` 1 |
+| SHARED | `Sprite` | png | no_decoder | 803 | 9,006,294 | `png.signature_ok` 802；`png.bad_signature_89504e58` 1 |
+| SHARED | `Sprite` | spr | rejected_by_decoder_gate | 1,392 | 139,632,115 | `spr.unlisted_empty_frame_marker` 1,386；`spr.reversed_frame_bounds_with_blocks` 5；`spr.zero_frame_count` 1 |
+| SHARED | `Sprite` | spr | supported_container_ok | 85,952 | 1,648,949,827 | `spr.container_ok_palette` 83,684；`spr.container_ok_rgb555` 2,268 |
+| SHARED | `Sprite` | tbl | selected_members_only | 3 | 30,156 | `not_inspected` 3 |
+| SHARED | `Sprite` | tbt | supported_container_ok | 2,334 | 2,603,435 | `tbt.ok` 2,334 |
+| SHARED | `Sprite` | unknown | no_decoder | 8 | 324,959 | `not_inspected` 8 |
+| SHARED | `Sprite00–15` | img | rejected_by_decoder_gate | 2 | 5,160,316 | `img.decode_budget` 2 |
+| SHARED | `Sprite00–15` | img | supported_container_ok | 5,715 | 112,033,488 | `img.ok_flag0` 3,776；`img.ok_flag1` 1,939 |
+| SHARED | `Sprite00–15` | junk | not_game_resource | 3 | 157,494 | `not_inspected` 3 |
+| SHARED | `Sprite00–15` | png | no_decoder | 1,435 | 278,158,123 | `png.signature_ok` 1,417；`png.bad_signature_89504e58` 18 |
+| SHARED | `Sprite00–15` | spr | rejected_by_decoder_gate | 10,877 | 1,150,760,112 | `spr.unlisted_empty_frame_marker` 10,806；`spr.reversed_frame_bounds_with_blocks` 40；`spr.limit_block_count` 27；`spr.truncated` 3；`spr.zero_frame_count` 1 |
+| SHARED | `Sprite00–15` | spr | supported_container_ok | 147,983 | 5,041,157,952 | `spr.container_ok_palette` 108,372；`spr.container_ok_rgb555` 39,611 |
+| SHARED | `Sprite00–15` | tbt | rejected_by_decoder_gate | 6 | 4,932 | `tbt.truncated` 6 |
+| SHARED | `Sprite00–15` | tbt | supported_container_ok | 3,116 | 3,968,644 | `tbt.ok` 3,116 |
+| SHARED | `Sprite00–15` | unknown | no_decoder | 3 | 52,861 | `not_inspected` 3 |
+| SHARED | `Sprite00–15` | ico_list | selected_members_only | 1 | 7 | `not_inspected` 1 |
+| SHARED | `Text` | html | selected_members_only | 37,130 | 15,003,719 | `text.ascii_head` 34,119；`text.non_ascii_head` 2,829；`text.utf16le_bom` 176；`text.utf8_bom` 6 |
+| SHARED | `Text` | junk | not_game_resource | 120 | 172,026 | `text.ascii_head` 111；`text.non_ascii_head` 9 |
+| SHARED | `Text` | list_spr_text | selected_members_only | 1 | 4,067,417 | `text.ascii_head` 1 |
+| SHARED | `Text` | tbl | selected_members_only | 217 | 1,930,942 | `text.non_ascii_head` 133；`text.ascii_head` 84 |
+| SHARED | `Text` | text_misc | no_decoder | 13 | 222,746 | `text.ascii_head` 7；`text.non_ascii_head` 6 |
+| SHARED | `Text` | unknown | no_decoder | 17 | 4,870,854 | `text.ascii_head` 16；`text.non_ascii_head` 1 |
+| SHARED | `Tile` | spr | supported_container_ok | 8 | 131,844 | `spr.container_ok_rgb555` 8 |
+| SHARED | `Tile` | til | rejected_by_decoder_gate | 20 | 19,613 | `til.empty_slots_not_terminal_suffix` 19；`til.limit_tile_count` 1 |
+| SHARED | `Tile` | til | supported_container_ok | 5,344 | 590,520,943 | `til.container_ok` 5,328；`til.container_ok_empty_tail` 16 |
+| SHARED | `Tile` | unknown | no_decoder | 9 | 1,348,986 | `not_inspected` 9 |
+| SHARED | `Tile` | xml_tile | no_decoder | 65 | 1,299,582 | `magic.583f786d` 65 |
+| SHARED/Font | `Font` | fnt | no_decoder | 11 | 519,940 | `not_inspected` 11 |
+| SHARED/Sound | `Sound` | junk | not_game_resource | 1 | 2,656 | `not_inspected` 1 |
+| SHARED/Sound | `Sound` | mid | no_decoder | 1 | 25,916 | `mid.mthd` 1 |
+| SHARED/Sound | `Sound` | mp3 | no_decoder | 163 | 278,616,608 | `mp3.id3` 105；`mp3.frame_sync` 58 |
+| SHARED/Sound | `Sound` | wav | rejected_by_decoder_gate | 617 | 30,407,649 | `wav.unsupported_encoding_17` 351；`wav.fmt_size_invalid` 266 |
+| SHARED/Sound | `Sound` | wav | supported_container_ok | 4,949 | 426,294,472 | `wav.ok` 4,947；`wav.ok_terminal_unpadded_data` 2 |
+| SHARED/Sound | `Sound/voice` | mp3 | no_decoder | 1 | 732,335 | `mp3.id3` 1 |
+| SHARED/map | `map/*` | junk | not_game_resource | 19 | 14,864 | `not_inspected` 19 |
+| SHARED/map | `map/*` | loose_other | no_decoder | 24 | 360,448 | `not_inspected` 22；`file.zero_size` 2 |
+| SHARED/map | `map/*` | s32 | supported_container_ok | 7,807 | 898,035,022 | `s32.ok_layers1to8` 6,821；`s32.ok_layers1to8_unknown_trailing` 512；`s32.ok_layers1to7` 474 |
+| SHARED/map | `map/*` | seg | no_decoder | 330 | 24,170,311 | `not_inspected` 330 |
+| SHARED/root | `(root)` | loose_other | no_decoder | 3 | 6,464,485 | `not_inspected` 3 |
 
 ### 2.1 依狀態加總
 
@@ -427,4 +426,4 @@ python -X utf8 維護工具/resource-matrix/resource_matrix.py --check   # 重�
 python -X utf8 維護工具/resource-matrix/resource_matrix.py --self-test
 ```
 
-`--check` 失敗代表客戶端資源、`src` 的字面引用或工具規則其中之一變了；重產後在 PR 說明差異來源。
+`--check` 失敗代表客戶端資源或工具規則變了；重產後在 PR 說明差異來源。

@@ -645,27 +645,11 @@ def safe_name(raw):
     return ''.join(chr(b) if 33 <= b < 127 and b != 92 else '\\x%02x' % b for b in raw)
 
 
-def source_literals():
-    """src 內非測試 .rs 檔出現過的 `名稱.副檔名` 字面值（小寫）。format! 組出的名稱抓不到。"""
-    found = set()
-    pattern = re.compile(r'[A-Za-z0-9_\-]+\.[A-Za-z0-9]{1,12}')
-    for path in sorted(SRC.rglob('*.rs')):
-        if path.name.endswith('_tests.rs') or path.name.endswith('_test.rs'):
-            continue
-        text = path.read_text(encoding='utf-8', errors='replace')
-        cut = text.find('#[cfg(test)]\nmod tests')
-        if cut >= 0:
-            text = text[:cut]
-        found.update(m.lower() for m in pattern.findall(text))
-    return found
-
-
 def log(message):
     print(message, file=sys.stderr, flush=True)
 
 
 def scan(root):
-    literals = source_literals()
     members = []   # (namespace, container, name, bytes, sha256, fmt, verdict, status, flags)
     sources = []
     til_types = collections.defaultdict(collections.Counter)
@@ -727,8 +711,6 @@ def scan(root):
                 status = status_of(fmt, verdict)
                 if verdict.startswith('index.'):
                     status = 'rejected_by_decoder_gate'
-                if name in literals:
-                    flags.append('literal_in_src')
                 members.append((namespace, stem, name, size, digest, fmt, verdict, status, ','.join(flags)))
                 table.setdefault(name, []).append(digest)
         facts['records'] = len(entries)
@@ -771,7 +753,7 @@ def scan(root):
             data = path.read_bytes()
             digest = hashlib.sha256(data).hexdigest().upper()
             fmt = classify_loose(low)
-            flags = ['literal_in_src'] if file_name.lower() in literals else []
+            flags = []
             if not data:
                 verdict = 'file.zero_size'
             elif fmt == 's32':
@@ -828,12 +810,11 @@ def build(scanned):
         elif ns == 'NATIVE_LITO/LTmap' and container != 'LiTo/LTmap':
             group = 'LiTo/LTmap/*'
         key = (ns, group, fmt, status, verdict)
-        row = rows.setdefault(key, [0, 0, 0])
+        row = rows.setdefault(key, [0, 0])
         row[0] += 1
         row[1] += size
-        row[2] += 'literal_in_src' in flags
     matrix = [{'namespace': k[0], 'container': k[1], 'format': k[2], 'status': k[3], 'verdict': k[4],
-               'members': v[0], 'bytes': v[1], 'literal_in_src': v[2]} for k, v in sorted(rows.items())]
+               'members': v[0], 'bytes': v[1]} for k, v in sorted(rows.items())]
     assert sum(r['members'] for r in matrix) == len(members), '逐成員覆蓋核對失敗'
 
     tables = scanned['names_by_container']
@@ -911,7 +892,7 @@ def render_markdown(doc):
     add('# RESOURCE-MATRIX — 資源命名空間與格式矩陣（G07.1）')
     add('')
     add('本檔由 `維護工具/resource-matrix/resource_matrix.py` 產生（工具版本 %d，#336／T057），**不要手改**；'
-        '要更新就重跑工具。內容只取決於客戶端資源與 `LiTo381-Modern/src` 的現況，沒有時間戳，同一份資源重跑會得到相同位元組。' % doc['tool_version'])
+        '要更新就重跑工具。內容只取決於客戶端資源與本工具的規則，沒有時間戳，同一份資源重跑會得到相同位元組。' % doc['tool_version'])
     add('')
     add('- 資源集合雜湊（下表所有來源的路徑／大小／SHA-256 串接後再取 SHA-256）：`%s`' % doc['resource_set_sha256'])
     add('- 列舉成員總數：**%s**（封存記錄＋納入雜湊的散檔），每一個都落在 §2 的某一列；工具以加總核對。' % fmt_bytes(doc['members_total']))
@@ -929,7 +910,6 @@ def render_markdown(doc):
     add('| 狀態 `selected_members_only` | Rust 只消費指名的成員（例如特定 tbl／html），沒有通用解析器。 |')
     add('| 狀態 `no_decoder` | Rust 沒有這個格式的解碼器。 |')
     add('| 狀態 `not_game_resource` | 開發殘留、版控檔、壓縮檔等，不是遊戲資源。 |')
-    add('| 字面引用 | 成員檔名以字面值出現在 `src` 非測試程式碼的個數；`format!` 組出來的名稱（例如 `{id}.spr`）抓不到，所以這是下限。 |')
     add('')
     add('**界線**：判定是把 Rust 解碼器在解像素前的檢查照抄成 Python 逐成員跑的結果（已驗證的是「Python 關卡的結果」）。'
         'SPR／TIL 的 RLE 像素本體、影格尺寸與總像素上限沒有在這裡驗；「Rust 解碼器實際逐成員跑過」仍是待驗證，'
@@ -955,19 +935,18 @@ def render_markdown(doc):
         if re.fullmatch(r'Sprite\d\d', container):
             container = 'Sprite00–15'
         key = (r['namespace'], container, r['format'], r['status'])
-        entry = merged.setdefault(key, [0, 0, 0, collections.Counter()])
+        entry = merged.setdefault(key, [0, 0, collections.Counter()])
         entry[0] += r['members']
         entry[1] += r['bytes']
-        entry[2] += r['literal_in_src']
-        entry[3][r['verdict']] += r['members']
-    add('| 命名空間 | 容器 | 格式 | 狀態 | 成員數 | bytes | 字面引用 | 判定（成員數） |')
-    add('|---|---|---|---|---:|---:|---:|---|')
-    for (ns, container, fmt, status), (count, size, lit, verdicts) in merged.items():
+        entry[2][r['verdict']] += r['members']
+    add('| 命名空間 | 容器 | 格式 | 狀態 | 成員數 | bytes | 判定（成員數） |')
+    add('|---|---|---|---|---:|---:|---|')
+    for (ns, container, fmt, status), (count, size, verdicts) in merged.items():
         items = verdicts.most_common()
         shown = '；'.join('`%s` %s' % (v, fmt_bytes(c)) for v, c in items[:6])
         if len(items) > 6:
             shown += '；另 %d 種判定共 %s' % (len(items) - 6, fmt_bytes(sum(c for _, c in items[6:])))
-        add('| %s | `%s` | %s | %s | %s | %s | %s | %s |' % (ns, container, fmt, status, fmt_bytes(count), fmt_bytes(size), lit, shown))
+        add('| %s | `%s` | %s | %s | %s | %s | %s |' % (ns, container, fmt, status, fmt_bytes(count), fmt_bytes(size), shown))
     add('')
     add('### 2.1 依狀態加總')
     add('')
@@ -1098,7 +1077,7 @@ def render_markdown(doc):
     add('python -X utf8 維護工具/resource-matrix/resource_matrix.py --self-test')
     add('```')
     add('')
-    add('`--check` 失敗代表客戶端資源、`src` 的字面引用或工具規則其中之一變了；重產後在 PR 說明差異來源。')
+    add('`--check` 失敗代表客戶端資源或工具規則變了；重產後在 PR 說明差異來源。')
     add('')
     return '\n'.join(out)
 
