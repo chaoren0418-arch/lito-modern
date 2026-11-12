@@ -92,6 +92,18 @@ impl HurtCallback {
         serde_json::json!({"target":self.target,"incarnation":self.incarnation,"sequence":self.sequence,"projectile":self.projectile,"graphics":self.graphics,"accepted":self.accepted,"dispatch_ns":self.dispatch_ns,"deferred_due_to_environment":self.deferred})
     }
 }
+/// Every presentation arrival (arrow, spell, class1, ...) enters the animator
+/// here. An accepted hurt on the local body is counted for held-input
+/// retirement; lifecycle and timing checks remain in Animator::impact.
+pub(crate) fn dispatch_impact(
+    animator: &mut super::native_world_animation::Animator,
+    local_impacts: &mut super::native_navigation::ImpactStamp,
+    actor: &super::native_world::Actor, sequence: u64, local_id: Option<u32>,
+) -> bool {
+    let accepted = animator.impact(actor, sequence);
+    if accepted && local_id == Some(actor.id) { local_impacts.record(actor); }
+    accepted
+}
 pub struct Frame {
     pub ground_items: Vec<super::native_world::Actor>,
     pub hits: Vec<(u32, [i32; 4])>,
@@ -102,6 +114,7 @@ pub struct Frame {
     pub native_ambient: Vec<super::native_ambient_bridge::Prepared>,
     pub(crate) ambient_owner:std::sync::Arc<()>,
     pub(crate) finite_hurt_callbacks:Vec<HurtCallback>,
+    pub(crate) local_impacts:super::native_navigation::ImpactStamp,
     pub navigation: std::sync::Arc<super::native_navigation::Navigation>,
     movement_key: (u32, u64, u16, u16, u8, u8, u64),
     movement_arrived: bool,
@@ -399,6 +412,7 @@ pub struct Model {
     cone_cold_effects:super::native_cone_cold::Effects,
     effect_source_owner:std::sync::Arc<()>,
     many_effects:super::native_attack_many::Effects,
+    local_impacts:super::native_navigation::ImpactStamp,
 }
 pub struct Completion {
     pub model: Model,
@@ -698,6 +712,7 @@ impl Model {
 
             animator: Default::default(),
             projectiles: Default::default(),
+            local_impacts: Default::default(),
             skill_effects: Default::default(),
             item_effects: super::native_skill_effects::Effects::items(),
             reagent_effects: super::native_skill_effects::Effects::reagent(),
@@ -743,7 +758,8 @@ impl Model {
         // A new world retires every transient model runtime even on the same map.
         // Construct first so cancellation/failure leaves the old model intact.
         if self.world_generation!=world.generation {
-            let replacement=Self::load(&self.root,world,cancel)?;
+            let mut replacement=Self::load(&self.root,world,cancel)?;
+            replacement.local_impacts=self.local_impacts;
             *self=replacement;
         }
         // Direct controller callers and the scene worker share the same reload
@@ -763,6 +779,7 @@ impl Model {
                 let mut next=Self::load(&self.root,world,cancel)?;
                 next.lighting=std::mem::take(&mut self.lighting);
                 next.wire_audio=self.wire_audio.clone();
+                next.local_impacts=self.local_impacts;
                 *self=next;
             }
         }
@@ -876,7 +893,8 @@ impl Model {
             let Some(actor) = world.actors.get(&impact.target) else {
                 continue;
             };
-            let accepted = self.animator.impact(actor, impact.sequence);
+            let accepted = dispatch_impact(&mut self.animator, &mut self.local_impacts,
+                actor, impact.sequence, (!observer).then_some(local_id));
             let row = serde_json::json!({"target":impact.target,"sequence":impact.sequence,"projectile":impact.projectile,"accepted":accepted});
             if lightning_keys.contains(&(impact.target,impact.sequence,impact.projectile)){finite_hurt_callbacks.push(HurtCallback::capture(world,actor,self.effect_source_owner.clone(),impact.sequence,impact.projectile,accepted,elapsed_ns,11736));lightning_impact_receipts.push(row);}
             else if cold_keys.contains(&(impact.target,impact.sequence,impact.projectile)){finite_hurt_callbacks.push(HurtCallback::capture(world,actor,self.effect_source_owner.clone(),impact.sequence,impact.projectile,accepted,elapsed_ns,11738));cold_impact_receipts.push(row);}
@@ -1396,6 +1414,7 @@ impl Model {
             native_ambient,
             ambient_owner:self.effect_source_owner.clone(),
             finite_hurt_callbacks,
+            local_impacts: self.local_impacts,
             navigation: self.navigation.clone(),
             movement_key: if observer {(local_id,0,view_position[0],view_position[1],0,0,0)} else {let own=world.own_actor().unwrap();(own.id,own.motion_revision,own.x,own.y,own.speed,own.brave,own.action_sequence)},
             movement_arrived: own_pose.is_some_and(|p|p.phase=="idle"),

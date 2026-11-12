@@ -726,6 +726,7 @@ impl LoginController {
         held.synchronize(Some(super::native_navigation::InputStamp::capture(
             self.transport.snapshot().epoch, w,
         )));
+        if let Some(frame) = frame { held.synchronize_impact(frame.local_impacts); }
         if !self.state.phase.active_world() || !w.ready()
             || w.hp.is_none_or(|hp| hp[0] == 0)
             || w.own_actor().is_none_or(|a| a.dead)

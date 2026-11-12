@@ -83,6 +83,99 @@ fn collision_tests_authoritative_hurt_stops_held_walk_without_rolling_back_predi
     assert!(!c.continue_movement(&mut held,Some(&f)).unwrap());
 }
 
+/// Deferred arrow hurt (S_ATTACK flight 0x7f, graphics 66, damage>0) never
+/// advances the target's action sequence; only the presented arrival does.
+#[test]
+fn collision_tests_delayed_arrow_hurt_on_local_body_retires_held_walk_but_bystander_hit_does_not() {
+    use super::super::{
+        native_navigation::{HeldInput, ImpactStamp},
+        native_projectiles::Projectiles,
+        native_world_animation::Animator,
+        native_world_scene::{dispatch_impact, Frame},
+        sprite_actions::{ActionLimits, SpriteActionCatalog},
+    };
+    let catalog = SpriteActionCatalog::parse(
+        b"#61 16 body 0.walk(1 2,0.0:4 0.1:4) 3.breath(1 2,8.0:4 8.1:4) 2.damage(1 2,16.0:4 16.1:4)\n\
+          #62 16 archer 3.breath(1 2,8.0:4 8.1:4) 1.attack(1 2,0.0:4! 0.1:4)\n",
+        ActionLimits::default(),
+    ).unwrap();
+    let mut c = active();
+    let own_id = c.state.world.own_actor().unwrap().id;
+    let own = c.state.world.actors.get_mut(&own_id).unwrap();
+    own.graphics = 61; own.walk_action = 0; own.motion_from = None;
+    let own = own.clone();
+    let (archer, bystander) = (0x6d00_0101u32, 0x6d00_0102u32);
+    let mut a = own.clone();
+    a.id = archer; a.graphics = 62; a.x = own.x + 3; a.incarnation += 1000;
+    c.state.world.actors.insert(archer, a.clone());
+    let mut b = own.clone();
+    b.id = bystander; b.y = own.y + 3; b.incarnation += 2000;
+    c.state.world.actors.insert(bystander, b.clone());
+    let arrow = |target: u32, id: u32, to: [u16; 2]| {
+        let mut p = vec![0x23, 1];
+        p.extend(archer.to_le_bytes()); p.extend(target.to_le_bytes());
+        p.extend([5, 6]); p.extend(id.to_le_bytes()); p.extend(66u16.to_le_bytes()); p.push(0x7f);
+        for v in [a.x, a.y, to[0], to[1]] { p.extend(v.to_le_bytes()); }
+        p.extend([0, 0]); p
+    };
+    let (mut animator, mut projectiles, mut stamp) =
+        (Animator::default(), Projectiles::default(), ImpactStamp::default());
+    // Same order as Model::draw: poses -> projectile arrivals -> dispatch -> re-pose.
+    let mut present = |w: &super::super::native_world::World, now: u64, accepted: &mut Vec<u32>| -> Frame {
+        animator.begin(now, w.actors.keys().copied()).unwrap();
+        let mut poses = std::collections::BTreeMap::new();
+        for actor in w.actors.values() { poses.insert(actor.id, animator.pose(&catalog, actor, now).unwrap()); }
+        let impacts = projectiles.update(w, poses.values().flat_map(|p| &p.entered_events), now);
+        for impact in impacts {
+            let actor = &w.actors[&impact.target];
+            if dispatch_impact(&mut animator, &mut stamp, actor, impact.sequence, Some(own_id)) {
+                accepted.push(actor.id);
+                poses.insert(actor.id, animator.pose(&catalog, actor, now).unwrap());
+            }
+        }
+        let mut f = frame(w, poses[&own_id].phase == "idle");
+        f.local_impacts = stamp;
+        f
+    };
+    let mut accepted = Vec::new();
+    let mut held = HeldInput::default();
+    let idle = present(&c.state.world, 0, &mut accepted);
+    assert!(!c.continue_movement(&mut held, Some(&idle)).unwrap(), "baseline only");
+    held.press(0x68);
+
+    // Arrow at a bystander: its hurt is accepted, the local press survives
+    // and reaches the C_MOVE send owner.
+    c.state.world.accept(&arrow(bystander, 0x7001, [b.x, b.y])).unwrap();
+    assert_eq!(c.state.world.actors[&bystander].action_sequence, b.action_sequence, "hurt deferred");
+    present(&c.state.world, 1_000_000, &mut accepted);
+    let f = present(&c.state.world, 5_000_000_000, &mut accepted);
+    assert_eq!(accepted, [bystander]);
+    assert_eq!(held.direction(), Some(0));
+    let error = c.continue_movement(&mut held, Some(&f)).unwrap_err();
+    assert!(error.to_string().contains("native send owner"), "{error:#}");
+
+    // Arrow at the local body while the key is held.
+    held.press(0x68);
+    let before = c.state.world.own_actor().unwrap().action_sequence;
+    c.state.world.accept(&arrow(own_id, 0x7002, [own.x, own.y])).unwrap();
+    assert_eq!(c.state.world.own_actor().unwrap().action_sequence, before, "no authoritative hurt");
+    present(&c.state.world, 10_000_000_000, &mut accepted);
+    let hurt = present(&c.state.world, 15_000_000_000, &mut accepted);
+    assert_eq!(accepted, [bystander, own_id]);
+    assert!(!hurt.movement_ready(&c.state.world), "hurt pose owns the body");
+    assert!(!c.continue_movement(&mut held, Some(&hurt)).unwrap());
+    assert_eq!(held.direction(), None, "accepted local arrival retires the press");
+    let healed = present(&c.state.world, 40_000_000_000, &mut accepted);
+    assert!(healed.movement_ready(&c.state.world), "hurt animation completed");
+    assert!(!c.continue_movement(&mut held, Some(&healed)).unwrap());
+    assert_eq!(held.direction(), None, "old press never resumes after hurt");
+    assert_eq!(c.state.world.predicted_moves, 0);
+    // A fresh press after the hurt is admitted to the send owner again.
+    held.press(0x68);
+    let error = c.continue_movement(&mut held, Some(&healed)).unwrap_err();
+    assert!(error.to_string().contains("native send owner"), "{error:#}");
+}
+
 #[test]
 fn collision_tests_observer_round_trip_and_short_lock_retire_the_press() {
     let mut c = active(); let mut held = held(&c);

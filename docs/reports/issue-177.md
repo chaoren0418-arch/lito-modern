@@ -10,8 +10,29 @@
 - 怪物辨識同時需要伺服器房間模式（2／4）、對應的 `0x6C`／`0x6D` 物件區段及原生走路物件格式。控制器從已接收的房間資料設定模式，在一般 WORLD 清除；不由 map ID、名字、HP 比例或 sprite 單獨猜測。租裝道具重用部分 ID 區段，因此未知／其他模式不啟用此規則。
 - `LoginController::continue_movement` 統一 GUI 的持續移動流程：無畫面／尚在途先等待，權威中斷或非活動狀態清除輸入，抵達後重新檢查下一步；碰撞或送出失敗後清除按住意圖，障礙解除不會自行重送。
 - 本地角色的新權威動作中斷持續移動；與連續攻擊的意圖分開。保留已送步伐的 `position_predicted`，不以受傷、動畫抵達或解除阻擋冒充移動 ACK。觀戰開啟／關閉即使發生在兩次取樣之間，也會退休舊輸入。
+- **第 2 次嘗試（審查退回第 1 點）：延遲命中受傷也中斷持續輸入。** 一般箭矢（`flight_type=0x7f`、`graphics=66`、`damage_marker>0`）在 `native_world.rs` 刻意不更新受擊者 action sequence，受傷由畫面的投射物抵達釋放，因此舊版 `synchronize_action` 看不到。修正：
+  - `native_world_scene.rs` 新增 `dispatch_impact`，`Model::draw` 的所有抵達（箭矢、法術、class1、disintegrate、call lightning、cone cold、many）都經它呼叫原本的 `Animator::impact`；只有**被接受**且目標是本地角色（非觀戰）時才累加 `ImpactStamp`。命中時序、`impact` 內的死亡／incarnation／佇列上限／守護塔檢查完全不變。
+  - `ImpactStamp`（`native_navigation.rs`）只遞增、不重置；`Model` 換世代或換圖重建時保留計數，避免重建後計數回到相同值而漏判。每個 `Frame` 帶出目前值。
+  - `HeldInput::synchronize_impact`：第一次只建立基準，之後值改變即 `clear()`；`continue_movement` 在有畫面時呼叫。中間畫面被略過也不會漏（計數留在之後每一幀）。
+  - 命中其他角色不改變本地計數，本地按住輸入保留。
 
 ## 已驗證
+
+### 第 2 次嘗試（2026-11-12）
+
+依使用者 2026-11-09 規定，本機**只編譯、不執行**測試程式；測試執行交給 PR 的 GitHub Actions（`build.yml` 的 `cargo test --locked --lib --no-fail-fast` 涵蓋本張全部 lib 測試，含新案例）。
+
+```text
+cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
+exit=0   （Finished `dev` profile；沒有 test result:，既有警告仍在，修改檔案無新增警告）
+
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-run
+exit=0   （只編譯，未執行；沒有 test result:，不算通過）
+```
+
+新增回歸 `collision_tests_delayed_arrow_hurt_on_local_body_retires_held_walk_but_bystander_hit_does_not`（`native_login_movement_tests.rs`）走真實路徑：`World::accept` 解 29 位元組 S_ATTACK 箭矢封包 → `Animator::pose` 由合成 sprite 目錄的攻擊影格產生 `Hit` → `native_projectiles::Projectiles::update` 發射並在抵達時產生 impact → `dispatch_impact`（與 `Model::draw` 同一函式）→ 依本地姿勢是否 `idle` 建立 `Frame` → `continue_movement`。驗證：封包不改受擊者 action sequence；命中旁觀者被接受但本地輸入保留並送到 C_MOVE 送出端；命中本地時受傷姿勢期間不可移動、輸入已清空；受傷動畫結束後舊輸入仍為空、`predicted_moves==0`；重新按下才再送到送出端。**本案例的執行結果待 CI**，不在本機宣稱通過。
+
+以下為第 1 次嘗試的本機紀錄（規定生效前）：
 
 2026-11-06，在本 worktree 的 `LiTo381-Modern/` 執行。每個子程序清除 `LITO_*`，暫存置於 worktree 的 `scratch/tmp/`，產物置於 `target/current/`。沒有啟動遊戲或正式服務。
 
@@ -81,7 +102,7 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 - `Protocol.java:15735`、`:15769` 的怪物 producer 使用 WALK=0；`BattleQuestEncounter.java:1235`、`BattleTimeAttackEncounter.java:1146` 只依存活與目的格占位。角色死亡、移動、替換與移除沿用 World 現有處理，不新增另一份占位快取。
 - `BattleQuestBoundary.java` 說明方向邊必須合併後計算對角通行。其 573／574 固定邊界配置明列為隔離實驗，因此本張**沒有搬入該配置**，只消費實際收到的 `S_CHANGE_ATTR`。
 - `ArenaMapCatalog` 以已載入 sector 集合限制場地。觀戰用 `S_LITO_BOUNDS` 不會被套成玩家移動範圍。
-- 多格城門方向邊以 `ClientSession.sendClassicCastleDoorAttributes` 的封包形式支援。傳統 WORLD 的額外伺服器城門控制區（包含未逐格傳送的延伸格）仍由伺服器裁定；本張不聲稱重建所有傳統 WORLD 城堡資料庫規則。
+- 多格城門方向邊依 `ClientSession.java` 實際的逐格 `Protocol.doorAttribute(x, y, direction, passable)` producer 支援：`sendDwarfCastleDoorAttributes`（第 4993–5005 行，`direction==0` 時沿 x 走 `edgeLow..edgeHigh`、否則沿 y）、`sendAdenCastleDoorAttributes`（第 5034–5044 行，固定 `entranceY`、沿 x）、`sendHeineCastleDoorAttributes`（第 5066–5076 行，固定 `y()+1`、沿 x），以及同形式的 `sendMainlandCastleDoorAttributes`（第 29376 行起）。四者每格各送一個 `S_CHANGE_ATTR`，客戶端只消費這些方向邊、不從 sprite 推矩形。（前一版誤寫為不存在的 `sendClassicCastleDoorAttributes`，第 2 次嘗試已依同一 SHA256 的檔案重新核對並更正。）傳統 WORLD 的額外伺服器城門控制區（包含未逐格傳送的延伸格）仍由伺服器裁定；本張不聲稱重建所有傳統 WORLD 城堡資料庫規則。
 
 上述是本機來源的靜態核對，不是執行正式 JAR 的證據。來源 SHA256：
 
@@ -102,6 +123,8 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 - G04.4／G04.7 的完整進出場、死亡復活、換圖與同 ID 替換同步由 T044-3 處理。本張只測其既有狀態如何影響占位，不宣稱完成全部生命週期。
 - 尚未收到的物件／場地狀態不能本地預判；保留伺服器權威修正。既有探針的路線搜尋仍以靜態地形及目的格避障為主，每一步經 `checked_move_request` 時再核對動態方向邊；不宣稱新增動態自動尋路。
 - 完整測試庫與 Release 不在本輪驗證聲明內。
+- 第 2 次嘗試的新案例與修改後的既有 lib 測試：本機只編譯，執行結果以 PR CI 的 `cargo test --lib` 為準。`tests/` 下的整合測試（`native_navigation` 等）CI 不跑，第 2 次修改後未重跑。
+- 實機上箭矢命中時按住方向鍵的手感（受傷結束後需重按）待真機驗收。
 
 ## 產出路徑
 
@@ -113,6 +136,7 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 - `LiTo381-Modern/src/modern_lito/native_login_window.rs`
 - `LiTo381-Modern/src/modern_lito/native_collision_tests.rs`
 - `LiTo381-Modern/src/modern_lito/native_login_movement_tests.rs`
+- `LiTo381-Modern/src/modern_lito/native_world_scene.rs`、`native_movement_tests.rs`（第 2 次嘗試）
 - 本報告：`docs/reports/issue-177.md`
 - 指令日誌：`LiTo381-Modern/target/current/verification/issue-177/`（不入 git）。
 
@@ -122,4 +146,5 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 - 新互動移動入口沿用 `continue_movement`／`move_presented`；`move_step` 是既有低階診斷入口，不提供地形或動畫抵達證明。
 - 不要以所有 actor 的座標建立全域占位，不要單靠 `0x6C`／`0x6D` ID 區段套用怪物規則。保留房間模式來源與一般 WORLD 的清除行為。
 - `S_CHANGE_ATTR` 無物件 ID，無法由任意 sprite 可靠反推多格城門所有權。T044-3 如擴充跨生命週期關聯，需維持無主方向邊可用、已退休 owner 不生效，以及換圖清除的規則。
+- 新的抵達型受傷來源必須經 `dispatch_impact`，不要直接呼叫 `self.animator.impact`，否則本地持續輸入不會退休。
 - `docs/REPORT.md` 保持未修改，由調度器合併後補索引。

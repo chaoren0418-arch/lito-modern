@@ -257,14 +257,36 @@ impl InputStamp {
             actor:w.own_actor().map(|a|(a.id,a.incarnation,a.dead)),result:w.battle_result}
     }
 }
+/// Presentation-accepted arrival hurt on the local body. A normal arrow
+/// (S_ATTACK flight 0x7f, graphics 66, damage>0) defers its hurt to the
+/// projectile arrival and advances no authoritative action sequence, so the
+/// scene counts accepted local arrivals. The count never resets, even when the
+/// scene model is replaced, so equal stamps always mean "no new hurt".
+#[derive(Clone,Copy,Debug,Default,PartialEq,Eq)]
+pub struct ImpactStamp { actor:u32, incarnation:u64, count:u64 }
+impl ImpactStamp {
+    pub fn record(&mut self, actor:&super::native_world::Actor) {
+        self.actor=actor.id; self.incarnation=actor.incarnation;
+        self.count=self.count.wrapping_add(1);
+    }
+    pub fn count(&self)->u64 {self.count}
+}
 #[derive(Default)]
 pub struct HeldInput {
     keys: Vec<(usize, u8)>,
     pending: Option<u8>,
     stamp:Option<InputStamp>,
     action_stamp: Option<(u32, u64, u64)>,
+    impact_stamp: Option<ImpactStamp>,
 }
 impl HeldInput {
+    /// A presented hurt arrival on the local body interrupts walking exactly
+    /// like an authoritative S_DO_ACTION hurt. The first observed stamp only
+    /// establishes the baseline; any later change retires the press.
+    pub fn synchronize_impact(&mut self, next: ImpactStamp) {
+        if self.impact_stamp.is_some_and(|old| old != next) { self.clear(); }
+        self.impact_stamp = Some(next);
+    }
     /// An authoritative action interrupts walking without cancelling the
     /// independent held-attack intent. Prediction and speed changes do not.
     pub fn synchronize_action(&mut self, world: &super::native_world::World) {
