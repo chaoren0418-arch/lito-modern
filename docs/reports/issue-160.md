@@ -95,10 +95,22 @@ test result: ok. 2326 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out;
 - native_skills.rs：selector_only（189／190／191／195 與 215／220）、reuse_millis、client_clock_millis。
 - native_skill_selection.rs：189–195 與 211–220 的選單標籤。
 - 維護工具/test-whitelist/tests.tsv：native_skills_189_195 與 native_skills_211_220 兩組。
-合併後同一條 cargo check：結束碼 0。這一輪的 CI 結果以 PR #347 最新 commit 為準（寫報告時尚未跑完）。
+合併後同一條 cargo check：結束碼 0。push 後 main 又前進，PR 仍顯示衝突，CI 沒有對這個 commit（971acdc）啟動。
+
+第四輪：合併 origin/main（91e916c，含批 9 #159）。衝突同樣三個檔，兩邊保留：
+- native_skills.rs：selector_only（201／205／210 與 215／220）、reuse_millis、client_clock_millis；
+  `illusion_targeted` 併成一份，清單是兩批的聯集（202、203、204、207、208、209、211–214、216–219）；`illusion_hostile` 保留。
+- native_skill_selection.rs：201–210 與 211–220 的選單標籤。
+- 維護工具/test-whitelist/tests.tsv：native_skills_201_210 與 native_skills_211_220 兩組。
+- 1412 的 `Feedback::label` 與 native_world.rs 那一行由 git 自動合併，各只剩一份。
+- 另外改了批 9 的 tests/native_skills_201_210.rs 一行：原本掃 1..=220 並期待 `illusion_targeted` 只有六個編號，
+  併入本張的八個之後會失敗，改成只掃 201..=210（期待值不變）。
+合併後同一條 cargo check：結束碼 0（Finished `dev` profile in 3m 28s；輸出中沒有 error，
+也沒有指向 native_skills.rs、native_skill_selection.rs、native_skills_2*.rs 的警告）。
+這一輪的 CI 結果以 PR #347 最新 commit 為準（寫報告時尚未跑完）。
 
 python -B 維護工具/test_native_skill_coverage.py
-結束碼 0；Ran 13 tests；OK（合併後含批 8 的 1 案）
+結束碼 0；Ran 14 tests；OK（合併後含批 8、批 9 各 1 案）
 ```
 
 ## 推測
@@ -133,6 +145,7 @@ python -B 維護工具/test_native_skill_coverage.py
 - `LiTo381-Modern/src/modern_lito/native_skillbook_tests.rs`（單元測試改用 200）
 - `LiTo381-Modern/tests/native_skills_211_220.rs`
 - `LiTo381-Modern/tests/native_skill_selection.rs`
+- `LiTo381-Modern/tests/native_skills_201_210.rs`（一行，同步批 9 時改）
 - `維護工具/test_native_skill_coverage.py`
 - `維護工具/test-whitelist/tests.tsv`
 - 本報告 `docs/reports/issue-160.md`
@@ -145,5 +158,5 @@ python -B 維護工具/test_native_skill_coverage.py
   - 211 沒選目標時送自己的 ID 與座標。
   - 1412 加進全域的 `last_skill_rejection` 名單（與批 9 相同）。
 - 需要 Codex 本機執行 `native_skills_211_220`（8 案），並回歸 `native_skill_selection`、`native_skills_181_188`、`native_selector_only`、`native_skills`，回報 `test result:` 原文。
-- 批 8（#158）、批 9（#159）合併進 main 之後，本分支要再同步一次；衝突位置見上面「與批 9 重疊的部分」。如果批 9 的 `tests/native_skills_201_210.rs` 有斷言 `illusion_targeted` 的完整清單，它只掃 1–220 並期待六個編號，合併後要改成只掃 201–210，或把期待值改成兩批的聯集。
+- 批 8（#158）、批 9（#159）已合併進 main，本分支已同步（見「命令與結果」第三、四輪）。批 9 的 `tests/native_skills_201_210.rs` 因此改了一行（`illusion_targeted` 的掃描範圍從 1..=220 縮成 201..=210），Codex 回歸時請一併跑 `native_skills_201_210` 與 `native_skills_189_195`。
 - T022 十張全部合併後，`native_skills::request` 的 `_ =>`（「請求格式尚未接入」）應該只剩 E149 沒有 catalog 列的編號。
