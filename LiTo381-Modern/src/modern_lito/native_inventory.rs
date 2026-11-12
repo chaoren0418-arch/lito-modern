@@ -39,7 +39,10 @@ impl Item {
         self.label_with_name(&self.name)
     }
     pub fn label_with_name(&self, name: &str) -> String {
-        let label = format!("{} × {}", display_name(name, self.count), self.count);
+        // Native 4437F0 regroups a remaining trailing `(digits)` (a charge
+        // count, for example) with thousands separators.
+        let shown = super::native_text_format::inventory_view_name(&display_name(name, self.count));
+        let label = format!("{shown} × {}", self.count);
         if matches!(self.use_type, 3 | 4) {
             if (1..=127).contains(&self.charge) {
                 format!("{label}（剩餘次數 {}）", self.charge)
