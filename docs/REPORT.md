@@ -143,3 +143,4 @@
 - 2026-11-13 — #341 T059-2: T059（M3 2/2）: 音效裝置生命週期（G09）（code，claude-local，PR #372 已合併）→ [報告](reports/issue-341.md)
 - 2026-11-13 — #329 T049-2: T049（M3 2/2）: src/：背包與介面文字（code，claude-local，PR 已合併）→ [報告](reports/issue-329.md)
 - 2026-11-13 — #339 T058-2: T058（M3 2/2）: src/：遮擋、屋頂、附件、透明與特效排序（G07.3）（code，claude-local，PR #373 已合併）→ [報告](reports/issue-339.md)
+- 2026-11-13 — #337 T057-2: T057（M3 2/2）: 資源支援矩陣與失敗診斷（G07.1、G07.4）（code，claude-local，PR #374 已合併）→ [報告](reports/issue-337.md)
