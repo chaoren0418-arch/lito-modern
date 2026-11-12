@@ -24,6 +24,12 @@ use windows::{
 };
 use zeroize::Zeroizing;
 use super::native_game::pages::{Pages, Turn};
+use super::native_hud_policy as hud;
+// Multiline EDIT messages (winuser.h) used by the status box.
+const EM_GETRECT: u32 = 0x00B2;
+const EM_LINESCROLL: u32 = 0x00B6;
+const EM_GETLINECOUNT: u32 = 0x00BA;
+const EM_GETFIRSTVISIBLELINE: u32 = 0x00CE;
 #[path="native_rental_window.rs"]
 mod rental;
 #[path = "native_skill_window.rs"]
@@ -144,7 +150,8 @@ struct Ui {
     closing: bool,
     font: HFONT,
 }
-struct State(RefCell<Ui>);
+/// The flag is a held-input release that arrived while the UI was borrowed.
+struct State(RefCell<Ui>, std::cell::Cell<bool>);
 struct WindowGuard(HWND);
 impl Drop for WindowGuard {
     fn drop(&mut self) {
@@ -175,8 +182,66 @@ impl Ui {
             .unwrap_or_default()
     }
     unsafe fn text(&self, id: u16, text: &str) {
+        let hwnd = self.control(id);
+        let before = (id == STATUS).then(|| self.status_lines(hwnd));
         let text = wide(text);
-        let _ = SetWindowTextW(self.control(id), PCWSTR(text.as_ptr()));
+        let _ = SetWindowTextW(hwnd, PCWSTR(text.as_ptr()));
+        // Replacing the text puts the first line back on top. Keep a line the
+        // reader scrolled back to; otherwise show the last wrapped line.
+        if let Some(before) = before {
+            self.follow_status(hwnd, before);
+        }
+    }
+    /// Scroll the status box to the line the HUD rule picks after a change.
+    unsafe fn follow_status(&self, hwnd: HWND, before: hud::StatusLines) {
+        let (first, lines, visible) = self.status_lines(hwnd);
+        let line = hud::status_first_line(before, lines, visible);
+        if line != first {
+            // Signed line delta from the current first visible line.
+            send(hwnd, EM_LINESCROLL, WPARAM(0), LPARAM(line as isize - first as isize));
+        }
+    }
+    unsafe fn status_lines(&self, hwnd: HWND) -> hud::StatusLines {
+        let first = send(hwnd, EM_GETFIRSTVISIBLELINE, WPARAM(0), LPARAM(0)).0.max(0) as usize;
+        let lines = send(hwnd, EM_GETLINECOUNT, WPARAM(0), LPARAM(0)).0.max(0) as usize;
+        let mut rect = RECT::default();
+        send(hwnd, EM_GETRECT, WPARAM(0), LPARAM(&mut rect as *mut RECT as isize));
+        let mut metrics = TEXTMETRICW::default();
+        let dc = GetDC(Some(hwnd));
+        if !dc.0.is_null() {
+            let old = SelectObject(dc, self.font.into());
+            let _ = GetTextMetricsW(dc, &mut metrics);
+            SelectObject(dc, old);
+            ReleaseDC(Some(hwnd), dc);
+        }
+        // Unknown metrics: treat every line as visible, which never scrolls.
+        let visible = if metrics.tmHeight > 0 && rect.bottom > rect.top {
+            ((rect.bottom - rect.top) / metrics.tmHeight).max(1) as usize
+        } else {
+            lines
+        };
+        (first, lines, visible)
+    }
+    /// Focus loss, minimize or a modal size/menu loop: nothing held continues.
+    unsafe fn release_input(&mut self, audio: bool) {
+        self.item_cursor = None;
+        self.held.clear();
+        self.held_attack.clear();
+        if audio {
+            if let Err(e) = self.voices.stop_all() {
+                self.audio_error = Some(e.to_string());
+            }
+        }
+    }
+    fn option_row(&self) -> bool {
+        let selected = self.skills.selected();
+        hud::option_row(
+            selected.is_some_and(super::native_skills::destination_skill),
+            selected == Some(51),
+            selected.is_some_and(super::native_skills::text_skill),
+            self.rental.open,
+            self.ground_view,
+        )
     }
     unsafe fn read(&self, id: u16, max: usize) -> Result<Zeroizing<String>> {
         let hwnd = self.control(id);
@@ -387,6 +452,8 @@ impl Ui {
         let mut area = RECT::default();
         let _ = GetClientRect(parent, &mut area);
         let width = (area.right - px(40)).max(px(280));
+        // Moving or resizing the status box rewraps it; see the end of layout.
+        let status_before = self.status_lines(self.control(STATUS));
         let rows = [
             (CREATE_ROOM,20,20,px(130),32),
             (EDIT_ROOM,170,20,px(130),32),
@@ -614,9 +681,10 @@ impl Ui {
                 true,
             );
             // Above the F5–F12 hotbar (bottom-155..-97); a closed combo is ~24px.
-            let _ = MoveWindow(self.control(SUMMON_OPTIONS),px(16),area.bottom-px(190),area.right-px(32),px(300),true);
-            let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),area.bottom-px(190),area.right-px(32),px(220),true);
-            let _ = MoveWindow(self.control(SKILL_TEXT),px(16),area.bottom-px(190),area.right-px(32),px(24),true);
+            let option_top = area.bottom - px(hud::strip::OPTION_TOP);
+            let _ = MoveWindow(self.control(SUMMON_OPTIONS),px(16),option_top,area.right-px(32),px(300),true);
+            let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),option_top,area.right-px(32),px(220),true);
+            let _ = MoveWindow(self.control(SKILL_TEXT),px(16),option_top,area.right-px(32),px(hud::strip::OPTION_HEIGHT),true);
             let _ = MoveWindow(
                 self.control(SCORES),
                 px(16),
@@ -633,14 +701,16 @@ impl Ui {
                 px(32),
                 true,
             );
+            // World rows: book/cast -90, hotbar -155, option row -190. Any of
+            // the three option controls lifts the status box clear of that row.
+            let (status_top, status_height) = hud::world_status(
+                self.inventory_view, self.ground_view, self.result_view, self.option_row());
             let _ = MoveWindow(
                 self.control(STATUS),
                 px(16),
-                area.bottom
-                    // World rows: book/cast -90, hotbar -155, teleport -190.
-                    - px(if self.inventory_view { if self.ground_view {286} else {326} } else if self.result_view { 250 } else if self.skills.selected().is_some_and(super::native_skills::destination_skill) {290} else { 250 }),
+                area.bottom - px(status_top),
                 area.right - px(32),
-                px(if self.inventory_view { 80 } else if self.result_view { 45 } else { 90 }),
+                px(status_height),
                 true,
             );
             let _ = MoveWindow(
@@ -666,6 +736,7 @@ impl Ui {
         self.layout_rental();
         self.layout_skill_book(area, dpi);
         self.layout_companions();
+        self.follow_status(self.control(STATUS), status_before);
     }
     unsafe fn score_extent(&self) {
         self.list_extent(SCORES, self.score_labels.iter().map(String::as_str));
@@ -1487,19 +1558,11 @@ impl Ui {
                         .catalog()
                         .and_then(|c| c.resolve(&a.name).ok())
                         .unwrap_or_else(|| a.name.clone());
-                    let name: String = name
-                        .chars()
-                        .map(|c| if c.is_control() { ' ' } else { c })
-                        .collect();
                     (
                         a.id,
                         format!(
                             "{} × {}（{}, {}）",
-                            if name.is_empty() {
-                                "未命名物品"
-                            } else {
-                                &name
-                            },
+                            super::native_inventory::display_name(&name, a.experience),
                             a.experience,
                             a.x,
                             a.y
@@ -2386,7 +2449,16 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     let ptr = GetWindowLongPtrW(hwnd, GWLP_USERDATA) as *const State;
     if !ptr.is_null() {
         let state = &*ptr;
+        let release = hud::focus_release(msg, wparam.0);
+        if release != hud::Release::Keep {
+            // Recorded first: a message sent while the UI is busy (a modal
+            // prompt opened from an action) is applied at the next message.
+            state.1.set(true);
+        }
         if let Ok(mut ui) = state.0.try_borrow_mut() {
+            if state.1.take() {
+                ui.release_input(release == hud::Release::InputAndAudio);
+            }
             match msg {
                 WM_DRAWITEM => {
                     let draw = &*(lparam.0 as *const DRAWITEMSTRUCT);
@@ -2587,17 +2659,6 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     }
                     return LRESULT(0);
                 }
-                WM_ACTIVATEAPP if wparam.0 == 0 => {
-                    ui.item_cursor = None;
-                    ui.held.clear();
-                    ui.held_attack.clear();
-                    if let Err(e)=ui.voices.stop_all() {ui.audio_error=Some(e.to_string());}
-                }
-                WM_KILLFOCUS | WM_CANCELMODE => {
-                    ui.item_cursor = None;
-                    ui.held.clear();
-                    ui.held_attack.clear();
-                }
                 WM_CLOSE => {
                     ui.item_cursor = None;
                     ui.held.clear();
@@ -2744,7 +2805,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 held_attack: Default::default(),
                 closing: false,
                 font: HFONT::default(),
-            })));
+            }), Default::default()));
             let dpi = GetDpiForSystem().max(96) as i32;
             let hwnd = CreateWindowExW(
                 WINDOW_EX_STYLE(0),
