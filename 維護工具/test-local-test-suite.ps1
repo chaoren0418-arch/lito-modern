@@ -236,4 +236,105 @@ foreach ($fault in @('zero','cleanup','identity','exit','malformed')) {
     Assert (@($rows | Where-Object Status -eq 'PASS').Count -eq 0) "G06 accepted $fault"
     Assert (@($rows | Where-Object Status -like '*not-run-after-G06-failure*').Count -eq 7) "G06 fail-stop rows absent: $fault"
 }
+
+# T042 -Full: T036 ledger parsing, plan resolution, Debug/Release selection,
+# exclusion reporting and exit code. Cargo is replaced by a synthetic process.
+$ledgerPath = Join-Path $PSScriptRoot 'test-whitelist/full.tsv'
+$ledger = @(Read-FullManifest $ledgerPath)
+Assert ($ledger.Count -eq 1055) "T036 ledger must keep all 1055 rows, found $($ledger.Count)"
+$realPlan = @(Resolve-FullPlan $ledger (Get-CoveredTests))
+Assert ($realPlan.Count -eq 1055) 'T036 plan dropped rows'
+Assert (@($realPlan | Where-Object { $_.Action -eq 'run' }).Count -gt 0) 'T036 ledger releases nothing'
+Assert (@($realPlan | Where-Object { $_.Action -eq 'excluded' -and $_.Reason -notmatch '^[a-z0-9-]+: \S' }).Count -eq 0) 'exclusion without a reason'
+$realKeys = @{}
+foreach ($entry in @($realPlan | Where-Object { $_.Action -eq 'run' })) { $realKeys[$entry.Key] = $true }
+foreach ($entry in @(Read-Whitelist (Join-Path $PSScriptRoot 'test-whitelist/tests.tsv') -Integration)) {
+    Assert (-not $realKeys.ContainsKey($entry.Target + '::' + $entry.Name)) 'T036 would repeat a baseline test'
+}
+$lists = Join-Path $qa 'lists'
+New-Item -ItemType Directory $lists -Force | Out-Null
+[IO.File]::WriteAllText((Join-Path $lists 'lib.txt'), "modern_lito::a::listed_lib`n", $utf8)
+[IO.File]::WriteAllText((Join-Path $lists 'tests.tsv'), "native_a`tlisted_test`tno`t-`n", $utf8)
+[IO.File]::WriteAllText((Join-Path $lists 'skills.tsv'), "native_a`tlisted_skill`tno`t-`n", $utf8)
+$ledgerFixture = Join-Path $qa 'full.tsv'
+$ledgerRows = @(
+    "native_a`tneeds_client`tno`t-`trun`tclient`t#306`t-",
+    "__lib`tmodern_lito::a::memory_only`tyes`t-`trun`t-`t#307`t-",
+    "native_b`twire_case`tno`tteleport-wire-test`trun`t-`t#306`t-",
+    "native_a`tlisted_test`tno`t-`trun`t-`t#307`t-",
+    "native_a`tlisted_skill`tno`t-`tcovered`t-`twhitelist`t-",
+    "native_teleport_failure`trefused_destination_retires_authority_and_allows_fresh_login`tyes`t-`tcovered`t-`tG06`t-",
+    "native_c`tneeds_database`tyes`t-`texcluded`t-`t#319`tdb: synthetic reason"
+)
+function Write-Ledger([string[]]$Lines) { [IO.File]::WriteAllText($ledgerFixture, ($Lines -join "`n") + "`n", $utf8) }
+Write-Ledger $ledgerRows
+$plan = @(Resolve-FullPlan @(Read-FullManifest $ledgerFixture) (Get-CoveredTests $lists))
+Assert ((@($plan | ForEach-Object { $_.Action }) -join ',') -eq 'run,run,run,covered,covered,covered,excluded') 'T036 plan actions changed'
+foreach ($bad in @(
+    "native_a`tseven_columns`tno`t-`trun`t-`t#306",
+    "native_a`tbad;name`tno`t-`trun`t-`t#306`t-",
+    "native_a`tunknown_verdict`tno`t-`tskip`t-`t#306`t-",
+    "native_a`tunknown_requirement`tno`t-`trun`tjava`t#306`t-",
+    "native_a`tno_reason`tno`t-`texcluded`t-`t#306`t-",
+    "native_a`treason_without_code`tno`t-`texcluded`t-`t#306`tjust words",
+    "native_a`trun_with_reason`tno`t-`trun`t-`t#306`tdb: stray",
+    "native_a`texcluded_with_requirement`tno`t-`texcluded`tclient`t#306`tdb: x",
+    $ledgerRows[0]
+)) {
+    Write-Ledger ($ledgerRows + $bad)
+    Reject { Read-FullManifest $ledgerFixture } "invalid T036 ledger row accepted: $bad"
+}
+[IO.File]::WriteAllText($ledgerFixture, '', $utf8)
+Reject { Read-FullManifest $ledgerFixture } 'empty T036 ledger accepted'
+Write-Ledger ($ledgerRows + "native_a`tnot_listed_anywhere`tno`t-`tcovered`t-`twhitelist`t-")
+Reject { Resolve-FullPlan @(Read-FullManifest $ledgerFixture) (Get-CoveredTests $lists) } 'covered row without coverage accepted'
+Write-Ledger ($ledgerRows + "__lib`tmodern_lito::a::listed_lib`tyes`t-`texcluded`t-`t#319`tdb: x")
+Reject { Resolve-FullPlan @(Read-FullManifest $ledgerFixture) (Get-CoveredTests $lists) } 'excluded row that a whitelist runs accepted'
+Assert (((Get-ExactTestArgs '__lib' 'm::t' '-' 'Release' @('--locked')) -join ' ') -eq 'test --locked --release --lib --no-fail-fast -- --include-ignored --exact m::t') 'Release lib arguments changed'
+Assert (((Get-ExactTestArgs 'native_b' 't' 'f1' 'Debug' @('--locked')) -join ' ') -eq 'test --locked --test native_b --features f1 --no-fail-fast -- --include-ignored --exact t') 'Debug feature arguments changed'
+
+$cargoCalls = New-Object 'System.Collections.Generic.List[string]'
+$failName = ''
+function Invoke-SuiteProcess {
+    param($Name,$Executable,$Arguments,$Index)
+    $script:cargoCalls.Add(($Arguments -join ' '))
+    $output = $good
+    if ($Name -eq $failName) { $output = $good.Replace('1 passed; 0 failed','0 passed; 1 failed').Replace('result: ok','result: FAILED') }
+    [pscustomobject]@{ Output=$output; ExitCode=0; Seconds=0.001; Log='synthetic' }
+}
+Write-Ledger $ledgerRows
+$rows = @(Invoke-T036Suite -StartIndex 0 -Builds @('Debug','Release') -Common @('--locked') -ManifestPath $ledgerFixture -ListRoot $lists -ResourceRoot $qa)
+Assert ($rows.Count -eq 7 -and $cargoCalls.Count -eq 6) 'T036 did not run three released rows in two profiles'
+Assert (@($rows | Where-Object { $_.Status -eq 'PASS' -and $_.Profile -eq 'Debug' }).Count -eq 3) 'T036 Debug rows missing'
+Assert (@($rows | Where-Object { $_.Status -eq 'PASS' -and $_.Profile -eq 'Release' }).Count -eq 3) 'T036 Release rows missing'
+Assert (@($cargoCalls | Where-Object { $_ -like '* --release *' }).Count -eq 3) 'Release flag not passed exactly three times'
+Assert (@($cargoCalls | Where-Object { $_ -like '*--features teleport-wire-test*' }).Count -eq 2) 'feature not forwarded'
+Assert (@($cargoCalls | Where-Object { $_ -like '*listed_*' -or $_ -like '*needs_database*' }).Count -eq 0) 'covered or excluded row was executed'
+$excludedRows = @($rows | Where-Object { $_.Status -like 'EXCLUDED: *' })
+Assert ($excludedRows.Count -eq 1 -and $excludedRows[0].Step -eq 'native_c::needs_database' -and $excludedRows[0].Status -eq 'EXCLUDED: db: synthetic reason [#319]') 'exclusion reason not reported per item'
+Assert ($excludedRows[0].ExitCode -eq 'N/A' -and $excludedRows[0].Passed -eq 'N/A') 'excluded row has invented results'
+Assert ((Get-SuiteExitCode $rows) -eq 0) 'exclusions alone must not fail the run'
+$text = Format-SuiteSummary -Rows $rows -Mode 'Full' -Category 'T036' -FinalExit 0 -SkillsNote $false
+Assert ($text.Contains('Category | Profile | Step |')) 'Full summary lacks the profile column'
+Assert ($text.Contains('T036 | Release | native_b::wire_case | 0 | 1 | 0 | 0 | 0 |')) 'Release row not printed'
+Assert ($text.Contains('T036 | - | native_c::needs_database | N/A') -and $text.Contains('EXCLUDED: db: synthetic reason [#319]')) 'excluded row not printed'
+Assert ($text.Contains('Counted=6 | PASS=6 | FAIL=0 | EXCLUDED=1') -and $text.Contains('Excluded by reason: db=1')) 'Full totals wrong'
+Assert ($text.Contains('Debug: rows=3 | PASS=3 | FAIL=0') -and $text.Contains('Release: rows=3 | PASS=3 | FAIL=0')) 'per-profile totals wrong'
+$standard = Format-SuiteSummary -Rows @($rows | Where-Object { $_.Profile -eq 'Debug' }) -Mode 'Standard' -Category 'All' -FinalExit 0 -SkillsNote $true
+Assert ($standard.Contains("`nCategory | Step | Exit | passed |") -and -not $standard.Contains('Profile')) 'standard summary format changed'
+Assert ($standard.Contains("`nT036 | native_b::wire_case | 0 | 1 | 0 | 0 | 0 |")) 'standard row format changed'
+# Released tests that need the client resource root fail visibly without it.
+$cargoCalls.Clear()
+$rows = @(Invoke-T036Suite -StartIndex 0 -Builds @('Debug','Release') -Common @('--locked') -ManifestPath $ledgerFixture -ListRoot $lists -ResourceRoot (Join-Path $qa 'absent-root'))
+Assert ($cargoCalls.Count -eq 4) 'client-dependent row ran without its resource root'
+Assert (@($rows | Where-Object { $_.Status -eq 'FAIL: precondition: client-resource-root-missing' -and $_.Step -eq 'native_a::needs_client' }).Count -eq 2) 'missing resource root not reported per profile'
+Assert ((Get-SuiteExitCode $rows) -eq 1) 'missing resource root did not fail the run'
+$cargoCalls.Clear(); $failName = 'native_b::wire_case'
+$rows = @(Invoke-T036Suite -StartIndex 0 -Builds @('Debug') -Common @('--locked') -ManifestPath $ledgerFixture -ListRoot $lists -ResourceRoot $qa)
+Assert (@($rows | Where-Object { $_.Status -like 'FAIL:*test-failed*' }).Count -eq 1 -and (Get-SuiteExitCode $rows) -eq 1) 'failed T036 test accepted'
+$failName = ''
+Write-Ledger ($ledgerRows + $ledgerRows[0])
+$cargoCalls.Clear()
+$rows = @(Invoke-T036Suite -StartIndex 0 -Builds @('Debug') -Common @('--locked') -ManifestPath $ledgerFixture -ListRoot $lists -ResourceRoot $qa)
+Assert ($rows.Count -eq 1 -and $rows[0].Step -eq 'T036-manifest' -and $rows[0].Status -like 'FAIL: *Duplicate*' -and $cargoCalls.Count -eq 0) 'invalid ledger did not fail closed'
 Write-Output "Runner QA: $checks assertions passed; PowerShell=$($PSVersionTable.PSVersion). Synthetic checks only."

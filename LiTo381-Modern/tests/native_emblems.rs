@@ -2,7 +2,7 @@ use lito_modern::modern_lito::{
     compositor::Canvas, native_emblems::*, native_world::World, native_world_labels::Line,
 };
 use std::{
-    collections::BTreeSet,
+    collections::{BTreeMap, BTreeSet},
     sync::atomic::AtomicBool,
     time::{Duration, Instant},
 };
@@ -128,10 +128,19 @@ fn world_reset_and_current_actor_id_fence_rendering() {
         x: 20,
         y: 1,
         color: 0x7fff,
+        badge: None,
     }];
+    let centers = BTreeMap::new();
     let token = AtomicBool::new(false);
     let mut canvas = Canvas::new(24, 16).unwrap();
-    let r = draw(&w.emblems, &w, &lines, &mut canvas, &token).unwrap();
+    // Native 489D15: beside the name only while this actor is the hover actor.
+    assert!(
+        draw(&w.emblems, &w, &lines, None, &centers, &mut canvas, &token).unwrap()["rows"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    let r = draw(&w.emblems, &w, &lines, Some(id), &centers, &mut canvas, &token).unwrap();
     assert_eq!(r["rows"].as_array().unwrap().len(), 1);
     assert_eq!(
         &canvas.rgba()[(24 + 2) * 4..(24 + 2) * 4 + 4],
@@ -139,7 +148,7 @@ fn world_reset_and_current_actor_id_fence_rendering() {
     );
     w.actors.get_mut(&id).unwrap().emblem = 8;
     assert!(
-        draw(&w.emblems, &w, &lines, &mut canvas, &token).unwrap()["rows"]
+        draw(&w.emblems, &w, &lines, Some(id), &centers, &mut canvas, &token).unwrap()["rows"]
             .as_array()
             .unwrap()
             .is_empty()

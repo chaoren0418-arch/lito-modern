@@ -1,0 +1,314 @@
+//! T022 batch 10 (#160): skills 211–220, request shapes per
+//! PROTOCOL-CONTRACT §6.3.
+use lito_modern::modern_lito::{
+    native_login::{LoginController, LoginPhase, Snapshot},
+    native_skill_selection::{self, Model, Target},
+    native_skills::{self as skills, Feedback, Pending},
+};
+use std::time::{Duration, Instant};
+
+const PEER: u32 = 0xfedcba98;
+const SELECTORS: [(u16, u8, u8); 2] = [(215, 26, 6), (220, 27, 3)];
+/// ⑩ buffs that also accept the caster: (skill, row, column).
+const BUFFS: [(u16, u8, u8); 4] = [(211, 26, 2), (214, 26, 5), (216, 26, 7), (219, 27, 2)];
+/// ⑩ damage／harmful status on an explicit other actor: (skill, row, column).
+const HOSTILE: [(u16, u8, u8); 4] = [(212, 26, 3), (213, 26, 4), (217, 27, 0), (218, 27, 1)];
+
+fn snapshot() -> Snapshot {
+    let mut state = LoginController::default().snapshot().clone();
+    let fixture: serde_json::Value =
+        serde_json::from_slice(include_bytes!("fixtures/native-world-current.json")).unwrap();
+    for key in ["world", "start", "status", "actor", "bot"] {
+        let hex = fixture["packets"][key].as_str().unwrap();
+        let bytes: Vec<u8> = (0..hex.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
+            .collect();
+        state.world.accept(&bytes).unwrap();
+    }
+    let mut own = state.world.actors.remove(&PEER).unwrap();
+    own.id = 1;
+    own.x = 32768;
+    own.y = 32768;
+    state.world.actors.insert(1, own);
+    state.world.status.as_mut().unwrap().object_id = 1;
+    let mut actor = state.world.actors.remove(&2).unwrap();
+    actor.id = PEER;
+    actor.x = 32769;
+    actor.y = 32768;
+    state.world.actors.insert(PEER, actor);
+    state.world.hp = Some([1, 50]);
+    state.world.mp = Some([1, 200]);
+    // Real book decoder: row 26 bits 2..7 (211–216), row 27 bits 0..3 (217–220).
+    let mut book = vec![0x1e, 28];
+    book.extend([0; 26]);
+    book.extend([0xfc, 0x0f]);
+    state.world.accept(&book).unwrap();
+    state.phase = LoginPhase::BattlePending;
+    state.game_connected = true;
+    state
+}
+
+fn pending(state: &Snapshot, now: Instant) -> Pending {
+    Pending {
+        since: now,
+        casts: state.world.own_cast_packets,
+        messages: state.world.message_count,
+        generation: state.world.generation,
+        incarnation: state.world.own_actor().unwrap().incarnation,
+    }
+}
+
+fn place(state: &mut Snapshot, dx: i32, dy: i32) -> [u16; 2] {
+    let actor = state.world.actors.get_mut(&PEER).unwrap();
+    actor.x = (32768 + dx) as u16;
+    actor.y = (32768 + dy) as u16;
+    [actor.x, actor.y]
+}
+
+fn actor_body(row: u8, column: u8, id: u32, position: [u16; 2]) -> Vec<u8> {
+    let mut b = vec![0x14, row, column];
+    b.extend(id.to_le_bytes());
+    b.extend(position[0].to_le_bytes());
+    b.extend(position[1].to_le_bytes());
+    b
+}
+
+/// Chebyshev offsets around the E149 `maximumRange` 3 shared by all eight wrappers.
+const OFFSETS: [(i32, i32, bool); 7] = [
+    (1, 0, true),
+    (3, 0, true),
+    (0, -3, true),
+    (-3, 3, true),
+    (4, 0, false),
+    (0, -4, false),
+    (3, 4, false),
+];
+
+#[test]
+fn selectors_clear_stale_hover_and_emit_exact_three_bytes_without_spending() {
+    let mut state = snapshot();
+    assert_eq!(
+        state.world.learned_skills.iter().copied().collect::<Vec<_>>(),
+        (211..=220).collect::<Vec<_>>()
+    );
+    let target = Target::capture(&state.world, PEER);
+    state.world.actors.remove(&PEER);
+    let before = serde_json::to_value(&state).unwrap();
+    for (skill, row, column) in SELECTORS {
+        assert!(skills::selector_only(skill) && !skills::illusion_targeted(skill));
+        assert!(!skills::text_skill(skill) && !skills::item_targeted(skill));
+        let choice = native_skill_selection::choice(&state.world, skill, target).unwrap();
+        assert_eq!((choice.target, choice.ground), (None, None));
+        assert_eq!(skills::request(&state.world, skill, None).unwrap(), [0x14, row, column]);
+        assert!(skills::request(&state.world, skill, Some(1)).is_err());
+        assert!(skills::request(&state.world, skill, Some(PEER)).is_err());
+    }
+    assert_eq!(serde_json::to_value(&state).unwrap(), before);
+}
+
+#[test]
+fn wrapper_skills_always_send_eleven_bytes_and_are_never_selector_only() {
+    // Formal `IllusionSkillRequests.dispatch` drops every length except 11.
+    let state = snapshot();
+    let wrapped: Vec<u16> = (211..=220).filter(|id| skills::illusion_targeted(*id)).collect();
+    assert_eq!(wrapped, [211, 212, 213, 214, 216, 217, 218, 219]);
+    let hostile: Vec<u16> = (1..=220).filter(|id| skills::illusion_hostile(*id)).collect();
+    assert_eq!(hostile, HOSTILE.map(|entry| entry.0));
+    for skill in wrapped {
+        assert!(!skills::selector_only(skill) && !skills::self_object(skill), "skill={skill}");
+        assert!(!skills::self_bound(skill) && !skills::text_skill(skill), "skill={skill}");
+        assert!(!skills::item_targeted(skill) && !skills::corpse_targeted(skill), "skill={skill}");
+        let body = skills::request(&state.world, skill, Some(PEER)).unwrap();
+        assert_eq!(body.len(), 11, "skill={skill}");
+        assert_eq!(body[..3], [0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8], "skill={skill}");
+        assert_eq!(&body[3..7], &PEER.to_le_bytes(), "skill={skill}");
+        // The caster form is eleven bytes too, never the bare selector.
+        if let Ok(own) = skills::request(&state.world, skill, None) {
+            assert_eq!(own.len(), 11, "skill={skill}");
+        }
+    }
+}
+
+#[test]
+fn illusion_buffs_send_the_caster_or_a_living_actor_within_three_tiles() {
+    for (skill, row, column) in BUFFS {
+        let mut state = snapshot();
+        let hover = Target::capture(&state.world, PEER);
+        // No selection means the caster with the caster's own coordinates.
+        let own = actor_body(row, column, 1, [32768, 32768]);
+        assert_eq!(native_skill_selection::choice(&state.world, skill, None).unwrap().target, None);
+        assert_eq!(skills::request(&state.world, skill, None).unwrap(), own);
+        assert_eq!(skills::request(&state.world, skill, Some(1)).unwrap(), own);
+        for (dx, dy, accepted) in OFFSETS {
+            let position = place(&mut state, dx, dy);
+            let before = serde_json::to_value(&state).unwrap();
+            // An explicit selection out of range is refused, never replaced by the caster.
+            let choice = native_skill_selection::choice(&state.world, skill, hover);
+            assert_eq!(
+                choice.as_ref().ok().map(|c| c.target),
+                accepted.then_some(Some(PEER)),
+                "skill={skill} dx={dx} dy={dy}"
+            );
+            assert_eq!(
+                skills::request(&state.world, skill, Some(PEER)).ok(),
+                accepted.then(|| actor_body(row, column, PEER, position)),
+                "skill={skill} dx={dx} dy={dy}"
+            );
+            assert_eq!(serde_json::to_value(&state).unwrap(), before);
+        }
+        assert!(skills::request(&state.world, skill, Some(0)).is_err());
+    }
+}
+
+#[test]
+fn hostile_illusions_need_an_explicit_other_actor_within_three_tiles() {
+    for (skill, row, column) in HOSTILE {
+        let mut state = snapshot();
+        let target = Target::capture(&state.world, PEER);
+        for (dx, dy, accepted) in OFFSETS {
+            let position = place(&mut state, dx, dy);
+            let before = serde_json::to_value(&state).unwrap();
+            let choice = native_skill_selection::choice(&state.world, skill, target);
+            assert_eq!(choice.is_ok(), accepted, "skill={skill} dx={dx} dy={dy}");
+            assert_eq!(
+                skills::request(&state.world, skill, Some(PEER)).ok(),
+                accepted.then(|| actor_body(row, column, PEER, position)),
+                "skill={skill} dx={dx} dy={dy}"
+            );
+            assert_eq!(serde_json::to_value(&state).unwrap(), before);
+        }
+        // Never a silent fallback to the caster, and never the caster's own ID:
+        // formal `selectActor` would put 212／217／218 on the caster.
+        assert!(skills::request(&state.world, skill, None).is_err());
+        assert!(skills::request(&state.world, skill, Some(1)).is_err());
+        assert!(native_skill_selection::choice(&state.world, skill, None).is_err());
+    }
+}
+
+#[test]
+fn actor_spells_reject_removed_hidden_dead_and_replaced_targets() {
+    for skill in (211..=220u16).filter(|id| skills::illusion_targeted(*id)) {
+        for change in 0..5 {
+            let mut state = snapshot();
+            let target = Target::capture(&state.world, PEER);
+            assert!(native_skill_selection::choice(&state.world, skill, target).is_ok());
+            match change {
+                0 => {
+                    state.world.actors.remove(&PEER);
+                }
+                1 => state.world.actors.get_mut(&PEER).unwrap().dead = true,
+                2 => state.world.actors.get_mut(&PEER).unwrap().incarnation += 1,
+                3 => {
+                    state.world.accept(&[0x34, 0x98, 0xba, 0xdc, 0xfe, 1]).unwrap();
+                }
+                _ => state.world.generation += 1,
+            }
+            // Buffs included: a stale explicit selection never falls back to the caster.
+            assert!(
+                native_skill_selection::choice(&state.world, skill, target).is_err(),
+                "skill={skill} change={change}"
+            );
+            if matches!(change, 0 | 1 | 3) {
+                assert!(skills::request(&state.world, skill, Some(PEER)).is_err(), "skill={skill} change={change}");
+            }
+        }
+    }
+}
+
+#[test]
+fn every_skill_rechecks_learning_life_mana_and_control_without_prediction() {
+    for skill in 211..=220u16 {
+        let target = skills::illusion_hostile(skill).then_some(PEER);
+        // HP 1／50 and MP 1／200: the HP cost of 212／217 and every MP cost are
+        // server-owned and never predicted.
+        assert!(skills::request(&snapshot().world, skill, target).is_ok(), "skill={skill}");
+        assert!(!skills::hp_paid(skill), "skill={skill}");
+        for change in 0..7 {
+            let mut state = snapshot();
+            match change {
+                0 => {
+                    state.world.learned_skills.remove(&skill);
+                }
+                1 => state.world.mp = Some([0, 200]),
+                2 => state.world.mp = None,
+                3 => state.world.hp = Some([0, 50]),
+                4 => state.world.actors.get_mut(&1).unwrap().dead = true,
+                5 => {
+                    state.world.movement_blocks.insert(1);
+                }
+                _ => state.world.battle_result = Some(0),
+            }
+            let before = serde_json::to_value(&state).unwrap();
+            assert!(skills::request(&state.world, skill, target).is_err(), "skill={skill} change={change}");
+            assert_eq!(serde_json::to_value(&state).unwrap(), before);
+        }
+    }
+}
+
+#[test]
+fn menu_exposes_this_batch_with_formal_reuse_and_original_cast_clocks() {
+    let state = snapshot();
+    let mut menu = Model::default();
+    menu.sync(7, &state.world, true);
+    assert_eq!(menu.rows().len(), 10);
+    assert!(menu.rows().iter().all(|row| !row.label.contains("尚未支援")), "{:?}", menu.rows());
+    for (index, row) in menu.rows().iter().enumerate() {
+        assert_eq!(usize::from(row.id), 211 + index);
+        assert!(row.label.starts_with(&format!("#{} ", row.id)), "{}", row.label);
+    }
+    let hover = Target::capture(&state.world, PEER);
+    menu.select(Some(220)).unwrap();
+    assert_eq!(menu.choice(7, &state.world, hover).unwrap().target, None);
+    menu.select(Some(211)).unwrap();
+    assert_eq!(menu.choice(7, &state.world, hover).unwrap().target, Some(PEER));
+    assert_eq!(menu.choice(7, &state.world, None).unwrap().target, None);
+    menu.select(Some(218)).unwrap();
+    assert_eq!(menu.choice(7, &state.world, hover).unwrap().target, Some(PEER));
+    assert!(menu.choice(7, &state.world, None).is_err());
+    // E149 catalog reuseDelayMillis.
+    assert_eq!(
+        (211..=220).map(skills::reuse_millis).collect::<Vec<_>>(),
+        [1000, 3000, 1200, 2000, 5000, 1000, 4000, 3000, 5000, 5000]
+    );
+    // Recovered PE word_635774[skill - 1], equal to E149 clientCastClockMillis.
+    assert_eq!(
+        (211..=220).map(skills::client_clock_millis).collect::<Vec<_>>(),
+        [16, 640, 32, 0, 0, 3600, 0, 0, 0, 32]
+    );
+}
+
+#[test]
+fn cube_placement_refusal_is_a_coded_rejection_and_silence_is_never_success() {
+    let mut state = snapshot();
+    let now = Instant::now();
+    // 215／220: the formal handlers answer S10 1412 when the cube cannot be placed.
+    let cube = pending(&state, now);
+    assert_eq!(cube.observe(&state.world, now), Feedback::Pending);
+    state.world.accept(&[0x10, 0x84, 0x05, 0]).unwrap();
+    assert_eq!(cube.observe(&state.world, now), Feedback::Rejected(1412));
+    assert_ne!(Feedback::Rejected(1412).label(), Feedback::Rejected(280).label());
+    assert_ne!(Feedback::Rejected(1412).label(), Feedback::Rejected(1).label());
+    // An older 1412 is not attributed to the next cast; 278 is the MP refusal
+    // every handler of this batch sends.
+    let next = pending(&state, now);
+    assert_eq!(next.observe(&state.world, now), Feedback::Pending);
+    state.world.accept(&[0x10, 0x16, 1, 0]).unwrap();
+    assert_eq!(next.observe(&state.world, now), Feedback::Rejected(278));
+
+    // A missing cube reagent, an HP shortage on 212／217, an ineligible target and
+    // a cooldown get no reply from the formal handlers: the client reports the
+    // timeout and never treats an HP／MP change as an acknowledgement.
+    let silent = pending(&state, now);
+    state.world.mp = Some([190, 200]);
+    state.world.hp = Some([20, 50]);
+    assert_eq!(silent.observe(&state.world, now + Duration::from_millis(1999)), Feedback::Pending);
+    assert_eq!(silent.observe(&state.world, now + Duration::from_secs(2)), Feedback::NoResponse);
+    // The committed cast publishes the caster's action 19.
+    state.world.accept(&[0x20, 1, 0, 0, 0, 19]).unwrap();
+    assert_eq!(silent.observe(&state.world, now), Feedback::CastAction);
+
+    state.world.generation += 1;
+    assert_eq!(cube.observe(&state.world, now), Feedback::Interrupted);
+    assert_eq!(silent.observe(&state.world, now), Feedback::Interrupted);
+}
