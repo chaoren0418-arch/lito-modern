@@ -55,6 +55,7 @@
 - 靜態證據：上述 SHA、反組譯片段（`scratch/issue-165/sub_43DE10.asm`）、javap 輸出（`scratch/issue-165/BattleSpellCatalog.javap.txt`）、Python 盤點結果。
 - `cargo check` 不產生 `test result:`。本機沒有跑任何測試。
 - **PR #282 CI**（run 43169713010，commit `80d8ccf`）結論 **success**：`cargo check` 與 `cargo test (lib, no GUI)` 都通過。原文：`test result: ok. 2233 passed; 0 failed; 592 ignored; 0 measured; 0 filtered out; finished in 22.37s`。
+  - PR 最新 commit `05cfb17`（只改報告）的 run 43170476297 也是 **success**，原文：`test result: ok. 2242 passed; 0 failed; 596 ignored; 0 measured; 0 filtered out; finished in 22.36s`。測試數比前一次多，是因為 pull_request CI 跑在與最新 main 合併後的 ref 上，main 期間又新增了測試。
   - 本張的 5 個 lib 測試在 CI log 中都是 `... ok`：`native_43dcc0_colon_image_subframe_separator_matches_dot_and_stays_narrow`、`inspection_retains_unverified_body_and_ref_cannot_bypass_quarantine`，以及 3 個 `counter3934_*`。
   - 2 個實資源測試在 CI 顯示 `ignored`（`real_shared_list_actions_are_bounded_and_resolvable`、`actual_counter3934_bank_keeps_blank_dwell_slots_and_one_audio_cue`），**不算通過**。CI 只跑 `--lib`，所以 `tests/native_t028_ground.rs` 只確認能編譯，沒有執行。
 
