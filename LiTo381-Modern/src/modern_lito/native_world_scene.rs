@@ -22,6 +22,7 @@ pub(crate) mod movement_tests;
 /// Raster owner planes are immutable Arc-backed data; no canvas/DIB is copied.
 #[derive(Clone)]
 pub struct InputSurface {
+    static2941: super::native_static2941::DrawGuard,
     identity: FrameIdentity,
     stamp: super::native_navigation::InputStamp,
     revision: u64,
@@ -53,7 +54,7 @@ impl FrameIdentity {
 }
 impl InputSurface {
     pub fn input_ready(&self, world: &World) -> bool {
-        self.identity.matches_world(world) && self.revision==world.visual_revision
+        self.static2941.publishable(world) && self.identity.matches_world(world) && self.revision==world.visual_revision
             && self.stamp==super::native_navigation::InputStamp::capture(0,world)
     }
     pub fn overlay_contains(&self,x:i32,y:i32)->bool {
@@ -94,6 +95,8 @@ impl HurtCallback {
 }
 pub struct Frame {
     pub vitals: super::native_combat::FrameVitals,
+    pub(crate) player_walk_plan: Option<std::sync::Arc<super::native_player_callbacks::WalkPlan>>,
+    pub(crate) static2941: super::native_static2941::DrawGuard,
     pub ground_items: Vec<super::native_world::Actor>,
     pub hits: Vec<(u32, [i32; 4])>,
     pub visibility: Vec<(u32, super::world_raster::DrawVisibility)>,
@@ -119,9 +122,18 @@ pub struct Frame {
     pub receipt: serde_json::Value,
 }
 impl Frame {
+    pub(crate) fn composition_current(&self, world:&World)->bool {
+        self.static2941.active(world) && self.identity().matches_world(world)
+            && self.input_revision==world.visual_revision
+    }
+    pub(crate) fn static_current(&self, world: &World, connection: u64) -> bool {
+        self.static2941.current(world, connection)
+            && (world.player_walk.is_none() || self.input_revision == world.visual_revision)
+    }
+    pub(crate) fn static_active(&self, world: &World) -> bool { self.static2941.active(world) }
     pub fn environment_key(&self) -> Option<super::native_render_environment::Key> { self.environment_key }
     pub fn death_ready(&self, world: &World) -> bool {
-        self.death_arrived && world.death_confirmation_pending && self.matches_world(world)
+        self.death_arrived && world.death_confirmation_ready() && self.matches_world(world)
     }
     pub fn overlay_contains(&self, x: i32, y: i32) -> bool {
         self.receipt["minimap"]["visible"] == true && super::native_minimap::contains(x,y)
@@ -135,6 +147,7 @@ impl Frame {
     }
     pub fn movement_ready(&self, world: &World) -> bool {
         self.movement_arrived && self.matches_world(world)
+            && (world.player_walk.is_none() || self.input_revision == world.visual_revision)
             && self.movement_stamp == super::native_navigation::InputStamp::capture(0, world)
             && world.ready() && world.hp.is_some_and(|hp| hp[0] > 0)
             && world.battle_result.is_none() && world.movement_blocks.is_empty()
@@ -172,9 +185,9 @@ impl Frame {
         FrameIdentity{map:self.navigation.map_id,generation:self.movement_generation,
             caster_incarnation:self.caster_incarnation,movement_key:self.movement_key,observer_key:self.observer_key}
     }
-    fn matches_world(&self, world: &World) -> bool {self.identity().matches_world(world)}
+    fn matches_world(&self, world: &World) -> bool {self.static2941.publishable(world) && self.identity().matches_world(world)}
     pub fn input_surface(&self,world:&World)->Option<InputSurface> {
-        self.input_ready(world).then(||InputSurface{identity:self.identity(),
+        self.input_ready(world).then(||InputSurface{static2941:self.static2941.clone(),identity:self.identity(),
             stamp:super::native_navigation::InputStamp::capture(0,world),revision:self.input_revision,
             visibility:self.visibility.clone(),ground_ids:self.ground_items.iter().map(|a|a.id).collect(),
             navigation:std::sync::Arc::clone(&self.navigation),projection:self.projection,
@@ -273,8 +286,10 @@ impl Job {
                         model.lighting.restore_water_history(bound.key().epoch,history)?;
                     }
                     if let Some(cursor)=wire_audio {model.wire_audio=cursor;}
+                    let static2941_ready = model.static2941.prepare(&root, &world, &token, &mut model.effect_catalog)?;
                     let frame = model.draw_at_labels_environment(&world, &token, elapsed_ns, hover, environment.as_ref())?;
-                    Ok(Completion { model, frame })
+                    let static2941_error = model.static2941.error().map(str::to_owned);
+                    Ok(Completion { model, frame, static2941_ready, static2941_error })
                 })();
                 let _ = send.send(result);
             })?;
@@ -300,6 +315,14 @@ impl Job {
             let _ = worker.join();
         }
         Some(result)
+    }
+    /// Callback draw is a synchronous composition boundary. The worker owns
+    /// only resource/CPU work; it cannot touch the controller queue or clock.
+    pub(crate) fn finish(&mut self) -> Result<Completion> {
+        if let Some(worker)=self.worker.take() {
+            worker.join().map_err(|_|anyhow::anyhow!("world callback renderer panicked"))?;
+        }
+        self.receiver.try_recv().context("world callback renderer ended without result")?
     }
     pub fn finished(&self) -> bool {
         self.worker.is_none()
@@ -344,17 +367,19 @@ pub(crate) fn read_pin(path: &Path, limit: u64, cancel: &AtomicBool) -> Result<n
 }
 #[derive(Clone)]
 pub(crate) struct FiniteHistory {
+    static2941: super::native_static2941::History,
     animation:super::native_world_animation::History,
     skills:[super::native_skill_effects::History;4],many:super::native_attack_many::History,
     disintegrate:super::native_disintegrate::History,call_lightning:super::native_call_lightning::History,cone_cold:super::native_cone_cold::History,restore_other_effects:bool,
 }
 impl FiniteHistory {
     pub(crate) fn for_source(&self,same_source:bool)->Self {
-        let mut history=self.clone();history.restore_other_effects &= same_source;history
+        let mut history=self.clone();history.restore_other_effects &= same_source;history.static2941=history.static2941.for_source(same_source);history
     }
-    pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();}
+    pub(crate) fn merge_disintegrate_admission(&mut self,other:&Self){self.static2941.merge(&other.static2941);self.disintegrate.merge(&other.disintegrate);self.call_lightning.merge(&other.call_lightning);self.cone_cold.merge(&other.cone_cold);self.animation=other.animation.clone();}
 }
 pub struct Model {
+    static2941: super::native_static2941::Stage,
     world_generation:u64,
     lighting: super::native_world_lighting::Runtime,
     names: super::native_inventory_names::Catalog,
@@ -402,6 +427,8 @@ pub struct Model {
     many_effects:super::native_attack_many::Effects,
 }
 pub struct Completion {
+    pub(crate) static2941_ready: Vec<super::native_static2941::Prepared>,
+    pub(crate) static2941_error: Option<String>,
     pub model: Model,
     pub frame: Frame,
 }
@@ -419,9 +446,10 @@ struct NativeTerrainSources {
 }
 impl Model {
     pub(crate) fn finite_history(&self)->FiniteHistory {
-        FiniteHistory{animation:self.animator.history(),skills:[self.skill_effects.history(),self.item_effects.history(),self.reagent_effects.history(),self.travel_effects.history()],many:self.many_effects.history(),disintegrate:self.disintegrate_effects.history(),call_lightning:self.call_lightning_effects.history(),cone_cold:self.cone_cold_effects.history(),restore_other_effects:true}
+        FiniteHistory{static2941:self.static2941.history(),animation:self.animator.history(),skills:[self.skill_effects.history(),self.item_effects.history(),self.reagent_effects.history(),self.travel_effects.history()],many:self.many_effects.history(),disintegrate:self.disintegrate_effects.history(),call_lightning:self.call_lightning_effects.history(),cone_cold:self.cone_cold_effects.history(),restore_other_effects:true}
     }
     fn restore_finite_history(&mut self,history:FiniteHistory) {
+        self.static2941.restore(&history.static2941);
         self.animator.restore(history.animation);
         if history.restore_other_effects {
             for (effect,h) in [&mut self.skill_effects,&mut self.item_effects,&mut self.reagent_effects,&mut self.travel_effects].into_iter().zip(history.skills) {effect.restore_history(h);}
@@ -710,6 +738,7 @@ impl Model {
             disintegrate_effects:Default::default(),
             call_lightning_effects:Default::default(),
             cone_cold_effects:Default::default(),
+            static2941: Default::default(),
             effect_source_owner:std::sync::Arc::new(()),
             many_effects:Default::default(),
         })
@@ -767,6 +796,7 @@ impl Model {
                 *self=next;
             }
         }
+        let _ = self.static2941.prepare(&self.root, world, cancel, &mut self.effect_catalog)?;
         let render_start = std::time::Instant::now();
         self.projectiles.prepare(&self.root, cancel, world);
         self.skill_effects.prepare_with_catalog(&self.root,world,cancel,&mut self.effect_catalog);
@@ -812,9 +842,15 @@ impl Model {
             .begin(elapsed_ns, world.actors.keys().copied())?;
         let mut poses = std::collections::BTreeMap::new();
         for actor in world.actors.values() {
+            if let Some(p)=world.player_walk.as_ref().filter(|p|p.current(world)
+                && world.own_actor().is_some_and(|own|own.id==actor.id)) {
+                self.animator.source_motion(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(),
+                    actor,elapsed_ns,p.frame==0)?;
+            }
             poses.insert(
                 actor.id,
-                self.animator.pose(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(), actor, elapsed_ns),
+                world.player_walk.as_ref().and_then(|p|p.pose(world,actor)).unwrap_or_else(||
+                    self.animator.pose(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(), actor, elapsed_ns)),
             );
         }
         let mut impacts = self.projectiles.update(
@@ -1206,6 +1242,7 @@ impl Model {
             },
             elapsed_ns,
         );
+        let static2941 = self.static2941.draw_to(world, &mut effect_target, projection, cancel)?;
         let effect_submissions = effect_queue.len();
         let terrain_start = std::time::Instant::now();
         let layers = super::native_world_layers::compose_with_presentations(
@@ -1387,8 +1424,13 @@ impl Model {
                 "captured_authority_revision":bound.state().revision,"captured_state":bound.state()}),
             None => serde_json::json!({"bound":false,"scope":"resource-only unbound draw"}),
         };
+        receipt["static2941"] = serde_json::json!({"sequences":static2941.sequences(),"flags":0,"direction6_alias":-1,"shadow":-1,"paint_advances_clock":false});
         Ok(Frame {
             vitals: super::native_combat::FrameVitals::capture(world),
+            player_walk_plan: world.own_actor().and_then(|actor|
+                super::native_player_callbacks::WalkPlan::load(
+                    self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(),actor).ok()).map(std::sync::Arc::new),
+            static2941,
             ground_items,
             hits,
             visibility: layers.visibility,
@@ -1419,5 +1461,66 @@ impl Model {
             bgra,
             receipt,
         })
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod resurrection_tests {
+    use super::*;
+
+    pub(crate) fn completed_frame(world: &World) -> Frame {
+        let mut frame = movement_tests::frame(world, true);
+        frame.death_arrived = true;
+        frame
+    }
+
+    fn dead_world() -> World {
+        let mut world = movement_tests::world();
+        let mut body = vec![0x20];
+        body.extend(world.own_actor().unwrap().id.to_le_bytes());
+        body.push(8);
+        world.accept(&[0x0d, 0, 0, 200, 0]).unwrap();
+        world.accept(&body).unwrap();
+        world.accept(&[0xe3]).unwrap();
+        world
+    }
+
+    #[test]
+    fn completed_death_frame_rechecks_authority_before_acknowledging() {
+        let world = dead_world();
+        let mut frame = movement_tests::frame(&world, true);
+        assert!(!frame.death_ready(&world), "movement completion is not death completion");
+        frame.death_arrived = true;
+        assert!(frame.death_ready(&world));
+        for case in 0..4 {
+            let mut changed = world.clone();
+            match case {
+                0 => { changed.accept(&[0x0d, 1, 0, 200, 0]).unwrap(); }
+                1 => { changed.set_observer_mode(true); }
+                2 => { changed.accept(&[0xd3, 0, 0, 0, 0]).unwrap(); }
+                _ => { changed.acknowledge_death(|_| Ok(())).unwrap(); }
+            }
+            assert!(!frame.death_ready(&changed), "case {case}");
+        }
+    }
+
+    #[test]
+    fn old_death_frame_cannot_acknowledge_the_next_life_even_at_the_same_cell() {
+        let mut world = dead_world();
+        let mut frame = movement_tests::frame(&world, true);
+        frame.death_arrived = true;
+        let id = world.own_actor().unwrap().id;
+        let mut body = vec![0x11];
+        body.extend(id.to_le_bytes()); body.push(0);
+        body.extend(id.to_le_bytes()); body.extend(0u16.to_le_bytes());
+        world.accept(&body).unwrap();
+        assert!(!frame.death_ready(&world));
+        let mut death = vec![0x20]; death.extend(id.to_le_bytes()); death.push(8);
+        world.accept(&death).unwrap(); world.accept(&[0xe3]).unwrap();
+        assert!(world.death_confirmation_ready());
+        assert!(!frame.death_ready(&world));
+        let mut fresh = movement_tests::frame(&world, true);
+        fresh.death_arrived = true;
+        assert!(fresh.death_ready(&world));
     }
 }

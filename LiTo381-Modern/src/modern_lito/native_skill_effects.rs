@@ -602,7 +602,7 @@ impl Effects {
                         ]));
                         drawn|=clothing_drawn;
                     } else if drawn {
-                        target.submit(frame.frame,position,projection,if cue.graphics==2510 || self.finite_over.contains(&cue.graphics) {super::native_world_effects::Mix::Over}else{super::native_world_effects::Mix::Screen})?;
+                        target.submit(frame.frame,position,projection,if cue.graphics==2510 || self.finite_over.contains(&cue.graphics) {super::native_world_effects::Mix::Over}else if cue.graphics==2175 {super::native_world_effects::Mix::Multiply}else{super::native_world_effects::Mix::Screen})?;
                     }
                     let mut row=serde_json::json!({"sequence":cue.sequence,"graphics":cue.graphics,"target":cue.target,"position":cue.position,"action":self.profile.action(),"source_frame":frame.source_frame,"sprite":frame.sprite_name,"subframe":frame.subframe,"drawn":drawn,"finished":sample.finished,"elapsed_ns":elapsed,"native_clock_elapsed_ms":if self.profile==Profile::Reagent {None}else{Some(clock_elapsed_ms)},"next_callback_ms":active.playback.next_callback_millis(),"callback_count":active.playback.callback_count()});
                     if let Some(layers)=layers {row["layers"]=layers;}

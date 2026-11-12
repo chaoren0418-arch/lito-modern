@@ -168,3 +168,39 @@ fn notice_acknowledgements_match_deployed_parsers() {
     }
     assert_eq!(native_game::parse(&packet("ready")).unwrap(), Packet::Ready);
 }
+
+#[test]
+fn clan_capacity_is_sixteen_ms950_bytes_plus_nul_without_field_shift() {
+    use lito_modern::modern_lito::native_login::encode_text;
+    let original = packet("row");
+    let name_end = original[1..].iter().position(|b| *b == 0).unwrap() + 1;
+    let clan_start = name_end + 1;
+    let clan_end = original[clan_start..].iter().position(|b| *b == 0).unwrap() + clan_start;
+    let replace = |clan: &[u8], nul: bool| {
+        let mut body = original[..clan_start].to_vec();
+        body.extend_from_slice(clan);
+        if nul { body.push(0); }
+        body.extend_from_slice(&original[clan_end + 1..]);
+        body
+    };
+    let Packet::Row(reference) = native_game::parse(&original).unwrap() else { panic!() };
+    for clan in ["", "A", "1234567890123456", "天地玄黃宇宙洪荒", "天地玄黃宇宙洪A"] {
+        let bytes = if clan.is_empty() { vec![] } else { encode_text(clan, 16).unwrap().to_vec() };
+        let Packet::Row(row) = native_game::parse(&replace(&bytes, true)).unwrap() else { panic!() };
+        assert_eq!(row.clan_name(), bytes);
+        assert_eq!(row.fields(), reference.fields());
+        assert_eq!(row.name(), reference.name());
+        let mut directory = Directory::default();
+        directory.start(1).unwrap();
+        directory.push(row).unwrap();
+        assert_eq!(directory.view().unwrap()[0].clan, clan);
+    }
+    for clan in ["12345678901234567", "天地玄黃宇宙洪荒A", "天地玄黃宇宙洪荒日"] {
+        let bytes = encode_text(clan, 32).unwrap();
+        assert!(native_game::parse(&replace(&bytes, true)).is_err());
+    }
+    assert!(native_game::parse(&replace(&[b'A'; 16], false)).is_err());
+    let mut broken_ms950 = vec![b'A'; 15];
+    broken_ms950.push(0xa4); // lead byte cannot end the field
+    assert!(native_game::parse(&replace(&broken_ms950, true)).is_err());
+}

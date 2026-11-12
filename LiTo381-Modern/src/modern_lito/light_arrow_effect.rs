@@ -370,6 +370,17 @@ impl LightArrowPath {
         {
             return Err(LightArrowError::InvalidInput("native world coordinates"));
         }
+        Self::build_native_path(from, target)
+    }
+    /// S39's missing first target falls back one heading step, even at a u16 edge.
+    pub(crate) fn new_area_fireball(from: WorldCell, target: WorldCell) -> Result<Self> {
+        if [from.x,from.y].iter().any(|v| !(0..=65535).contains(v))
+            || [target.x,target.y].iter().any(|v| !(-1..=65536).contains(v)) {
+            return Err(LightArrowError::InvalidInput("area world coordinates"));
+        }
+        Self::build_native_path(from, target)
+    }
+    fn build_native_path(from: WorldCell, target: WorldCell) -> Result<Self> {
         let dx = i64::from(target.x) - i64::from(from.x);
         let dy = i64::from(target.y) - i64::from(from.y);
         let distance = dx.abs().max(dy.abs());
