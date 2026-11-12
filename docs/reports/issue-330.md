@@ -6,7 +6,7 @@
 
 裝備與彈藥 UI 已接進原生視窗：背包清單分成「裝備中／彈藥／其他」三組，世界 HUD 在弓或鐵手甲姿勢時顯示彈藥數量，伺服器的缺彈藥訊息會顯示在提示列。全部只呈現伺服器送來的背包資料，不預扣、不推測。
 
-`cargo check --all-targets` 結束碼 0。**單元測試本機沒跑**（2026-11-09 規定），交給 PR 的 CI；**真機畫面沒看過**，列在「待驗證」。
+`cargo check --all-targets` 結束碼 0。單元測試本機沒跑（2026-11-09 規定），由 PR #361 的 CI 執行：新增 6 個全過，lib 整體 2342 passed／0 failed。**真機畫面沒看過**，列在「待驗證」。
 
 本張只做「裝備與彈藥 UI」。T052 的另外兩項（地面物品直接滑鼠拾取與排序、特殊物品選項）屬第 2 張，沒有動。
 
@@ -114,4 +114,11 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 - 第 2 次（目前的程式）：結束碼 **0**，原文 ``Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 46s``。`native_equipment.rs` 與 `native_login_window.rs` 改動的區段沒有新的 warning；其餘是原本就有的 warnings。
 - 合併 `origin/main`（30 個 commit，無衝突，合併 commit `35903d3`；main 這段只動了 `native_skills.rs` 等 3 個 src 檔，沒有碰本張改的檔案）之後再跑一次：結束碼 **0**，``Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 32s``。
 - `Cargo.lock` 沒有變動。
-- 沒有執行 `cargo test`、沒有執行任何編譯出來的程式、沒有啟動遊戲、沒有連正式服務或 DB。
+- 本機沒有執行 `cargo test`、沒有執行任何編譯出來的程式、沒有啟動遊戲、沒有連正式服務或 DB。
+
+## CI 結果（PR #361，commit `4f48921`，run 43219282825）
+
+- `cargo check (x86_64-pc-windows-msvc)`：pass（4m33s）。
+- 同一個 job 的 `cargo test --lib`：`test result: ok. 2342 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.06s`。
+- `native_equipment::tests` 的 6 個測試都是 `ok`：`wear_follows_the_formal_view_name_order`、`ammo_kinds_match_the_formal_use_types_and_stances`、`summary_groups_worn_items_ammo_and_the_rest_without_guessing`、`headers_and_hud_follow_the_own_stance`、`ammo_counts_change_only_with_server_inventory_packets`、`missing_ammo_notice_lasts_until_the_inventory_changes`。
+- 所以「待驗證」第 1 點（單元測試）已由 CI 完成；第 2–4 點（真機畫面、多疊箭順序、高 DPI）仍待驗證。這一節之後只多了本段文字的 commit，程式沒有再改。
