@@ -129,7 +129,7 @@ impl Ground {
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
     let named = matches!(skill, 116 | 118);
-    let target = if native_skills::selector_only(skill) || named || matches!(skill,2|3|13|60|131) {
+    let target = if native_skills::selector_only(skill) || native_skills::self_object(skill) || named || matches!(skill,2|3|13|60|131) {
         None
     } else {
         target
@@ -270,6 +270,17 @@ impl Model {
                         134 => "#134 鏡反射（自己，消耗精靈玉）".into(),
                         137 => "#137 淨化精神（自己，消耗精靈玉）".into(),
                         138 => "#138 屬性防禦（自己，消耗精靈玉）".into(),
+                        145 => "#145 釋放元素（選取召喚物，畫面內；消耗精靈玉）".into(),
+                        146 => "#146 魂體轉換（自己，消耗 HP）".into(),
+                        147 => "#147 單屬性防禦（自己，消耗精靈玉）".into(),
+                        148 => "#148 火焰武器（自己）".into(),
+                        149 => "#149 風之神射（自己）".into(),
+                        150 => "#150 風之疾走（自己）".into(),
+                        151 => "#151 大地防護（自己）".into(),
+                        152 => "#152 地面障礙（選取目標，十格內；消耗精靈玉）".into(),
+                        153 => "#153 魔法消除（選取目標，十格內；消耗精靈玉）".into(),
+                        154 => "#154 召喚屬性精靈（自己，消耗精靈玉）".into(),
+                        155 => "#155 烈炎氣息（自己與周圍隊員）".into(),
                         13 => "#13 偵測術（自己）".into(),
                         15 => "#15 火箭（選取目標）".into(),
                         18 => "#18 起死回生術（選取目標，十格內）".into(),

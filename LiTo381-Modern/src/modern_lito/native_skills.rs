@@ -174,7 +174,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 206)
 }
 /// 132 Triple Arrow is suppressed by the original client unless the caster is
 /// in the bow stance; the formal server drops the request silently otherwise
@@ -183,6 +183,10 @@ pub const BOW_WALK_ACTION: u8 = 20;
 /// 133 Elemental Fall Down: E149 catalog `maximumRange`, checked together with
 /// the native screen diamond by `useElementalFallDownSpell`.
 pub const ELEMENTAL_FALL_DOWN_RANGE: u16 = 10;
+/// ④ object requests whose formal handlers accept only the caster's own object ID
+/// (target_to=1 with maximumRange 0: Fire Weapon, Wind Shot, Earth Skin). A hovered
+/// actor is never sent; the request always carries the caster.
+pub fn self_object(skill: u16) -> bool { matches!(skill, 148 | 149 | 151) }
 /// Requests whose tail ends in one MS950 `s` field: ⑪ True Target (113) and
 /// ⑦／⑧ Call／Run Clan (116／118).
 pub fn text_skill(skill: u16) -> bool { matches!(skill, 113 | 116 | 118) }
@@ -261,6 +265,25 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
         id if selector_only(id) => {ensure!(target.is_none(), "此技能不接受指定目標");}
         // Without typed text: 113 sends an empty annotation, 116／118 require a name.
         id if text_skill(id) => {return text_request(world, id, target, "");}
+        148 | 149 | 151 => {
+            ensure!(target.is_none_or(|id| id == own.id), "此技能只能對自己施放");
+            b.extend_from_slice(&own.id.to_le_bytes());
+        }
+        145 => {
+            // Only another player's or the caster's SUMMON／TAMED companion can be
+            // released; companion kind, owner, line of sight, material and the
+            // probability roll are server-owned. The client only refuses targets
+            // the formal handler can never resolve.
+            let id = target.context("請先選取召喚物")?;
+            let actor = world.actors.get(&id).context("技能目標已離開")?;
+            ensure!(id != own.id && world.actor_visible(id) && !actor.dead
+                && !super::native_obstacles::destroyed_guardian(actor)
+                && in_native_screen([own.x, own.y], [actor.x, actor.y]),
+                "釋放元素目標不可用或超出畫面");
+            b.extend_from_slice(&id.to_le_bytes());
+            b.extend_from_slice(&actor.x.to_le_bytes());
+            b.extend_from_slice(&actor.y.to_le_bytes());
+        }
         13 => {ensure!(target.is_none(), "偵測術不接受目標");}
         60 => {return self_tick_request(world,skill,target,ClientTick::now()?);}
         2 => {ensure!(target.is_none(), "日光術不接受目標");}
@@ -324,14 +347,16 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 b.extend_from_slice(&actor.y.to_le_bytes());
             }
         }
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 77 | 103 | 108 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 77 | 103 | 108 | 152 | 153 => {
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33=>2,40|46|47|56|64=>3,50=>6,65|66=>10,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33=>2,40|46|47|56|64=>3,50=>6,65|66=>10,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
+                    // 152／153: formal range 10 and the native screen diamond both apply.
+                    && (!matches!(skill, 152 | 153) || in_native_screen([own.x, own.y], [actor.x, actor.y])),
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -343,7 +368,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,56|64=>500,59|62|66=>1500,65=>2000,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138=>0,112=>2000,130|132|133=>100,134=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64=>500,59|62|66=>1500,65=>2000,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155=>0,146=>1200,153=>600,112=>2000,130|132|133=>100,134=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -370,7 +395,7 @@ impl Feedback {
             Self::Rejected(276) => "目前地圖無法使用此技能",
             Self::Rejected(278) => "MP 不足",
             Self::Rejected(279) => "HP 不足",
-            Self::Rejected(79) => "伺服器拒絕此物品附魔",
+            Self::Rejected(79) => "對象不適用，沒有任何事情發生",
             Self::Rejected(280) => "法術未生效",
             Self::Rejected(299) => "施法材料不足",
             Self::Rejected(353) => "目前地圖無法召喚",
@@ -441,6 +466,18 @@ impl Pending {
         } else {
             feedback
         }
+    }
+    /// Return to Nature (145): the formal handler commits the cast action first,
+    /// then sends S10 79 (not a SUMMON／TAMED companion) or 280 (roll failed). A
+    /// sequenced 79 after the request is therefore a rejection even after the
+    /// cast action; other casts never read it here.
+    pub fn observe_release(&self, world: &World, now: Instant) -> Feedback {
+        let ordinary = self.observe(world, now);
+        if ordinary == Feedback::Interrupted { return ordinary; }
+        if world.last_item_skill_rejection.is_some_and(|sequence| sequence > self.messages) {
+            return Feedback::Rejected(79);
+        }
+        ordinary
     }
     /// Call／Run Clan (116／118) also accept their sequenced name/clan/world
     /// rejections; other casts never consult `last_clan_skill_rejection`.

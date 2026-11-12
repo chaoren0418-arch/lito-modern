@@ -89,6 +89,8 @@ test result: ok. 2268 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out;
 test result: ok. 2297 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.54s
 ```
 
+第三次同步：合併 `origin/main`（`a09f6cf`，含 #154 批 4 技能 145–155）。五個檔案衝突（`native_login.rs`、`native_skill_selection.rs`、`native_skills.rs`、`tests.tsv`、`test_native_skill_coverage.py`），全部兩邊保留：`selector_only` 與 `reuse_millis` 同時含本張與 145–155 的項目，控制器同時有 `triple_arrow` 與 `skill_release_pending`。合併後本機重跑 `cargo check`（結束碼 0）、七個測試檔 `--no-run`（加 `native_skills_145_155`，結束碼 0，未執行）、`python -B 維護工具/test_native_skill_coverage.py`（結束碼 0；Ran 8 tests；OK）。這次合併 commit 的 CI 結果在本報告寫入之後才產生，不再為了補結果另外 commit（避免再次落後 main），以 PR #289 最新一次 run 為準。
+
 CI **不執行** `tests/` 下的整合測試，所以新的 `native_skills_129_138` 7 案只有編譯通過，沒有任何地方執行過（見下方「待驗證」）。
 
 ## 推測
