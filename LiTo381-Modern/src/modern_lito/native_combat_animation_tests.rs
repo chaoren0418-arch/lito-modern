@@ -180,3 +180,80 @@ fn arrival_is_ignored_for_44_45_death_and_pending_death() {
     p.states.get_mut(&d.id).unwrap().queue.push_back(ActionCue { sequence: 50, action: 8, source: "action" });
     assert!(!p.impact(&d, 9));
 }
+
+/// Issue #340: one frame's `[`/`<` markers are weighted alternatives of one
+/// cue. Only the first cue carries the selected candidate.
+#[test]
+fn frame_sound_selects_one_candidate_and_only_on_the_first_cue() {
+    use FrameEvent::{Effect, Hit, Overlay, Sound};
+    let carried = |events: &[FrameEvent], selection: u32| -> Vec<u32> {
+        (0..events.len() + 1).filter_map(|index| frame_sound(events, index, selection)).collect()
+    };
+    // Shared list.spr `120.2:3[248[703[701` and `8.0:4<4137<1340<1340`.
+    let sounds = [Sound(248), Sound(703), Sound(701), Overlay(17), Hit];
+    let effects = [Effect(4137), Effect(1340), Effect(1340)];
+    for selection in 0..7u32 {
+        assert_eq!(carried(&sounds, selection), [[248, 703, 701][selection as usize % 3]]);
+        assert_eq!(carried(&effects, selection), [[4137, 1340, 1340][selection as usize % 3]]);
+        for index in 1..sounds.len() {
+            assert_eq!(frame_sound(&sounds, index, selection), None);
+        }
+    }
+    assert_eq!(carried(&[Sound(1539)], 9), [1539]);
+    // A zero candidate is a silent selection, never a file lookup or a redraw.
+    assert_eq!(carried(&[Sound(0), Sound(1539)], 0), [0u32; 0]);
+    assert_eq!(carried(&[Sound(0), Sound(1539)], 1), [1539]);
+    // Unclassifiable banks fail closed instead of playing every member.
+    for invalid in [
+        vec![Sound(1); 4],
+        vec![Sound(1), Effect(2)],
+        vec![Hit, Sound(1)],
+        vec![Sound(10_000)],
+        vec![FrameEvent::UninterpretedNumeric { marker: b'^', value: 3164 }],
+    ] {
+        for selection in 0..4 {
+            assert_eq!(carried(&invalid, selection), [0u32; 0], "{invalid:?}");
+        }
+    }
+}
+
+#[test]
+fn weighted_frame_cues_enter_exactly_one_sound_per_action_and_never_replay() {
+    let text = "#0 16 test 0.walk(1 2,0.0:12 0.1:12) \
+        1.attack(1 3,0.0:12[7[8[9 0.1:12! 0.2:12<5<6) 2.hurt(1 1,16.0:2) \
+        3.idle(1 2,8.0:12 8.1:12) 8.death(1 1,24.0:2) 44.hold(1 1,0.0:240)\n";
+    let c = SpriteActionCatalog::parse(text.as_bytes(), ActionLimits::default()).unwrap();
+    let mut p = Playback::default();
+    let mut a = actor(0);
+    let mut entered = Vec::new();
+    let mut now = 0;
+    for _ in 0..3 {
+        push(&mut a, 1);
+        // Sample far more often and far longer than the action lasts.
+        for _ in 0..1000 {
+            entered.extend(p.sample(&c, &a, now).unwrap().1);
+            now += 20 * MS;
+        }
+        assert!(pending(&p, &a).is_empty());
+    }
+    // Every source marker is entered once per attack ...
+    for label in ["Sound(7)", "Sound(8)", "Sound(9)", "Hit", "Effect(5)", "Effect(6)"] {
+        assert_eq!(entered.iter().filter(|e| e.action == 1 && e.event == label).count(), 3, "{label}");
+    }
+    // ... but each weighted bank is audible once: 2 cues x 3 attacks.
+    let audible: Vec<_> = entered.iter().filter(|e| e.sound.is_some()).collect();
+    assert_eq!(audible.len(), 6);
+    for sequence in 1..=3u64 {
+        let of = |label: &str| -> Vec<u32> {
+            audible.iter().filter(|e| e.sequence == sequence && e.event == label).map(|e| e.sound.unwrap()).collect()
+        };
+        let (bank, effect) = (of("Sound(7)"), of("Effect(5)"));
+        assert_eq!((bank.len(), effect.len()), (1, 1), "sequence {sequence}");
+        assert!([7, 8, 9].contains(&bank[0]) && [5, 6].contains(&effect[0]));
+    }
+    // An idle actor that is sampled again enters nothing further.
+    for _ in 0..100 {
+        assert!(p.sample(&c, &a, now).unwrap().1.is_empty());
+        now += 20 * MS;
+    }
+}

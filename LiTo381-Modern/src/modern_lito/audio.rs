@@ -6,6 +6,8 @@
 //! ADPCM, float, extensible WAVE, MIDI, MP3 and container variants fail closed.
 //! Shared `Sound/10.wav` omits the final odd data chunk's pad byte; that exact
 //! EOF-only variant is accepted and labeled, not used for missing middle pads.
+//! Shared `Sound/2412.wav` and 265 others use a 40-byte PCM `fmt ` whose
+//! cbSize and tail are all zero; that is accepted, a nonzero tail is not.
 //!
 //! Container and format contract: Microsoft RIFF and WAVEFORMATEX documentation:
 //! https://learn.microsoft.com/en-us/windows/win32/xaudio2/resource-interchange-file-format--riff-
@@ -18,6 +20,8 @@ use std::time::Duration;
 pub const MAX_WAVE_BYTES: usize = 16 * 1024 * 1024;
 const MAX_CHUNKS: usize = 4096;
 const MAX_FRAMES: u32 = 16 * 1024 * 1024;
+/// `fmt ` payload size of the zero-filled WAVEFORMATEXTENSIBLE-sized variant.
+const ZERO_TAIL_FMT_BYTES: usize = 40;
 
 #[derive(Clone, Copy, Debug)]
 pub struct WaveLimits {
@@ -196,9 +200,14 @@ fn parse_format(bytes: &[u8]) -> Result<PcmFormat, WaveError> {
         return Err(WaveError::UnsupportedEncoding(encoding));
     }
     // PCM's canonical 16-byte fmt or WAVEFORMATEX with empty extension.
-    if bytes.len() != 16 && !(bytes.len() == 18 && word(bytes, 16)? == 0) {
+    // 266 original shared WAVs (Sound/2412..2414 and 6123..6493) carry an
+    // encoder's 40-byte block: the same PCM header, cbSize zero and 22 zero
+    // bytes. Only that all-zero tail is accepted; it declares no extension.
+    let zero_extension = matches!(bytes.len(), 18 | ZERO_TAIL_FMT_BYTES)
+        && bytes[16..].iter().all(|byte| *byte == 0);
+    if bytes.len() != 16 && !zero_extension {
         return Err(WaveError::InvalidData(
-            "PCM fmt must be 16 bytes or 18 bytes with cbSize zero",
+            "PCM fmt must be 16 bytes, or 18/40 bytes with cbSize and tail zero",
         ));
     }
     let channels = word(bytes, 2)?;
@@ -412,6 +421,49 @@ mod tests {
         assert_eq!(decoded.sample_i16(0, 0), None);
         fmt[16] = 1;
         assert!(parse_pcm_wav(&wave(&[(b"fmt ", &fmt), (b"data", &[])])).is_err());
+    }
+
+    /// Issue #340: the exact `fmt ` block of original shared Sound/2412.wav
+    /// (and 265 more): PCM16 mono 22050 Hz, cbSize zero, 22 zero bytes.
+    #[test]
+    fn original_forty_byte_zero_tail_pcm_fmt_is_accepted_and_nothing_else() {
+        let mut fmt = format(1, 16);
+        fmt.resize(40, 0);
+        assert_eq!(
+            fmt[..16],
+            [1, 0, 1, 0, 0x22, 0x56, 0, 0, 0x44, 0xac, 0, 0, 2, 0, 16, 0]
+        );
+        let bytes = wave(&[(b"fmt ", &fmt), (b"data", &[1, 0, 2, 0])]);
+        let decoded = parse_pcm_wav(&bytes).unwrap();
+        assert_eq!(decoded.format().sample_rate, 22050);
+        assert_eq!(decoded.pcm_bytes(), &[1, 0, 2, 0]);
+        assert_eq!(decoded.chunks()[0].data_range.len(), 40);
+        // Any nonzero tail byte could be a real extension: fail closed.
+        for offset in 16..40 {
+            let mut bad = fmt.clone();
+            bad[offset] = 1;
+            assert!(
+                parse_pcm_wav(&wave(&[(b"fmt ", &bad), (b"data", &[])])).is_err(),
+                "tail offset {offset}"
+            );
+        }
+        // No other length is implied, and the encoding tag stays PCM-only.
+        for length in [17usize, 19, 20, 38, 39, 41, 42, 64] {
+            let mut other = format(1, 16);
+            other.resize(length, 0);
+            assert!(
+                parse_pcm_wav(&wave(&[(b"fmt ", &other), (b"data", &[])])).is_err(),
+                "fmt length {length}"
+            );
+        }
+        for tag in [0x11u16, 0xfffe] {
+            let mut other = fmt.clone();
+            other[..2].copy_from_slice(&tag.to_le_bytes());
+            assert!(matches!(
+                parse_pcm_wav(&wave(&[(b"fmt ", &other), (b"data", &[])])),
+                Err(WaveError::UnsupportedEncoding(value)) if value == tag
+            ));
+        }
     }
 
     #[test]
