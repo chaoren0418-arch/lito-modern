@@ -16,10 +16,14 @@
 //! Neither marker nor arrival can delay/recompute the authoritative hit.
 //!
 //! 167's action is directional but class4 deliberately uses only four banks.
-//! Its one-shot animation holds terminal0 while flight continues. 219 is
-//! removed after its1..N-1 timeline. Sound97 starts once on launch, including
-//! adjacent targets whose native flight reaches219 immediately. No homing,
-//! arbitrary velocity, guessed sprites, recoloring, or new geometry collision.
+//! Runtime S23 (`NativeSpellClock`): the flight cycles source 1..N-1,0 once
+//! per 60ms movement callback (sub_4E5B50), so its source1 sound cue re-enters
+//! every N movements (subject to same-ID suppression), and the secondary
+//! keeps its native source0 terminal dwell. The older rational helpers
+//! (`start_effect`/`effect_frame`: one-shot flight holding terminal0, impact
+//! removed after 1..N-1) remain for inspection and the battle presentation
+//! only. No homing, arbitrary velocity, guessed sprites, recoloring, or new
+//! geometry collision.
 //!
 //! All decoding/WAV qualification is bounded and worker-only; completed assets
 //! retain no files/workers. Draw uses only immutable RGBA and checked projection.
@@ -451,6 +455,196 @@ impl LightArrowPath {
         self.steps[index]
     }
 }
+
+/// One cue entered by a native S23 movement or secondary callback.
+/// `occurrence` is the movement-callback ordinal for flight cues (a cyclic
+/// source frame is re-entered every N movements) and 1 for the secondary.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct NativeSpellCue {
+    pub graphics: u16,
+    pub source_frame: usize,
+    pub occurrence: u64,
+    pub event: FrameEvent,
+}
+#[derive(Clone, Debug)]
+pub(crate) struct NativeSpellSample {
+    pub position: WorldCell,
+    /// Direction bank: class4 folds to four banks, class5 keeps all eight.
+    pub heading: u8,
+    pub graphics: u16,
+    pub source_frame: usize,
+    pub arrived: bool,
+    pub arrived_now: bool,
+    pub finished: bool,
+    pub callbacks: u64,
+    pub next_movement_ms: Option<u64>,
+    /// Native-clock elapsed nanoseconds of the movement callback that arrived.
+    pub arrival_ns: Option<u64>,
+    pub cues: Vec<NativeSpellCue>,
+}
+/// Native S23 class4 (sub_424540) / class5 ice (sub_42F300) movement clock.
+///
+/// Evidence, ida-client-oep-v2/full-disassembly.asm (PE 4271D92F):
+/// * The start functions call the movement function directly (sub_424780+AD,
+///   sub_42F570+9A), so the first step is immediate. While the 16.16 position
+///   has not reached the stored target it re-arms itself with
+///   `mov ecx,3Ch; call sub_4D65F0` (60ms; callbacks loc_424760 / sub_42F550).
+///   A late dispatch therefore moves ONE cell and the next deadline counts
+///   from that dispatch; wall time is never caught up.
+/// * Every movement calls sub_4E5B50, which increments the object's source
+///   frame, wraps it to 0 at the frame count and enters it through sub_4E5C00.
+///   The flight is a cyclic selector 1,2,..,N-1,0,1,.. driven by movement, not
+///   by the catalog's 24Hz tick durations, and it never holds terminal 0.
+/// * class4 calls 4E5B50 (4246CD) BEFORE constructing and starting the
+///   secondary (sub_44EDE0 .. 42473A); class5 constructs each resolved
+///   target's secondary inside its target loop (.. 42F4CB) BEFORE 4E5B50
+///   (42F500). Cue order follows that.
+/// * The secondary is an ordinary finite object; its source0 dwell is kept by
+///   `native_effect_timing::Clip`.
+///
+/// Metadata only: no SPR/PCM/files. Callers keep actor/incarnation fences and
+/// feed `native_effect_timing::native_elapsed_ns` (global-ms origin).
+#[derive(Clone)]
+pub(crate) struct NativeSpellClock {
+    path: LightArrowPath,
+    graphics: u16,
+    impact_graphics: u16,
+    flight: Arc<Animation>,
+    impact: super::native_effect_timing::Playback,
+    secondary: bool,
+    last_ns: Option<u64>,
+    step: usize,
+    next_movement_ms: Option<u64>,
+    callbacks: u64,
+    frame: usize,
+    arrival_ns: Option<u64>,
+}
+impl NativeSpellClock {
+    fn new(
+        path: LightArrowPath,
+        graphics: u16,
+        impact_graphics: u16,
+        flight: Arc<Animation>,
+        impact: Arc<Animation>,
+        secondary: bool,
+    ) -> anyhow::Result<Self> {
+        let (expected_impact, frames, sound, direction) = match graphics {
+            167 => (219, 4, Some(97), Directionality::EightWay),
+            1583 => (218, 4, Some(97), Directionality::EightWay),
+            1799 => (1800, 5, Some(719), Directionality::Undirected),
+            1797 => (1798, 4, Some(719), Directionality::EightWay),
+            756 => (219, 4, None, Directionality::EightWay),
+            _ => anyhow::bail!("unqualified native S23 profile"),
+        };
+        anyhow::ensure!(
+            impact_graphics == expected_impact
+                && flight.frames_per_second == 24
+                && flight.directionality == direction
+                && flight.frames.len() == frames
+                && flight.frames.iter().enumerate().all(|(n, f)| {
+                    f.events
+                        == if n == 1 {
+                            sound.map(FrameEvent::Sound).into_iter().collect::<Vec<_>>()
+                        } else {
+                            Vec::new()
+                        }
+                }),
+            "native S23 flight definition changed"
+        );
+        Ok(Self {
+            path,
+            graphics,
+            impact_graphics,
+            flight,
+            impact: super::native_effect_timing::Clip::new(impact)?.start(),
+            secondary,
+            last_ns: None,
+            step: 0,
+            next_movement_ms: Some(0),
+            callbacks: 0,
+            frame: 0,
+            arrival_ns: None,
+        })
+    }
+    fn class5(&self) -> bool {
+        self.graphics == 1797
+    }
+    fn position(&self) -> WorldCell {
+        self.path.steps[self.step.min(self.path.steps.len() - 1)]
+    }
+    /// `elapsed_ns` is the global-millisecond native elapsed time of this
+    /// flight. One call dispatches at most one movement callback.
+    pub(crate) fn advance(&mut self, elapsed_ns: u64) -> anyhow::Result<NativeSpellSample> {
+        anyhow::ensure!(
+            self.last_ns.is_none_or(|last| elapsed_ns >= last),
+            "native S23 clock regressed"
+        );
+        let now_ms = elapsed_ns / 1_000_000;
+        let mut flight_cues = Vec::new();
+        let mut cues = Vec::new();
+        let mut arrived_now = false;
+        if self.next_movement_ms.is_some_and(|due| now_ms >= due) {
+            if self.callbacks != 0 {
+                self.step += 1;
+            }
+            self.callbacks += 1;
+            arrived_now = self.position() == self.path.target;
+            self.next_movement_ms = if arrived_now { None } else { Some(now_ms + 60) };
+            if arrived_now {
+                self.arrival_ns = Some(now_ms * 1_000_000);
+            }
+            self.frame = (self.frame + 1) % self.flight.frames.len();
+            flight_cues.extend(self.flight.frames[self.frame].events.iter().cloned().map(
+                |event| NativeSpellCue {
+                    graphics: self.graphics,
+                    source_frame: self.frame,
+                    occurrence: self.callbacks,
+                    event,
+                },
+            ));
+        }
+        if !self.class5() {
+            cues.append(&mut flight_cues);
+        }
+        let mut graphics = self.graphics;
+        let mut source_frame = self.frame;
+        let mut finished = false;
+        if let Some(arrival) = self.arrival_ns {
+            if self.secondary {
+                let sample = self
+                    .impact
+                    .advance(now_ms.saturating_sub(arrival / 1_000_000) * 1_000_000)?;
+                graphics = self.impact_graphics;
+                source_frame = sample.source_frame;
+                finished = sample.finished;
+                cues.extend(sample.crossed_cues.into_iter().map(|cue| NativeSpellCue {
+                    graphics: self.impact_graphics,
+                    source_frame: cue.source_frame,
+                    occurrence: 1,
+                    event: cue.event,
+                }));
+            } else {
+                // Class5 without a resolved target constructs no secondary.
+                finished = true;
+            }
+        }
+        cues.append(&mut flight_cues);
+        self.last_ns = Some(elapsed_ns);
+        Ok(NativeSpellSample {
+            position: self.position(),
+            heading: if self.class5() { self.path.heading } else { self.path.heading & 3 },
+            graphics,
+            source_frame,
+            arrived: self.arrival_ns.is_some(),
+            arrived_now,
+            finished,
+            callbacks: self.callbacks,
+            next_movement_ms: self.next_movement_ms,
+            arrival_ns: self.arrival_ns,
+            cues,
+        })
+    }
+}
 // Literal threshold branches from4B9210 after converting native dx/2 to world.
 fn native_heading(dx: i64, dy: i64) -> u8 {
     let c = 20 * dy;
@@ -490,7 +684,6 @@ pub struct LightArrowPlayback {
     secondary: bool,
 }
 impl LightArrowPlayback {
-    pub(crate) fn without_secondary(mut self)->Self{self.secondary=false;self}
     pub fn advance(&mut self, elapsed: Duration) -> Result<LightArrowSample> {
         if self.last_elapsed.is_some_and(|last| elapsed < last) {
             return Err(LightArrowError::InvalidInput("elapsed time regressed"));
@@ -843,6 +1036,22 @@ impl LightArrowAssets {
             return Err(LightArrowError::InvalidInput("heading"));
         }
         let (source_frame, finished) = bound.sequence.sample(elapsed)?;
+        self.frame_source(bound, heading, source_frame, finished)
+    }
+    /// Exact source-frame lookup; never advances or consults any clock.
+    fn frame_source<'a>(
+        &'a self,
+        bound: &BoundSequence,
+        heading: u8,
+        source_frame: usize,
+        finished: bool,
+    ) -> Result<VisualSample<'a>> {
+        if heading > 7 {
+            return Err(LightArrowError::InvalidInput("heading"));
+        }
+        if source_frame >= bound.sequence.animation.frames.len() {
+            return Err(LightArrowError::InvalidInput("source frame"));
+        }
         let asset = bound
             .sequence
             .animation
@@ -891,6 +1100,64 @@ impl LightArrowAssets {
         } else {
             self.frame(&self.impact, 0, elapsed - path.impact_at())
         }
+    }
+    fn native_s23_bound(&self, graphics: u16) -> Result<&BoundSequence> {
+        if !matches!(
+            (self.effect.gfx, self.impact.gfx),
+            (167, 219) | (1583, 218) | (1799, 1800) | (1797, 1798) | (756, 219)
+        ) {
+            return Err(LightArrowError::Unsupported("native S23 profile"));
+        }
+        if u32::from(graphics) == self.effect.gfx {
+            Ok(&self.effect)
+        } else if u32::from(graphics) == self.impact.gfx {
+            Ok(&self.impact)
+        } else {
+            Err(LightArrowError::Unsupported("native S23 graphic"))
+        }
+    }
+    /// Runtime S23 clock for this profile. The rational `start_effect` /
+    /// `effect_frame` helpers stay for inspection and the battle presentation;
+    /// their timeline is not the native movement callback.
+    pub(crate) fn start_native_s23(
+        &self,
+        path: &LightArrowPath,
+        secondary: bool,
+    ) -> Result<NativeSpellClock> {
+        self.native_s23_bound(self.effect.gfx as u16)?;
+        NativeSpellClock::new(
+            path.clone(),
+            self.effect.gfx as u16,
+            self.impact.gfx as u16,
+            Arc::new(self.effect.sequence.animation.clone()),
+            Arc::new(self.impact.sequence.animation.clone()),
+            secondary,
+        )
+        .map_err(LightArrowError::Render)
+    }
+    /// Draw lookup by exact source frame; drawing never advances the clock.
+    pub(crate) fn native_s23_frame(
+        &self,
+        graphics: u16,
+        heading: u8,
+        source_frame: usize,
+        finished: bool,
+    ) -> Result<VisualSample<'_>> {
+        self.frame_source(self.native_s23_bound(graphics)?, heading, source_frame, finished)
+    }
+    pub(crate) fn native_s23_events(
+        &self,
+        graphics: u16,
+        source_frame: usize,
+    ) -> Result<&[FrameEvent]> {
+        Ok(&self
+            .native_s23_bound(graphics)?
+            .sequence
+            .animation
+            .frames
+            .get(source_frame)
+            .ok_or(LightArrowError::InvalidInput("native S23 event source frame"))?
+            .events)
     }
     pub fn flight_frame(&self,path:&LightArrowPath,elapsed:Duration)->Result<VisualSample<'_>>{
         // Class5 preserves all eight headings; class4 deliberately folds banks.
@@ -1698,4 +1965,257 @@ mod tests {
 fn qualify_lance_effect(c:&SpriteActionCatalog)->Result<BoundSequence> {
     qualify_fixed(c,756,Directionality::EightWay,8,&[(104,b"8"),(109,b"4 219")],
         &[(3,2),(0,2),(1,2),(2,2)],None,None)
+}
+
+/// T028-4: native S23 class4 / class5-ice movement-callback clock. Pure timing
+/// on the original definitions' text; no SPR/WAV, device or world authority.
+#[cfg(test)]
+mod native_s23_clock_tests {
+    use super::*;
+    use crate::modern_lito::native_effect_timing::native_elapsed_ns;
+    const DATA: &str = concat!(
+        "9 0 0\n",
+        "#167 4 light 0.fly(1 4,0.3:3 0.0:2[97 0.1:3 0.2:2) 104.attr(8) 109.effect(4 219)\n",
+        "#1583 4 fire 0.fly(1 4,0.3:3 0.0:2[97 0.1:3 0.2:2) 104.attr(8) 109.effect(4 218)\n",
+        "#1799 4 wind 0.fly(0 5,0.4:2 0.0:2[719 0.1:2 0.2:2 0.3:2) 104.attr(8) 109.effect(4 1800)\n",
+        "#1797 8 ice 0.fly(1 4,0.3:2 0.0:2[719 0.1:2 0.2:2) 104.attr(8) 109.effect(5 1798)\n",
+        "#756 8 lance 0.fly(1 4,0.3:2 0.0:2 0.1:2 0.2:2) 104.attr(8) 109.effect(4 219)\n",
+        "#219 1 light impact 0.fire(0 11,0.9:1 0.0:4 0.0:1 0.1:1 0.2:1 0.3:1 0.4:1 0.5:1 0.6:1 0.7:1 0.8:1) 104.attr(8)\n",
+        "#218 1 fire impact 0.fire(0 11,0.9:1 0.0:4[99 0.0:1 0.1:1 0.2:1 0.3:1 0.4:1 0.5:1 0.6:1 0.7:1 0.8:1) 104.attr(8)\n",
+        "#1800 1 wind impact 0.fire(0 6,0.5:4 0.0:4[711! 0.1:3 0.2:3 0.3:3 0.4:4) 104.attr(8)\n",
+        "#1798 1 ice impact 0.fire(0 7,0.6:3 0.0:2[713! 0.1:1 0.2:1 0.3:2 0.4:3 0.5:3) 104.attr(8)\n",
+    );
+    fn cell(x: i32, y: i32) -> WorldCell {
+        WorldCell { x, y }
+    }
+    fn sequences(gfx: u16) -> (u16, Arc<Animation>, Arc<Animation>) {
+        let c = SpriteActionCatalog::parse_for_inspection(DATA.as_bytes(), Default::default())
+            .unwrap();
+        let (flight, impact) = match gfx {
+            167 => (qualify_effect(&c).unwrap(), qualify_impact(&c).unwrap()),
+            1583 => (qualify_fire_effect(&c).unwrap(), qualify_fire_impact(&c).unwrap()),
+            1799 => (qualify_wind_effect(&c).unwrap(), qualify_wind_impact(&c).unwrap()),
+            1797 => (qualify_ice_effect(&c).unwrap(), qualify_ice_impact(&c).unwrap()),
+            756 => (qualify_lance_effect(&c).unwrap(), qualify_impact(&c).unwrap()),
+            _ => panic!("profile"),
+        };
+        (
+            impact.gfx as u16,
+            Arc::new(flight.sequence.animation.clone()),
+            Arc::new(impact.sequence.animation.clone()),
+        )
+    }
+    fn clock(gfx: u16, to: WorldCell, secondary: bool) -> NativeSpellClock {
+        let (impact_gfx, flight, impact) = sequences(gfx);
+        NativeSpellClock::new(
+            LightArrowPath::new(cell(100, 100), to).unwrap(),
+            gfx,
+            impact_gfx,
+            flight,
+            impact,
+            secondary,
+        )
+        .unwrap()
+    }
+    fn sounds(sample: &NativeSpellSample) -> Vec<u32> {
+        sample
+            .cues
+            .iter()
+            .filter_map(|c| match c.event {
+                FrameEvent::Sound(id) => Some(id),
+                _ => None,
+            })
+            .collect()
+    }
+    #[test]
+    fn adjacent_profiles_keep_class4_and_class5_opposite_cue_order() {
+        // class4: 4E5B50 flight cue, then secondary. class5: secondary first.
+        for (gfx, expected) in [
+            (167, vec![97]),
+            (1583, vec![97, 99]),
+            (1799, vec![719, 711]),
+            (1797, vec![713, 719]),
+        ] {
+            let mut c = clock(gfx, cell(101, 100), true);
+            let s = c.advance(0).unwrap();
+            assert_eq!(sounds(&s), expected, "{gfx}");
+            assert!(s.arrived_now && s.arrived && !s.finished);
+            assert_eq!((s.source_frame, s.callbacks, s.next_movement_ms), (1, 1, None));
+            assert_eq!(s.arrival_ns, Some(0));
+            assert_eq!(s.position, cell(101, 100));
+            assert_ne!(s.graphics, gfx, "secondary graphic is drawn after arrival");
+            // The secondary Hit of 1800/1798 is a presentation cue only.
+            let hits = s.cues.iter().filter(|c| c.event == FrameEvent::Hit).count();
+            assert_eq!(hits, usize::from(matches!(gfx, 1799 | 1797)));
+            assert!(c.advance(0).unwrap().cues.is_empty(), "same poll must not replay");
+        }
+    }
+    #[test]
+    fn late_callback_moves_one_cell_reschedules_from_dispatch_and_cannot_catch_up() {
+        for gfx in [167, 1583, 1799, 1797, 756] {
+            let mut c = clock(gfx, cell(108, 100), true);
+            let first = c.advance(0).unwrap();
+            assert_eq!((first.position, first.next_movement_ms), (cell(101, 100), Some(60)));
+            assert_eq!(c.advance(59_999_999).unwrap().callbacks, 1);
+            let late = c.advance(1_000_000_000).unwrap();
+            assert_eq!(late.position, cell(102, 100));
+            assert_eq!((late.source_frame, late.callbacks), (2, 2));
+            assert_eq!(late.next_movement_ms, Some(1060));
+            assert!(!late.arrived && !late.arrived_now);
+            assert_eq!(c.advance(1_059_999_999).unwrap().callbacks, 2);
+            assert_eq!(c.advance(1_060_000_000).unwrap().position, cell(103, 100));
+        }
+    }
+    #[test]
+    fn flight_selector_cycles_per_movement_not_per_catalog_tick_duration() {
+        for (gfx, count) in [(167u16, 4u64), (1583, 4), (1799, 5), (1797, 4), (756, 4)] {
+            let mut c = clock(gfx, cell(120, 100), true);
+            let mut entries = Vec::new();
+            for n in 0..10u64 {
+                let s = c.advance(n * 60_000_000).unwrap();
+                assert_eq!(s.source_frame as u64, (n + 1) % count, "{gfx} movement {n}");
+                assert_eq!(s.position, cell(101 + n as i32, 100));
+                assert_eq!(s.graphics, gfx);
+                assert!(!s.arrived && !s.finished);
+                assert!(s.cues.iter().all(|c| c.graphics == gfx && c.source_frame == 1));
+                entries.extend(s.cues.into_iter().map(|c| c.occurrence));
+            }
+            // Source 1 (the sound slot) is re-entered every `count` movements.
+            let expected = match (gfx, count) {
+                (756, _) => vec![],
+                (_, 4) => vec![1, 5, 9],
+                _ => vec![1, 6],
+            };
+            assert_eq!(entries, expected, "{gfx}");
+        }
+    }
+    #[test]
+    fn arrival_is_the_actual_movement_callback_not_the_ideal_wall_time() {
+        let mut c = clock(1583, cell(103, 100), true);
+        assert_eq!(c.path.impact_at(), Duration::from_millis(120));
+        assert_eq!(c.advance(0).unwrap().position, cell(101, 100));
+        // 500ms is far past the ideal 120ms arrival; only one cell is taken.
+        let late = c.advance(500_000_000).unwrap();
+        assert_eq!(late.position, cell(102, 100));
+        assert!(!late.arrived && late.arrival_ns.is_none());
+        assert_eq!(late.graphics, 1583);
+        let arrival = c.advance(560_000_000).unwrap();
+        assert!(arrival.arrived_now && arrival.arrived);
+        assert_eq!(arrival.arrival_ns, Some(560_000_000));
+        assert_eq!((arrival.position, arrival.callbacks), (cell(103, 100), 3));
+        assert_eq!((arrival.graphics, arrival.source_frame), (218, 1));
+        assert_eq!(sounds(&arrival), vec![99]);
+        let after = c.advance(600_000_000).unwrap();
+        assert!(after.arrived && !after.arrived_now && after.cues.is_empty());
+        assert_eq!(after.position, cell(103, 100), "explosion stays at the endpoint");
+    }
+    #[test]
+    fn secondaries_keep_their_source_zero_dwell_before_finishing() {
+        for (gfx, dwell) in [(167, 41), (1583, 41), (1799, 166), (1797, 125), (756, 41)] {
+            let mut c = clock(gfx, cell(101, 100), true);
+            let mut s = c.advance(0).unwrap();
+            let mut guard = 0;
+            while s.source_frame != 0 {
+                let due = c.impact.next_callback_millis().unwrap();
+                s = c.advance(due * 1_000_000).unwrap();
+                guard += 1;
+                assert!(guard < 32);
+            }
+            assert!(!s.finished, "{gfx} must still draw source 0");
+            let due = c.impact.next_callback_millis().unwrap();
+            assert_eq!(due - c.impact.sampled_native_millis().unwrap(), dwell, "{gfx}");
+            assert!(!c.advance((due - 1) * 1_000_000).unwrap().finished);
+            let end = c.advance(due * 1_000_000).unwrap();
+            assert!(end.finished && end.cues.is_empty());
+        }
+    }
+    #[test]
+    fn class5_without_a_target_has_no_secondary_and_no_forged_hit() {
+        let mut c = clock(1797, cell(101, 100), false);
+        let s = c.advance(0).unwrap();
+        assert!(s.finished && s.arrived_now);
+        assert_eq!(s.graphics, 1797);
+        assert_eq!(sounds(&s), vec![719]);
+        assert!(!s.cues.iter().any(|c| c.event == FrameEvent::Hit));
+        let later = c.advance(1_000_000_000).unwrap();
+        assert!(later.finished && later.cues.is_empty());
+    }
+    #[test]
+    fn heading_banks_and_cloned_history_state_survive_late_polls() {
+        for gfx in [167, 1583, 1799, 1797, 756] {
+            let mut c = clock(gfx, cell(92, 100), true);
+            let first = c.advance(0).unwrap();
+            // West is native heading 6: class4 folds to bank 2, class5 keeps 6.
+            assert_eq!(first.heading, if gfx == 1797 { 6 } else { 2 }, "{gfx}");
+            c.advance(500_000_000).unwrap();
+            let mut copy = c.clone();
+            let a = c.advance(560_000_000).unwrap();
+            let b = copy.advance(560_000_000).unwrap();
+            assert_eq!((a.position, a.source_frame, a.callbacks), (cell(97, 100), 3, 3));
+            assert_eq!(
+                (a.position, a.source_frame, a.callbacks, a.next_movement_ms),
+                (b.position, b.source_frame, b.callbacks, b.next_movement_ms)
+            );
+            assert!(copy.advance(559_999_999).is_err(), "clock regression is refused");
+        }
+    }
+    #[test]
+    fn zero_distance_arrives_on_the_first_callback() {
+        let mut c = clock(1583, cell(100, 100), true);
+        let s = c.advance(0).unwrap();
+        assert!(s.arrived_now);
+        assert_eq!((s.callbacks, s.position), (1, cell(100, 100)));
+        assert_eq!(sounds(&s), vec![97, 99]);
+    }
+    #[test]
+    fn unqualified_profiles_and_changed_definitions_are_refused() {
+        let path = LightArrowPath::new(cell(100, 100), cell(101, 100)).unwrap();
+        let (impact_gfx, flight, impact) = sequences(167);
+        assert_eq!(impact_gfx, 219);
+        // 171 is the S39 fireball class5; it has its own flight in attack-many.
+        assert!(NativeSpellClock::new(path.clone(), 171, 218, flight.clone(), impact.clone(), true).is_err());
+        assert!(NativeSpellClock::new(path.clone(), 167, 218, flight.clone(), impact.clone(), true).is_err());
+        let mut moved = (*flight).clone();
+        moved.frames[2].events.push(FrameEvent::Sound(97));
+        assert!(NativeSpellClock::new(path.clone(), 167, 219, Arc::new(moved), impact.clone(), true).is_err());
+        let (_, lance, lance_impact) = sequences(756);
+        let mut noisy = (*lance).clone();
+        noisy.frames[1].events.push(FrameEvent::Sound(97));
+        assert!(NativeSpellClock::new(path.clone(), 756, 219, Arc::new(noisy), lance_impact.clone(), true).is_err());
+        let mut undirected = (*lance).clone();
+        undirected.directionality = Directionality::Undirected;
+        assert!(NativeSpellClock::new(path, 756, 219, Arc::new(undirected), lance_impact, true).is_err());
+    }
+    #[test]
+    fn silent_lance_cycles_and_its_secondary_never_creates_audio_or_hit() {
+        let mut c = clock(756, cell(101, 100), true);
+        let mut s = c.advance(0).unwrap();
+        assert!(s.arrived_now);
+        assert_eq!((s.graphics, s.source_frame), (219, 1));
+        let mut all = s.cues.clone();
+        while !s.finished {
+            let due = c.impact.next_callback_millis().unwrap();
+            s = c.advance(due * 1_000_000).unwrap();
+            all.extend(s.cues.clone());
+        }
+        assert!(all.is_empty());
+    }
+    #[test]
+    fn fractional_global_origin_does_not_delay_native_movement_deadlines() {
+        let start = 500_000u64; // launched half a millisecond into global ms 0
+        let mut c = clock(167, cell(104, 100), true);
+        assert_eq!(c.advance(native_elapsed_ns(start, start)).unwrap().callbacks, 1);
+        assert_eq!(c.advance(native_elapsed_ns(59_999_999, start)).unwrap().callbacks, 1);
+        // Subtract-then-floor would still read 59ms here and miss this deadline.
+        let second = c.advance(native_elapsed_ns(60_000_000, start)).unwrap();
+        assert_eq!((second.callbacks, second.position), (2, cell(102, 100)));
+        assert_eq!(c.advance(native_elapsed_ns(120_000_000, start)).unwrap().callbacks, 3);
+        let arrival = c.advance(native_elapsed_ns(180_000_000, start)).unwrap();
+        assert!(arrival.arrived_now);
+        assert_eq!(arrival.arrival_ns, Some(180_000_000));
+        // 219: source1 dwells 4 ticks = 166ms from the arrival callback.
+        assert_eq!(c.impact.next_callback_millis(), Some(166));
+        assert_eq!(c.advance(native_elapsed_ns(345_999_999, start)).unwrap().source_frame, 1);
+        assert_eq!(c.advance(native_elapsed_ns(346_000_000, start)).unwrap().source_frame, 2);
+    }
 }

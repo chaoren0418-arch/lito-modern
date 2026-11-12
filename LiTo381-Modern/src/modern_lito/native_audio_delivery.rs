@@ -135,7 +135,10 @@ impl PreparedCue {
 #[derive(Default)]
 pub(crate) struct FiniteDeliveryHistory {
     world:Option<(u64,u64,u16)>,
-    seen:std::collections::BTreeSet<(FiniteEventKey,Option<u64>)>,
+    /// Admitted key -> the payload that was kept for it. Weak: the history
+    /// never keeps a bank or PCM alive, and an expired identity still refuses
+    /// a replay of its key.
+    seen:std::collections::BTreeMap<(FiniteEventKey,Option<u64>),std::sync::Weak<Payload>>,
 }
 pub(crate) const MAX_FINITE_DELIVERY_HISTORY_KEYS:usize=4096;
 #[cfg(test)]
@@ -157,6 +160,63 @@ mod batch1_callback_tests {
         assert_eq!(history.filter_frame(&mut next).unwrap().kept,1);
     }
 }
+/// T028-4 (S23 clock latch): a duplicate that is the canonical payload itself
+/// must not consume the latch the canonical cue is still waiting to use.
+#[cfg(test)]
+mod canonical_latch_tests {
+    use super::*;
+    fn cue(occurrence:u64)->PreparedCue {
+        let bank=Arc::new(SoundBank::playback_subset(Default::default()).unwrap());
+        let group=crate::modern_lito::combat_animation::classify_native_cues(
+            &[crate::modern_lito::sprite_actions::FrameEvent::Sound(0)]).unwrap().audio.unwrap();
+        PreparedCue::from_callback_event(bank,group,0,FiniteEventKey{sequence:9,graphics:167,action:0,source_frame:1},occurrence).unwrap()
+    }
+    #[test]
+    fn republished_canonical_payload_keeps_its_latch() {
+        let canonical=cue(1);
+        let mut history=FiniteDeliveryHistory::default();history.select_world((1,2,3));
+        let mut first=vec![canonical.clone()];
+        assert_eq!(history.filter_frame(&mut first).unwrap().kept,1);
+        // The same Arc again: twice in one frame and in a later frame.
+        let mut again=vec![canonical.clone(),canonical.clone()];
+        let report=history.filter_frame(&mut again).unwrap();
+        assert_eq!((report.kept,report.duplicates,report.retained_keys),(0,2,1));
+        assert!(again.is_empty());
+        assert!(!canonical.consumed(),"removing a duplicate schedule consumed the pending canonical cue");
+        // The canonical cue is still deliverable exactly once.
+        assert!(canonical.discard());
+        assert!(!canonical.discard());
+    }
+    #[test]
+    fn different_payload_under_the_same_key_is_discarded_and_weak_identity_holds_nothing() {
+        let canonical=cue(5);
+        let weak=Arc::downgrade(&canonical.0);
+        let mut history=FiniteDeliveryHistory::default();history.select_world((1,2,3));
+        let mut first=vec![canonical.clone()];
+        assert_eq!(history.filter_frame(&mut first).unwrap().kept,1);
+        let other=cue(5);
+        let mut second=vec![other.clone()];
+        assert_eq!(history.filter_frame(&mut second).unwrap().duplicates,1);
+        assert!(other.consumed()&&!canonical.consumed());
+        // The history holds no strong reference to the payload (bank/PCM).
+        drop(first);drop(canonical);
+        assert!(weak.upgrade().is_none());
+        // An expired identity still refuses a replay of its key.
+        let late=cue(5);
+        let mut third=vec![late.clone()];
+        assert_eq!(history.filter_frame(&mut third).unwrap().duplicates,1);
+        assert!(third.is_empty()&&late.consumed());
+        // A distinct movement occurrence of the same source slot is a new cue.
+        let reentered=cue(9);
+        let mut fourth=vec![reentered.clone()];
+        assert_eq!(history.filter_frame(&mut fourth).unwrap().kept,1);
+        assert!(!reentered.consumed());
+        // Releasing the sequence releases every occurrence key.
+        history.retain_sequences(&std::collections::BTreeSet::new());
+        let mut fifth=vec![cue(5)];
+        assert_eq!(history.filter_frame(&mut fifth).unwrap().kept,1);
+    }
+}
 #[derive(Clone,Copy,Debug,Default,serde::Serialize)]
 pub(crate) struct FiniteHistoryReport {pub kept:usize,pub duplicates:usize,pub retained_keys:usize}
 impl FiniteDeliveryHistory {
@@ -165,22 +225,28 @@ impl FiniteDeliveryHistory {
     }
     pub(crate) fn is_world(&self,world:(u64,u64,u16))->bool {self.world==Some(world)}
     pub(crate) fn retain_sequences(&mut self,sequences:&std::collections::BTreeSet<u64>) {
-        self.seen.retain(|(event,_)|sequences.contains(&event.sequence));
+        self.seen.retain(|(event,_),_|sequences.contains(&event.sequence));
     }
     pub(crate) fn filter_frame(&mut self,cues:&mut Vec<PreparedCue>)->Result<FiniteHistoryReport> {
         let keys=cues.iter().map(|cue|cue.finite_event().map(|event|(event,cue.0.occurrence)).ok_or_else(||anyhow::anyhow!("finite native cue provenance absent")))
             .collect::<Result<Vec<_>>>()?;
         let unique:std::collections::BTreeSet<_>=keys.iter().copied().collect();
-        let additional=unique.iter().filter(|key|!self.seen.contains(*key)).count();
+        let additional=unique.iter().filter(|key|!self.seen.contains_key(*key)).count();
         ensure!(self.seen.len().checked_add(additional).is_some_and(|n|n<=MAX_FINITE_DELIVERY_HISTORY_KEYS),"finite native audio history budget exceeded");
         let incoming=std::mem::take(cues);let mut kept=Vec::with_capacity(incoming.len());let mut report=FiniteHistoryReport::default();
         for (cue,key) in incoming.into_iter().zip(keys) {
-            if self.seen.insert(key) {report.kept+=1;kept.push(cue);}
-            else {
+            if let Some(canonical)=self.seen.get(&key) {
                 report.duplicates+=1;
+                // A republished frame can carry the SAME payload (same Arc) as
+                // the canonical cue that is still waiting to be played.
+                // Removing that duplicate schedule must not consume the shared
+                // latch; a different payload under the same key is discarded.
+                let same_payload=canonical.upgrade().is_some_and(|kept|Arc::ptr_eq(&kept,&cue.0));
                 // Status snapshots share the original payload with an already
                 // deferred frame. Dropping a duplicate must not consume it.
-                if cue.0.status_lease.get().is_none(){cue.discard();}
+                if !same_payload && cue.0.status_lease.get().is_none(){cue.discard();}
+            } else {
+                self.seen.insert(key,Arc::downgrade(&cue.0));report.kept+=1;kept.push(cue);
             }
         }
         *cues=kept;report.retained_keys=self.seen.len();Ok(report)

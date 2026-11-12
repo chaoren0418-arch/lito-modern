@@ -160,7 +160,10 @@ fn original_class5_flight_impact_audio_and_hurt_are_once() {
         frames.push(r);
     }
     assert_eq!(callbacks.len(), 1);
-    assert_eq!(sound719, 1);
+    // Six movement callbacks: the cyclic flight (sub_4E5B50) enters its source1
+    // sound slot at the launch and once more before arrival. Whether the second
+    // entry is audible is the same-ID suppression policy, not this count.
+    assert_eq!(sound719, 2);
     assert_eq!(sound713,1);
     assert_eq!(secondary_hit,1);
     assert_eq!(gfx, std::collections::BTreeSet::from([1797, 1798]));
@@ -236,6 +239,9 @@ fn class5_launch_freezes_target_and_retires_reused_identity() {
     engine.update(&w, [&e].into_iter(), 60_000_000);
     let (r, _) = engine.draw(&mut canvas, projection, 60_000_000);
     assert_eq!(r["launched"], 1);
+    // Native 42F300 moves one cell per 60ms callback; cells 3..5 each need
+    // their own dispatch, and arrival is the sixth movement, not a wall time.
+    for ms in [120u64,180,240] {assert!(engine.update(&w,std::iter::empty(),ms*1_000_000).is_empty());}
     let impacts=engine.update(&w,std::iter::empty(),300_000_000);
     assert_eq!(impacts.len(),1);
     let (r,_)=engine.draw(&mut canvas,projection,300_000_000);
@@ -294,16 +300,33 @@ fn class5_zero_distance_zero_damage_and_miss_keep_authority() {
         };
         let impacts = engine.update(&w, [&e].into_iter(), 0);
         assert_eq!(impacts.len(), usize::from(key == "hit"));
-        assert!(engine
-            .update(&w, std::iter::empty(), 3_000_000_000)
-            .is_empty());
-        let (r, events) = engine.draw(&mut canvas, projection, 3_000_000_000);
+        // Native movement and finite callbacks advance one step per dispatch
+        // and reschedule from it (424540/42F300 + 4D65F0): one late poll can
+        // never catch up. Drive the clock at 1ms and collect every cue from
+        // the draw that follows its update.
+        let mut events = Vec::new();
+        let mut non_audio = Vec::new();
+        let mut r = serde_json::Value::Null;
+        for ms in 0..=3000u64 {
+            assert!(engine
+                .update(&w, std::iter::empty(), ms * 1_000_000)
+                .is_empty());
+            let (receipt, entered) = engine.draw(&mut canvas, projection, ms * 1_000_000);
+            assert!(receipt["clock_errors"].as_array().unwrap().is_empty(), "{receipt}");
+            events.extend(entered);
+            non_audio.extend(receipt["non_audio_cues"].as_array().unwrap().iter().cloned());
+            r = receipt;
+        }
         assert_eq!(r["arrivals"], 1);
         assert_eq!(r["active"], 0);
-        assert_eq!(events.iter().filter(|e| e.sound == Some(719)).count(), 1);
+        // "miss" has no target actor: it flies the six wire cells, so the
+        // cyclic flight re-enters its source1 sound slot once more
+        // (4-frame flights at movement 5, the 5-frame wind flight at 6).
+        let launch_sounds = if key == "miss" { 2 } else { 1 };
+        assert_eq!(events.iter().filter(|e| e.sound == Some(719)).count(), launch_sounds);
         assert_eq!(events.iter().filter(|e| e.sound == Some(713)).count(), usize::from(key!="miss"));
-        assert_eq!(r["non_audio_cues"].as_array().unwrap().len(),usize::from(key!="miss"));
-        if key!="miss" {assert_eq!(r["non_audio_cues"][0]["authority_callback"],false);}
+        assert_eq!(non_audio.len(),usize::from(key!="miss"));
+        if key!="miss" {assert_eq!(non_audio[0]["authority_callback"],false);}
         assert!(engine
             .draw(&mut canvas, projection, 3_000_000_000)
             .1
