@@ -70,7 +70,13 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 ## 已驗證
 
 - 上面兩次 `cargo check` 結束碼 0。
-- CI 結果：待 PR CI 完成後補上（見下方「CI」）。
+- PR #285 的 GitHub Actions CI（run 43171467479，commit `4ab90d4`，windows-latest）：`cargo check` 與 `test (lib, no GUI)` 都通過，conclusion `success`。
+
+```text
+test result: ok. 2246 passed; 0 failed; 595 ignored; 0 measured; 0 filtered out; finished in 24.03s
+```
+
+本張新增的 8 案都列為 `... ok`（`modern_lito::native_login::teleport_wire_tests::continuation::` 底下的 `destination_refused_continuation_keeps_one_recovery_without_c9`、`destination_silent_continuation_is_bounded_and_keeps_one_recovery`、`expired_and_rerented_items_use_only_destination_ids`、`malformed_continuation_replies_fail_closed_on_the_destination`、`cross_generation_continuation_replies_do_not_select_or_retarget`、`late_cancel_keeps_one_recovery_for_an_explicit_login`、`cancel_after_completed_continuation_creates_no_recovery`、`t_key_cycle_is_scoped_to_the_presented_live_world`）。符合 `run-local-test-suite.ps1` 的門檻：passed > 0、failed 0、結束碼 0。595 個 ignored 不算通過。
 
 ## 推測
 
