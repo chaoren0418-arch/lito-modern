@@ -205,6 +205,9 @@ impl Bank {
                     match mix {
                         layers::Mix::Over => Mix::Over,
                         layers::Mix::Screen => Mix::Screen,
+                        // Same stable half writer as the shadow (768894).
+                        layers::Mix::Half => Mix::Shadow,
+                        layers::Mix::Multiply => Mix::Multiply,
                     },
                 ));
                 visible_layers.push(1807);

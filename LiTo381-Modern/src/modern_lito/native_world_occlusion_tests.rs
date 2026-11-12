@@ -25,9 +25,9 @@ const WEST: (u16, u16) = (0x7fff, 0x8000);
 const EAST: (u16, u16) = (0x8000, 0x8000);
 /// Walked row. `P[2]` is the last cell of the west sector, `P[3]` the first of the east.
 const ROW: u16 = 32778;
-const P: [u16; 6] = [32765, 32766, 32767, 32768, 32769, 32770];
+pub(super) const P: [u16; 6] = [32765, 32766, 32767, 32768, 32769, 32770];
 /// RGB555 components.
-const FLOOR: [u8; 3] = [4, 20, 4];
+pub(super) const FLOOR: [u8; 3] = [4, 20, 4];
 const RED: [u8; 3] = [28, 4, 4];
 const BLUE: [u8; 3] = [4, 4, 28];
 const BODY: [u8; 3] = [30, 30, 2];
@@ -35,7 +35,7 @@ const BODY: [u8; 3] = [30, 30, 2];
 fn word(c: [u8; 3]) -> [u8; 2] {
     ((u16::from(c[0]) << 10) | (u16::from(c[1]) << 5) | u16::from(c[2])).to_le_bytes()
 }
-fn rgb(c: [u8; 3]) -> [u8; 3] {
+pub(super) fn rgb(c: [u8; 3]) -> [u8; 3] {
     c.map(|v| (v << 3) | (v >> 2))
 }
 fn til(blocks: &[Vec<u8>]) -> Vec<u8> {
@@ -148,17 +148,17 @@ fn scene_from(map: WorldMap, resident: Option<[u16; 2]>) -> Scene {
     )
     .unwrap()
 }
-fn scene() -> Scene {
+pub(super) fn scene() -> Scene {
     scene_from(map(west_sector(), east_sector()), None)
 }
-fn cell(x: u16) -> WorldCell {
+pub(super) fn cell(x: u16) -> WorldCell {
     WorldCell {
         x: i32::from(x),
         y: i32::from(ROW),
     }
 }
 /// Fixed inspection view: `P[3]` at the centre of a 320x240 surface.
-fn view() -> ViewProjection {
+pub(super) fn view() -> ViewProjection {
     ViewProjection {
         anchor_cell: cell(P[3]),
         anchor_pixel: PixelPoint { x: 160, y: 120 },
@@ -166,7 +166,7 @@ fn view() -> ViewProjection {
 }
 /// A point covered by the cell's own even half-cell stack only: the next scan
 /// row starts 12 pixels lower, earlier rows are painted underneath.
-fn sample(x: u16) -> (i64, i64) {
+pub(super) fn sample(x: u16) -> (i64, i64) {
     let origin = NativeDrawCell::from_world(cell(x))
         .unwrap()
         .screen_origin(view())

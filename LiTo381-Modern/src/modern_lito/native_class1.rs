@@ -141,7 +141,9 @@ impl Effects {
                         if let Some(layers)=self.layers.get(&a.cue.projectile.graphics) {
                             for (name,mix) in &layers.bindings.attachments {
                                 let frame=layers.bank.frame(name,v.subframe)?;
-                                let mode=match mix{super::native_actor_layers::Mix::Over=>super::native_world_effects::Mix::Over,super::native_actor_layers::Mix::Screen=>super::native_world_effects::Mix::Screen};
+                                // Half shares the shadow's stable half writer (768894); effects stay click-through.
+                                let mode=match mix{super::native_actor_layers::Mix::Over=>super::native_world_effects::Mix::Over,super::native_actor_layers::Mix::Screen=>super::native_world_effects::Mix::Screen,
+                                    super::native_actor_layers::Mix::Half=>super::native_world_effects::Mix::Shadow,super::native_actor_layers::Mix::Multiply=>super::native_world_effects::Mix::Multiply};
                                 submissions.push((frame,mode));
                                 layer_receipts.push(json!({"kind":"clothes","sprite":name,"subframe":v.subframe,"mix":mix,"drawn":!a.finished,"source":layers.bank.get(name)?.source}));
                             }
