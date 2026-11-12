@@ -22,7 +22,7 @@
 - **69 目的地選擇**：`native_teleport_spell::Choice` 現在綁定它是為哪個技能選的（5 或 69）。為 5 選的目的地不能拿來施放 69，反過來也不行（含快捷列）；視窗的目的地下拉在選 5 或 69 時都會出現，切換技能時會清掉選取。
 - **67 的 `monlist`**：目前 main 上，物件 ID 是自己的 S2A 會掉進商人對話路徑，因為沒有對應的 NPC 互動而報錯、中斷連線（被別人施放 67 也會遇到）。本批把「自己的、沒有參數的 `monlist`」先攔下來：只計數（`shape_menu_offers`），不進同伴或商人狀態，**不送 C_HACTION**，所以不會套用任何外觀。96 個選項的選單沒有做。
 - **73 的目標政策修正**：`native_forced_combat::object_target` 原本沒有把 73 排除，7 bytes 的 73 會被當成「角色目標」，背包物件 ID 進到 `native_target_policy::validate` 後查不到角色而被拒絕（「目標已離開」），也就是 73 實際上送不出去（靜態閱讀得出，沒有實機重現）。現在 73 和 12／21／100／107 一樣不算角色目標，也不會附加 LFC1。
-- **T 鍵循環屍體**：原本只有選 41 時才循環屍體，現在 41／61／75 都是（`native_skills::corpse_skill`）；61 在批 4 漏了這一處。
+- **T 鍵循環屍體**：原本只有選 41 時才循環屍體，現在 41／61／75 都是；61 在批 4 漏了這一處。第 3 次同步後改用 main（#155）新增的 `native_skills::corpse_targeted`（41／61／165），本批把 75 加進去，不另外留一個重複的 helper。
 - Ctrl／LFC1：67／68／71／74／75 是 7／11 bytes 的角色 body，既有規則已涵蓋；69（9 bytes）、70（3 bytes）、73（物件 ID）都不會附加。
 - 選單：八個技能都有名稱，不再顯示「尚未支援」。
 
@@ -64,7 +64,8 @@
 - **PR #291 的 run 43181326594（`5eb0807`）：通過**。`cargo check --locked --all-targets` 原文 `Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 19s`；`cargo test --locked --lib --no-fail-fast` 原文 `test result: ok. 2310 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 23.33s`。本批 13 案（`native_skills::t027_batch5_tests` 9 案、`native_login::teleport_wire_tests::t027_batch5` 4 案）逐案都是 `ok`（log 存在 `scratch/issue-149/ci-43181326594.log`）。597 個 ignored 不算通過，原資源 opt-in 案仍待 Codex。
 - 報告更新的 commit `9cc7542`：run 43182045535 **通過**，`test result: ok. 2310 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 23.56s`。
 - 第 2 次同步：main 又前進到 `b105ab0`（#153 技能 129、130、132–134、137、138），PR 再度 CONFLICTING，再合併一次。同樣只有 `native_skills.rs` 兩處同一行的清單衝突，兩邊都保留：`selector_only`（本批 70 加上 main 的 129／130／134／137／138）、`reuse_millis`（本批 70／71／73／74 加上 main 的 129／137／138=0、130／132／133=100、134=1000）。合併後本機 `cargo check …--all-targets`：**exit 0**，`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 44s`（`scratch/issue-149/check3.log`）；`python 維護工具/test_native_skill_coverage.py`：`Ran 8 tests … OK`。
-- **第 2 次同步後的 CI（run 43183053494，`56e9e3e`）：通過**，`cargo test --locked --lib --no-fail-fast` 原文 `test result: ok. 2310 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.60s`，本批 13 案全部 `ok`；PR 狀態 MERGEABLE／CLEAN。之後只再推了這段報告文字。
+- **第 2 次同步後的 CI（run 43183053494，`56e9e3e`）：通過**，`cargo test --locked --lib --no-fail-fast` 原文 `test result: ok. 2310 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.60s`，本批 13 案全部 `ok`；PR 狀態 MERGEABLE／CLEAN。報告文字的 commit `713cf8a`：run 43183924011 **通過**，`test result: ok. 2310 passed; 0 failed; 597 ignored; 0 measured; 0 filtered out; finished in 24.80s`。
+- 第 3 次同步：CI 跑完時 main 又前進到 `2d7f018`（#155 技能 156–166），PR 第三次 CONFLICTING，再合併一次。三個檔案衝突：`native_skills.rs` 四處同一行的清單（`selector_only` 本批 70 加上 main 的 156／159／161／162／164；自己／角色分支與畫面菱形清單本批 67 加上 main 的 158／160；`reuse_millis` 本批 70／71／73／74 加上 main 的 156–166），兩邊都保留；`native_skill_selection.rs` 與 `native_login_window.rs` 各一處，是兩邊各自新增了同用途的屍體技能 helper（本批 `corpse_skill`、main `corpse_targeted`），採用 main 的名稱並把 75 加進去（41／61／75／165），刪掉本批重複的 helper，測試改用同一個名稱。合併後本機 `cargo check …--all-targets`：**exit 0**，`Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 48s`（`scratch/issue-149/check4.log`）；`python 維護工具/test_native_skill_coverage.py`：`Ran 9 tests … OK`。這一輪的 CI 結果以 PR 最新 commit 為準，數字寫在調度器摘要（`=== RESULT ===`）與 PR 留言裡，不再為了補數字多推一個 commit（每多推一次，main 就可能再前進一次）。
 
 ## 推測
 - 送包形狀、範圍與 reuse 是依正式 contract、候選說明與相鄰伺服器原始碼做的靜態對照，不代表正式 E149 服務一定接受（血盟資格、材料、機率等）。相鄰伺服器原始碼是工作目錄現況，不等於正式唯讀 JAR `E1498871…`；兩者在 69 的 S55／C4E 流程上和歷史候選說明（讀 E149 JAR 得出）一致。
@@ -82,7 +83,7 @@
 - 沒有啟動遊戲或客戶端、沒有連正式服務或 DB、沒有做 GUI、DPI、滑鼠鍵盤、音效裝置或和原版並排的驗收；HISTORY 列的 69 書籤／隨機／748 同意拒絕／自然 30 秒／重施／舊 owner／EOF 取消與八秒失敗的實機矩陣、G06 與 T030 都不在本張範圍。
 
 ## 產出路徑
-- `LiTo381-Modern/src/modern_lito/native_skills.rs`：67／70／71／74／75 送包、`mass_teleport_request`、S55／C4E 常數、`destination_skill`／`corpse_skill`、reuse 與 client clock；測試模組註冊。
+- `LiTo381-Modern/src/modern_lito/native_skills.rs`：67／70／71／74／75 送包、`mass_teleport_request`、S55／C4E 常數、`destination_skill`、`corpse_targeted` 加入 75、reuse 與 client clock；測試模組註冊。
 - `LiTo381-Modern/src/modern_lito/native_skill_selection.rs`：屍體意圖（41／61／75）、六個選單名稱。
 - `LiTo381-Modern/src/modern_lito/native_teleport_spell.rs`、`native_portal.rs`：目的地選擇綁定技能、`admit_mass_teleport`。
 - `LiTo381-Modern/src/modern_lito/native_login.rs`：69 施法方交握與等待視窗、`monlist` 消化、`teleport_choice_for`。

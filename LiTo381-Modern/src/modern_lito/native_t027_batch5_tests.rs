@@ -257,7 +257,7 @@ fn menu_labels_corpse_intent_and_destination_domain_cannot_be_mixed() {
         assert_eq!(menu.choice_at(EPOCH, w, Some(living), None).unwrap().target, Some(2), "{id}");
     }
     // T key: corpse skills cycle corpses only, the others living actors only.
-    assert!(corpse_skill(75) && corpse_skill(61) && corpse_skill(41) && !corpse_skill(71));
+    assert!(corpse_targeted(75) && corpse_targeted(61) && corpse_targeted(41) && !corpse_targeted(71));
     assert!(cycle_target(w, [2u32], 1, None, true).is_none());
     let cycled = cycle_target(&dead, [2u32], 1, None, true).unwrap();
     assert_eq!((cycled.resolve_for_skill(&dead, 75), cycled.resolve_for_skill(&dead, 71)), (Some(2), None));

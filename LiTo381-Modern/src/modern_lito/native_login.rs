@@ -1013,8 +1013,8 @@ impl LoginController {
         self.mass_return = teleport.filter(|choice| choice.skill()==69).map(|_| false);
         self.teleport_released = false;
         self.skill_item_pending = item.is_some() || skill==48;
-        // 154: S10 353 (no-recall map) follows the committed cast action, like 51.
-        self.skill_summon_pending = summon.is_some() || skill == 154;
+        // 154／162: S10 353 (no-recall map) follows the committed cast action, like 51.
+        self.skill_summon_pending = summon.is_some() || super::native_skills::summon_feedback(skill);
         self.skill_release_pending = skill == 145;
         self.skill_clan_pending = matches!(skill, 116 | 118);
         self.triple_arrow = arrows;
