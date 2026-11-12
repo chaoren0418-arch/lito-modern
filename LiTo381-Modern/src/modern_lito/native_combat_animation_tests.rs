@@ -56,7 +56,8 @@ fn server_hurts_queue_until_more_than_three_pending_then_drop_consecutive_action
     let mut a = actor(0);
     push(&mut a, 1);
     let (pose, _) = p.sample(&c, &a, 0).unwrap();
-    assert_eq!(pose.unwrap().phase, "attack");
+    let pose = pose.unwrap();
+    assert_eq!((pose.action, pose.phase), (1, "action"));
     for n in 1..=8u64 {
         push(&mut a, 2);
         p.sample(&c, &a, n * MS).unwrap();
@@ -95,7 +96,8 @@ fn exempt_bodies_never_take_server_or_arrival_hurt() {
         push(&mut a, 1);
         push(&mut a, 2);
         let (pose, _) = p.sample(&c, &a, MS).unwrap();
-        assert_eq!(pose.unwrap().phase, "attack", "{graphics}");
+        let pose = pose.unwrap();
+        assert_eq!((pose.action, pose.phase), (1, "action"), "{graphics}");
         assert!(pending(&p, &a).is_empty(), "{graphics}");
     }
 }

@@ -50,6 +50,14 @@ LTlist.spr 的來源：`0-客戶端\Text.pak` 用 PakViewer CLI（`D:\lineage開
 - `native_hurt::tests`（8 案）：LT 家族與鄰值、豁免集合、落地 effect 替代、>3 門檻、dispatch 三分支、LTlist header 的倍率（正式 `285`→0、符號、CR／NUL、環繞、0x200 界線）、action0 截斷、u32 環繞的提早觸發與卡住、FIFO。
 - `native_combat_animation::tests`（6 案，用合成 catalog）：伺服器 hurt 依門檻排隊，攻擊的 Hit 各進一次；豁免 gfx 不會受擊；排隊後變身成豁免 gfx 時，開始執行就丟掉；站立中斷並跳過剩下的 Hit；走路中排隊並套用門檻，走完後改為中斷；44／死亡／排隊中死亡一律拒絕。
 
+### 第 2 次嘗試：修正 CI 失敗（PR #275）
+- CI run `43160549009`（head `470e611`）的 `cargo test (lib, no GUI)` 原文：`test result: FAILED. 2125 passed; 2 failed; 590 ignored; 0 measured; 0 filtered out; finished in 20.09s`。
+- 失敗的 2 案是 `server_hurts_queue_until_more_than_three_pending_then_drop_consecutive_action2`（:59）和 `exempt_bodies_never_take_server_or_arrival_hurt`（:98）。兩案都是 `left: "action"`、`right: "attack"`。
+- 原因出在測試本身：`ActionPose.phase` 看的是 `cue.source`（`"attack"` 才回 `"attack"`），不是看動作編號。合成 cue 的 source 是 `"action"`，所以 phase 本來就該是 `"action"`。產品邏輯沒有錯。
+- 修正：兩處斷言改成 `(pose.action, pose.phase) == (1, "action")`，只改 `native_combat_animation_tests.rs`。
+- 這兩案在失敗的斷言之後還有其他斷言，CI 沒有跑到。修正後這些斷言是否通過，以新 CI 結果為準。
+- 修正後 `cargo check --all-targets` 結束碼 0。
+
 ## 已驗證
 - base＝5894：依 4D3FF0 原指令重算，CRC 相符，筆數和宣告值相同。
 - 4DF7C0 的表值、hurt guard 的順序、4E63C0 門檻、4E6B70 走路判斷與中斷分支、40E5A2 的 effect 替代、`[0x647EA4]` 的唯一寫入與讀取點：都是本輪逐條反組譯讀出來的。
