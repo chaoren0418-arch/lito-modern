@@ -66,7 +66,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File 維護工具\run-local-test-
 | `helper-pending` | 302 | 跨函式 helper 閉合審查還沒做 | #308、#309、#310 |
 | `java-peer` | 167 | 需要 Java peer／TLS fixture | #314–#316 |
 | `shared-root` | 159 | 需要 `LITO_SHARED_RESOURCE_ROOT` | #312、#313 |
-| `db` | 120 | SQL／MySQL peer 流程 | #319、#320 |
+| `db` | 120 | SQL／MySQL peer 流程（#319 已盤點，尚未放行） | #320 |
 | `snapshot` | 99 | 依賴原機 snapshot 的絕對路徑與 SHA pins | #317 |
 | `env` | 40 | 其他環境變數或權限前置 | #318 |
 | `tracked-evidence` | 10 | 會覆寫 git 追蹤的證據檔（#306 裁定不放行） | — |

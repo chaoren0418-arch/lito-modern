@@ -1,6 +1,6 @@
 # Issue #327 — T042（M3 1/1）`run-local-test-suite.ps1` 的 `-Full` 模式
 
-執行者：claude-local（本機，只寫腳本與靜態檢查）。基準：`origin/main` `3a81fc2`。
+執行者：claude-local（本機，只寫腳本與靜態檢查）。基準：`origin/main` `3a81fc2`；push 前合併到 `409726c` 並重跑腳本回歸。
 
 ## 結論
 
@@ -48,7 +48,7 @@ TASKS 的 T036 是「白名單以外的 1055 個待驗測試」。這 1055 項�
 | `helper-pending` | 302 | 跨函式 helper 閉合審查還沒做 | #308（43 項）、#309／#310（259 項） |
 | `java-peer` | 167 | 需要 Java peer／TLS fixture | #314–#316 |
 | `shared-root` | 159 | 需要 `LITO_SHARED_RESOURCE_ROOT` | #312、#313 |
-| `db` | 120 | SQL／MySQL peer 流程 | #319、#320 |
+| `db` | 120 | SQL／MySQL peer 流程（#319 已盤點，尚未放行） | #320 |
 | `snapshot` | 99 | 依賴原機 snapshot 的絕對路徑與 SHA pins | #317 |
 | `env` | 40 | 其他環境變數或權限前置（每列寫明是哪個變數） | #318 |
 | `tracked-evidence` | 10 | 會覆寫 git 追蹤的 `logs/continuation-20261003` 證據檔 | #306 已裁定不放行 |
@@ -74,7 +74,7 @@ T036 目前只完成 2 張（#306、#307），所以現在的 `-Full` 只會多�
 
 ## 已驗證
 
-- **腳本回歸（Windows PowerShell 5.1）：317 個斷言通過。** 跑的是去掉「技能清單」那一段的副本（`scratch/issue-327/selftest-without-skills.ps1`），原因見下一節。新增的 `-Full` 斷言和原有的 G06、子程序、結果解析斷言都在裡面。
+- **腳本回歸（Windows PowerShell 5.1）：合併 main 後 325 個斷言通過。** 跑的是去掉「技能清單」那一段的副本（`scratch/issue-327/selftest-without-skills.ps1`），原因見下一節。新增的 `-Full` 斷言和原有的 G06、子程序、結果解析斷言都在裡面。
 - `run-local-test-suite.ps1` 解析無語法錯誤（PowerShell 5.1 parser）。
 - `-Category T036`（不加 `-Full`）與 `-Quick -Full` 都在啟動 cargo 前報錯，結束碼 1（實際執行過這兩個指令）。
 - 總帳 1055 列和 #54 逐項表一對一；#306 的 83 項、#307 的 38＋2 項都能在 #54 表裡找到同名項目（產生腳本內的斷言）。
@@ -82,7 +82,7 @@ T036 目前只完成 2 張（#306、#307），所以現在的 `-Full` 只會多�
 
 ## 發現的既有問題（不是本張造成，本張沒有修）
 
-**`skills.tsv` 落後 `docs/SKILLS-STATUS.md`，技能類現在會整類失敗。** 在本分支基準（`3a81fc2`，兩個檔案本張都沒動）直接跑 `test-local-test-suite.ps1`，在既有的技能清單檢查就停了：
+**`skills.tsv` 落後 `docs/SKILLS-STATUS.md`，技能類現在會整類失敗。** 在本分支基準 `3a81fc2` 與合併後的 `409726c`（兩個檔案本張都沒動）直接跑 `test-local-test-suite.ps1`，在既有的技能清單檢查就停了：
 
 ```text
 Unmapped T026 test: native_skills::t027_batch4_tests::eight_wire_shapes_are_exact_and_costs_are_not_predicted; review and update test-whitelist/skills.tsv
@@ -97,7 +97,7 @@ Unmapped T026 test: native_skills::t027_batch4_tests::eight_wire_shapes_are_exac
 ## 推測
 
 - Release 的 G06：`run-teleport-failure.ps1` 只要求測試 EXE 在本 worktree 的 `target/current` 之下，沒有限定 debug 目錄，所以我判斷可以直接吃 Release 測試 EXE。沒有實跑過。
-- `-Full` 全部跑完大約 800 次 cargo 呼叫（Baseline 417、Skills 約 136、T036 222、G06 兩輪）。大部分是已編譯 target 的單一測試，但 Release 第一次要整個重編，總時間沒有量過，估計以小時計。
+- `-Full` 全部跑完大約 820 次 cargo 呼叫（Baseline 433、Skills 約 136、T036 222、G06 兩輪）。大部分是已編譯 target 的單一測試，但 Release 第一次要整個重編，總時間沒有量過，估計以小時計。
 - T036 的寫檔測試用固定檔名寫 `target/current/verification/`（#306），Debug 那一輪的證據會被 Release 那一輪覆寫。只影響證據保存，不影響通過與否。
 
 ## 待驗證（交 Codex 實跑）
