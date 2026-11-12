@@ -151,7 +151,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 206)
 }
 
 pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>> {
@@ -159,13 +159,13 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     let own = world.own_actor().unwrap();
     let mut b = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
     match skill {
-        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 57 | 68 => {
+        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 57 | 68 => {
             let id = target.unwrap_or(own.id);
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
                     && world.actor_visible(id)
-                    && if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 68) {
+                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 68) {
                         in_native_screen([own.x, own.y], [actor.x, actor.y])
                     } else {
                         own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 19
@@ -223,14 +223,14 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 b.extend_from_slice(&actor.y.to_le_bytes());
             }
         }
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 77 | 103 | 108 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 77 | 103 | 108 => {
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30=>8,33=>2,40=>3,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33=>2,40|46|47=>3,50=>6,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -242,9 +242,9 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109=>0,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109=>0,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
-pub fn client_clock_millis(skill:u16)->u64 {match skill {33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
+pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub enum Feedback {
     #[default]
@@ -269,6 +269,8 @@ impl Feedback {
             Self::Rejected(79) => "伺服器拒絕此物品附魔",
             Self::Rejected(280) => "法術未生效",
             Self::Rejected(299) => "施法材料不足",
+            Self::Rejected(353) => "目前地圖無法召喚",
+            Self::Rejected(743) => "等級不足以召喚此種類",
             Self::Rejected(319) => "可控制的同伴數量已達上限",
             Self::Rejected(_) => "伺服器限制施法",
         }
@@ -358,6 +360,84 @@ impl Pending {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct SummonSelection { pub selection: u32, pub label: &'static str, pub required_level: u16 }
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SummonTarget {
+    selection: u32,
+    stamp: super::native_navigation::InputStamp,
+    owner: super::native_inventory::Owner,
+    revision: u64,
+    map: Option<u16>,
+}
+impl SummonTarget {
+    pub fn capture(s: &super::native_login::Snapshot, epoch: u64, selection: u32) -> Result<Self> {
+        ensure!(SUMMON_SELECTIONS.iter().any(|row|row.selection==selection), "召喚選項無效");
+        let value=Self { selection, stamp: super::native_navigation::InputStamp::capture(epoch,&s.world),
+            owner:s.inventory.owner.clone().context("等待角色背包")?, revision:s.inventory.revision, map:s.world.map_id };
+        value.validate(s,epoch)?; Ok(value)
+    }
+    pub fn validate(&self,s:&super::native_login::Snapshot,epoch:u64)->Result<()> {
+        ensure!(s.game_connected && s.phase.active_world() && !s.observer && !s.world.observer_mode,"目前不能召喚");
+        can_cast(&s.world,51)?;
+        ensure!(self.owner.connection==epoch && s.inventory.owner.as_ref()==Some(&self.owner)
+            && self.revision==s.inventory.revision && self.map==s.world.map_id
+            && self.stamp==super::native_navigation::InputStamp::capture(epoch,&s.world),"角色、背包或場景已變更，請重新選擇召喚種類");
+        Ok(())
+    }
+}
+pub fn summon_request(s:&super::native_login::Snapshot,epoch:u64,choice:&SummonTarget)->Result<Vec<u8>> {
+    choice.validate(s,epoch)?;
+    let mut body=vec![0x14,6,2];body.extend(choice.selection.to_le_bytes());Ok(body)
+}
+impl Pending {
+    /// Map/level rejection may arrive after the cast action; neither is a summon ACK.
+    pub fn observe_summon(&self,world:&World,now:Instant)->Feedback {
+        let ordinary=self.observe(world,now);
+        if ordinary==Feedback::Interrupted {return ordinary;}
+        if let Some((sequence,code))=world.last_summon_rejection {
+            if sequence>self.messages {return Feedback::Rejected(code);}
+        }
+        ordinary
+    }
+    pub fn hold_summon(&self,feedback:Feedback,now:Instant)->bool {
+        matches!(feedback,Feedback::Pending|Feedback::CastAction)
+            && now.saturating_duration_since(self.since)<Duration::from_secs(2)
+    }
+}
+pub const SUMMON_SELECTIONS: &[SummonSelection] = &[
+    SummonSelection { selection:7, label:"哈柏哥布林", required_level:28 },
+    SummonSelection { selection:263, label:"艾多倫", required_level:28 },
+    SummonSelection { selection:519, label:"安普", required_level:28 },
+    SummonSelection { selection:8, label:"甘地妖魔", required_level:32 },
+    SummonSelection { selection:264, label:"都達瑪拉妖魔", required_level:32 },
+    SummonSelection { selection:520, label:"妖魔巡守", required_level:32 },
+    SummonSelection { selection:9, label:"狂野毒牙", required_level:36 },
+    SummonSelection { selection:265, label:"狂野之毒", required_level:36 },
+    SummonSelection { selection:521, label:"狂野之魔", required_level:36 },
+    SummonSelection { selection:10, label:"食人妖精", required_level:40 },
+    SummonSelection { selection:266, label:"食人妖精王", required_level:40 },
+    SummonSelection { selection:522, label:"冰人", required_level:40 },
+    SummonSelection { selection:11, label:"狂暴蜥蜴人", required_level:44 },
+    SummonSelection { selection:267, label:"重裝蜥蜴人", required_level:44 },
+    SummonSelection { selection:523, label:"高等蜥蜴人", required_level:44 },
+    SummonSelection { selection:12, label:"火蜥蜴", required_level:48 },
+    SummonSelection { selection:268, label:"火焰戰士", required_level:48 },
+    SummonSelection { selection:524, label:"火焰弓箭手", required_level:48 },
+    SummonSelection { selection:13, label:"魔熊", required_level:52 },
+    SummonSelection { selection:269, label:"魔狼", required_level:52 },
+    SummonSelection { selection:525, label:"魔蝙蝠", required_level:52 },
+    SummonSelection { selection:14, label:"巨大守護螞蟻", required_level:56 },
+    SummonSelection { selection:270, label:"強化白螞蟻群", required_level:56 },
+    SummonSelection { selection:526, label:"巨大強化白螞蟻", required_level:56 },
+    SummonSelection { selection:15, label:"地獄奴隸", required_level:60 },
+    SummonSelection { selection:271, label:"闇精靈王", required_level:60 },
+    SummonSelection { selection:527, label:"食腐獸", required_level:60 },
+    SummonSelection { selection:16, label:"地獄束縛犬", required_level:64 },
+    SummonSelection { selection:17, label:"變形怪", required_level:68 },
+    SummonSelection { selection:18, label:"巨大牛人", required_level:72 },
+    SummonSelection { selection:274, label:"黑豹", required_level:72 },
+];
 #[cfg(test)]
 mod tests {
     use super::*;
