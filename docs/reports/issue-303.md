@@ -5,7 +5,7 @@
 
 ## 結論
 
-可攜包的打包流程已改完，並把原本已經壞掉的三處一併修好（見「做了什麼」第 6 點）。本機只能編譯與靜態檢查，**沒有執行任何編譯出來的程式**；`package.ps1` 整條流程（會執行 `LiToModern.exe --version`）交給 GitHub Actions 的 `portable` workflow 驗證，結果見文末「CI 結果」。
+可攜包的打包流程已改完，並把原本已經壞掉的三處一併修好（見「做了什麼」第 6 點）。本機只做編譯與靜態檢查，**沒有執行任何編譯出來的程式**；建置、打包、解壓後的無視窗檢查整條流程在 GitHub Actions 的 `portable` workflow 跑過，全部通過（run 43267620248，commit `63721c6`）。乾淨主機與 GUI 還沒驗，留給第 2 張。
 
 有一件事需要使用者決定（見「需要使用者決定」）：本機只裝了 Visual Studio 2026 **Insiders（預覽）**的 MSVC 工具組，本機建出的 EXE 雖然不再需要任何 VC runtime DLL，但靜態連結進去的 C 執行階段程式碼來自預覽工具組。
 
@@ -67,6 +67,7 @@
 
 - **Windows 10 版本 1703（組建 15063）x64 以上，或 Windows 11。**依據：Rust 1.95 的 `x86_64-pc-windows-msvc` 標準庫需要 Windows 10；程式靜態匯入 `GetDpiForWindow`（1607）並使用 per-monitor DPI awareness v2（1703）。
 - 寫在 `packaging/README.md`、`manifest/executable.json`、`SHA256.json`；`windows/app.manifest` 加上 Windows 10／11 的 `supportedOS` 宣告。
+- `app.manifest` 自己的 `assemblyIdentity` 原本是 `processorArchitecture="*"`，Windows SDK 的 `mt.exe -validate_manifest` 判為錯誤（定義身分不可用萬用字元）；這個程式只建 x64，改成 `amd64`，`mt.exe` 驗證通過。
 
 ### 6. 順手修好：打包流程在 main 上原本跑不起來
 
@@ -82,7 +83,7 @@
 
 - `tools/portable-evidence.ps1`：PE 匯入表解析、開發路徑掃描、資源清單、ZIP。只讀檔，相容 Windows PowerShell 5.1。
 - `tools/verify-portable-package.ps1 -Zip … -ExtractRoot … -ResourceRoot …`：解壓 ZIP、逐檔比對 `SHA256.json`、靜態檢查 EXE，再只執行包內 EXE 的 `--version`、`--check-native-config`（兩者都不開視窗、不連線、不寫設定）與 `.cmd` 入口。相容 PowerShell 5.1，乾淨主機不必先裝 PowerShell 7。**這支會執行 EXE，本機執行器不可跑**，給 CI 與第 2 張用。
-- `.github/workflows/portable.yml`：只在打包相關檔案變更或手動觸發時跑（Release 建置慢，不想每個 PR 都跑）。步驟：fixture 測試 → `build.ps1 -Mode Release` → `package.ps1 -Zip`（用合成的假資源目錄）→ 在含中文與空白的路徑分別用 PowerShell 7 與 5.1 跑 `verify-portable-package.ps1` → 上傳 ZIP artifact（保留 14 天）。CI 用的是 windows-latest 的**正式版** MSVC 工具組。
+- `.github/workflows/portable.yml`：只在打包相關檔案變更或手動觸發時跑（Release 建置慢，不想每個 PR 都跑；由 `task/**` 分支的 push 觸發，結果會經由 commit 顯示在 PR 上）。步驟：fixture 測試 → `build.ps1 -Mode Release` → `package.ps1 -Zip`（用合成的假資源目錄）→ 在含中文與空白的路徑分別用 PowerShell 7 與 5.1 跑 `verify-portable-package.ps1` → 上傳 ZIP artifact（保留 14 天）。
 - `docs/TESTING.md` 補上 `LITO_CLIENT_ROOT` 對診斷的新要求。
 
 ## 怎麼驗證
@@ -90,13 +91,20 @@
 ### 已驗證
 
 - 本機 `cargo build --release --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --bin LiToModern`（`RUSTFLAGS=-C target-feature=+crt-static`）成功；`cargo check --locked --offline -j1 --all-targets` 成功。
-- 靜態讀本機建出的 Release EXE（10,539,008 bytes，SHA-256 `42EBD551…BBEBF9`，未執行）：
+- 靜態讀本機建出的 Release EXE（合併 main 並修好 manifest 後重建：10,594,304 bytes，SHA-256 `59CDD43C…C9AC00`，未執行）：
   - PE32+ x64、GUI 子系統、連結器 14.51。
   - 匯入表只有 13 個系統 DLL：`ADVAPI32`、`api-ms-win-core-synch-l1-2-0`、`bcrypt`、`bcryptprimitives`、`comctl32`、`gdi32`、`imm32`、`kernel32`、`ntdll`、`oleaut32`、`user32`、`winmm`、`ws2_32`；沒有 delay-load；沒有 `VCRUNTIME*`、`MSVCP*`、`api-ms-win-crt-*`。
   - EXE 內不含 `D:\lineage`、專案路徑、`CARGO_MANIFEST`；含 `supportedOS` GUID。
   - 修正前的第一次建置，同一個檢查確實抓到 EXE 內的 `D:\lineage開發\…\LiTo381-Modern`（(b) 類 hardcode），修正後歸零。
 - `portable-evidence.ps1` 的函式在 Windows PowerShell 5.1 用 fixture 跑過：PE 解析（`notepad.exe`，因匯入 `api-ms-win-crt-*` 被正確拒絕）、UTF-16 開發路徑偵測、含中文檔名的資源清單、`.cmd` 轉存、ZIP。
-- 8 支 PowerShell 腳本語法解析 0 錯誤。
+- 8 支 PowerShell 腳本語法解析 0 錯誤；`mt.exe -validate_manifest` 對 `app.manifest` 通過。
+- **CI `portable` workflow 全部步驟通過**（run 43267620248，windows-latest，commit `63721c6`）：
+  - `test-build-evidence.ps1` fixture 通過。
+  - `build.ps1 -Mode Release` 建置並寫出收據（過程會執行 `--version`）。
+  - `package.ps1 -Candidate ci-portable -Zip` 產出 7 個檔案的包與 ZIP。
+  - `verify-portable-package.ps1` 在 `…\可攜包 解壓測試 7`（PowerShell 7）與 `…\可攜包 extract 5`（Windows PowerShell 5.1）各跑一次：逐檔雜湊相符；匯入表與本機相同的 13 個系統 DLL、無 delay-load；`--version` 回報 0.1.0／release／64 位元；`--check-native-config` 回報 `valid_native_settings`、沒有連線、沒有寫設定；`Start-LiToModern.cmd` 在 EXE 旁結束碼 0、單獨執行結束碼 1；EXE 旁沒有被寫入設定檔。
+  - CI 建出的 EXE SHA-256 `E7E7A7D9…294312`，連結器版本 14.51。
+- CI 第一次執行（run 43265849715）失敗，抓到我自己的錯：`app.manifest` 少一個空白（`<trustInfoxmlns=`），XML 不合法，EXE 一啟動就是 side-by-side 錯誤。`rc.exe` 嵌入 manifest 時不檢查內容，所以本機建置與靜態檢查都沒發現。已修正，並在 `package.ps1` 開頭加上 manifest 的 XML 格式檢查。
 
 ### 推測
 
@@ -106,9 +114,9 @@
 
 ### 待驗證（本機不可做，或需要實機）
 
-- `package.ps1`、`build.ps1 -Mode Release`、`test-build-evidence.ps1`、`verify-portable-package.ps1` 的實際執行：本機沒有 PowerShell 7，而且流程會執行 EXE。交給 CI，見「CI 結果」。
+- 用真實資源根目錄（約 10.8 GB）跑 `package.ps1`：CI 只用了兩個假檔案的合成資源目錄，本機沒有 PowerShell 7 而且流程會執行 EXE，所以真實資源清單還沒產生過。
 - 乾淨主機（沒裝任何 VC runtime）解壓 ZIP、雙擊 `Start-LiToModern.cmd` 與 `LiToModern.exe`、首次設定畫面、設定存檔、中文路徑、LoadLibrary 動態載入閉包：第 2 張。
-- `supportedOS` 宣告與靜態 CRT 對視窗行為沒有影響：沒有開過 GUI。
+- `supportedOS` 宣告、`amd64` 身分與靜態 CRT 對視窗行為沒有影響：CI 只跑了不開視窗的參數，沒有開過 GUI。
 - `維護工具/verify-native-*.ps1`（16 支）與 `tools/run-item-sessions.ps1` 現在需要呼叫端先設 `LITO_CLIENT_ROOT`；沒有實跑。
 
 ## 需要使用者決定
@@ -117,7 +125,7 @@
 
 1. 接受：本機建置、本機打包（有真實資源清單）。最省事。
 2. 本機另裝正式版 Build Tools 再建置（要改系統，需使用者自己裝）。
-3. EXE 取自 CI（正式版工具組），但 CI 沒有遊戲資源，資源清單是假的，不能直接當正式包。
+3. EXE 取自 CI（GitHub 的 windows-latest 映像；連結器同樣回報 14.51，我沒有查證映像裡是哪一版 Visual Studio），但 CI 沒有遊戲資源，資源清單是假的，不能直接當正式包。
 
 我的建議是 1，等第 2 張乾淨主機實測通過就夠；如果要求交付物完全不沾預覽工具組，就選 2。
 
