@@ -389,6 +389,11 @@ pub struct LoginController {
     skill_ready: Option<Instant>,
     skill_context: Option<super::native_skills::CastContext>,
     world_tree_request: Option<(super::native_navigation::InputStamp,Instant)>,
+    /// The current skill-5/131 request was ended by S_PARALYSE mode 7 without
+    /// S_PORTAL (Thunder Grab policy or another server terminal branch).
+    teleport_released: bool,
+    /// Exact `25 07` bodies that ended a pending teleport wait without S_PORTAL.
+    teleport_unlocks_without_portal: u64,
     attack_pending: Option<super::native_combat::Pending>,
     transport: Controller,
     state: Snapshot,
@@ -440,6 +445,8 @@ impl Default for LoginController {
             skill_ready: None,
             skill_context: None,
             world_tree_request: None,
+            teleport_released: false,
+            teleport_unlocks_without_portal: 0,
             transport: Controller::default(),
             state: Snapshot {
                 pickup_feedback: Default::default(),
@@ -660,9 +667,14 @@ impl LoginController {
         if let Some(pending) = &self.skill_pending {
             let feedback = if self.state.phase.active_world() && self.skill_context.as_ref().is_none_or(|c|
                 !c.interrupted(self.transport.snapshot().epoch, &self.state.world)) {
-                if self.player_callbacks.pending() { super::native_skills::Feedback::Pending }
-                else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
-                else { pending.observe(&self.state.world, now) }
+                let observed = if self.player_callbacks.pending() { super::native_skills::Feedback::Pending }
+                    else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
+                    else { pending.observe(&self.state.world, now) };
+                // A coded rejection or cast action received in the same batch wins;
+                // otherwise the server's unlock is the terminal reply, not a 2s timeout.
+                if self.teleport_released && matches!(observed, super::native_skills::Feedback::Pending | super::native_skills::Feedback::NoResponse) {
+                    super::native_skills::Feedback::TeleportReleased
+                } else { observed }
             } else {
                 super::native_skills::Feedback::Interrupted
             };
@@ -671,6 +683,7 @@ impl LoginController {
                 self.player_callbacks.cancel_pending();
                 self.skill_pending = None;
                 self.skill_context = None;
+                self.teleport_released = false;
                 if feedback!=super::native_skills::Feedback::CastAction {self.world_tree_request=None;self.teleport_spell=None;}
             }
         }
@@ -802,6 +815,7 @@ impl LoginController {
             self.transport.snapshot().epoch, &self.state.world, skill, target));
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
+        self.teleport_released = false;
         self.skill_item_pending = item.is_some();
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
@@ -1905,6 +1919,15 @@ impl LoginController {
                     *kind==9 && text.starts_with("戰鬥中無法退出，請停止攻擊並等待 ") && text.ends_with(" 秒。")) {
                 self.state.battle_withdrawal_pending=false;
                 self.deadline=None;
+            }
+            if body==[0x25,0x07] && (self.teleport_spell.is_some() || self.world_tree_request.is_some()) {
+                // Server terminal teleport branches without S_PORTAL (Thunder Grab
+                // policy for 5/131, failed casts) release the native action lock with
+                // mode 7. No portal, destination or local move is created, and a
+                // later S_PORTAL is no longer admitted as this request's reply.
+                self.teleport_spell=None;self.world_tree_request=None;
+                self.teleport_released=self.skill_pending.is_some();
+                self.teleport_unlocks_without_portal=self.teleport_unlocks_without_portal.checked_add(1).context("teleport unlock counter")?;
             }
             if body.first()==Some(&0x5a){
                 if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::SceneUpdated;}
@@ -3331,6 +3354,10 @@ fn probe_flow(
 #[cfg(test)]
 #[path = "native_pending_join_departure_tests.rs"]
 mod pending_join_departure_tests;
+
+#[cfg(test)]
+#[path = "native_teleport_unlock_tests.rs"]
+mod teleport_unlock_tests;
 
 #[cfg(test)]
 #[path = "native_resurrection_tests.rs"]
