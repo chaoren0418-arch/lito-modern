@@ -64,6 +64,7 @@ fn original_teleport_page_keeps_only_source_actions_and_image_references(){
  assert!(doc.text.starts_with("傳送師:"));assert!(doc.text.contains("你想要去哪裡呢？"));
  assert_eq!(doc.actions.iter().map(|a|a.command.as_str()).collect::<Vec<_>>(),["LT_TELEPORT_B","LT_TELEPORT_C"]);
  assert!(doc.actions.iter().all(|a|!a.navigate));assert!(doc.actions[0].label.starts_with("祝福之地"));assert_eq!(doc.actions[1].label,"勇氣之地");assert_eq!(doc.images,[7311,7312]);
+ assert_eq!(doc.trailing_images,[(0,7311),(1,7312)]);
  let c=d::Catalog::load(std::path::Path::new(r"D:\lineage開發\0-客戶端"),&std::sync::atomic::AtomicBool::new(false)).unwrap();
  assert_eq!(c.get("TeleportMe").unwrap(),&doc);
  let source=c.sources.iter().find(|s|s.member=="teleportme-c.html").unwrap();

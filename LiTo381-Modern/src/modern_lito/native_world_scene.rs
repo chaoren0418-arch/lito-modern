@@ -106,6 +106,7 @@ pub(crate) fn dispatch_impact(
     accepted
 }
 pub struct Frame {
+    pub vitals: super::native_combat::FrameVitals,
     status4183_leases: Vec<std::sync::Arc<AtomicBool>>,
     pub(crate) player_walk_plan: Option<std::sync::Arc<super::native_player_callbacks::WalkPlan>>,
     pub(crate) static2941: super::native_static2941::DrawGuard,
@@ -476,6 +477,7 @@ pub struct Model {
     cone_cold_effects:super::native_cone_cold::Effects,
     effect_source_owner:std::sync::Arc<()>,
     many_effects:super::native_attack_many::Effects,
+    vitals_gate:super::native_combat::VitalsGate,
     local_impacts:super::native_navigation::ImpactStamp,
 }
 pub struct Completion {
@@ -798,6 +800,7 @@ impl Model {
             static2941: Default::default(),
             effect_source_owner:std::sync::Arc::new(()),
             many_effects:Default::default(),
+            vitals_gate:Default::default(),
         })
     }
     pub fn draw(&mut self, world: &World, cancel: &AtomicBool) -> Result<Frame> {
@@ -1000,6 +1003,7 @@ impl Model {
                 poses.insert(actor.id, next);
             }
         }
+        let pose_failed:std::collections::BTreeSet<u32>=poses.iter().filter(|(_,p)|p.is_err()).map(|(id,_)|*id).collect();
         let own_pose=if observer {None} else {Some(poses.get(&local_id).context("local pose absent")?.as_ref().map_err(|e|anyhow::anyhow!("local actor animation: {e:#}"))?)};
         let position=own_pose.map_or([f64::from(view_position[0]),f64::from(view_position[1])],|p|p.position);
         let (px,py)=project(position[0],position[1]);
@@ -1496,6 +1500,11 @@ impl Model {
         };
         receipt["static2941"] = serde_json::json!({"sequences":static2941.sequences(),"flags":0,"direction6_alias":-1,"shadow":-1,"paint_advances_clock":false});
         Ok(Frame {
+            vitals: {
+                let animator = &self.animator;
+                self.vitals_gate.present(world, |actor, barrier| pose_failed.contains(&actor.id)
+                    || animator.presented(actor, barrier))
+            },
             status4183_leases:world.status4183.leases(),
             player_walk_plan: world.own_actor().and_then(|actor|
                 super::native_player_callbacks::WalkPlan::load(

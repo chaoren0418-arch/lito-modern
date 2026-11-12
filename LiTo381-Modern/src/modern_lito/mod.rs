@@ -382,6 +382,7 @@ pub mod native_combat_ops;
 pub mod native_forced_combat;
 pub mod native_target_policy;
 pub mod native_combat_animation;
+pub mod native_hurt;
 pub mod native_combat_probe;
 pub mod native_peer_probe;
 pub mod native_peer_room_probe;
@@ -399,6 +400,7 @@ mod native_peer_hotel_probe;
 mod native_peer_hotel_share_probe;
 mod native_peer_merchants_probe;
 pub mod native_portal;
+pub mod native_rental_source;
 pub mod native_attributes;
 pub mod native_peer_actions;
 pub mod native_poison_probe;
@@ -478,3 +480,8 @@ pub mod native_cone_cold;
 pub(crate) mod native_additional_finite_effects;
 
 pub mod native_ability_buffs;
+
+pub(crate) mod native_cube;
+
+#[cfg(test)]
+mod native_t047_tests;

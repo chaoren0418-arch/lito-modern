@@ -8,7 +8,17 @@ pub const MAX_BYTES:usize=16*1024;
 #[derive(Clone,Debug,PartialEq,Eq)]
 pub struct Action {pub command:String,pub label:String,pub navigate:bool}
 #[derive(Clone,Debug,PartialEq,Eq)]
-pub struct Document {pub text:String,pub actions:Vec<Action>,pub images:Vec<u16>}
+pub struct Document {pub text:String,pub actions:Vec<Action>,pub images:Vec<u16>,
+    /// Original inline placement: `(action index, image id)` for an `<img>` that
+    /// follows a closed `<a>` on the same line with only whitespace between them
+    /// (TeleportMe: `<a>label</a>   <img src=#7311><br>`). Other images stay
+    /// declared in `images` but have no placement.
+    pub trailing_images:Vec<(usize,u16)>}
+impl Document{
+    pub fn trailing_image(&self,action:usize)->Option<u16>{
+        self.trailing_images.iter().find(|(index,_)|*index==action).map(|(_,id)|*id)
+    }
+}
 /// Formal openRentalTownHypertext sends no arguments for the initial inn page.
 /// Its #0 speaker label comes from the same received actor, never a guessed name.
 pub fn resolved_arguments(resource:&str,args:&[String],received_npc_name:&str)->Vec<String>{
@@ -92,14 +102,18 @@ fn parse_template(bytes:&[u8],allow_original_open_body:bool)->Result<Document>{
     ensure!(n>0,"invalid dialog CP950");let source=String::from_utf16(&wide[..n as usize])?;
     ensure!(!source.contains(['\u{e000}','\u{e001}']),"reserved NPC template character");
     ensure!(!source.chars().any(|c|c.is_control()&&!matches!(c,'\r'|'\n'|'\t')),"dialog control character");
-    let mut doc=Document{text:String::new(),actions:vec![],images:vec![]};let mut rest=source.as_str();
+    let mut doc=Document{text:String::new(),actions:vec![],images:vec![],trailing_images:vec![]};let mut rest=source.as_str();
     let mut body=false;let mut closed=false;let mut tags=0;let mut anchor:Option<Action>=None;
+    // Index of the action closed on this line with only whitespace since; any other
+    // tag, text or line break ends the inline run. One image per action.
+    let mut trail:Option<usize>=None;
     while !rest.is_empty(){
         if let Some(after)=rest.strip_prefix('<'){
             let end=after.find('>').context("unterminated dialog tag")?;let tag=after[..end].trim();rest=&after[end+1..];
             tags+=1;ensure!(tags<=256&&!tag.contains('<'),"dialog tag budget");
             let split=tag.find(char::is_whitespace).unwrap_or(tag.len());let name=tag[..split].to_ascii_lowercase();let attrs=attributes(&tag[split..])?;
             ensure!(!closed,"tag after dialog body");
+            let trailing=trail.take();
             if name=="body"{ensure!(!body&&attrs.is_empty(),"duplicate dialog body");body=true;continue;}
             ensure!(body,"tag before dialog body");
             match name.as_str(){
@@ -109,22 +123,24 @@ fn parse_template(bytes:&[u8],allow_original_open_body:bool)->Result<Document>{
                 "font"=>ensure!(attrs.len()==1&&attrs.get("fg").is_some_and(|v|v.len()==6&&v.bytes().all(|b|b.is_ascii_hexdigit())),"unsupported font attributes"),
                 "/font"=>ensure!(attrs.is_empty(),"closing font attributes"),
                 "img"=>{
-                    // Preserve the two original TeleportMe image references.
-                    // This plain-text view does not claim original icon layout.
+                    // Preserve the two original TeleportMe image references and
+                    // their inline position after the preceding action label.
                     ensure!(anchor.is_none()&&attrs.len()==1&&doc.images.len()<16,"NPC image shape/budget");
                     let src=attrs.get("src").context("NPC image source")?;
                     let id=match src.as_str(){"#7311"=>7311,"#7312"=>7312,_=>bail!("unqualified NPC image")};
                     doc.images.push(id);
+                    if let Some(index)=trailing{doc.trailing_images.push((index,id));}
                 },
                 "var"=>{ensure!(anchor.is_none()&&attrs.len()==1,"NPC variable shape");let value=attrs.get("src").context("NPC variable source")?;let index=value.strip_prefix('#').context("NPC variable index")?.parse::<u8>()?;doc.text.push_str(&format!("\u{e000}{index}\u{e001}"));},
                 "a"=>{ensure!(anchor.is_none()&&attrs.len()==1&&doc.actions.len()<16,"dialog action shape");let navigate=attrs.contains_key("link");let command=attrs.get(if navigate{"link"}else{"action"}).context("dialog action missing")?;if navigate{member(command)?;}else{ensure!(qualified_request(command),"unqualified dialog action");}anchor=Some(Action{command:command.clone(),label:String::new(),navigate});},
-                "/a"=>{ensure!(attrs.is_empty(),"closing action attributes");let mut a=anchor.take().context("unmatched dialog action")?;a.label=a.label.trim().into();ensure!(!a.label.is_empty()&&!doc.actions.iter().any(|v|v.command==a.command&&v.navigate==a.navigate),"empty/duplicate dialog action");doc.actions.push(a);},
+                "/a"=>{ensure!(attrs.is_empty(),"closing action attributes");let mut a=anchor.take().context("unmatched dialog action")?;a.label=a.label.trim().into();ensure!(!a.label.is_empty()&&!doc.actions.iter().any(|v|v.command==a.command&&v.navigate==a.navigate),"empty/duplicate dialog action");doc.actions.push(a);trail=Some(doc.actions.len()-1);},
                 _=>bail!("unsupported dialog tag {name}"),
             }
         }else{
             let end=rest.find('<').unwrap_or(rest.len());let text=&rest[..end];rest=&rest[end..];
             ensure!(!text.contains('&'),"unqualified dialog entity");
             if !body||closed{ensure!(text.trim().is_empty(),"text outside dialog body");continue;}
+            if !text.trim().is_empty(){trail=None;}
             let dest=if let Some(a)=anchor.as_mut(){&mut a.label}else{&mut doc.text};
             // Source indentation is layout whitespace; explicit p/br own line breaks.
             for ch in text.chars(){if ch.is_whitespace(){if !dest.is_empty()&&!dest.ends_with([' ','\n']){dest.push(' ');}}else{dest.push(ch);}}
@@ -167,3 +183,37 @@ impl Service{
     pub fn quiescent(&self)->bool{self.worker.is_none()}
 }
 impl Drop for Service{fn drop(&mut self){self.cancel();if let Some(w)=self.worker.take(){let _=w.join();}}}
+
+#[cfg(test)]
+mod layout_tests {
+    use super::*;
+    /// Fixture is the exact LTtext member 343 (teleportme-c.html, 323 bytes).
+    #[test]
+    fn original_teleportme_icons_trail_their_own_action_on_the_same_line(){
+        let doc=parse(include_bytes!("../../tests/fixtures/343-teleportme-c.html")).unwrap();
+        assert_eq!(doc.actions.iter().map(|a|a.command.as_str()).collect::<Vec<_>>(),["LT_TELEPORT_B","LT_TELEPORT_C"]);
+        assert_eq!(doc.images,[7311,7312]);
+        assert_eq!(doc.trailing_images,[(0,7311),(1,7312)]);
+        assert_eq!((doc.trailing_image(0),doc.trailing_image(1),doc.trailing_image(2)),(Some(7311),Some(7312),None));
+    }
+    #[test]
+    fn images_not_directly_after_an_action_on_its_line_have_no_placement(){
+        let cases:[(&[u8],Vec<u16>,Vec<(usize,u16)>);4]=[
+            // image before the action
+            (b"<body><img src=#7311><a action=LT_TELEPORT_B>x</a></body>",vec![7311],vec![]),
+            // line break between action and image
+            (b"<body><a action=LT_TELEPORT_B>x</a><br><img src=#7311></body>",vec![7311],vec![]),
+            // text between action and image
+            (b"<body><a action=LT_TELEPORT_B>x</a> y <img src=#7311></body>",vec![7311],vec![]),
+            // a second image after the same action is not a second placement
+            (b"<body><a action=LT_TELEPORT_B>x</a> <img src=#7311> <img src=#7312></body>",vec![7311,7312],vec![(0,7311)]),
+        ];
+        for (source,images,trailing) in cases{
+            let doc=parse(source).unwrap();
+            assert_eq!(doc.images,images);
+            assert_eq!(doc.trailing_images,trailing);
+        }
+        // Image inside the anchor stays rejected.
+        assert!(parse(b"<body><a action=LT_TELEPORT_B><img src=#7311></a></body>").is_err());
+    }
+}

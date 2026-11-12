@@ -14,7 +14,7 @@ impl Target{
         Some(Self{owner,id,incarnation:a.incarnation,revision:a.target_revision,name:a.name.clone()})}
     fn valid(&self,c:&LoginController)->bool{Self::capture(c,self.id).as_ref()==Some(self)}
 }
-struct Binding{target:Target,text:String,actions:Vec<Action>,images:Vec<u16>,html:String,received_revision:u64,history:Vec<String>,arguments:Vec<String>}
+struct Binding{target:Target,text:String,actions:Vec<Action>,images:Vec<u16>,trailing:Vec<(usize,u16)>,html:String,received_revision:u64,history:Vec<String>,arguments:Vec<String>}
 pub struct View{
     pub open:bool,pub documents:Service,pub set_attempt:Option<u8>,entry:Option<(u64,Option<String>,Vec<DirectRoom>)>,targets:Vec<Target>,
     layout_key:Option<(bool,bool,bool,bool,bool)>,binding:Option<Binding>,list_key:Option<(Owner,u64)>,labels:Vec<String>,feedback:String,action_rows:Vec<Action>,message_floor:u64,code_floor:u64,observed_generation:u64,
@@ -40,23 +40,34 @@ impl Ui{
         let Some(binding)=self.rental.binding.as_ref().filter(|b|b.target.valid(&self.controller)) else{return;};
         let Some(action)=self.rental.action_rows.get(draw.itemID as usize) else{return;};
         let dpi=GetDpiForWindow(self.parent).max(96) as i32;let px=|n:i32|n*dpi/96;
-        let image=self.rental.documents.catalog().and_then(|c|c.images.as_ref())
-            .and_then(|bank|bank.glyph(&binding.html,&binding.images,&action.command));
-        let mut text_rect=draw.rcItem;text_rect.left+=px(4);text_rect.right-=px(4);
-        if let Some(image)=image{
-            let background=[bg as u8,(bg>>8) as u8,(bg>>16) as u8];
-            let pixels:Vec<u8>=image.rgba.chunks_exact(4).flat_map(|p|{
-                let a=u32::from(p[3]);let c=|n:usize|((u32::from(p[n])*a+u32::from(background[n])*(255-a)+127)/255) as u8;
-                [c(2),c(1),c(0),255]
-            }).collect();
-            let info=BITMAPINFO{bmiHeader:BITMAPINFOHEADER{biSize:std::mem::size_of::<BITMAPINFOHEADER>() as u32,biWidth:image.width as i32,biHeight:-(image.height as i32),biPlanes:1,biBitCount:32,biCompression:BI_RGB.0,..Default::default()},..Default::default()};
-            let previous=SetStretchBltMode(draw.hDC,COLORONCOLOR);
-            StretchDIBits(draw.hDC,text_rect.left,draw.rcItem.top+(draw.rcItem.bottom-draw.rcItem.top-px(image.height as i32))/2,px(image.width as i32),px(image.height as i32),0,0,image.width as i32,image.height as i32,Some(pixels.as_ptr().cast()),&info,DIB_RGB_COLORS,SRCCOPY);
-            SetStretchBltMode(draw.hDC,STRETCH_BLT_MODE(previous));text_rect.left+=px(24);
-        }
+        // Original TeleportMe layout: `<a>label</a>   <img>` puts the icon after
+        // the label on the same line, bound by the document, not by command alone.
+        let image=binding.actions.iter().position(|a|a==action).and_then(|index|
+            self.rental.documents.catalog().and_then(|c|c.images.as_ref())
+                .and_then(|bank|bank.trailing_glyph(&binding.html,&binding.trailing,index,&action.command)));
         let label=if matches!(action.command.as_str(),"LT_TELEPORT_B"|"LT_TELEPORT_C"){action.label.split("(這是server名.").next().unwrap_or(&action.label).trim_end()}else{&action.label};
         let old_font=SelectObject(draw.hDC,self.font.into());let old_color=SetTextColor(draw.hDC,COLORREF(GetSysColor(if selected{COLOR_HIGHLIGHTTEXT}else{COLOR_WINDOWTEXT})));let old_mode=SetBkMode(draw.hDC,TRANSPARENT);
-        let mut text:Vec<u16>=label.encode_utf16().collect();DrawTextW(draw.hDC,&mut text,&mut text_rect,DT_SINGLELINE|DT_VCENTER|DT_NOPREFIX);
+        let mut text:Vec<u16>=label.encode_utf16().collect();
+        let mut text_rect=draw.rcItem;text_rect.left+=px(4);text_rect.right-=px(4);
+        if let Some(image)=image{
+            let extent=|s:&[u16]|{let mut size=SIZE::default();if GetTextExtentPoint32W(draw.hDC,s,&mut size).as_bool(){size.cx}else{0}};
+            let space:Vec<u16>=" ".encode_utf16().collect();
+            let row=crate::modern_lito::native_npc_images::trailing_row([draw.rcItem.left,draw.rcItem.top,draw.rcItem.right,draw.rcItem.bottom],
+                px(4),extent(&text),extent(&space),(px(image.width as i32),px(image.height as i32)));
+            text_rect=RECT{left:row.text[0],top:row.text[1],right:row.text[2],bottom:row.text[3]};
+            if let Some([x,y])=row.image{
+                let background=[bg as u8,(bg>>8) as u8,(bg>>16) as u8];
+                let pixels:Vec<u8>=image.rgba.chunks_exact(4).flat_map(|p|{
+                    let a=u32::from(p[3]);let c=|n:usize|((u32::from(p[n])*a+u32::from(background[n])*(255-a)+127)/255) as u8;
+                    [c(2),c(1),c(0),255]
+                }).collect();
+                let info=BITMAPINFO{bmiHeader:BITMAPINFOHEADER{biSize:std::mem::size_of::<BITMAPINFOHEADER>() as u32,biWidth:image.width as i32,biHeight:-(image.height as i32),biPlanes:1,biBitCount:32,biCompression:BI_RGB.0,..Default::default()},..Default::default()};
+                let previous=SetStretchBltMode(draw.hDC,COLORONCOLOR);
+                StretchDIBits(draw.hDC,x,y,px(image.width as i32),px(image.height as i32),0,0,image.width as i32,image.height as i32,Some(pixels.as_ptr().cast()),&info,DIB_RGB_COLORS,SRCCOPY);
+                SetStretchBltMode(draw.hDC,STRETCH_BLT_MODE(previous));
+            }
+        }
+        DrawTextW(draw.hDC,&mut text,&mut text_rect,DT_SINGLELINE|DT_VCENTER|DT_NOPREFIX|DT_END_ELLIPSIS);
         SetBkMode(draw.hDC,BACKGROUND_MODE(old_mode as u32));SetTextColor(draw.hDC,old_color);SelectObject(draw.hDC,old_font);
         if draw.itemState.0&ODS_FOCUS.0!=0{let _=DrawFocusRect(draw.hDC,&draw.rcItem);}
     }
@@ -74,8 +85,8 @@ impl Ui{
             (LIST,w!("LISTBOX"),"",LBS_NOTIFY as u32|LBS_NOINTEGRALHEIGHT as u32|WS_VSCROLL.0|WS_HSCROLL.0),
             (QUANTITY,w!("EDIT"),"1",ES_NUMBER as u32|WS_BORDER.0),(MONEY,w!("STATIC"),"",0),(HELP,w!("STATIC"),"租裝服務：選擇配裝，再確認服務入口",0),
         ]{let text=wide(label);let h=CreateWindowExW(WINDOW_EX_STYLE(0),class,PCWSTR(text.as_ptr()),WS_CHILD|WS_TABSTOP|WINDOW_STYLE(style),0,0,0,0,Some(self.parent),Some(HMENU(id as usize as *mut _)),Some(instance),None)?;self.controls.push((id,h));}
-        for n in 1..=4{let label=wide(&format!("配裝 {n}"));send(self.control(SETS),CB_ADDSTRING,WPARAM(0),LPARAM(label.as_ptr() as isize));}
-        send(self.control(SETS),CB_SETCURSEL,WPARAM(0),LPARAM(0));send(self.control(QUANTITY),EM_SETLIMITTEXT,WPARAM(10),LPARAM(0));Ok(())
+        // 配裝列數依所選職業於 refresh_rental 填入（T055-2）。
+        send(self.control(QUANTITY),EM_SETLIMITTEXT,WPARAM(10),LPARAM(0));Ok(())
     }
     pub(super) unsafe fn layout_rental(&self){
         let dpi=GetDpiForWindow(self.parent).max(96) as i32;let px=|n:i32|n*dpi/96;let mut area=RECT::default();let _=GetClientRect(self.parent,&mut area);
@@ -110,7 +121,11 @@ impl Ui{
         if !rental(self.controller.snapshot())||self.closing||self.inventory_view{self.rental.open=false;}
         if !entry(self.controller.snapshot()){self.rental.set_attempt=None;}
         let s=self.controller.snapshot();let current=if entry(s){Some((self.controller.transport().snapshot().epoch,s.selected_character.clone(),s.services.as_ref().unwrap().rooms.clone()))}else{None};
-        if self.rental.entry!=current{self.rental.entry=current;send(self.control(SERVICES),CB_RESETCONTENT,WPARAM(0),LPARAM(0));if let Some((_,_,rooms))=&self.rental.entry{for r in rooms{let text=wide(&format!("{}（{} 人）",r.name,r.users));send(self.control(SERVICES),CB_ADDSTRING,WPARAM(0),LPARAM(text.as_ptr() as isize));}send(self.control(SERVICES),CB_SETCURSEL,WPARAM(0),LPARAM(0));}}
+        if self.rental.entry!=current{self.rental.entry=current;
+            // 原生配裝選單只列所選職業可租的組數（職業 0/1/4 三組、2/3 兩組、其餘不提供）。
+            send(self.control(SETS),CB_RESETCONTENT,WPARAM(0),LPARAM(0));
+            if self.rental.entry.is_some(){for n in 1..=self.controller.rental_set_choices(){let label=wide(&format!("配裝 {n}"));send(self.control(SETS),CB_ADDSTRING,WPARAM(0),LPARAM(label.as_ptr() as isize));}send(self.control(SETS),CB_SETCURSEL,WPARAM(0),LPARAM(0));}
+            send(self.control(SERVICES),CB_RESETCONTENT,WPARAM(0),LPARAM(0));if let Some((_,_,rooms))=&self.rental.entry{for r in rooms{let text=wide(&format!("{}（{} 人）",r.name,r.users));send(self.control(SERVICES),CB_ADDSTRING,WPARAM(0),LPARAM(text.as_ptr() as isize));}send(self.control(SERVICES),CB_SETCURSEL,WPARAM(0),LPARAM(0));}}
         let targets:Vec<_>=self.controller.snapshot().world.actors.keys().filter_map(|id|Target::capture(&self.controller,*id)).take(128).collect();
         if targets!=self.rental.targets{self.rental.targets=targets;send(self.control(NEARBY),CB_RESETCONTENT,WPARAM(0),LPARAM(0));for t in &self.rental.targets{let text=wide(&t.name);send(self.control(NEARBY),CB_ADDSTRING,WPARAM(0),LPARAM(text.as_ptr() as isize));}}
         let s=self.controller.snapshot();let session=&s.merchant;
@@ -121,7 +136,7 @@ impl Ui{
                 if let Some(target)=Target::capture(&self.controller,dialog.npc).filter(|t|session.owner.as_ref()==Some(&t.owner)){
                     let arguments=crate::modern_lito::native_npc_document::resolved_arguments(&dialog.html,&dialog.arguments,&target.name);
                     if let Some(catalog)=self.rental.documents.catalog(){match catalog.get(&dialog.html).and_then(|doc|Ok((doc,doc.text_with_args(&arguments)?))){
-                        Ok((doc,text)) if dialog.parameter.is_empty()=>self.rental.binding=Some(Binding{target,text:text.replace('\n',"\r\n"),actions:doc.actions.clone(),images:doc.images.clone(),html:dialog.html.clone(),received_revision:session.revision,history:vec![],arguments}),
+                        Ok((doc,text)) if dialog.parameter.is_empty()=>self.rental.binding=Some(Binding{target,text:text.replace('\n',"\r\n"),actions:doc.actions.clone(),images:doc.images.clone(),trailing:doc.trailing_images.clone(),html:dialog.html.clone(),received_revision:session.revision,history:vec![],arguments}),
                         Ok(_)=>self.rental.feedback="此對話包含尚未支援的動態參數".into(),Err(e)=>self.rental.feedback=format!("{e:#}"),
                     }}else{self.rental.feedback=self.rental.documents.error.clone().unwrap_or_else(||"正在載入原始 NPC 對話…".into());}
                 }
@@ -180,9 +195,9 @@ impl Ui{
                 };
                 if action.navigate{
                     let doc=self.rental.documents.catalog().context("NPC 資源尚未就緒")?.get(&action.command)?;
-                    let text=doc.text_with_args(&b.arguments)?.replace('\n',"\r\n");let actions=doc.actions.clone();let images=doc.images.clone();let b=self.rental.binding.as_mut().unwrap();
+                    let text=doc.text_with_args(&b.arguments)?.replace('\n',"\r\n");let actions=doc.actions.clone();let images=doc.images.clone();let trailing=doc.trailing_images.clone();let b=self.rental.binding.as_mut().unwrap();
                     if id==BACK{b.history.pop();}else{ensure!(b.history.len()<16,"對話頁數超出限制，請重新對話");b.history.push(b.html.clone());}
-                    b.html=action.command;b.text=text;b.actions=actions;b.images=images;
+                    b.html=action.command;b.text=text;b.actions=actions;b.images=images;b.trailing=trailing;
                 }else{self.controller.rental_npc_action(b.target.id,&action.command)?;}
             },
             BUY|SELL=>{let b=self.rental.binding.as_ref().context("請重新開啟對話")?;let action=if id==BUY{"buy"}else{"sell"};ensure!(b.target.valid(&self.controller)&&b.actions.iter().any(|a|a.command==action),"NPC 對話選項已失效");self.controller.rental_npc_action(b.target.id,action)?;},

@@ -44,7 +44,11 @@
 
 ### CI
 - 第 1 輪（commit `task #148: T027 批 4…`，run 43170045183）：`cargo check` 通過；`cargo test --lib` **失敗**，原文 `test result: FAILED. 2237 passed; 1 failed; 591 ignored; 0 measured; 0 filtered out; finished in 22.61s`。本批另外 8 案都是 ok；失敗的是 `batch4_finite_definitions_are_exact_and_visual_only`，panic 在測試輔助函式 `qualify` 的 `parse_for_inspection(...).unwrap()`（native_t027_batch4_tests.rs:337）。也就是某一筆故意改壞的定義列在解析階段就被拒絕，沒有走到 qualify。修正方式：解析失敗也算「不合格」（回傳 Err），原始三列如果解析失敗會另外 panic 並附上訊息。這不是放寬檢查：改壞的列不論在哪一層被拒絕都不能通過。修正後本機 `cargo check …--all-targets` exit 0（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 49.36s`）。
-- 第 2 輪：等推送後的 CI 結果（調度器以 PR 最新 commit 的 CI 為準）。
+- 第 2 輪：推送後 PR 變成 CONFLICTING（main 前進到 `ed9a9d8`，含 #184 新增的通用「收到的 S37 有限特效」逐 gfx bank），GitHub 不會對衝突中的 PR 跑 CI。依常設授權 `git merge origin/main`，兩個檔案有衝突：
+  - `native_skill_effects.rs`：採用 main 的 `finite_banks` 通用路徑，再把本批的 `batch4_bank` 接回去；`BATCH4_GRAPHICS` 從通用路徑的候選中**排除**。原因：通用 qualifier 只接受 attr 104 為 0／8，所以 2230（attr128）會被它拒絕；760／230 雖然會被它接受，但本批保留逐字比對的精確定義。2230 的混色維持 Multiply（main 的 mix 判斷順序是 finite_over → 2175|2228|2230 Multiply → Screen；2230 不會進 finite_over）。另外確認 3943／3944 有 `109.effect` 屬性，通用路徑也會拒絕，所以它們仍然是「呈現未接」。
+  - `tower_assets.rs`：兩邊的新函式都保留（`load_reviewed_batch4_finite` 與 main 的 `load_finite`）。
+  - 合併後本機 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 3m 55s`）。
+- 第 3 輪：合併 commit 推送後的 CI 結果，以 PR #283 最新 commit 為準。
 
 ## 推測
 - 送包形狀、範圍與 reuse 是依正式 contract 與候選說明做的靜態對照，不代表正式 E149 服務一定接受（同盟資格、材料、機率等）。
