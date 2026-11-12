@@ -36,6 +36,13 @@
 
 其餘檔案（`native_login.rs`、`native_skill_selection.rs`、`tests.tsv`、coverage 測試）自動合併。
 
+第二次同步（2026-11-12）：合併 `origin/main`（`2d7f018`，含批 5／#155 的 156–166），四個檔案有衝突，兩邊的內容都保留：
+- `native_skills.rs` 的 `selector_only`（main 的 156、159、161、162、164＋本張的 181、182、185、186）與 `reuse_millis`（main 的 156–166＋本張的 185、182｜187、183｜184｜188）。
+- `native_skill_selection.rs` 的選單標籤、`tests.tsv`（156_166 排在 181_188 之前）、`test_native_skill_coverage.py`（兩案都留，合計 10 案）。
+- `docs/REPORT.md` 取 main 版本。
+
+第二次同步後重跑：`cargo check … --all-targets` 結束碼 0；`cargo test … --test native_skills_181_188 --test native_skills_156_166 --test native_skills_145_155 --test native_skills_129_138 --test native_skill_selection --test native_skills --no-run` 結束碼 0（六個測試執行檔編譯成功，未執行）；`python -B 維護工具/test_native_skill_coverage.py` 結束碼 0（`Ran 10 tests`、`OK`）。
+
 ## 已驗證
 
 ### 來源（唯讀）
