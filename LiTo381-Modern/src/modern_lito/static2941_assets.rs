@@ -161,6 +161,26 @@ impl Static2941Bank {
     pub(crate) fn used_missing_spr_fallback(&self) -> bool {
         self.fallback
     }
+
+    /// Exact list.spr has only attr102=9. Ordinary 43DE10 initialization
+    /// leaves attr104 flags=0, attr112 direction-6 alias=-1, attr101 shadow=-1.
+    /// 4E5C00 therefore selects frame 0 in every direction, with no shadow.
+    /// This does not qualify arbitrary later writes to the original globals.
+    pub(crate) fn submit_frame_zero<'s>(
+        &'s self,
+        target: &mut super::super::native_world_effects::Target<'_, 's>,
+        position: super::super::world_map::WorldCell,
+        view: super::super::world_map::ViewProjection,
+        cancel: &AtomicBool,
+    ) -> anyhow::Result<()> {
+        active(cancel)?;
+        target.submit(
+            self.frame_zero(),
+            position,
+            view,
+            super::super::native_world_effects::Mix::Over,
+        )
+    }
 }
 
 #[cfg(test)]

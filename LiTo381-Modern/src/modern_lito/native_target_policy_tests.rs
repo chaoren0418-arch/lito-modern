@@ -265,6 +265,52 @@ fn target_policy_68_pending_retires_before_late_cast_action_without_material_mut
 }
 
 #[test]
+fn target_policy_68_deferred_body_is_dropped_when_receiver_retires_before_frame_zero() {
+    // case 0..=4 retire the receiver; case 5 keeps it current (body retained).
+    for self_target in [false, true] {
+        for case in 0..6 {
+            let (mut c, own, other) = active();
+            let receiver = if self_target { own } else { other };
+            let body = native_skills::request(&c.state.world, 68, Some(receiver)).unwrap();
+            c.skill_target_pending = Some(Target::capture(&c.state.world, receiver).unwrap());
+            c.skill_pending = Some(native_skills::Pending {
+                since: Instant::now(),
+                casts: c.state.world.own_cast_packets,
+                messages: c.state.world.message_count,
+                generation: c.state.world.generation,
+                incarnation: c.state.world.actors[&own].incarnation,
+            });
+            c.player_callbacks.defer_for_test(Zeroizing::new(body));
+            let actor = c.state.world.actors.get_mut(&receiver).unwrap();
+            match case {
+                0 => actor.target_revision += 1,
+                1 => actor.incarnation += 1,
+                2 => actor.dead = true,
+                // The own actor is always drawable; use a replacement instead.
+                3 if self_target => actor.incarnation += 2,
+                3 => actor.draw_state.invisible = true,
+                4 => c.state.world.generation += 1,
+                _ => {}
+            }
+            let inventory = c.state.inventory.clone();
+            let mp = c.state.world.mp;
+            let stale = c.discard_stale_deferred_target();
+            assert_eq!(stale, case != 5, "self={self_target} case={case}");
+            assert_eq!(c.player_callbacks.pending(), case == 5);
+            assert!(c.transport.queued_tx_counter().is_none());
+            if case != 5 {
+                c.poll();
+                assert_eq!(c.state.skill_feedback, Feedback::Interrupted);
+                assert!(c.skill_pending.is_none() && c.skill_target_pending.is_none());
+                assert!(!c.player_callbacks.pending());
+            }
+            assert_eq!(c.state.inventory, inventory);
+            assert_eq!(c.state.world.mp, mp);
+        }
+    }
+}
+
+#[test]
 fn target_policy_68_wire_remove_reput_and_resurrection_retire_selection() {
     for resurrect in [false, true] {
         let (mut c, own, other) = active();

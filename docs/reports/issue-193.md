@@ -1,115 +1,71 @@
 # Issue #193 — T061-2 目標選取政策
 
-基底 `683b603`，工作分支 `task/193`。本張實作客戶端的送出前目標政策、26／42／68 自施分派及技能 68 選取生命週期。伺服器 N1 的材料交易與最終接收者驗證仍列待驗證。
+工作分支 `task/193`（PR #257）。第 1 輪（codex-local，commit `b5bf27e`，基底 `683b603`）完成客戶端送出前目標政策、26／42／68 自施分派與技能 68 選取生命週期；審查以「N1 驗收未完成」退回。第 2 輪（claude-local，本輪）合併 `origin/main`（至 `120c7be`）、解衝突，並補上 main 新增的「延後送出」路徑上的 68 目標退役防護。
+
+**結論：本張的客戶端範圍已完成；#120 N1 的伺服器端（扣料、安裝、延後輸出 receiver 世代）不在本 repo 能完成的範圍，列在「未完成」，不標完成。**
 
 ## 做了什麼
 
-- 新增 `native_target_policy`，在控制器既有請求檢查後、LFC1 附加及傳輸排隊前檢查選定玩家。一般 `cast`／`attack`、帶輸入版本及長按普攻共用此入口。
-- 依目前 `S_CD` 房間名冊的名稱與 force 對應畫面 actor。mode 1／3／5 依兩隊辨識敵方，對敵方玩家要求當次前景視窗且 Ctrl 按住。mode 2／4 沿用合作模式。自身及友方合法輔助可直接送出。重名、無效 force 或已辨識目標卻缺少自己的隊伍資料時拒絕。
-- 身分對應採目前 wire 可取得的房間名冊與唯一 actor 名稱。未列名冊的 actor 及有主人名稱的同伴交由伺服器原目標型別規則裁定。客戶端無權威 PC 型別／來源角色 ID／隊伍物件 ID，因此這個對應的完整性仍需伺服器驗證。
-- 26／42／68 明確選自身及未選目標時，都使用自身 object ID，產生七位元組 `14 row column id32-le`。26／42 沿用既有格式，補入 68 的 row 8／column 3、原生畫面射程及 1500ms reuse。26 名稱依文件改為通暢氣脈術，68 加入已學會技能選單。
-- 26／42／68 對其他角色增加非空同血盟名稱檢查，自施可獨立分派。血盟名稱只用於客戶端拒絕已知不合法目標，最終資格由伺服器來源角色血盟資料判定。
-- 控制器補齊 `world.observer_mode` 與退出等待的拒絕，技能 serializer 也拒絕觀戰。原有死亡、HP／MP、學習清單、控制狀態、可見性、距離及動作等待檢查仍在送包前執行，Ctrl 路徑經過相同檢查。
-- 新增 `cast_selected_with_input` 並接入原生視窗，以原 `Target` token 在派送時重驗場景世代、物件 incarnation、target revision 與存活狀態。失效的明確選取回報錯誤。
-- 技能 68 排隊成功後保留目標 token，等待期間若施法者或目標退役／換世代，回報 `Interrupted`。場景切換、重新選角及等待結束一併清除 token。客戶端的材料、MP、技能狀態仍由伺服器封包更新。
+### 第 1 輪（沿用，已審查抽查無異常）
+- 新增 `native_target_policy`：送出前檢查請求的目標物件，依目前房間名冊（`S_CD` 名稱→force）判斷敵我。mode 1／3／5 對敵方玩家要「前景視窗＋按住 Ctrl」才送出；自身、友方、名冊外物件（NPC、召喚物）不需 Ctrl。
+- 26／42／68 自施一律用自身 object ID 走 7-byte 物件格式 `14 row column id32-le`（26=`3,1`、42=`5,1`、68=`8,3`），不需 Ctrl；68 reuse 1500 ms。
+- Ctrl 不能繞過：旁觀（`state.observer`、`world.observer_mode`）、自身死亡／HP 0、目標不存在／死亡／超出距離／隱形、血盟限制、撤退中、移動鎖；任何一項失敗都不改狀態、不建 pending、不入佇列。
+- `cast_selected_with_input`：以 `Target` token（incarnation、target_revision、world generation、屍體動作）重新解析，目標退役或被替換時拒絕，不會改綁到同 ID 的新物件，也不會退回自施。
+- 68 送出後保留目標 token；`poll` 時目標失效即回 `Interrupted`，清掉 pending，不動背包與 MP（材料與 MP 以伺服器為準）。
 
-## 依據
+### 第 2 輪（本輪新增）
+- **合併 `origin/main`**：唯一衝突在 `native_login.rs` 的 `poll` 技能 pending 區塊。保留兩邊條件：外層仍先要求 `skill_target_pending` 能解析（否則 `Interrupted`），內層加入 main 的 `player_callbacks.pending()`（延後送出期間維持 `Pending`）。失效時沿用 main 的 `player_callbacks.cancel_pending()`，延後的 body 一併丟棄。
+- **延後送出路徑的 68 目標生命週期**（對應 N1「延後輸出時 receiver 已換世代要丟棄」的客戶端那一半）：main 新增 `send_player_action` → `Control::defer`，走路中的動作會延到 frame-zero suffix 才送出。原本只靠 `InputStamp`（世代、自身 id／incarnation／dead）清掉延後 body，但目標的 `target_revision`、隱形、目標本身的 incarnation 不在 stamp 內。新增 `LoginController::discard_stale_deferred_target()`，在 `run_player_callbacks` 進入 host 前檢查：68 的目標 token 已失效就取消延後 body，不會送到 transport。
+- 新增 `Control::defer_for_test`（僅 `#[cfg(test)]`）讓離線 fixture 能放入延後 body。
+- 新增測試 `target_policy_68_deferred_body_is_dropped_when_receiver_retires_before_frame_zero`：對「他人目標」與「自施」各 6 種情形（target_revision、incarnation、死亡、隱形／替換、世代變更、未變更對照組）檢查：失效時延後 body 被丟棄、transport 沒有排入、`poll` 回 `Interrupted` 並清掉 pending、背包與 MP 不變；未變更時 body 保留。
 
-以下伺服器資料皆唯讀，根目錄為 `D:\lineage開發\3-lito開發\lito伺服器\LiTo381-Server`。
+## 怎麼驗證
 
-- `docs/maintenance/combat-continuation-current.zh-TW.md`、`combat-integration-lifecycle.zh-TW.md` 的指定技能新政策，以及 `native-pair-material-progress.zh-TW.md` 的技能 68 自身／血盟與角色生命週期條件。
-- `tools/combat-continuation/integration-lifecycle/NativeSelectedPlayerIntent.java` 的已選玩家意圖規則，以及 `src/main/java/local/lito381/server/{BattleRules,ForcedCombat}.java` 的模式／隊伍及原有伺服器門檻。
-- `ClientSession.java` 的 `useAbilityBuffSpell`、`useDamageProtectionSpell` 與 `BattleSpellCatalog.java` 的技能 68 row／column、reuse、原生畫面範圍。
-- #120 F43 的 `tools/resource-database/build/de-native-pair-material-development/builds/20261020T080606934231Z/inputs/{build-native-pair-material.py,NativePairCastAction.java}`。builder 第 35 行的 `PairOutput.run` 重驗接收者 binding，材料接點在安裝前重驗 pair。這些檢查位於伺服器角色鎖／材料交易／輸出批次內。
-- 本 repo `docs/PROTOCOL-CONTRACT.md` 的 26／42／68 物件請求格式。
+### 本輪（2026-11-12，claude-local）
+依使用者 2026-11-09 規定，本機**不執行**編譯出來的程式（含 `cargo test` 的測試執行檔），測試交 GitHub Actions CI（`.github/workflows/build.yml`：`cargo check --locked --all-targets`、`cargo test --locked --lib --no-fail-fast`）。新測試在 `native_login.rs` 的 `#[cfg(test)]` 模組內，屬 lib 測試，CI 會跑到。
+
+- `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：合併後與修改後各跑一次，結束碼皆 `0`（`Finished dev profile ... in 52.32s`）。觸及的三個檔案沒有新增 warning。
+- `cargo test`：**本機未執行**，以 PR #257 最新 commit 的 CI 結果為準（見 PR checks）。
+
+### 第 1 輪（2026-11-06，codex-local，當時規定允許本機測試；僅供參考）
+- `cargo test ... --lib --no-fail-fast` 結束碼 `0`：`test result: ok. 1982 passed; 0 failed; 577 ignored; 0 measured; 0 filtered out; finished in 9.63s`
+- 回歸 4 組（`native_skills`、`native_skill_selection`、`native_attack_skills`、`native_t027_batch2`）結束碼皆 `0`，共 17 案通過。
+- 這些數字是合併 main 之前的結果，不能代表本輪程式碼。
+
+### 伺服器 N1 靜態閱讀（唯讀，未執行任何伺服器程式）
+在 `D:\lineage開發\3-lito開發\lito伺服器\LiTo381-Server`：
+- `tools/resource-database/build/de-native-pair-material-development/build-current.json`：狀態 `passed-pair-material-build-native-qualification-open`，產物是 `candidate-NATIVE-PAIR-MATERIAL-unqualified.jar`（sha256 `175022207c3c…`）——**未完成資格驗證、未部署**。
+- 同目錄 `builds/20261020T080606934231Z/inputs/build-native-pair-material.py`：
+  - 第 35 行 `PairOutput.run`：延後輸出時檢查 `pair.valid() && binding.matches(receiver) && allowPublication && !DISCONNECTED` 才送出（receiver 換世代即丟棄）。
+  - 第 43–47 行：`NativeCastMaterial` 在檢查材料、跳過 GM／零材料、`NativeDeItemApplication.replace` 安裝前都先 `validTargets(pc)`；目標退役時丟 `IOException("material pair target retired before install")`。
+- `inputs/NativePairCastAction.java`：`Pair.valid()` 比對施法者與目標的 `Binding`、同一 hub、application 未關閉、雙方未斷線；`supported(skill)` 只有 68。
+- 正式 `src/` 內**沒有** `NativePairCastAction*.java`，表示這組防護尚未併入正式伺服器原始碼。
 
 ## 已驗證
-
-### 建置與測試
-
-執行入口為 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File 維護工具/run-local-test-suite.ps1 -Quick`。沿用腳本的 `running`／`test result:` 門檻，零測試、failed>0、解析失敗均不列通過。Cargo 暫存與產物位於本 worktree 的 `LiTo381-Modern/target/current`。
-
-首輪 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 `0`。首輪 `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast` 結束碼 `101`，Quick 結束碼 `1`。
-
-```text
-test result: FAILED. 1980 passed; 1 failed; 577 ignored; 0 measured; 0 filtered out; finished in 9.17s
-```
-
-唯一失敗來自新增的 68 pending fixture。沿用的 actor 帶有圖徽 ID，`poll()` 觸發圖徽下載，因該案沒有 transport 而走既有連線失敗清理，清空測試背包。已將 combat fixture 的圖徽 ID 設為零，並增加 `BattlePending` 階段斷言。首輪紀錄位於 `LiTo381-Modern/target/current/verification/local-test-suite/20261106-194908-316-20032/{001.log,002.log,summary.txt}`。
-
-修正後重跑同一 Quick 入口。
-
-- `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` 結束碼 `0`，腳本判定 `PASS`。
-- `cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --lib --no-fail-fast` 結束碼 `0`，腳本判定 `PASS`。
-- Quick 整體結束碼 `0`，`running-0-tests = 0`，解析成功。八個新增測試全部顯示 `ok`。577 個 ignored 不計入通過。
-
-```text
-running 2559 tests
-test result: ok. 1982 passed; 0 failed; 577 ignored; 0 measured; 0 filtered out; finished in 9.63s
-```
-
-最終 Quick 紀錄位於 `LiTo381-Modern/target/current/verification/local-test-suite/20261106-195919-537-22104/{001.log,002.log,summary.txt}`。編譯仍有既有 warnings。
-
-另以 `scratch/run-issue-193-regressions.ps1` 執行四組既有回歸，直接載入官方 runner 的 `Invoke-SuiteStep` 與 `Measure-TestResult`，共 17 案通過、0 失敗。四步與 runner 結束碼均為 `0`，各步 `running-0-tests = 0` 且判定 `PASS`。紀錄位於 `LiTo381-Modern/target/current/verification/issue-193-regressions/{001.log,002.log,003.log,004.log,summary.txt}`。
-
-```text
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills -- --exact spell_requests_use_formal_selectors_and_never_predict_mana
-exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
-
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skill_selection -- --skip actual_render_camera_ground_cells_and_object_hits_reject_stale_worlds
-exit=0
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
-
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_attack_skills -- --exact formal_attack_spell_layout_and_request_guards
-exit=0
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
-
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_t027_batch2
-exit=0
-test result: ok. 9 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.06s
-```
-
-兩個 ignored 資源案與各組 filtered out 均未執行，也不列通過。選取回歸中的實際資源渲染案明確略過。
-
-`git -c core.whitespace=cr-at-eol diff --check` 通過，保留既有原生視窗檔案的 CRLF。
-
-### 新增測試範圍
-
-八個非 ignored 單元測試位於 `native_target_policy_tests.rs`。
-
-1. mode 0–6、自身／同隊／敵隊、四種前景／Ctrl 組合，逐一核對 1／26／42／68 及普攻。
-2. 同血盟仍可為敵隊、隊伍更新立即生效、NPC／同伴原規則及重名拒絕。
-3. 26／42／68 未選目標及明確自選的完整七位元組，不按 Ctrl 送出。
-4. 觀戰兩種旗標、死亡、目標缺失、不可見、距離、血盟、退出等待、控制限制及送出失敗，驗證失敗時無 pending／冷卻／快照改動。
-5. 68 保留選取後目標移除、換 incarnation、死亡、target revision／場景世代更新及隱身，拒絕重新綁定或自施退回。
-6. 68 等待期間施法者／目標換世代或退役，遲來的施法動作仍回報中斷，背包及 MP 保持伺服器權威。
-7. 真正經 `World::accept` 的 S_REMOVE_OBJECT→同 ID S_PUT_OBJECT，以及 S_ACTION 死亡→S_RESURRECT，舊選取均失效。
-8. 自有 `127.0.0.1:0` loopback 經正式 controller、worker、cipher，核對九筆請求的明文、frame 長度及加密計數器。涵蓋三技能兩種自施、友方 68、敵方 68 的 Ctrl 尾碼、敵方長按普攻，並驗證非前景／未按 Ctrl 不入隊、放開 Ctrl 後連發中止。角色資料及回覆節奏使用合成 fixture。
+- 合併 main 後與本輪修改後，`cargo check --all-targets` 結束碼 `0`。
+- 程式碼閱讀：客戶端所有技能／攻擊送出點（`cast_with_input`、`attack_with_input`）都經過 `native_target_policy::validate`；68 的目標 token 在「送出前」「延後送出前」「回覆等待中」三處都會重新解析。
 
 ## 推測
+- 新測試與第 1 輪測試在合併後仍會通過（本機未執行，待 CI）。
+- 伺服器候選 JAR 的 N1 邏輯（上述第 35、43–47 行）能做到「扣料／安裝前目標退役就拒絕」「延後輸出 receiver 換世代就丟棄」「不扣錯世代材料」——只是靜態閱讀，未執行任何 harness。
+- `S_CD` 名稱與 actor 名稱一致即視為同一玩家；名稱不一致或重名時拒絕，尚未遇到跨伺服器例外。
 
-- `S_CD` 名稱與目前唯一 actor 名稱相符時，視為同一名房間玩家，依其 force 判斷敵我。這依賴目前封包資料的名稱一致性，現場跨來源角色／名稱變更尚待驗收。
-- 七位元組物件請求及 LFC1 尾碼符合已讀伺服器 parser／文件，仍需隔離伺服器確認新政策與效果。
-
-## 待驗證／未驗證什麼
-
-- **N1 伺服器案例仍待執行**。目標在材料扣除／安裝前退役、材料儲存失敗回復，以及延後輸出前 receiver 換角色／場景世代，均需伺服器自有隔離 harness 驗證。Rust 客戶端持有選取／顯示快照，材料交易及輸出接收者 binding 在伺服器 repo，依本張唯讀限制無法在這裡修改。
-- **LOS、技能免疫、目標旁觀狀態及權威血盟限制仍需伺服器驗證**。本張保留原封包、原請求門檻與每次 Ctrl 意圖，沒有建立這些未提供給客戶端的權威狀態。含合法 LOS 例外的各技能實際效果仍待隔離測試。
-- 原生物件與物品更新封包沒有伺服器角色世代欄位。同連線、同 object ID 換世代後才抵達的封包，須由伺服器在最終送出邊界丟棄。此限制涵蓋 N1 的延後輸出與錯世代扣料保證。
-- 技能 68 的完整特效、圖示、buff、材料成本與實際免傷效果，及 26 歷史自施回報，仍需其餘技能任務／隔離伺服器及後續真機驗收。
-- 未啟動遊戲或 GUI，未操作既有遊戲程序，未連正式服務或 DB。未執行 Release、ignored、真機 Ctrl／前景操作或完整整合套件，略過項目不計通過。
+## 待驗證／未完成
+1. **CI**：PR #257 最新 commit 的 `cargo check` 與 `cargo test --lib`（含新測試 `target_policy_68_deferred_body_is_dropped_when_receiver_retires_before_frame_zero`）。
+2. **#120 N1 伺服器端（本 repo 無法完成）**：扣料或安裝前目標退役、延後輸出時 receiver 換世代、不扣錯世代材料——權威在伺服器。目前只有 lito-launcher-server 的**未資格驗證候選**，正式 `src/` 未併入。需要在 lito-launcher-server repo 開任務：完成 `de-native-pair-material-development` 的 qualification、併入正式原始碼，並跑伺服器 harness（交本機 Codex，依規定本機 Claude 不執行）。建議主控把 T061-2 的驗收範圍明確限縮為「客戶端那一半」，伺服器那一半另開 Issue。
+3. LOS、免疫、血盟權限的最終判定在伺服器；客戶端只擋已知的狀態（隱形、距離、血盟欄位），沒有 LOS 資料。
+4. 實機：前景視窗＋實體 Ctrl、Pet Race 中的行為、GUI 畫面；未連正式服務或 DB、未執行 Release／ignored 測試。
 
 ## 產出路徑
-
-- 新增 `LiTo381-Modern/src/modern_lito/native_target_policy.rs`
-- 新增 `LiTo381-Modern/src/modern_lito/native_target_policy_tests.rs`
-- 接線與技能分派位於 `LiTo381-Modern/src/modern_lito/{mod.rs,native_forced_combat.rs,native_login.rs,native_login_window.rs,native_skill_selection.rs,native_skills.rs}`
+- `LiTo381-Modern/src/modern_lito/native_target_policy.rs`（第 1 輪新增）
+- `LiTo381-Modern/src/modern_lito/native_target_policy_tests.rs`（第 1 輪新增；本輪加 1 個測試）
+- `LiTo381-Modern/src/modern_lito/native_login_callbacks.rs`（本輪：`discard_stale_deferred_target`）
+- `LiTo381-Modern/src/modern_lito/native_player_callbacks.rs`（本輪：`defer_for_test`，僅測試）
+- `LiTo381-Modern/src/modern_lito/native_login.rs`（解合併衝突）
+- 第 1 輪其他接線：`mod.rs`、`native_forced_combat.rs`、`native_login_window.rs`、`native_skill_selection.rs`、`native_skills.rs`
 - 本報告 `docs/reports/issue-193.md`
 
 ## 給下一棒的提示
-
-- 請 Claude 審查客戶端政策，特別核對房間名冊名稱對應的限制及每技能血盟條件。
-- 請調度器安排伺服器 repo 的本機執行者補跑 N1 原角色鎖／材料交易／最終 receiver 案例，並核對 LOS／免疫與目標旁觀拒絕。結果需附實際材料及世代證據。
-- 後續合併技能 handler 時，物件型別請求仍須經本張 controller 政策；非物件技能格式須同步核對 `native_forced_combat::object_target`。
-- T061 整體完成狀態請待上述伺服器案例與實機驗收裁定後更新。
+- 審查者：先看 PR #257 CI；本張只能交付客戶端的 N1 那一半。若要求伺服器證據，請主控在 lito-launcher-server 開 N1 任務（qualification＋併入正式 `src/`＋harness），不要再退回本張。
+- 之後若再加新的技能送出入口，必須經過 `native_target_policy::validate`，68 的目標要用 `native_forced_combat::object_target` 取出並存成 `skill_target_pending`。
+- main 的延後送出（`Control::defer`）只靠 `InputStamp` 清除；其他「綁目標」的延後動作若日後出現，比照 `discard_stale_deferred_target` 處理。

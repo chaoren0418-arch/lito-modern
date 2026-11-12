@@ -164,6 +164,7 @@ pub mod native_version;
 pub mod native_connection;
 pub(crate) mod native_clock;
 pub(crate) mod native_static2941;
+pub(crate) mod native_player_callbacks;
 pub mod native_login;
 pub mod native_game;
 #[cfg(windows)]
@@ -384,6 +385,7 @@ pub mod native_teleport;
 pub mod native_peer_rental_probe;
 pub mod native_points;
 pub mod native_merchant;
+pub mod native_companions;
 pub mod native_npc_document;
 pub mod native_npc_images;
 mod native_peer_citizen_probe;

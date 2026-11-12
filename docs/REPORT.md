@@ -66,3 +66,8 @@
 - 2026-11-06 — #146 T027-2: T027（M2 2/6）: src/：候選獨有的 48 個技能重做進 src（code，codex-local，PR 已合併）→ [報告](reports/issue-146.md)
 - 2026-11-06 — #186 T048-1: T048（M2 1/1）: src/（code，codex-local，PR 已合併）→ [報告](reports/issue-186.md)
 - 2026-11-06 — #192 T061-1: T061（M2 1/2）: src/：Ctrl 強制目標與目標選取政策（code，codex-local，PR 已合併）→ [報告](reports/issue-192.md)
+- 2026-11-06 — #195 T063-1: T063（M2 1/1）: src/：寵物與召喚物控制介面（code，codex-local，PR #251 已合併）→ [報告](reports/issue-195.md)
+- 2026-11-06 — #143 T020-2: T020（M2 2/2）: src/：#97 暗隱術（code，codex-local，PR #252 已合併）→ [報告](reports/issue-143.md)
+- 2026-11-12 — #194 T062-1: T062（M2 1/1）: src/：選角 8 角色分頁與選服流程（code，codex-local，PR 已合併）→ [報告](reports/issue-194.md)
+- 2026-11-12 — #261 參考主伺服器原始碼：整理封包與規則對照表（之後封包任務一律查表）（resource，codex-local，PR 已合併）→ [報告](reports/issue-261.md)
+- 2026-11-12 — #267 T900: 現成資源對照表——TW BIN 引擎（C#）與 LiTo 伺服器原始碼可直接參考的部分（code，claude-local，PR #269 已合併）→ [報告](reports/issue-267.md)

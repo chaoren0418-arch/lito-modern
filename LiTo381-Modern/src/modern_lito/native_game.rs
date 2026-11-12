@@ -12,6 +12,9 @@ use super::{
 use anyhow::{ensure, Context, Result};
 use zeroize::Zeroizing;
 
+#[path = "native_character_pages.rs"]
+pub mod pages;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Packet {
     ClassicEntry(ClassicEntryCheck),
