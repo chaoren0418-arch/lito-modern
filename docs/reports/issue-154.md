@@ -33,6 +33,12 @@
 - **coverage parser**：`維護工具/audit-native-E149-skill-catalog.py` 不用改（新分支都是它認得的明確 arm 或 `selector_only`）。`維護工具/test_native_skill_coverage.py` 加 1 案（合計 7 案），確認 145–155 全部被辨識。
 - **測試**：新增 `LiTo381-Modern/tests/native_skills_145_155.rs` 共 8 案，已登錄到 `維護工具/test-whitelist/tests.tsv`（LF）。
 
+### 同步 main
+
+合併 `origin/main`（`9ab5362`，含 T027 批 4／#148）時有兩個檔案衝突，兩邊的內容都保留：
+- `native_skills.rs`：`selector_only`（main 的 59、62＋本張的 146、147、150、154、155）、⑩ 攻擊分支（main 的 56、64、65、66 與其射程＋本張的 152、153 與畫面菱形檢查）、`reuse_millis`（main 的 56／59／62／64／65／66＋本張的 145–155）。
+- `維護工具/test-whitelist/tests.tsv`：`native_skills_145_155` 8 列在前、`native_t027_batch4` 1 列在後，維持字母序與 LF。
+
 ## 已驗證
 
 ### 來源（唯讀）
@@ -46,20 +52,22 @@
   - `BattleSpellCatalog.java` 8234：`EraseMagicSpell.selectionRange()` 回傳 10。
 - E149 catalog：原專案唯讀 `驗證紀錄/current/native-E149-skill-catalog-audit/20261024-040044-690336/catalog-facts.json`，重算 SHA256 為 `1EE2338D209CE41154B42B9B51B2A564261AB07FF1340EC7BCCBB188E216B996`（與 #151／#152 相同）。reuseDelayMillis：146＝1200、153＝600、其餘 0；maximumRange：152＝10、145／153＝-1。
 
-### 命令與結果
+### 命令與結果（合併 main `9ab5362` 之後重跑）
 
 依 2026-11-09 的本機限制，本機只編譯，不執行測試執行檔。Cargo 命令都在 `LiTo381-Modern/` 執行。
 
 ```text
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
-結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 22s；只有既存警告）
+結束碼 0（Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 36s；只有既存警告）
 
-cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_145_155 --test native_skills_110_118 --test native_skills_101_109 --test native_selector_only --test native_skill_selection --no-run
-結束碼 0（五個測試執行檔都編譯成功，未執行；沒有 test result: 行）
+cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --test native_skills_145_155 --test native_skills_110_118 --test native_skills_101_109 --test native_selector_only --test native_skill_selection --test native_t027_batch4 --no-run
+結束碼 0（六個測試執行檔都編譯成功，未執行；沒有 test result: 行）
 
 python -B 維護工具/test_native_skill_coverage.py
-結束碼 0；Ran 7 tests in 0.054s；OK
+結束碼 0；Ran 7 tests in 0.022s；OK
 ```
+
+合併前在 `63f971b` 也跑過同樣的 `cargo check`（結束碼 0）與 `--no-run`（結束碼 0）。
 
 ## 推測
 
@@ -99,4 +107,4 @@ python -B 維護工具/test_native_skill_coverage.py
 - 後續批次：
   - 純 selector 技能直接加進 `selector_only`；只接受自己 ID 的 ④ 技能（例如 163 燃燒武器走同一個 `useFireWeaponSpell`）可加進 `self_object` 與 `request` 的同一分支。
   - 162 高等屬性精靈與 154 共用 `useElementalSummonSpell`，記得一併設 `skill_summon_pending`。
-  - 批 3（#153）若先合併，`selector_only`、`reuse_millis`、選單標籤與 `tests.tsv` 會有文字衝突，兩邊都保留即可。
+  - 批 3（#153）之後合併時，`selector_only`、`reuse_millis`、選單標籤與 `tests.tsv` 會有文字衝突，兩邊都保留即可。
