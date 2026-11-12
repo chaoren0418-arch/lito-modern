@@ -30,6 +30,7 @@
 - **`native_world.rs`**：`last_skill_rejection` 認得的訊息碼加上 1412（立方放置失敗）。沒加的話，立方放不下去時客戶端只會顯示「未收到施法回覆」。
 - **`native_skill_selection.rs`**：選單加上十個技能的中文標籤（名稱取自既有的 `native_skill_catalog.rs`）。
 - **`tests/native_skill_selection.rs`**：既有測試拿 220 當「尚未支援」的代表。220 接上後這個斷言會失敗，所以改用 200（196–200 在 E149 沒有 catalog 列），並加一行確認 220 不再顯示「尚未支援」。
+- **`src/modern_lito/native_skillbook_tests.rs`**（第二輪補修）：`complete_book_keeps_all_wire_ids_and_181_catalog_names` 同樣拿 220 當「尚未接入」的代表，第一輪漏改，PR #347 的 CI（run 43193911513，commit `8b566f6`）因此失敗：`assertion failed: m.choice_id_at(7, &w, 220, None, None).is_err()`，`test result: FAILED. 2309 passed; 1 failed; 597 ignored`。改用 200，並加一行斷言 200 沒有 catalog 名稱。
 - **coverage parser**：`維護工具/audit-native-E149-skill-catalog.py` 不用改。`維護工具/test_native_skill_coverage.py` 加 1 案 `test_current_source_covers_tenth_batch`，合計 12 案。
 - **測試**：新增 `LiTo381-Modern/tests/native_skills_211_220.rs` 共 8 案，已登錄到 `維護工具/test-whitelist/tests.tsv`（LF、無 BOM）。
 
@@ -83,6 +84,9 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 
 沒有另外跑 cargo test：--all-targets 的 check 已涵蓋新測試檔的型別檢查。測試執行檔未執行，沒有 `test result:` 可附。
 
+第二輪（改 native_skillbook_tests.rs 之後）同一條 cargo check 命令：結束碼 0（輸出未保留）。
+`cargo test --lib` 本機不執行，以 PR #347 push 後的 CI 結果為準。
+
 python -B 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 12 tests in 0.295s；OK
 ```
@@ -116,6 +120,7 @@ python -B 維護工具/test_native_skill_coverage.py
 - `LiTo381-Modern/src/modern_lito/native_skills.rs`
 - `LiTo381-Modern/src/modern_lito/native_skill_selection.rs`
 - `LiTo381-Modern/src/modern_lito/native_world.rs`（一行加一行註解）
+- `LiTo381-Modern/src/modern_lito/native_skillbook_tests.rs`（單元測試改用 200）
 - `LiTo381-Modern/tests/native_skills_211_220.rs`
 - `LiTo381-Modern/tests/native_skill_selection.rs`
 - `維護工具/test_native_skill_coverage.py`
