@@ -55,6 +55,16 @@ impl Ledger {
         Consumption { consumed, removed, gained, updated: inventory.revision != self.revision }
     }
 }
+/// 控制器送包前的檢查：只有技能 132 會擷取快照；沒有箭就不送包（伺服器會先扣 MP，
+/// 之後三次 attack 才因缺箭失敗）。
+pub fn preflight(skill: u16, inventory: &Inventory) -> Result<Option<Ledger>> {
+    if skill == SKILL { Ledger::capture(inventory).map(Some) } else { Ok(None) }
+}
+/// HUD 文字：只在伺服器回包顯示的扣箭數符合單次三重矢時顯示，不預測。
+pub fn receipt(ledger: &Ledger, inventory: &Inventory) -> Option<String> {
+    let consumption = ledger.observe(inventory);
+    (consumption.consumed > 0 && consumption.matches_cast(ledger)).then(|| consumption.label())
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct Consumption { pub consumed: u64, pub removed: Vec<u32>, pub gained: bool, pub updated: bool }
 impl Consumption {
