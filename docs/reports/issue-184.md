@@ -38,6 +38,19 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 
 **本輪沒有在本機執行 `cargo test`**：使用者 2026-11-09 規定，本機不得執行編譯出來的程式，測試二進位也算在內。新測試交給 GitHub Actions 的 `cargo test --locked --lib --no-fail-fast` 跑，結果以 PR 的 CI 為準。因此本輪沒有 `test result:` 原文。前一輪的 45 passed 是舊程式碼的結果，不能代表本輪。
 
+### 第 3 次同步 origin/main（2026-11-12）
+
+PR #271 在閘門通過後落後 main 62 個 commit，合併時有 6 個檔案衝突。解法如下：
+
+- `native_login_window.rs`：main 把 HUD 的 MP 移進 `native_status_icons::summary`。這裡新增 `summary_with_mp`，傳入 `frame.vitals.mp`，讓 MP 仍然等對應動作開始播放才更新。`summary` 改成呼叫它，傳入 `world.mp`，行為不變。
+- `native_world.rs`：S_MANA_POINT 改用 main 的 `set_mp`（會計數 `mp_notifications`），同時保留 `mp_barrier`。結構欄位兩邊都保留。
+- `native_world_scene.rs`、`native_movement_tests.rs`：兩邊新增的欄位都保留（`vitals`／`vitals_gate` 與 `status4183_leases`／`local_impacts`）。
+- `native_skill_effects.rs`：同時保留有限特效 LRU 快取與 main 的暗黑妖精 bank。選 bank 時先查 `finite_banks`，再查暗黑妖精。有限特效載入器排除 `native_dark_elf_effects::GRAPHICS`，避免同一個 GFX 被兩個 bank 重複載入。receipt 同時輸出 `finite_banks`、`dark_elf_bank`，`load_error` 也包含暗黑妖精的錯誤。
+- `tower_assets.rs`：enum 同時有 `ReceivedFinite`、`ReviewedDarkElf`。缺幀時保留本分支的 `MissingFrame` 具名診斷，並加上 main 的暗黑妖精空白幀判定。
+- `native_t021_render_tests.rs`（main 新增）：`Active` 初始化補上 `heading: 0`。
+
+合併後執行 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`，結束碼 **0**，輸出在 `scratch/check184.log`。`cargo test` 同樣交給 CI。
+
 ### 資源核對（6983）
 
 全部只讀，腳本與輸出在 `scratch/`：
