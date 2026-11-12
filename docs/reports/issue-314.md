@@ -1,6 +1,6 @@
 # Issue #314 — T036-9：Java peer／TLS 盤點（M3 9／15）
 
-執行者：claude-local。分支 `task/314`。依據：lito-modern `main` @ `e33e62e`；lito-launcher-server 本機 working tree `HEAD` `6bb4a27b` 與 `origin/main` `edfb5c82`（2026-11-12）。
+執行者：claude-local。分支 `task/314`。依據：lito-modern `main` @ `6a436f3`（開工時是 `e33e62e`，合併最新 main 後重跑，兩份 TSV 不變）；lito-launcher-server 本機 working tree `HEAD` `6bb4a27b` 與 `origin/main` `edfb5c82`（2026-11-12）。
 **本張沒有執行任何測試，也沒有啟動 Java。** 只做靜態閱讀、`javac` 編譯（編譯器，不執行產物）與本機路徑存在性檢查。下面所有「可以跑」的判斷都還不是「通過」。
 
 ## 結論
@@ -9,18 +9,18 @@
 
    | 批次 | 數量 | 內容 | 需要 | 建議 |
    |---|---:|---|---|---|
-   | A0 檔案 fixture | 3 | 讀 `<server root>/target/modern-{equipment,revival}-test-fixtures/*.request／.reply`，測試當下不啟動 Java | Java 產生的檔案 fixture | T036-10 |
-   | A1 stdio peer | 42 | `java -cp … Modern*WirePeer`，只走 stdin／stdout，沒有 socket | JDK17＋classpath | T036-10 |
-   | A2 TLS peer | 94 | `transport.rs` 的 `JavaPeer`：loopback、port 0、私有 CA | 再加 TLS fixtures | T036-10 |
-   | B1 stdio＋共享資源 | 9 | 同 A1，另讀 `LITO_SHARED_RESOURCE_ROOT` | 再加共享資源根 | T036-11 |
-   | B2 TLS＋共享資源 | 11 | TLS peer，Rust 或 Java 端讀共享資源根 | 同上 | T036-11 |
-   | B3 TLS＋共享資源＋job 閘 | 3 | `canonical-equipment` 模式：Rust 把 Java 放進 kill-on-close job 並送 `GO`，但 Java 原始碼在此模式不開 MySQL | 再加 server root（含 `db/modern_match_settlement.sql`） | T036-11 |
-   | D 自有隔離 DB | 7 | 模式在 Rust 的 process-job 清單內，Java 會啟動自有 mysqld（地圖輪替 4、寵物賽跑 3） | `LITO_MODERN_MYSQL_HOME` | **移到自有隔離 DB 那兩張，不在 T036-10／11 跑** |
+   | A0 檔案 fixture | 3 | 讀 `<server root>/target/modern-{equipment,revival}-test-fixtures/*.request／.reply`，測試當下不啟動 Java | Java 產生的檔案 fixture | T036-10（#315） |
+   | A1 stdio peer | 42 | `java -cp … Modern*WirePeer`，只走 stdin／stdout，沒有 socket | JDK17＋classpath | #315 |
+   | A2 TLS peer | 94 | `transport.rs` 的 `JavaPeer`：loopback、port 0、私有 CA | 再加 TLS fixtures | #315 |
+   | B1 stdio＋共享資源 | 9 | 同 A1，另讀 `LITO_SHARED_RESOURCE_ROOT` | 再加共享資源根 | T036-11（#316） |
+   | B2 TLS＋共享資源 | 11 | TLS peer，Rust 或 Java 端讀共享資源根 | 同上 | #316 |
+   | B3 TLS＋共享資源＋job 閘 | 3 | `canonical-equipment` 模式：Rust 把 Java 放進 kill-on-close job 並送 `GO`，但 Java 原始碼在此模式不開 MySQL | 再加 server root（含 `db/modern_match_settlement.sql`） | #316 |
+   | D 自有隔離 DB | 7 | 模式在 Rust 的 process-job 清單內，Java 會啟動自有 mysqld（地圖輪替 4、寵物賽跑 3） | `LITO_MODERN_MYSQL_HOME` | **不在 T036-10／11 跑**；#319 已獨立查到同樣 7 項並收進它的清單 A，由 #320 執行 |
    | 合計 | 169 | | | |
 
 2. **目前本機一項都跑不了**，原因都在前置：伺服器 repo 沒有 `target/`（沒有已編譯的 peer、沒有 TLS fixtures、沒有檔案 fixture）；六個相關環境變數都沒設。
 3. 伺服器 **本機 working tree（`6bb4a27b`）的 `src/main/java` 自己編不過**（`javac` 35 個錯誤，缺 `SharedDatabase` 等 6 個類別）。**`origin/main`（`edfb5c82`）用 `javac` 可以編過**：main＋compile-stubs 1179 檔 → 4449 個 class，test 1452 檔 → 2096 個 class，本張盤到的 64 個 peer class 全部產出。編譯腳本是 `維護工具/build-java-test-peers.ps1`，產物在本專案 `LiTo381-Modern/target/java-peer/`，不寫伺服器 repo。
-4. 除了這 169 項，還有 **41 個被 #54 歸在別張的「缺前置條件」測試同樣要 Java peer**（共享資源根 39，其中 4 個可能還要 SQL；雜項環境變數 2）。那幾張如果只設共享資源根，這些會全部在 `expect("…JAVA…")` 失敗。清單見 TSV 的 `scope54` 欄。
+4. 除了這 169 項，還有 **41 個被 #54 歸在別張的「缺前置條件」測試同樣要 Java peer**（共享資源根 39、雜項環境變數 2）。#312／#313 如果只設共享資源根，那 39 項會全部在 `expect("…JAVA…")` 失敗。清單見 TSV 的 `scope54` 欄。
 5. 靜態上看不到會連正式服務、正式 DB 或既有遊戲程序的路徑：A／B 批用到的 36 個 peer class，自己的檔案裡 listen 都是 `127.0.0.1`／port 0 或沒有 listen。但 Java 端只查到「peer 自己的 `.java`」這一層，跨類別的行為沒有追完，所以執行時要用 fail-closed 的環境（見「執行環境」）。
 
 ## 做了什麼
@@ -63,7 +63,7 @@ SQL 的判定來源：`world_integration_tests.rs:416–498` 的第二個 `match
 - **TLS fixtures 可以產在任何目錄**：`ModernTlsTestPeer prepare <dir>` 呼叫 `ModernTlsTestMaterial.prepare`，用 `java.home\bin\keytool.exe` 在 `<dir>` 產生 `root.p12／root.der／root.pem`、`server.p12`、`expired.p12` 等，寫完放 `complete-v1`；已有 `complete-v1` 就直接返回。不碰系統信任庫。所以 fixtures 可以放本專案 `target/`，不必放伺服器 repo。
 - **listen**：A／B 批用到的 36 個 peer class 中，26 個自己的檔案裡是 `127.0.0.1`／port 0；10 個沒有 listen（7 個 stdio、`ModernNpcFireStormFramePeer`，以及 `ModernPlayerHealingRuntimeTestPeer`、`ModernVipWorldRuntimeTestPeer` 兩個轉呼叫別的類別）。逐類別見 `java-peer-classes.tsv`。
 - **暫存目錄**：11 個 A／B 批的 peer class 用 `Files.createTempDirectory("modern-…")`，位置是 `java.io.tmpdir`。不改的話會寫到 `%TEMP%`，違反專案規則第 1 條；Rust 的啟動程式碼沒有傳 JVM 參數，只能靠環境變數改（見下）。
-- **自有 MySQL**：`ModernSettlementMysqlFixture.open` 需要 `LITO_MODERN_MYSQL_HOME`；資料目錄建在 `java.io.tmpdir\lito-modern-mysql-fixtures\mysql-5.5-*`；`--bind-address=127.0.0.1`、port 取自 `new ServerSocket(0, 1, 127.0.0.1)`。**它要求 `java.io.tmpdir` 是純 ASCII 路徑**（`checkedTemporaryRoot`），而本專案路徑 `D:\lineage開發\…` 不是 ASCII——D 批要先解決「只寫專案資料夾」與這個限制的衝突（歷史上用的是 `D:\lito-dev-runtime`）。這是自有隔離 DB 那兩張的事。
+- **自有 MySQL**：`ModernSettlementMysqlFixture.open` 需要 `LITO_MODERN_MYSQL_HOME`；資料目錄建在 `java.io.tmpdir\lito-modern-mysql-fixtures\mysql-5.5-*`；`--bind-address=127.0.0.1`、port 取自 `new ServerSocket(0, 1, 127.0.0.1)`。**它要求 `java.io.tmpdir` 是純 ASCII 路徑**（`checkedTemporaryRoot`），而本專案路徑 `D:\lineage開發\…` 不是 ASCII——D 批要先解決「只寫專案資料夾」與這個限制的衝突（歷史上用的是 `D:\lito-dev-runtime`）。#319 已把這點列為 #320 的前置阻擋並請求裁定，本張不重複處理。
 - **`ModernPetRaceTestPeer`**：沒有 `LITO_MODERN_MYSQL_HOME` 就直接丟例外，確實會開 SQL，所以寵物賽跑 3 項歸 D。
 - **檔案 fixture（A0）**：兩個 JUnit 類別寫到相對路徑 `target/modern-equipment-test-fixtures`、`target/modern-revival-test-fixtures`（相對於 JVM 工作目錄）。它們是 `@Test`，沒有 `main`，要靠 Maven surefire 或 JUnit launcher 跑。
 
@@ -98,10 +98,10 @@ $env:LITO_MODERN_TEST_SERVER_ROOT = '<server root>'
 
 | #54 歸類 | 也要 Java 的數量 | 說明 |
 |---|---:|---|
-| 共享資源根（159 項那兩張） | 35（B1 12、B2 23）＋ 4 個可能要 SQL | 例：`battle_revival_interop_tests`×6、`transport.rs`×8、`battle_read_interop_tests`×5、`battle_player_*`／`battle_vip_*`／`battle_armor_*`。4 個可能 SQL 的是 `world_integration_tests` 的 `java_combat_*`／`java_armed_combat_*`／`java_learned_teleport_*`：共用 helper 以參數選模式，閉包裡同時出現 `magic`、`records` 與非 SQL 模式，要讀呼叫點才能定 |
+| 共享資源根（#312／#313） | 39（B1 12、B2 27） | 例：`battle_revival_interop_tests`×6、`transport.rs`×8、`battle_read_interop_tests`×5、`world_integration_tests.rs`×5、`battle_player_*`／`battle_vip_*`／`battle_armor_*`。其中 `world_integration_tests.rs:998–1019` 四項共用 `combat_controller_flow`，以布林參數選模式；讀呼叫點後確定是 `normal`／`armed`／`settlement`／`teleport`，不開 SQL（#319 結論相同），工具裡以 `RESOLVED_MODES` 記下這個人工判讀 |
 | 雜項環境變數 | 2 | `protocol::tests::actual_java_server_negotiates_rust_generated_hello_over_stdio`（A1）、`…::java_battle_read_tls_two_sources_shared_manifest_…`（另要 `LITO_CANONICAL_CAPTURE_DIR`） |
 | REAL_DB（已排除） | 1 | `transport::tests::java_application_real_database_readonly_…`：`ModernDatabaseNavigationTestPeer`，連真實 DB，維持排除 |
-| DB（自有隔離 DB 那兩張） | 119 | 全部經 `JavaPeer`；前置（classpath、TLS fixtures）與本張相同 |
+| DB（#319／#320） | 119 | 全部經 `JavaPeer`；前置（classpath、TLS fixtures）與本張相同。本工具的切分（115 可執行＋4 個 INTERACTIVE）與 #319 一致 |
 | GUI（已排除） | 3 | 也會啟動 Java peer；維持排除 |
 
 B1 裡有 5 個共享資源根項目會寫證據檔（`LITO_PLAYER_APPEARANCE_TEST_PNG`、`LITO_VIP_*_EVIDENCE*`、`LITO_MODERN_UTILITY_EVIDENCE`），輸出路徑的所有權屬於「檔案寫入所有權審查」那張。
@@ -117,11 +117,11 @@ B1 裡有 5 個共享資源根項目會寫證據檔（`LITO_PLAYER_APPEARANCE_TE
 
 ### 已驗證
 - 169 的來源：#54 逐項表中理由為「Java peer／產生 fixture…」125、「未設定 LITO_MODERN_TLS_TEST_FIXTURES」38、「未設定 LITO_MODERN_TEST_SERVER_ROOT」3、「外部 Java peer 尚未核對」3，全部是 ignored lib、分類「缺前置條件」（`rows.py` 解析 1132 列、白名單 77）。
-- 169 項的批次總和 3＋42＋94＋9＋11＋3＋7＝169；TSV 333 列＝本張 169＋共享資源根 39＋雜項 3＋DB 119＋GUI 3。
+- 169 項的批次總和 3＋42＋94＋9＋11＋3＋7＝169；TSV 333 列＝本張 169＋共享資源根 39＋雜項 3＋DB 119＋GUI 3。合併最新 `main`（含 #306／#307／#310／#319 等）後重跑，結果相同。
 - 工具可重跑：從 `維護工具/t036-java-peer-inventory/` 重新產生的兩份 TSV 與提交的檔案 SHA256 相同。
 - 伺服器 working tree `6bb4a27b`：`javac` main 階段 35 個錯誤（缺 `SharedDatabase`、`UnifiedConfiguration`、`LiToGmCommands`、`LiveBattleStats`、`NativePlayerCommit`、`NativeLightAction`；它們在 `origin/main` 的 `src/main/java`）。
 - 伺服器 `origin/main` `edfb5c82`：`build-java-test-peers.ps1 -ServerRef origin/main` 結束碼 0，約 68 秒，4449＋2096 個 class，64 個 peer class 與 `ModernTlsTestMaterial`、`ModernSettlementMysqlFixture`、兩個 fixture 產生用的 JUnit 類別都有產出；`build.json` 記 `executed_java=false`。編譯前後伺服器 repo 的 `git status --porcelain` 相同（只有原本就在的 `?? tools/`）。
-- 「本機前置條件現況」表的每一格。
+- 「本機前置條件現況」表的每一格。目前行程的 `TEMP` 是 `D:\dev-cache\tmp`（不在專案內），所以不重導的話 peer 的暫存目錄會落在那裡。
 - 「Java 端邊界」各點對應的原始碼行（以 `origin/main` 解出的副本複核過 `records`、`ENV`、`asciiPath`、`--bind-address`、`prepare`）。
 
 ### 推測
@@ -148,18 +148,18 @@ B1 裡有 5 個共享資源根項目會寫證據檔（`LITO_PLAYER_APPEARANCE_TE
 
 ## 給下一棒的提示
 
-**T036-10（執行 1／2）建議範圍：前置＋A0／A1／A2（139 項）。**
+**#315（T036-10，執行 1／2）建議範圍：前置＋A0／A1／A2（139 項）。**
 1. 在原始專案目錄（不是會被清掉的 worktree）跑 `維護工具\build-java-test-peers.ps1 -ServerRef origin/main -Label <新標籤>`，記下 `build.json` 的 `source_commit`。先 `-CheckOnly` 看一次。
 2. 依「執行環境」設好變數，先跑 A1 的一個小測試（例如 `modern_lito::protocol::tests::actual_java_server_negotiates_rust_generated_hello_over_stdio` 或 `equipment_history_wire_interop_tests` 的一個），確認暫存目錄落點，再往下。
 3. A1 的 `ModernBattleWirePeer` 測試若一開始就整批失敗，先懷疑版本漂移：改用 2026-10-03 快照的 classpath（`…\target\relocation-baseline-20261003\fixture\java\{test-classes;classes;lib\*}`）對照一次，兩種來源的結果分開記。快照與哪個伺服器 commit 對應沒有紀錄。
 4. A0：需要先產檔案 fixture。可行做法是把 `origin/main` 的 `pom.xml`、`src`、`compile-stubs`、`tools/as-record` 用 `git archive` 解到本專案 `target/` 下，在那個副本裡跑 `mvn -o -Dtest=ModernBattleEquipmentProtocolTest,ModernBattleRevivalProtocolTest test`，再把 `LITO_MODERN_TEST_SERVER_ROOT` 指到副本。這會把 `src/*/resources`（含 1349 個 `.gz` 伺服器資料）複製到 `target/`，是否符合「不複製資源檔」需要 Claude 裁定；沒裁定前 A0 記為阻塞，不要硬跑。
 5. 只照 TSV 的 `batch` 欄以 `A` 開頭且 `scope54` 以 `本張` 開頭的列執行。
 
-**T036-11（執行 2／2）建議範圍：B1／B2／B3（23 項）。** B3 的 3 項要 `LITO_MODERN_TEST_SERVER_ROOT`，而且會建 process job；仍然不設 `LITO_MODERN_MYSQL_HOME`。如果調度上方便，共享資源根那兩張裡的 35 個 Java 項目（TSV `scope54=他張:共享資源根`、`batch` 以 `B` 開頭）併到這張一起跑最省事，因為環境完全相同。
+**#316（T036-11，執行 2／2）建議範圍：B1／B2／B3（23 項）。** B3 的 3 項要 `LITO_MODERN_TEST_SERVER_ROOT`，而且會建 process job；仍然不設 `LITO_MODERN_MYSQL_HOME`。如果調度上方便，#312／#313 裡的 39 個 Java 項目（TSV `scope54=他張:共享資源根`）併到這張一起跑最省事，因為環境完全相同。
 
-**自有隔離 DB 那兩張**：請把本張的 7 項（`map_rotation_interop_tests`×4、`pet_race_interop_tests`×3）收進去；前置同樣是本張的 classpath 與 TLS fixtures，另要先解決 `java.io.tmpdir` 必須 ASCII 的問題。
+**#320（自有隔離 DB 執行）**：本張的 7 項 D（`map_rotation_interop_tests`×4、`pet_race_interop_tests`×3）就是 #319 的「漏列 7 項」，不用另外加。#319 的前置阻擋第 2 點（Java 測試類別還沒編譯）可以直接用 `build-java-test-peers.ps1`；注意 working tree 那個 commit 編不過，要用 `-ServerRef origin/main`。#319 比對過 `ModernSettlementMysqlFixture`、`ModernQuestSqlFixture`、`ModernCombatTestPeer` 兩個 commit 相同。
 
-**共享資源根那兩張**：TSV 裡 `scope54=他張:共享資源根` 的 39 列不是只設 `LITO_SHARED_RESOURCE_ROOT` 就能跑。
+**#312／#313（共享資源根）**：TSV 裡 `scope54=他張:共享資源根` 的 39 列不是只設 `LITO_SHARED_RESOURCE_ROOT` 就能跑。
 
 **需要另開的事**（不在任何一張 T036 內）：#54 基準之後新增的 ignored lib 測試約 23 個、`tests/` 新增 25 個檔，都還沒有安全分類。
 

@@ -6,7 +6,7 @@ ModernCanonicalMapRotationTestPeer	D:16	other	-	-	-	-	-	-	-	-	same	yes	10
 ModernCanonicalPetRaceTestPeer	D:4	other	-	-	-	-	-	-	-	-	same	yes	10
 ModernChatFaultTestPeer	A2:4	TLS	loopback:0	-	-	-	-	-	-	-	same	yes	134
 ModernChatTestPeer	A2:15	TLS	loopback:0	-	-	-	-	-	-	-	same	yes	77
-ModernCombatTestPeer	B2:10,B3:3,D:40,X:3	TLS	loopback:0	modern-combat-peer-	-	ModernSettlementMysqlFixture	yes	yes	LITO_SHARED_RESOURCE_ROOT,ModernSettlementMysqlFixture.ENV	2	same	yes	498
+ModernCombatTestPeer	B2:14,B3:3,D:36,X:3	TLS	loopback:0	modern-combat-peer-	-	ModernSettlementMysqlFixture	yes	yes	LITO_SHARED_RESOURCE_ROOT,ModernSettlementMysqlFixture.ENV	2	same	yes	498
 ModernDatabaseNavigationTestPeer	X:1	other	loopback:0	-	-	-	-	yes	CONFIG_ENV	2	same	yes	265
 ModernDirectChatFaultTestPeer	A2:13	TLS	loopback:0	-	-	-	-	-	-	-	same	yes	146
 ModernDisintegrateTestPeer	D:5,X:1	other	-	-	-	-	-	-	-	-	same	yes	22

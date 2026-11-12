@@ -36,6 +36,18 @@ SHARED_JAVA = {p.stem for p in Path(sys.argv[2]).resolve().glob("*.java")
 assert SHARED_JAVA, "server test source directory has no peer reading LITO_SHARED_RESOURCE_ROOT"
 
 
+# Call sites read by hand where a shared helper picks the mode from bool parameters, so the
+# closure lists every candidate. world_integration_tests.rs:998-1019 call
+# combat_controller_flow(armed, settlement, spells, records=false, magic=false) => the mode is
+# normal / armed / settlement / teleport, none of which is in the process-job list.
+RESOLVED_MODES = {
+    "java_combat_controller_authoritative_attack_hurt_death_atomic_render_and_normal_retirement": {"normal"},
+    "java_armed_combat_controller_qualified_weapon_sound_and_normal_retirement": {"armed"},
+    "java_combat_deathmatch_result_saved_and_both_owners_return_to_same_room": {"settlement"},
+    "java_learned_teleport_controller_atomic_mp_position_shared_effect_then_move_melee_result_return": {"teleport"},
+}
+
+
 def family(r):
     sp = " ".join(r["marks"].get("spawn", []))
     fams = []
@@ -54,7 +66,7 @@ def family(r):
 def classify(r):
     fam = family(r)
     classes = [c.split(".")[-1] for c in r.get("user_classes", [])]
-    lits = set(r.get("lits", []))
+    lits = RESOLVED_MODES.get(r["name"].split("::")[-1]) or set(r.get("lits", []))
     job_modes = sorted(lits & JOB_MODES) if "WORLD" in fam else []
     sql_modes = [m for m in job_modes if m not in NO_SQL_JOB_MODES]
     root_modes = sorted(lits & SERVERROOT_MODES) if "WORLD" in fam else []
