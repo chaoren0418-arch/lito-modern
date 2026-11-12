@@ -254,6 +254,8 @@ pub enum Feedback {
     NoResponse,
     Interrupted,
     Rejected(u16),
+    /// S_PARALYSE mode 7 ended a teleport request without S_PORTAL.
+    TeleportReleased,
 }
 impl Feedback {
     pub fn label(self) -> &'static str {
@@ -263,6 +265,7 @@ impl Feedback {
             Self::CastAction => "收到施法動作",
             Self::NoResponse => "未收到施法回覆，可重新施放",
             Self::Interrupted => "施法已中止",
+            Self::TeleportReleased => "傳送未執行，已解除鎖定",
             Self::Rejected(276) => "目前地圖無法使用此技能",
             Self::Rejected(278) => "MP 不足",
             Self::Rejected(279) => "HP 不足",
