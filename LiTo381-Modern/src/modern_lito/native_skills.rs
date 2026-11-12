@@ -123,26 +123,22 @@ pub fn in_native_screen(own: [u16; 2], target: [u16; 2]) -> bool {
     let distance = dx.abs() + dy.abs();
     distance <= 18 || (distance == 19 && (19..=52).contains(&((dx + 18).abs() + (dy + 18).abs())))
 }
-/// Packet clock value, never an object ID. The production provider is the
-/// Windows unsigned uptime millisecond counter; original caller provenance is
-/// separate from the verified C02 wire contract.
+/// Packet clock value, never an object ID.
+///
+/// Original caller (recovered PE 4271D92F): `sub_4CB5F0` switches on the
+/// zero-based skill index; jump-table 4CB66E case 59 (skill 60) at 4CBAAD is
+/// `call 4D69F0; push eax; push 3; push 7; push 14h; "cccd"`. So the dword is
+/// the native timer sample (4D69F0), not a raw OS uptime read. The provider is
+/// the shared process clock initialized at controller creation; an
+/// uninitialized or failed clock rejects the request instead of substituting
+/// another source.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ClientTick(u32);
 impl ClientTick {
     pub fn from_wrapping_millis(millis:u64)->Self {Self(millis as u32)}
     pub fn as_millis(self)->u32 {self.0}
     pub fn now()->Result<Self> {
-        #[cfg(windows)] {
-            #[link(name="kernel32")]
-            extern "system" {
-                #[link_name="GetTickCount"]
-                fn windows_uptime_millis()->u32;
-            }
-            Ok(Self(unsafe {windows_uptime_millis()}))
-        }
-        #[cfg(not(windows))] {
-            anyhow::bail!("Windows client tick provider unavailable")
-        }
+        super::native_clock::sample().map(Self).context("隱身術原生時鐘不可用")
     }
 }
 /// C02 self/tick form is intentionally distinct from target-object envelopes.
@@ -352,5 +348,65 @@ impl Pending {
             return Feedback::NoResponse;
         }
         Feedback::Pending
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Skill 60's dword is bracketed by the shared native 4D69F0 clock, not a
+    /// second OS uptime source with a different epoch or resolution.
+    #[cfg(windows)]
+    #[test]
+    fn invisibility_tick_is_the_shared_native_clock_sample() {
+        super::super::native_clock::initialize();
+        for _ in 0..16 {
+            let before = super::super::native_clock::sample().unwrap();
+            let tick = ClientTick::now().unwrap().as_millis();
+            let after = super::super::native_clock::sample().unwrap();
+            assert!(tick.wrapping_sub(before) <= after.wrapping_sub(before),
+                "tick {tick} outside native clock window {before}..={after}");
+        }
+    }
+
+    /// Static evidence only: reads the pinned recovered PE, never executes it.
+    #[test]
+    #[ignore = "requires LITO_NATIVE_CLOCK_PE pointing to the pinned read-only PE"]
+    fn original_invisibility_caller_sends_native_4d69f0_sample_as_cccd() {
+        use sha2::{Digest, Sha256};
+        let path = std::env::var_os("LITO_NATIVE_CLOCK_PE").expect("LITO_NATIVE_CLOCK_PE");
+        let bytes = std::fs::read(path).expect("read original PE without executing it");
+        assert_eq!(format!("{:X}", Sha256::digest(&bytes)),
+            "4271D92FB2B9A2FA8D118DDE0767F6D8A67A896227BCC24127438FCB5C2AB6E9");
+        let at = |va: usize, len: usize| &bytes[va - 0x400000..va - 0x400000 + len];
+        let u32_at = |va: usize| u32::from_le_bytes(at(va, 4).try_into().unwrap()) as usize;
+        let call = |site: usize| {
+            assert_eq!(at(site, 1)[0], 0xe8, "call at {site:08X}");
+            (site as u32 + 5).wrapping_add(u32_at(site + 1) as u32) as usize
+        };
+        // 4CB66E: movzx dl, byte_4CBD00[esi]; jmp jpt[edx*4]. esi is the
+        // zero-based skill index; index 59 is skill 60 (row 7, column 3).
+        assert_eq!(at(0x4cb668, 6), [0x8a, 0x96, 0x00, 0xbd, 0x4c, 0x00]);
+        assert_eq!(at(0x4cb66e, 3), [0xff, 0x24, 0x95]);
+        let table = u32_at(0x4cb671);
+        assert_eq!(table, 0x4cbc80);
+        let case = usize::from(at(0x4cbd00 + 59, 1)[0]);
+        assert_eq!(u32_at(table + 4 * case), 0x4cbaad);
+        // call 4D69F0; push eax; push 3; push 7; push 14h; push "cccd"; call 4C6AE0
+        assert_eq!(call(0x4cbaad), 0x4d69f0);
+        assert_eq!(at(0x4cbab2, 8), [0x50, 0x6a, 0x03, 0x6a, 0x07, 0x6a, 0x14, 0x68]);
+        assert_eq!(at(u32_at(0x4cbaba), 5), b"cccd\0");
+        assert_eq!(call(0x4cbabe), 0x4c6ae0);
+        // Skills 2 (index 1) and 13 (index 12) share 4CBBD4: row/column only,
+        // "ccc" with no target, tick or coordinate tail.
+        for skill in [2usize, 13] {
+            let case = usize::from(at(0x4cbd00 + skill - 1, 1)[0]);
+            assert_eq!(u32_at(table + 4 * case), 0x4cbbd4, "skill {skill}");
+        }
+        assert_eq!(at(0x4cbbd4, 13),
+            [0x8b, 0xce, 0x83, 0xe1, 0x07, 0x51, 0xc1, 0xfe, 0x03, 0x56, 0x6a, 0x14, 0x68]);
+        assert_eq!(at(u32_at(0x4cbbe1), 4), b"ccc\0");
+        assert_eq!(call(0x4cbbe5), 0x4c6ae0);
     }
 }

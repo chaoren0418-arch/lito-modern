@@ -10,7 +10,7 @@
 - **修正 [P2] 79 被覆蓋**：`native_world::World` 新增 `last_item_skill_rejection: Option<u64>`，S10 收到 code 79 時記錄當下 `message_count` 序號；`Pending::observe_item` 改看此序號是否大於 pending 建立時的 `messages`，不再讀 `last_message`。同一輪 poll 依序收到 79 與其他 S10 時仍回傳 `Rejected(79)`；一般施法 `observe` 不讀此欄位，因此不會誤用 79；新 pending 不繼承舊的 79。此修正同時套用到 main 既有的 12／21。
 - **補回歸測試** `item_rejection_survives_later_messages_in_the_same_receive_batch`（已登錄白名單）：先 79、再 161、308，最後才 observe → `Rejected(79)`（含兩秒逾時後）；同狀態的一般 `observe` 為 Pending／NoResponse；新 pending 不繼承舊 79；新 pending 期間 79 後接普通訊息仍為 `Rejected(79)`。
 
-### 再同步 main（2026-11-12，`8810ade`）
+### 再同步 main（2026-11-12，`8810ade`，之後再併 `1f703c6`／#164：只有 tests.tsv 衝突，保留雙方列）
 
 PR #228 閘門通過後 main 又前進 52 個 commit（含 #97–#100 與 T028），產生 3 個衝突，解法：
 - `native_skills.rs`：`selector_only` 併入 main 的 97／98／99；`item_targeted` 改為 `12 | 21 | 100 | 107`；`reuse_millis` 保留 main 的 `97=>9990,98..=100=>0` 與本張 101–109；`Feedback` 保留 main 新增的 `Rejected(279)`，`Rejected(280)` 只留一份。
