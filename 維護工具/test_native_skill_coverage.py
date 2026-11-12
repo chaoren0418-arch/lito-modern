@@ -100,8 +100,13 @@ class SkillCoverageTests(unittest.TestCase):
         self.assertFalse(batch & set(result['text_request_ids']))
         self.assertFalse(batch & set(result['inventory_request_ids']))
         self.assertFalse(batch & set(result['ground_request_ids']))
-        # 167 belongs to batch 6 and must not be reported as wired here.
-        self.assertNotIn(167, result['all_request_ids'])
+
+    def test_current_source_covers_sixth_batch(self):
+        result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')
+        self.assertTrue(set(range(167, 177)) <= set(result['actor_or_selector_request_ids']))
+        self.assertFalse(set(range(167, 177)) & set(result['inventory_request_ids']))
+        self.assertFalse(set(range(167, 177)) & set(result['text_request_ids']))
+        self.assertFalse(set(range(167, 177)) & set(result['ground_request_ids']))
 
     def test_current_source_covers_legacy_and_first_batch(self):
         result = CATALOG.source_ids(ROOT / 'LiTo381-Modern/src/modern_lito/native_skills.rs')

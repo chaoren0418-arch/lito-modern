@@ -201,7 +201,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 80 | 88 | 89 | 90 | 91 | 97| 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 70 | 72 | 78 | 80 | 88 | 89 | 90 | 91 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 129 | 130 | 134 | 137 | 138 | 146 | 147 | 150 | 154 | 155 | 156 | 159 | 161 | 162 | 164 | 169 | 171 | 172 | 175 | 176 | 206)
 }
 /// ④ requests whose only accepted object is the caster: formal
 /// `useFireWeaponSpell`／`useStormShotSpell` answer 280 for any other ID, so the
@@ -229,9 +229,10 @@ pub const EDORYU_WALK_ACTION: u8 = 54;
 /// the native screen diamond by `useElementalFallDownSpell`.
 pub const ELEMENTAL_FALL_DOWN_RANGE: u16 = 10;
 /// ④ object requests whose formal handlers accept only the caster's own object ID
-/// (target_to=1 with maximumRange 0: Fire Weapon, Wind Shot, Earth Skin). A hovered
+/// (target_to=1 with maximumRange 0: Fire Weapon, Wind Shot, Earth Skin; 168 Iron Skin
+/// has target_to=0 and the same original `sub_4C9880` object form). A hovered
 /// actor is never sent; the request always carries the caster.
-pub fn self_object(skill: u16) -> bool { matches!(skill, 148 | 149 | 151) }
+pub fn self_object(skill: u16) -> bool { matches!(skill, 148 | 149 | 151 | 168) }
 /// Requests whose tail ends in one MS950 `s` field: ⑪ True Target (113) and
 /// ⑦／⑧ Call／Run Clan (116／118).
 pub fn text_skill(skill: u16) -> bool { matches!(skill, 113 | 116 | 118) }
@@ -295,13 +296,15 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
         ensure!(own.walk_action == TWO_HAND_SWORD_WALK_ACTION, "需裝備雙手劍才能施放反擊屏障");
     }
     match skill {
-        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 55 | 57 | 67 | 68 | 79 | 158 | 160 => {
+        // 170 Water Life (④): one living PC on the native screen, the caster included
+        // (formal `useWaterLifeSpell`); PC-only eligibility and the reagent are server-owned.
+        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 55 | 57 | 67 | 68 | 79 | 158 | 160 | 170 => {
             let id = target.unwrap_or(own.id);
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
                     && world.actor_visible(id)
-                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 55 | 67 | 68 | 79 | 158 | 160) {
+                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 55 | 67 | 68 | 79 | 158 | 160 | 170) {
                         in_native_screen([own.x, own.y], [actor.x, actor.y])
                     } else {
                         own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 19
@@ -326,7 +329,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
         id if selector_only(id) => {ensure!(target.is_none(), "此技能不接受指定目標");}
         // Without typed text: 113 sends an empty annotation, 116／118 require a name.
         id if text_skill(id) => {return text_request(world, id, target, "");}
-        148 | 149 | 151 => {
+        148 | 149 | 151 | 168 => {
             ensure!(target.is_none_or(|id| id == own.id), "此技能只能對自己施放");
             b.extend_from_slice(&own.id.to_le_bytes());
         }
@@ -447,16 +450,18 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
         // when at least one target was slowed). 87 Shock Stun: range 1; damage,
         // probability and the 2–4 second stun (S0B 4183 object) are server-owned
         // and neither the attack action nor S37 4434 is a stun ACK.
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 71 | 74 | 76 | 77 | 87 | 103 | 108 | 152 | 153 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 71 | 74 | 76 | 77 | 87 | 103 | 108 | 152 | 153 | 167 | 173 | 174 => {
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33=>2,40|46|47|56|64|71=>3,50=>6,65|66|74|76=>10,10|103=>3,11|20|87|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45|167=>8,33=>2,40|46|47|56|64|71|173=>3,50=>6,65|66|74|76=>10,10|103=>3,11|20|87|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10}
                     // 152／153: formal range 10 and the native screen diamond both apply.
-                    && (!matches!(skill, 152 | 153) || in_native_screen([own.x, own.y], [actor.x, actor.y])),
+                    // 167: original click range 8 (4CB78B, `sub_4CA6E0`); 173: formal
+                    // range 3; 174: original click range 10 (4CB755) inside the diamond.
+                    && (!matches!(skill, 152 | 153 | 174) || in_native_screen([own.x, own.y], [actor.x, actor.y])),
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -468,9 +473,10 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74|76|80|88|90|91=>3000,89=>5000,87=>8000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,146=>1200,153=>600,112=>2000,130|132|133=>100,134=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64|71=>500,59|62|66=>1500,65|70=>2000,74|76|80|88|90|91=>3000,89=>5000,87=>8000,73=>0,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118|129|137|138|145|147..=152|154|155=>0,156|158|159|160|162|163|165|166=>0,157=>600,161=>9000,164=>300,168|172=>0,146=>1200,153=>600,167|169|170|171|176=>100,173=>1000,174=>3000,175=>300,112=>2000,130|132|133=>100,134=>1000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
-pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|71|72=>500,206=>1200,_=>0}}
+/// 167..=176: recovered PE `word_635774[skill-1]` (600／0／100／400／300／0／1000／3000／5000／100).
+pub fn client_clock_millis(skill:u16)->u64 {match skill {50|173=>1000,33|175=>5000,167=>600,169|176=>100,170=>400,171=>300,174=>3000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|71|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub enum Feedback {
     #[default]
