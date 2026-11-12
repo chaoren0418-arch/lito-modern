@@ -401,6 +401,7 @@ pub struct LoginController {
     skill_item_pending: bool,
     skill_summon_pending: bool,
     skill_clan_pending: bool,
+    skill_release_pending: bool,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     /// Skill 69 caster only (#149): `Some(false)` waits for the server's own
     /// S55, `Some(true)` after the single C4E reply. Written with every
@@ -470,6 +471,7 @@ impl Default for LoginController {
             skill_item_pending: false,
             skill_summon_pending: false,
             skill_clan_pending: false,
+            skill_release_pending: false,
             teleport_spell: None,
             mass_return: None,
             shape_menu_offers: 0,
@@ -776,6 +778,7 @@ impl LoginController {
                     else if self.skill_summon_pending { pending.observe_summon(&self.state.world, now) }
                     else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
                     else if self.skill_clan_pending { pending.observe_clan(&self.state.world, now) }
+                    else if self.skill_release_pending { pending.observe_release(&self.state.world, now) }
                     else { pending.observe(&self.state.world, now) };
                 // A coded rejection or cast action received in the same batch wins;
                 // otherwise the server's unlock is the terminal reply, not a 2s timeout.
@@ -787,7 +790,7 @@ impl LoginController {
             };
             self.state.skill_feedback = feedback;
             if feedback != super::native_skills::Feedback::Pending
-                && !(self.skill_summon_pending && pending.hold_summon(feedback, now)) {
+                && !((self.skill_summon_pending || self.skill_release_pending) && pending.hold_summon(feedback, now)) {
                 self.player_callbacks.cancel_pending();
                 self.skill_pending = None;
                 self.skill_context = None;
@@ -1000,7 +1003,9 @@ impl LoginController {
         self.mass_return = teleport.filter(|choice| choice.skill()==69).map(|_| false);
         self.teleport_released = false;
         self.skill_item_pending = item.is_some() || skill==48;
-        self.skill_summon_pending = summon.is_some();
+        // 154: S10 353 (no-recall map) follows the committed cast action, like 51.
+        self.skill_summon_pending = summon.is_some() || skill == 154;
+        self.skill_release_pending = skill == 145;
         self.skill_clan_pending = matches!(skill, 116 | 118);
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
@@ -2903,6 +2908,7 @@ impl LoginController {
         self.teleport_spell = None;
         self.skill_item_pending = false;
         self.skill_clan_pending = false;
+        self.skill_release_pending = false;
         self.attack_pending=None;self.skill_pending=None;self.skill_context=None;self.skill_target_pending=None;self.skill_ready=None;self.world_tree_request=None;
         self.item_pending=None;self.pickup_pending=None;if self.portal_entry.take().is_some(){self.portal_feedback=super::native_portal::EntryFeedback::Interrupted;}self.door_pending=None;
         self.state.attack_feedback=super::native_combat::Feedback::Interrupted;
