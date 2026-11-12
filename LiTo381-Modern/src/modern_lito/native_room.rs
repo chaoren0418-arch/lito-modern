@@ -72,8 +72,7 @@ impl Settings<'_> {
         if !self.password.is_empty(){let password=Zeroizing::new(encode_text(self.password,4)?);body.extend_from_slice(&password);}
         body.push(0);body.extend(self.capacity.to_le_bytes());
         if let Some((values,selections))=self.options {
-            ensure!(selections.len()<=8 && !selections.contains(&0),"room selection domain");
-            ensure!((values==[0;4] && selections.is_empty()) || (values[0]<=7 && values[1]<=2 && (1..=127).contains(&values[2]) && values[3]<=31),"room option domain");
+            validate_options(values, selections)?;
             body.extend(values);body.push(selections.len() as u8);body.extend_from_slice(selections);
         }
         Ok(body)
@@ -286,6 +285,7 @@ pub fn parse(body: &[u8]) -> Result<Packet> {
                     let count=r.c()?;ensure!(count<=8,"room selection bound");let selections=r.take(count as usize)?.to_vec();
                     ensure!(attributes & !0x3c == 0 && (attributes & 4 != 0)==password_required
                         && (2..=200).contains(&capacity) && !selections.contains(&0),"invalid room configuration");
+                    validate_options(options, &selections)?;
                     Info::Configuration{name,password_required,attributes,capacity,options,selections}
                 }
                 2 => {let mode=r.c()?;ensure!(mode<=6,"unknown room mode");Info::Mode(mode)}
@@ -324,6 +324,9 @@ pub fn parse(body: &[u8]) -> Result<Packet> {
                 let count = r.c()?;
                 ensure!(count <= 8, "room selection bound");
                 let selections = r.take(count as usize)?.to_vec();
+                ensure!(attributes & !0x3c == 0 && (attributes & 4 != 0)==password_required
+                    && (2..=200).contains(&capacity) && mode<=6, "invalid joined room configuration");
+                validate_options(options, &selections)?;
                 Packet::Joined(Room {
                     id,
                     name,
@@ -423,8 +426,10 @@ pub fn parse(body: &[u8]) -> Result<Packet> {
             if r.c()? != 5 {
                 return Ok(Packet::Other);
             }
+            let room = r.d()?;
+            ensure!(room != 0, "zero room owner identity");
             Packet::Owner {
-                room: r.d()?,
+                room,
                 name: r.text(27, false)?,
             }
         }
@@ -448,6 +453,11 @@ pub fn join(id: u32, password: &str) -> Result<Zeroizing<Vec<u8>>> {
     }
     body.push(0);
     Ok(body)
+}
+fn validate_options(values: [u8; 4], selections: &[u8]) -> Result<()> {
+    ensure!(selections.len()<=8 && !selections.contains(&0),"room selection domain");
+    ensure!((values==[0;4] && selections.is_empty()) || (values[0]<=7 && values[1]<=2 && (1..=127).contains(&values[2]) && values[3]<=31),"room option domain");
+    Ok(())
 }
 pub fn upsert(room: &mut Room, member: Member) -> Result<()> {
     if let Some(old) = room.members.iter_mut().find(|m| m.name == member.name) {

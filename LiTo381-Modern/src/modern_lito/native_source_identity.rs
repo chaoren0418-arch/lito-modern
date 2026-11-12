@@ -6,6 +6,8 @@ use anyhow::{ensure, Context, Result};
 
 pub const SLOT_COUNT: usize = 4;
 pub const JAVA_ROW_BOUND:usize=8;
+/// Wire bytes in MS950, excluding the required trailing NUL.
+pub const CLAN_NAME_MAX_BYTES:usize=16;
 #[path="native_character_directory_fields.rs"]pub mod fields;
 const FORMAT: &[u8] = b"sscchhhcccccccccddddddddddcdddddc";
 const OFFSETS: [usize; 30] = [0x2d,0x2e,0x30,0x32,0x34,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3c,0x3d,0x3e,0x40,0x48,0x44,0x4c,0x50,0x54,0x58,0x60,0x64,0x68,0x5c,0x84,0x80,0x88,0x8c,0x90];
@@ -52,7 +54,7 @@ pub(crate) fn decode(body:&[u8])->Result<Packet> {
     if body.first()==Some(&3) { ensure!(body.len()==2 && (body[1] as i8)>=0 && usize::from(body[1])<=JAVA_ROW_BOUND,"roster count outside bounded signed-byte rows");return Ok(Packet::Start(body[1])); }
     ensure!(body.first()==Some(&203),"not a Native roster body");
     let mut r=Reader{body,at:1};let mut bytes=[0;180];
-    for (offset,cap) in [(0,28),(0x1c,17)] { let s=r.string(cap)?;bytes[offset..offset+s.len()].copy_from_slice(s); }
+    for (offset,cap) in [(0,28),(0x1c,CLAN_NAME_MAX_BYTES+1)] { let s=r.string(cap)?;bytes[offset..offset+s.len()].copy_from_slice(s); }
     let suffix=r.at;
     for (code,offset) in FORMAT[2..32].iter().zip(OFFSETS) {
         let n=match code { b'c'=>1,b'h'=>2,b'd'=>4,_=>unreachable!() };let b=r.take(n)?;bytes[offset..offset+n].copy_from_slice(b);

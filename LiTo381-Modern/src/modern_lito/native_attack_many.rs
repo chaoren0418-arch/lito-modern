@@ -8,6 +8,13 @@ use super::{native_world::World,native_combat_animation::EnteredEvent,native_eff
 use anyhow::{ensure,Context,Result};
 use std::{collections::{BTreeMap,BTreeSet},path::Path,sync::{Arc,atomic::AtomicBool}};
 use serde_json::{json,Value};
+#[path = "native_batch1_area.rs"]
+mod batch1;
+#[path = "native_earth_jail.rs"]
+pub(crate) mod earth_jail;
+pub fn capture_target_origin(attack:&Attack,actors:&BTreeMap<u32,super::native_world::Actor>)->Option<[i32;2]> {
+    batch1::origin(attack,actors)
+}
 #[derive(Clone,Debug,PartialEq,Eq,serde::Serialize)]
 pub struct TargetHit {pub id:u32,pub hit:bool}
 #[derive(Clone,Debug,PartialEq,Eq,serde::Serialize)]
@@ -24,12 +31,12 @@ pub fn decode(b:&[u8])->Result<Option<Attack>> {
     let count=h(end+1) as usize;ensure!(count<=128&&b.len()==end+3+count*5,"attack-many target count/tail");
     let mut targets=Vec::with_capacity(count);
     for n in 0..count {let at=end+3+n*5;let id=d(at);ensure!(id!=0&&matches!(b[at+4],0|0x20),"invalid attack-many target/marker");targets.push(TargetHit{id,hit:b[at+4]!=0});}
-    let profile=(h(15)==170&&b[17]==8&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
+    let profile=(matches!(h(15),170|171|1804|1805)&&b[17]==8&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
     if !profile||end!=19{return Ok(None);}
     Ok(Some(Attack{action:b[1],caster:d(2),position:[h(6),h(8)],heading:b[10],sequence:d(11),graphics:h(15),targets}))
 }
 #[derive(Clone,Debug,serde::Serialize)]
-pub struct Cue {pub attack:Attack,pub caster_incarnation:u64,pub action_sequence:u64,pub targets:Vec<(u32,bool,Option<u64>)>}
+pub struct Cue {pub target_origin:Option<[i32;2]>,pub attack:Attack,pub caster_incarnation:u64,pub action_sequence:u64,pub targets:Vec<(u32,bool,Option<u64>)>}
 pub fn qualify(c:&SpriteActionCatalog)->super::tower_assets::Result<Vec<(u32,u8,Animation)>> {
     let row=c.sprites.get(&170).ok_or(HonorAssetError::Unsupported("lightning170 absent"))?;
     let a=c.resolve_action(170,ActionKey::new(0))?.animation;
@@ -44,11 +51,11 @@ pub fn qualify(c:&SpriteActionCatalog)->super::tower_assets::Result<Vec<(u32,u8,
     Ok(vec![(170,0,a.clone())])
 }
 
-#[derive(Clone)]struct Active {cue:Cue,start:u64,playback:Playback,frame:usize,finished:bool}
+#[derive(Clone)]struct Active {cue:Cue,start:u64,playback:Playback,frame:usize,finished:bool,flight:Option<batch1::Flight>}
 /// Accepted finite callback metadata; no sprite or PCM owner is retained.
 #[derive(Clone)]pub(crate) struct History {generation:Option<u64>,seen:BTreeSet<(u32,u64)>,active:Vec<Active>,started:u64,hits:u64,omitted:u64}
 #[derive(Default)]
-pub struct Effects {generation:Option<u64>,bank:Option<SharedEffectBank>,selector_bank:Option<SharedEffectBank>,clips:BTreeMap<u16,Clip>,error:Option<String>,seen:BTreeSet<(u32,u64)>,active:Vec<Active>,events:Vec<EnteredEvent>,non_audio:Vec<Value>,started:u64,hits:u64,omitted:u64}
+pub struct Effects {generation:Option<u64>,bank:Option<SharedEffectBank>,selector_bank:Option<SharedEffectBank>,area_bank:Option<SharedEffectBank>,earth_jail_bank:Option<earth_jail::Bank>,clips:BTreeMap<u16,Clip>,error:Option<String>,seen:BTreeSet<(u32,u64)>,active:Vec<Active>,events:Vec<EnteredEvent>,non_audio:Vec<Value>,started:u64,hits:u64,omitted:u64}
 impl Effects {
     pub(crate) fn history(&self)->History {History{generation:self.generation,seen:self.seen.clone(),active:self.active.clone(),started:self.started,hits:self.hits,omitted:self.omitted}}
     pub(crate) fn restore_history(&mut self,h:History){self.generation=h.generation;self.seen=h.seen;self.active=h.active;self.started=h.started;self.hits=h.hits;self.omitted=h.omitted;}
@@ -58,6 +65,33 @@ impl Effects {
     pub(crate) fn prepare_with_catalog(&mut self,root:&Path,w:&World,cancel:&AtomicBool,
         shared:&mut Option<super::shared_action_catalog::SharedActionCatalog>) {
         if self.error.is_some(){return;}
+        if self.earth_jail_bank.is_none() && (w.learned_skills.contains(&30)
+            || w.many_attacks.iter().any(|c|c.attack.graphics==1805)
+            || self.active.iter().any(|a|a.cue.attack.graphics==1805)) {
+            let loaded=(||->Result<_>{
+                let catalog=SharedActionCatalog::reuse_for_model(root,cancel,shared)?;
+                earth_jail::Bank::load(root,&catalog,cancel)
+            })();
+            match loaded {
+                Ok((bank,clip))=>{self.earth_jail_bank=Some(bank);self.clips.insert(1805,clip);},
+                Err(e)=>{self.error=Some(format!("{e:#}"));return;}
+            }
+        }
+        if self.area_bank.is_none() && (w.learned_skills.iter().any(|id|matches!(id,22|25))
+            || w.many_attacks.iter().any(|cue|matches!(cue.attack.graphics,171|1804))
+            || self.active.iter().any(|a|matches!(a.cue.attack.graphics,171|1804))) {
+            let loaded=(||->Result<_>{
+                let c=SharedActionCatalog::reuse_for_model(root,cancel,shared)?;
+                let bank=SharedEffectBank::load_directional(&c,cancel,batch1::qualify)?;
+                let cloud=Clip::new(Arc::clone(bank.animation(1804,0)?))?;
+                let impact=Clip::new(Arc::clone(bank.animation(218,0)?))?;
+                Ok((bank,cloud,impact))
+            })();
+            match loaded {
+                Ok((bank,cloud,impact))=>{self.area_bank=Some(bank);self.clips.insert(1804,cloud);self.clips.insert(171,impact);},
+                Err(e)=>{self.error=Some(format!("{e:#}"));}
+            }
+        }
         if self.bank.is_none()&&(w.learned_skills.contains(&17)||w.many_attacks.iter().any(|c|c.attack.graphics==170)||self.active.iter().any(|a|a.cue.attack.graphics==170)) {
             let loaded=(||->Result<_>{let c=SharedActionCatalog::reuse_for_model(root,cancel,shared)?;let bank=SharedEffectBank::load_directional(&c,cancel,qualify)?;
                 let clip=Clip::new(Arc::clone(bank.animation(170,0)?))?;Ok((bank,clip))})();
@@ -78,12 +112,36 @@ impl Effects {
             if !self.seen.insert(key){continue;}
             if self.active.len()>=64||w.actors.get(&c.attack.caster).is_none_or(|a|a.dead||a.incarnation!=c.caster_incarnation){self.omitted+=1;continue;}
             let Some(clip)=self.clips.get(&c.attack.graphics) else{self.omitted+=1;continue;};
-            self.active.push(Active{cue:c.clone(),start:now,playback:clip.start(),frame:1,finished:false});self.started+=1;
+            let flight=if c.attack.graphics==171 {
+                match batch1::Flight::launch(c,w) {Ok(f)=>Some(f),Err(_)=>{self.omitted+=1;continue;}}
+            } else {None};
+            self.active.push(Active{cue:c.clone(),start:now,playback:clip.start(),frame:1,finished:false,flight});self.started+=1;
         }
         let mut impacts=Vec::new();
-        for a in &mut self.active {match a.playback.advance((now / 1_000_000).saturating_sub(a.start / 1_000_000) * 1_000_000) {
+        for a in &mut self.active {
+            if a.finished {continue;}
+            if w.actors.get(&a.cue.attack.caster).is_none_or(|actor|actor.incarnation!=a.cue.caster_incarnation) {a.finished=true;continue;}
+            if a.flight.is_some() {
+                match self.area_bank.as_ref().context("area bank absent").and_then(|bank|batch1::advance(a,w,bank,now,&mut self.events)) {
+                    Ok(values)=>{self.hits+=values.len() as u64;impacts.extend(values);},
+                    Err(e)=>{a.finished=true;self.omitted+=1;self.error=Some(format!("{e:#}"));}
+                }
+                continue;
+            }
+            match a.playback.advance((now / 1_000_000).saturating_sub(a.start / 1_000_000) * 1_000_000) {
             Ok(sample)=>{a.frame=sample.source_frame;a.finished=sample.finished;
                 for cue in sample.crossed_cues {match cue.event {
+                    FrameEvent::Sound(718) if a.cue.attack.graphics==1805=>{
+                        match self.earth_jail_bank.as_ref().context("earth jail bank absent")
+                            .and_then(|bank|batch1::audio(&bank.bank,&a.cue,1805,cue.source_frame,718,1)) {
+                            Ok(event)=>self.events.push(event),Err(e)=>{self.error=Some(format!("{e:#}"));a.finished=true;}
+                        }
+                    },
+                    FrameEvent::Sound(714) if a.cue.attack.graphics==1804=>{
+                        match self.area_bank.as_ref().context("cloud bank absent").and_then(|bank|batch1::audio(bank,&a.cue,1804,cue.source_frame,714,1)) {
+                            Ok(event)=>self.events.push(event),Err(e)=>{self.error=Some(format!("{e:#}"));a.finished=true;}
+                        }
+                    },
                     FrameEvent::Sound(sound) if a.cue.attack.graphics==170=>self.events.push(EnteredEvent{prepared_audio:None,actor:a.cue.attack.caster,sequence:a.cue.action_sequence,action:0,frame:cue.source_frame,event:format!("ManySound({sound})"),sound:Some(sound)}),
                     FrameEvent::Effect(_) if a.cue.attack.graphics==3934=>{
                         let prepared=(||->Result<_>{let bank=self.selector_bank.as_ref().context("counter3934 bank absent")?;let animation=bank.animation(3934,0)?;
@@ -102,6 +160,36 @@ impl Effects {
     pub fn draw_to<'s>(&'s mut self,target:&mut Target<'_,'s>,projection:ViewProjection,now:u64)->(Value,Vec<EnteredEvent>) {
         let mut rows=Vec::new();
         for a in &self.active {
+            if a.cue.attack.graphics==1805 {
+                let rendered=self.earth_jail_bank.as_ref().context("earth jail bank absent")
+                    .and_then(|bank|bank.draw(a,target,projection));
+                match rendered {Ok(row)=>rows.push(row),Err(e)=>{self.omitted+=1;rows.push(json!({"error":e.to_string()}));}}
+                continue;
+            }
+            if matches!(a.cue.attack.graphics,171|1804) {
+                let (gfx,frame,heading,positions)=if let Some(f)=&a.flight {
+                    if f.arrival.is_some() {(218,a.frame,0,f.recipients.clone())}
+                    else {(171,f.frame,f.heading(),vec![f.position])}
+                } else {
+                    let origin=a.cue.target_origin.unwrap_or([i32::from(a.cue.attack.position[0]),i32::from(a.cue.attack.position[1])]);
+                    (1804,a.frame,0,vec![WorldCell{x:origin[0],y:origin[1]}])
+                };
+                let rendered=(||->Result<_>{
+                    let bank=self.area_bank.as_ref().context("area bank absent")?;
+                    let visual=bank.frame_heading(gfx,0,frame,a.finished,heading)?;
+                    let drawn=!a.finished&&!visual.frame.rgba.is_empty();
+                    if drawn {
+                        ensure!(positions.len()<=128,"area recipient budget");
+                        for &position in &positions {projection.cell_to_pixel(position).context("area projection")?;}
+                        if let Target::Fragments(queue)=target {ensure!(queue.len()+positions.len()<=512,"area fragments budget");}
+                        for &position in &positions {target.submit(visual.frame,position,projection,Mix::Screen)?;}
+                    }
+                    Ok(json!({"sequence":a.cue.action_sequence,"graphics":gfx,"source_frame":frame,
+                        "positions":positions.iter().map(|p|[p.x,p.y]).collect::<Vec<_>>(),"drawn":drawn,"finished":a.finished}))
+                })();
+                match rendered {Ok(row)=>rows.push(row),Err(e)=>{self.omitted+=1;rows.push(json!({"error":e.to_string()}));}}
+                continue;
+            }
             let gfx=a.cue.attack.graphics;let bank=if gfx==3934{self.selector_bank.as_ref()}else{self.bank.as_ref()};
             let sample=(||->Result<_>{let bank=bank.context("many finite bank absent")?;Ok(if gfx==3934{bank.frame(3934,0,a.frame,a.finished)?}else{bank.frame_heading(170,0,a.frame,a.finished,a.cue.attack.heading)?})})();
             match sample {
@@ -114,6 +202,6 @@ impl Effects {
         }
         self.active.retain(|a|!a.finished);
         (json!({"started":self.started,"hits":self.hits,"active":self.active.len(),"omitted":self.omitted,"load_error":self.error,"effects":rows,"entered_events":self.events,"non_audio_cues":self.non_audio,
-            "sources":self.bank.iter().chain(self.selector_bank.iter()).flat_map(|b|b.sources()).map(|s|json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|v|format!("{v:02x}")).collect::<String>()})).collect::<Vec<_>>(),"complete":false}),self.events.clone())
+            "sources":self.bank.iter().chain(self.selector_bank.iter()).chain(self.area_bank.iter()).chain(self.earth_jail_bank.iter().map(|b|&b.bank)).flat_map(|b|b.sources()).map(|s|json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|v|format!("{v:02x}")).collect::<String>()})).collect::<Vec<_>>(),"complete":false}),self.events.clone())
     }
 }
