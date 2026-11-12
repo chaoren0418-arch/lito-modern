@@ -50,6 +50,39 @@ fn width(text: &str) -> Result<i32> {
     let bytes = super::native_login::encode_text(text, 256)?;
     Ok(bytes.len() as i32 * 6)
 }
+/// Native 4318E0 writes a name as colour runs: `\fX` inside the resolved text
+/// (monster, NPC or ground-item names from desc-c) switches the palette entry
+/// and is not drawn. The first run keeps `kind`; later runs are `"run"`. The
+/// six-pixel-per-byte advance between runs is inferred from the positioning
+/// code, 4315B0 itself was not decoded. Placement still uses the byte length
+/// of the whole text, escapes included, as the original does.
+fn push_runs(
+    lines: &mut Vec<Line>,
+    id: u32,
+    kind: &'static str,
+    text: &str,
+    mut x: i32,
+    y: i32,
+    color: u16,
+) {
+    for (n, run) in super::native_text_format::runs(text, color)
+        .into_iter()
+        .enumerate()
+    {
+        let Ok(advance) = width(&run.text) else {
+            return;
+        };
+        lines.push(Line {
+            id,
+            kind: if n == 0 { kind } else { "run" },
+            text: run.text,
+            x,
+            y,
+            color: run.color,
+        });
+        x += advance;
+    }
+}
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct Line {
     pub id: u32,
@@ -82,12 +115,19 @@ pub fn layout(
             continue;
         }
         let a = &world.actors[id];
-        let Ok(name) = catalog.resolve(&a.name) else {
+        // `%i` entries take the runtime name; the entered character's own
+        // name is used for it (see `Catalog::expand`).
+        let who = Some(own.name.as_str())
+            .filter(|n| !n.is_empty() && !n.chars().any(char::is_control));
+        let Ok(name) = catalog.expand(&a.name, who) else {
             continue;
         };
         let Ok(nw) = width(&name) else { continue };
         let title = if !is_own {
-            catalog.resolve(&a.title).ok().filter(|s| width(s).is_ok())
+            catalog
+                .expand(&a.title, who)
+                .ok()
+                .filter(|s| width(s).is_ok())
         } else {
             None
         };
@@ -102,14 +142,15 @@ pub fn layout(
         let left = ((b[0] + b[2] - rect_width) / 2).clamp(0, (800 - rect_width).max(0));
         let mut y = top - 3;
         if let Some(text) = title {
-            lines.push(Line {
-                id: *id,
-                kind: "title",
-                text,
-                x: left + (rect_width - tw) / 2,
+            push_runs(
+                &mut lines,
+                *id,
+                "title",
+                &text,
+                left + (rect_width - tw) / 2,
                 y,
-                color: lawful_color(a.lawful),
-            });
+                lawful_color(a.lawful),
+            );
             y += 13;
         }
         let x = if is_own {
@@ -131,16 +172,15 @@ pub fn layout(
         } else {
             name
         };
-        if !text.is_empty() {
-            lines.push(Line {
-                id: *id,
-                kind: if is_own { "own" } else { "hover" },
-                text,
-                x,
-                y,
-                color,
-            });
-        }
+        push_runs(
+            &mut lines,
+            *id,
+            if is_own { "own" } else { "hover" },
+            &text,
+            x,
+            y,
+            color,
+        );
     }
     // The native own label precedes the hover overlay regardless of actor ID.
     lines.sort_by_key(|l| if l.id == own.id { 0 } else { 1 });
@@ -171,4 +211,35 @@ pub fn draw(
     Ok(
         serde_json::json!({"lines":rows,"font_height":12,"charset":136,"ownership":"click_through","viewport_adaptation":"800x600 origin replaces native 48px margin","cache_entries":cache.len(),"cache_bytes":cache.bytes(),"all_names":false,"full_native_equivalence":false}),
     )
+}
+
+#[cfg(test)]
+mod run_tests {
+    use super::*;
+    #[test]
+    fn colour_runs_advance_six_pixels_per_cp950_byte() {
+        let mut lines = Vec::new();
+        push_runs(&mut lines, 9, "hover", "\\fT試煉\\f2ab", 100, 20, 0x7c00);
+        assert_eq!(lines.len(), 2);
+        assert_eq!(
+            (lines[0].kind, &*lines[0].text, lines[0].x, lines[0].y, lines[0].color),
+            ("hover", "試煉", 100, 20, 0x3e8c)
+        );
+        assert_eq!(
+            (lines[1].kind, &*lines[1].text, lines[1].x, lines[1].y, lines[1].color),
+            ("run", "ab", 124, 20, 0x03e0)
+        );
+        // A name without format codes is one line, exactly as before.
+        let mut lines = Vec::new();
+        push_runs(&mut lines, 9, "own", " Sword", 7, 8, 31);
+        assert_eq!(lines.len(), 1);
+        assert_eq!(
+            (lines[0].kind, &*lines[0].text, lines[0].x, lines[0].color),
+            ("own", " Sword", 7, 31)
+        );
+        // Only format codes: nothing to draw.
+        let mut lines = Vec::new();
+        push_runs(&mut lines, 9, "hover", "\\fT\\f2", 0, 0, 31);
+        assert!(lines.is_empty());
+    }
 }
