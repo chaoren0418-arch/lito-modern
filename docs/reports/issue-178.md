@@ -37,11 +37,26 @@ cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir t
 exit=0   （只編譯，未執行；沒有 test result:，不算通過）
 ```
 
-CI 的 `test result:` 原文待 PR 跑完後補在下方「CI 結果」；在此之前新案例**不算通過**。
-
 ### CI 結果
 
-（待 PR CI 完成後補上）
+PR #276，run 43160740274，commit `dac75e8`（已合併 origin/main），`cargo check --locked --all-targets` 與 `cargo test --locked --lib --no-fail-fast` 皆成功：
+
+```text
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_attack_wait_retires_on_target_or_attacker_replacement ... ok
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_controller_poll_interrupts_attack_after_same_id_reentry ... ok
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_controller_qualifies_siege_from_room_mode ... ok
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_corpse_reput_is_a_new_object_until_its_death_action ... ok
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_local_removal_and_map_rebuild_retire_press_and_old_frame ... ok
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_siege_inner_gate_opens_by_authority_and_survives_reentry ... ok
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_encounter_death_release_removal_and_map_change_track_each_life ... ok
+test modern_lito::native_login::resurrection_tests::controller_revival_retires_old_life_work_but_preserves_withdrawal_deadline ... ok
+test modern_lito::native_login::resurrection_tests::peer_or_orphan_revival_does_not_clear_own_death_or_unrelated_work ... ok
+test modern_lito::native_navigation::collision_tests::encounter_namespaces_are_scoped_to_authoritative_room_mode ... ok
+test modern_lito::native_login::movement_tests::collision_tests_controller_qualifies_encounter_from_room_and_retires_it_in_world ... ok
+test result: ok. 2120 passed; 0 failed; 590 ignored; 0 measured; 0 filtered out; finished in 19.79s
+```
+
+新增 7 案全部 ok；受 `Pending`／`EncounterMode` 修改影響的既有 lib 案例同次 ok。590 個 ignored 是專案既有標記，不算通過。
 
 ## 推測與來源核對
 
