@@ -5,19 +5,19 @@ $project=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $fixture=Join-Path $project ('target/build-evidence-test-' + [Guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $fixture
 # Synthetic receipt fixtures only. No build, native player, network or SQL.
-foreach($name in @('src','windows','.cargo','config','packaging','tools','target/i686-pc-windows-msvc/release')){
+foreach($name in @('src','windows','.cargo','config','packaging','tools','target/current/x86_64-pc-windows-msvc/release')){
     $null=New-Item -ItemType Directory -Path (Join-Path $fixture $name) -Force
 }
 $utf8=[Text.UTF8Encoding]::new($false)
 foreach($name in @('src/main.rs','windows/app.manifest','.cargo/config.toml','config/profile.example.json','packaging/profile.example.json','packaging/README.md',
-    'Cargo.toml','Cargo.lock','build.rs','tools/build.ps1','tools/build-evidence.ps1','tools/package.ps1','tools/verify-independent.ps1')){
+    'Cargo.toml','Cargo.lock','build.rs','tools/build.ps1','tools/build-evidence.ps1','tools/package.ps1','tools/portable-evidence.ps1','tools/verify-independent.ps1')){
     [IO.File]::WriteAllText((Join-Path $fixture $name),'fixture content',$utf8)
 }
 $exe=Get-ModernPlayerPath $fixture 'Release'
 [IO.File]::WriteAllText($exe,'fixture executable -- never launched',$utf8)
 $inputs=@(Get-ModernBuildInputs $fixture)
-$version=[pscustomobject]@{schema=1;application='LiToModern';version='fixture';build='release';status='development_candidate';profile_protocols=@('legacy_v37','modern_v47');extensions=@('player_healing_v1','armor_protection_v1','player_healing_armor_v1','armor_presentation_v1','player_healing_armor_presentation_v1');launches_native_bin=$false;launches_tw=$false}
-$receipt=[pscustomobject]@{Schema=1;Mode='Release';Target='i686-pc-windows-msvc';Executable=[IO.Path]::GetRelativePath($fixture,$exe);Length=(Get-Item -LiteralPath $exe).Length;SHA256=(Get-FileHash -LiteralPath $exe).Hash;InputSHA256=(Get-ModernInputDigest $inputs);Inputs=$inputs;Version=$version}
+$version=[pscustomobject]@{schema=1;application='LiToModern';version='fixture';build='release';status='development_candidate';profile_protocols=@('legacy_v37','modern_v47');extensions=@('player_healing_v1','armor_protection_v1','player_healing_armor_v1','armor_presentation_v1','player_healing_armor_presentation_v1','full_vip_v1','full_vip_v2');launches_native_bin=$false;launches_tw=$false}
+$receipt=[pscustomobject]@{Schema=1;Mode='Release';Target='x86_64-pc-windows-msvc';Executable=[IO.Path]::GetRelativePath($fixture,$exe);Length=(Get-Item -LiteralPath $exe).Length;SHA256=(Get-FileHash -LiteralPath $exe).Hash;InputSHA256=(Get-ModernInputDigest $inputs);Inputs=$inputs;Version=$version}
 $receiptPath=Join-Path $fixture 'target/player-release.build.json'
 $originalReceipt=ConvertTo-Json -InputObject $receipt -Depth 8
 function Restore-Receipt { [IO.File]::WriteAllText($receiptPath,$originalReceipt,$utf8) }
@@ -66,8 +66,9 @@ Restore-Receipt
 foreach($extensions in @(
     @('player_healing_v1'),
     @('player_healing_v1','armor_protection_v1','player_healing_armor_v1'),
-    @('player_healing_v1','armor_protection_v1','player_healing_armor_v1','armor_presentation_v1','armor_presentation_v1'),
-    @('player_healing_v1','armor_protection_v1','player_healing_armor_v1','armor_presentation_v1','unknown_v1'))) {
+    @('player_healing_v1','armor_protection_v1','player_healing_armor_v1','armor_presentation_v1','player_healing_armor_presentation_v1'),
+    @('player_healing_v1','armor_protection_v1','player_healing_armor_v1','armor_presentation_v1','player_healing_armor_presentation_v1','full_vip_v1','full_vip_v1'),
+    @('player_healing_v1','armor_protection_v1','player_healing_armor_v1','armor_presentation_v1','player_healing_armor_presentation_v1','full_vip_v1','unknown_v1'))) {
     $bad=$originalReceipt|ConvertFrom-Json
     $bad.Version.extensions=$extensions
     [IO.File]::WriteAllText($receiptPath,(ConvertTo-Json -InputObject $bad -Depth 8),$utf8)
@@ -75,4 +76,12 @@ foreach($extensions in @(
 }
 Restore-Receipt
 $null=Assert-ModernBuildReceipt $fixture 'Release'
+# A fresh clone has no local .cargo directory; the receipt then covers the tracked inputs only.
+Remove-Item -LiteralPath (Join-Path $fixture '.cargo/config.toml')
+Remove-Item -LiteralPath (Join-Path $fixture '.cargo')
+Expect-Failure 'removed local cargo config' { Assert-ModernBuildReceipt $fixture 'Release' } 'stale'
+$receipt.Mode='Release';$receipt.Inputs=@(Get-ModernBuildInputs $fixture);$receipt.InputSHA256=Get-ModernInputDigest $receipt.Inputs
+[IO.File]::WriteAllText($receiptPath,(ConvertTo-Json -InputObject $receipt -Depth 8),$utf8)
+$null=Assert-ModernBuildReceipt $fixture 'Release'
+$cases.Add('fresh clone without local cargo config')
 [pscustomobject]@{Passed=$cases.Count;Cases=$cases;Fixture=$fixture;ProcessesStarted=0;NetworkConnections=0}

@@ -23,3 +23,5 @@ CI（`.github/workflows/build.yml`，windows-latest）每次 push／PR 都跑以
 
 ## 環境變數一覽（測試用）
 `LITO_SHARED_RESOURCE_ROOT`、`LITO_EFFECTLIST_REFERENCE`、`LITO_MODERN_TEST_JAVA`、`LITO_MODERN_TEST_JAVA_CLASSPATH`、`LITO_MODERN_TEST_SERVER_ROOT`、`LITO_TELEPORT_SCENARIO`、`LITO_WORLD_MAP_WRITE_REFERENCE`、`LITO_NATIVE_PEER_PROFILE`、`LITO_ARENA_GUI_SUPPORT`、`LITO_MODERN_DISINTEGRATE_CAPTURE_DIR`。
+
+`LITO_CLIENT_ROOT`（#303 起）：`--probe-native-lobby` 系列開發診斷（`native_*_probe`、`維護工具/verify-native-*.ps1`、`tests/native_item_sessions.rs`）需要載入資源時，讀這個環境變數指定的資源根目錄；沒設定時改讀 EXE 旁的 `LiToModern.native.json`，兩者都沒有就拒絕執行。程式內不再寫死 `D:\lineage開發\0-客戶端`。診斷的輸出目錄（`<專案>/target/current/…`）改在執行時由 EXE 所在位置往上找含 `Cargo.toml` 的專案，不再用編譯時的 `CARGO_MANIFEST_DIR`；把 EXE 複製到專案外（例如可攜包）就不能跑這些診斷。

@@ -40,7 +40,7 @@ pub(super) fn expiry(c:&mut LoginController,model:&mut Model,root:&Path,role:&st
  Ok(json!({"before":before,"grants":grants,"removed":removed,"expired":expired,"render":render,"expected_seconds":3600,"clock_or_authority_injection":false,"equipped_expiry_verified":false,"gui_verified":false}))
 }
 pub(super) fn run(c:&mut LoginController,model:&mut Model,root:&Path,role:&str,other:&str)->Result<Value>{
- const GEM:u32=1811939330;let cancel=AtomicBool::new(false);let start=Instant::now();let catalog=Catalog::load(Path::new(r"D:\lineage開發\0-客戶端"),&cancel)?;
+ const GEM:u32=1811939330;let cancel=AtomicBool::new(false);let start=Instant::now();let catalog=Catalog::load(&super::native_startup::diagnostic_resource_root()?,&cancel)?;
  if role=="b"{wait(c,420,|_|root.join("a-merchants-complete").exists())?;}
  let mut shops=vec![];
  for npc in [1812987906u32,1812987914,1812987915,1812987916]{
