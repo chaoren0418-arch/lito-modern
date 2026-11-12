@@ -1,0 +1,416 @@
+[
+ {
+  "id": "T040-1",
+  "title": "T040（M3 1/1）: lito-launcher-server Issue：修補提案四項交給伺服器 repo",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T040）。\n**本張範圍（1／1）**：四項修補提案各開一張伺服器 repo 的 Issue（附證據路徑）；伺服器接收後才刪本 repo 的 `修補提案/`。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T040 | backlog(M3) | Claude | lito-launcher-server Issue**：把修補提案四項（租裝返回、同端點傳送、房間最後離開、商人屬性來源）以 Issue 加證據路徑的形式交給伺服器 repo，不搬 ASM 工具。伺服器接收後，刪除本 repo 的 `修補提案/`。（1 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T034-1",
+  "title": "T034（M3 1/1）: docs/GUI-ACCEPTANCE.md：T030 的檢查清單",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T034）。\n**本張範圍（1／1）**：完整檢查清單（全部）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T034 | backlog(M3) | Claude | `docs/GUI-ACCEPTANCE.md`（新增）**：T030 的檢查清單。\n  - 流程：普通房、租裝入口與商店、旅館返回（3600／7200 秒自然租期）、商人與市民、Enter 負向、EOF／取消、新技能、owner 退役與傳送恢復、觀戰、雙玩家戰鬥退出、小地圖、NPC caption。\n  - 核對面向：實體輸入、像素、IME、多 DPI、聲音（實體裝置、無裝置／拔插）。\n  - 其他清單項：建房、中文密碼往返（NATIVE-ROOM:46）、TeleportMe 原圖示排版（NATIVE-TELEPORT:22）、屋頂進出（NATIVE-WORLD-ROOFS:35）、開門 O 鍵、觀戰切換與鏡頭、G09 音效事件、聊天（T060）。\n  - 依 G08 子項逐條列入：\n    - G08.1 房間建立／修改、踢人、觀戰、模式控件；\n    - G08.2a–e 徽章與市民資格頁、瑪雅／菲佛／克里商人與容量／重量／到期、旅館租房／鑰匙／退房、四位傳送 NPC、鍵盤走訪；\n    - G08.3 屬性、狀態、系統訊息與小地圖；\n    - G08.4 從唯一入口走完整流程，含 IME、DPI、焦點、取消；\n    - G07.5 小地圖的觀戰 GUI。\n  - 數值 schema 寫明登入器的啟動方式。\n\n  （1 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T035-1",
+  "title": "T035（M3 1/2）: src/、維護工具/：已知 GUI 與輸入缺陷",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T035）。\n**本張範圍（1／2）**：截圖與輸入：FrameArrived 逾時、geometry unavailable 恢復、Release SendInput 探針。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T035 | backlog(M3) | Cursor | `src/`、`維護工具/`：已知 GUI 與輸入缺陷**，分 2 張：第 1 張是截圖與輸入（第 2 項）；第 2 張是版面與文字（第 1、3 項）。\n  - Release 長入口提示換行被下方操作列裁切（NATIVE-WORLD-INTEGRATION:156）。\n  - FrameArrived 逾時、geometry unavailable 的恢復路徑，以及 Release 的 OS SendInput 輸入探針失敗：擷取逾時、click 缺 geometry、沒有 result.json（HISTORY L1411–L1417、NATIVE-LOGIN:14）。\n  - 伺服器名稱含 `(數量)` 時，數量會重複顯示（NATIVE-INVENTORY:44）。\n  - G08 的 acceptance：失焦後不能持續發招；無法操作或布局遮擋都要修好。\n\n  （2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T035-2",
+  "title": "T035（M3 2/2）: src/、維護工具/：已知 GUI 與輸入缺陷",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T035）。\n**本張範圍（2／2）**：版面與文字：長入口提示被裁切、伺服器名稱數量重複顯示、失焦後不能持續發招。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T035 | backlog(M3) | Cursor | `src/`、`維護工具/`：已知 GUI 與輸入缺陷**，分 2 張：第 1 張是截圖與輸入（第 2 項）；第 2 張是版面與文字（第 1、3 項）。\n  - Release 長入口提示換行被下方操作列裁切（NATIVE-WORLD-INTEGRATION:156）。\n  - FrameArrived 逾時、geometry unavailable 的恢復路徑，以及 Release 的 OS SendInput 輸入探針失敗：擷取逾時、click 缺 geometry、沒有 result.json（HISTORY L1411–L1417、NATIVE-LOGIN:14）。\n  - 伺服器名稱含 `(數量)` 時，數量會重複顯示（NATIVE-INVENTORY:44）。\n  - G08 的 acceptance：失焦後不能持續發招；無法操作或布局遮擋都要修好。\n\n  （2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T035-1"
+  ]
+ },
+ {
+  "id": "T031-1",
+  "title": "T031（M3 1/2）: packaging/**：clean host 可攜交付",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T031）。\n**本張範圍（1／2）**：打包：版本清單、可雙擊入口、正式版 VC runtime、移除 5 處開發診斷 hardcode、最低 Windows 版本。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`：clean host 可攜交付**。依 G10：可攜包要附來源、EXE 與資源的版本清單，不依賴舊 BIN。提供可雙擊的啟動入口（`.cmd` 或直接啟動 exe，不依賴 PowerShell 7）；改用正式版 VC runtime，不依賴 VS 預覽 runtime；移除 5 處開發診斷 hardcode（L1569）；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T030-1",
+  "title": "T030（M3 1/1）: 依 T034 清單做原生 GUI 實機驗收",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "dot",
+  "text": "runner: dot。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T030）。\n**本張範圍（1／1）**：依 `docs/GUI-ACCEPTANCE.md` 逐項實機驗收並截圖（需要開遊戲，等 Codex／dot）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T030 | backlog(M3) | 使用者 | 依 T034 清單做原生 GUI 實機驗收**：真機驗收，`needs:user`。（1 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T034-1",
+   "T035-2",
+   "T031-1"
+  ]
+ },
+ {
+  "id": "T031-2",
+  "title": "T031（M3 2/2）: packaging/**：clean host 可攜交付",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T031）。\n**本張範圍（2／2）**：乾淨主機驗證：LoadLibrary 閉包、首次設定、中文路徑（需要實機）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T031 | backlog(M3) | Cursor＋本機 | `packaging/**`：clean host 可攜交付**。依 G10：可攜包要附來源、EXE 與資源的版本清單，不依賴舊 BIN。提供可雙擊的啟動入口（`.cmd` 或直接啟動 exe，不依賴 PowerShell 7）；改用正式版 VC runtime，不依賴 VS 預覽 runtime；移除 5 處開發診斷 hardcode（L1569）；寫明最低 Windows 版本；在乾淨主機驗證 LoadLibrary 動態載入閉包、首次設定與中文路徑。（2 張：打包 1、乾淨主機驗證 1）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T031-1"
+  ]
+ },
+ {
+  "id": "T036-1",
+  "title": "T036（M3 1/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（1／15）**：檔案寫入所有權審查（83 項）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-2",
+  "title": "T036（M3 2/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（2／15）**：跨函式 helper 閉合審查：技能／戰鬥（1／2）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-3",
+  "title": "T036（M3 3/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（3／15）**：跨函式 helper 閉合審查：技能／戰鬥（2／2）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T036-2"
+  ]
+ },
+ {
+  "id": "T036-4",
+  "title": "T036（M3 4/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（4／15）**：跨函式 helper 閉合審查：世界／渲染。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-5",
+  "title": "T036（M3 5/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（5／15）**：跨函式 helper 閉合審查：背包／登入／傳送。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-6",
+  "title": "T036（M3 6/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（6／15）**：執行上面審查新放行的項目（需要本機執行測試）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T036-1",
+   "T036-3",
+   "T036-4",
+   "T036-5"
+  ]
+ },
+ {
+  "id": "T036-7",
+  "title": "T036（M3 7/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（7／15）**：共享資源根 159 項（1／2）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-8",
+  "title": "T036（M3 8/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（8／15）**：共享資源根 159 項（2／2）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T036-7"
+  ]
+ },
+ {
+  "id": "T036-9",
+  "title": "T036（M3 9/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（9／15）**：Java peer／TLS 盤點。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-10",
+  "title": "T036（M3 10/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（10／15）**：Java peer／TLS 執行（1／2）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T036-9"
+  ]
+ },
+ {
+  "id": "T036-11",
+  "title": "T036（M3 11/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（11／15）**：Java peer／TLS 執行（2／2）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T036-10"
+  ]
+ },
+ {
+  "id": "T036-12",
+  "title": "T036（M3 12/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（12／15）**：原機 snapshot 99 項。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-13",
+  "title": "T036（M3 13/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（13／15）**：雜項環境變數 40 項。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-14",
+  "title": "T036（M3 14/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（14／15）**：自有隔離 DB 盤點。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T036-15",
+  "title": "T036（M3 15/15）: 廣域回歸：白名單以外的 1055 個待驗測試",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T036）。\n**本張範圍（15／15）**：自有隔離 DB 執行。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T036 | backlog(M3) | 本機 dot／codex-local＋Claude | 廣域回歸：白名單以外的 1055 個待驗測試**（574＋481，分類見 #54）。依 #92 盤點分 15 張：\n  - 檔案寫入所有權審查（83 項）1 張；\n  - 跨函式 helper 閉合 4 張（技能／戰鬥 2、世界／渲染 1、背包／登入／傳送 1），審完的新放行項目由 1 張執行；\n  - 共享資源根 159 項 2 張；\n  - Java peer／TLS 盤點 1 張、執行 2 張；\n  - 原機 snapshot 99 項 1 張；\n  - 雜項環境變數 40 項 1 張；\n  - 自有隔離 DB 盤點 1 張、執行 1 張。\n\n  GUI 6 項與 REAL_DB 1 項直接排除，移入 T030 清單。整庫 lib 編譯記憶體失敗是整庫回歸的前置阻擋，要先處理（NATIVE-WORLD-INTEGRATION:5、:9、:177）。歷史上未關閉的失敗要在對應那一張重驗：\n  - C72D 499 過 1 敗（L71、L1586）、66470 紅測試（L83）；\n  - 房間切換 90 秒逾時（NATIVE-SCENE-LOADING:9）、schema34 首次失敗（NATIVE-RESOURCE-LATENCY:17）、C3 材料技能首輪失敗（NATIVE-LABEL-UPDATES:50）、Release573 嚴格地形（NATIVE-WORLD-INTEGRATION:150）；\n  - runner 漏 pin native_room.rs（NATIVE-WORLD-INTEGRATION:13）。（15 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T036-14"
+  ]
+ },
+ {
+  "id": "T038-1",
+  "title": "T038（M3 1/3）: G11 效能、長時間與故障恢復",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "dot",
+  "text": "runner: dot。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T038）。\n**本張範圍（1／3）**：保存雙玩家 Release 的載入、幀時間、記憶體基準與驗收預算 `acceptance-budget-v1.json`。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T038 | backlog(M3) | 本機 dot＋Claude＋Cursor | G11 效能、長時間與故障恢復**，依 G11 的 work 分 3 張：\n  - 先保存雙玩家 Release 的載入、幀時間、記憶體基準與驗收預算（`acceptance-budget-v1.json`），避免事後改標準。\n  - 至少 60 分鐘、20 次完整場次循環，並在登入、房間、戰鬥、返回四個階段注入斷線（HISTORY L159、L171、L1204）。\n  - 量測快取、worker、handle、音效、取消與退出；修復超限或持續增長的項目。\n\n  斷線延遲結算記一敗，重複回呼要冪等（`dragon-skills-0.6.46.json` L45）。（3 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T038-2",
+  "title": "T038（M3 2/3）: G11 效能、長時間與故障恢復",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "dot",
+  "text": "runner: dot。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T038）。\n**本張範圍（2／3）**：60 分鐘、20 次完整場次循環，四個階段注入斷線。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T038 | backlog(M3) | 本機 dot＋Claude＋Cursor | G11 效能、長時間與故障恢復**，依 G11 的 work 分 3 張：\n  - 先保存雙玩家 Release 的載入、幀時間、記憶體基準與驗收預算（`acceptance-budget-v1.json`），避免事後改標準。\n  - 至少 60 分鐘、20 次完整場次循環，並在登入、房間、戰鬥、返回四個階段注入斷線（HISTORY L159、L171、L1204）。\n  - 量測快取、worker、handle、音效、取消與退出；修復超限或持續增長的項目。\n\n  斷線延遲結算記一敗，重複回呼要冪等（`dragon-skills-0.6.46.json` L45）。（3 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T038-1"
+  ]
+ },
+ {
+  "id": "T038-3",
+  "title": "T038（M3 3/3）: G11 效能、長時間與故障恢復",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "dot",
+  "text": "runner: dot。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T038）。\n**本張範圍（3／3）**：量測快取、worker、handle、音效、取消與退出；修復超限或持續增長的項目。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T038 | backlog(M3) | 本機 dot＋Claude＋Cursor | G11 效能、長時間與故障恢復**，依 G11 的 work 分 3 張：\n  - 先保存雙玩家 Release 的載入、幀時間、記憶體基準與驗收預算（`acceptance-budget-v1.json`），避免事後改標準。\n  - 至少 60 分鐘、20 次完整場次循環，並在登入、房間、戰鬥、返回四個階段注入斷線（HISTORY L159、L171、L1204）。\n  - 量測快取、worker、handle、音效、取消與退出；修復超限或持續增長的項目。\n\n  斷線延遲結算記一敗，重複回呼要冪等（`dragon-skills-0.6.46.json` L45）。（3 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T038-2"
+  ]
+ },
+ {
+  "id": "T037-1",
+  "title": "T037（M3 1/2）: docs/G01-G12-AUDIT.md：G12 稽核",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T037）。\n**本張範圍（1／2）**：保存唯一原始碼、逆向與回復證據，整理已核實的冗餘產物（刪除前先列清單；不動封存、硬連結、正式資源）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T037 | backlog(M3) | Claude＋本機 | `docs/G01-G12-AUDIT.md`（新增）**：G12 稽核，依 G12 的 work 分 2 張：\n  - 第 1 張：保存唯一原始碼、逆向與回復證據，再整理已核實的冗餘產物。只整理專案內、本專案自己產生的產物；不動封存、硬連結、正式資源；刪除前列清單。\n  - 第 2 張：對 46 項逐項核對驗收、已知限制、重跑指令與現行來源漂移，寫進 `docs/G01-G12-AUDIT.md`；同時判定 map563、ARGO 是否在範圍內（U-M3-6、U-M3-8）。\n\n  （2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T037-2",
+  "title": "T037（M3 2/2）: docs/G01-G12-AUDIT.md：G12 稽核",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T037）。\n**本張範圍（2／2）**：46 項逐項核對，寫 `docs/G01-G12-AUDIT.md`；判定 map563、ARGO 是否在範圍內。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T037 | backlog(M3) | Claude＋本機 | `docs/G01-G12-AUDIT.md`（新增）**：G12 稽核，依 G12 的 work 分 2 張：\n  - 第 1 張：保存唯一原始碼、逆向與回復證據，再整理已核實的冗餘產物。只整理專案內、本專案自己產生的產物；不動封存、硬連結、正式資源；刪除前列清單。\n  - 第 2 張：對 46 項逐項核對驗收、已知限制、重跑指令與現行來源漂移，寫進 `docs/G01-G12-AUDIT.md`；同時判定 map563、ARGO 是否在範圍內（U-M3-6、U-M3-8）。\n\n  （2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T037-1"
+  ]
+ },
+ {
+  "id": "T032-1",
+  "title": "T032（M3 1/1）: docs/ARCHITECTURE.zh-TW.md：重寫為現況版",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T032）。\n**本張範圍（1／1）**：全文重寫（全部）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T032 | backlog(M3) | Claude | `docs/ARCHITECTURE.zh-TW.md`**：重寫為現況版（現在是流水帳）。（1 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T042-1",
+  "title": "T042（M3 1/1）: 維護工具/run-local-test-suite.ps1：-Full 模式",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T042）。\n**本張範圍（1／1）**：加入 `-Full`（Debug＋Release、T036 放行項目、排除理由逐項輸出）；腳本寫好後的實跑交 Codex。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T042 | backlog(M3) | 本機 codex-local | `維護工具/run-local-test-suite.ps1`**：加入 `-Full` 模式，涵蓋 Debug 與 Release，以及 T036 放行的全部項目；無法執行的項目逐項輸出排除理由。這是 M3 完成定義要用的腳本。（1 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T049-1",
+  "title": "T049（M3 1/2）: src/：背包與介面文字",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T049）。\n**本張範圍（1／2）**：祝福光暈、詛咒色盤、物品名稱 runtime 模板與格式顏色、地面與世界物品名稱。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T049 | backlog(M3) | Cursor | `src/`：背包與介面文字**。範圍包括：\n  - 祝福光暈、詛咒色盤（NATIVE-INVENTORY-ICONS:41）；\n  - 物品名稱 runtime 模板、格式顏色、遞迴引用（NATIVE-INVENTORY-NAMES:39）；\n  - 數字通知的 Text 資源映射（NATIVE-GAME:21）、LTstring 原版 UI（NATIVE-LOBBY:46）；\n  - S0F／S10 系統訊息 GUI（NATIVE-WORLD-INTEGRATION:84）；\n  - 地面與世界物品名稱。\n\n  （2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T049-2",
+  "title": "T049（M3 2/2）: src/：背包與介面文字",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T049）。\n**本張範圍（2／2）**：數字通知的 Text 資源映射、LTstring 原版 UI、S0F／S10 系統訊息 GUI。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T049 | backlog(M3) | Cursor | `src/`：背包與介面文字**。範圍包括：\n  - 祝福光暈、詛咒色盤（NATIVE-INVENTORY-ICONS:41）；\n  - 物品名稱 runtime 模板、格式顏色、遞迴引用（NATIVE-INVENTORY-NAMES:39）；\n  - 數字通知的 Text 資源映射（NATIVE-GAME:21）、LTstring 原版 UI（NATIVE-LOBBY:46）；\n  - S0F／S10 系統訊息 GUI（NATIVE-WORLD-INTEGRATION:84）；\n  - 地面與世界物品名稱。\n\n  （2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T049-1"
+  ]
+ },
+ {
+  "id": "T052-1",
+  "title": "T052（M3 1/2）: src/：裝備與彈藥 UI、地面拾取、特殊物品選項",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T052）。\n**本張範圍（1／2）**：裝備與彈藥 UI。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T052 | backlog(M3) | Cursor | `src/`**：裝備與彈藥 UI（NATIVE-RANGED:13、:37）；地面物品直接滑鼠拾取與排序；特殊物品選項（NATIVE-REAGENT-SKILLS:31、:33）。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T052-2",
+  "title": "T052（M3 2/2）: src/：裝備與彈藥 UI、地面拾取、特殊物品選項",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T052）。\n**本張範圍（2／2）**：地面物品直接滑鼠拾取與排序；特殊物品選項。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T052 | backlog(M3) | Cursor | `src/`**：裝備與彈藥 UI（NATIVE-RANGED:13、:37）；地面物品直接滑鼠拾取與排序；特殊物品選項（NATIVE-REAGENT-SKILLS:31、:33）。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T052-1"
+  ]
+ },
+ {
+  "id": "T053-1",
+  "title": "T053（M3 1/2）: G03 舊 54 情境盤點與重驗",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T053）。\n**本張範圍（1／2）**：逐一把舊 54 情境列為保留、改寫或失效並說明原因；補拒絕、延遲、過期世代、斷線與重新登入的情境定義。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T053 | backlog(M3) | 本機＋Claude | G03 舊 54 情境盤點與重驗**。依 G03 的 work：\n  - 逐一把舊 54 情境列為保留、改寫或失效，並說明原因；\n  - 補拒絕、延遲或漏回覆、過期世代、斷線與重新登入；\n  - 做 S_CE／S_D4／S_CD 順序重播，驗證初始化通知的人數、期限與換房隔離。\n\n  每個現行必備情境都要有當前 JAR／EXE 的結果，不得沿用舊版計數。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T053-2",
+  "title": "T053（M3 2/2）: G03 舊 54 情境盤點與重驗",
+  "stage": "test",
+  "priority": "P2",
+  "runner": "codex-local",
+  "text": "runner: codex-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T053）。\n**本張範圍（2／2）**：用當前 JAR／EXE 重驗每個現行必備情境；S_CE／S_D4／S_CD 順序重播（需要本機執行）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T053 | backlog(M3) | 本機＋Claude | G03 舊 54 情境盤點與重驗**。依 G03 的 work：\n  - 逐一把舊 54 情境列為保留、改寫或失效，並說明原因；\n  - 補拒絕、延遲或漏回覆、過期世代、斷線與重新登入；\n  - 做 S_CE／S_D4／S_CD 順序重播，驗證初始化通知的人數、期限與換房隔離。\n\n  每個現行必備情境都要有當前 JAR／EXE 的結果，不得沿用舊版計數。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T053-1"
+  ]
+ },
+ {
+  "id": "T056-1",
+  "title": "T056（M3 1/2）: src/：名稱、徽章與 FA／S69 狀態呈現（G07）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T056）。\n**本張範圍（1／2）**：emblem 請求、快取與繪製；S2F 稱號、全體名稱權限、特殊 NPC 徽記。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T056 | backlog(M3) | Cursor | `src/`：名稱、徽章與 FA／S69 狀態呈現（G07）**。G07 的 work 明列「全體／地面名稱、徽章位置、FA／S69 状態」。範圍包括：\n  - emblem 請求、快取與繪製（NATIVE-OPTIMIZED-PROFILE:18）；\n  - S2F 稱號、全體名稱權限、特殊 NPC 徽記（NATIVE-WORLD-LABELS:13、:25）；\n  - FA 限制與 S69 戰爭狀態的陣營顏色分支（NATIVE-LABEL-UPDATES:19、NATIVE-SCENE-LOADING:13）。\n\n  盟戰本身的玩法不在範圍內，這裡只做狀態呈現。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T056-2",
+  "title": "T056（M3 2/2）: src/：名稱、徽章與 FA／S69 狀態呈現（G07）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T056）。\n**本張範圍（2／2）**：FA 限制與 S69 戰爭狀態的陣營顏色分支。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T056 | backlog(M3) | Cursor | `src/`：名稱、徽章與 FA／S69 狀態呈現（G07）**。G07 的 work 明列「全體／地面名稱、徽章位置、FA／S69 状態」。範圍包括：\n  - emblem 請求、快取與繪製（NATIVE-OPTIMIZED-PROFILE:18）；\n  - S2F 稱號、全體名稱權限、特殊 NPC 徽記（NATIVE-WORLD-LABELS:13、:25）；\n  - FA 限制與 S69 戰爭狀態的陣營顏色分支（NATIVE-LABEL-UPDATES:19、NATIVE-SCENE-LOADING:13）。\n\n  盟戰本身的玩法不在範圍內，這裡只做狀態呈現。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T056-1"
+  ]
+ },
+ {
+  "id": "T057-1",
+  "title": "T057（M3 1/2）: 資源支援矩陣與失敗診斷（G07.1、G07.4）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T057）。\n**本張範圍（1／2）**：G07.1：可重跑、綁資源 SHA 的資源命名空間與格式矩陣（逐成員覆蓋）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T057 | backlog(M3) | Cursor＋本機 | 資源支援矩陣與失敗診斷（G07.1、G07.4）**。\n  - G07.1：完成可重跑、綁資源 SHA 的資源命名空間與格式矩陣，做到逐成員覆蓋（目前只到 exhaustive_member_coverage_pending）。\n  - G07.4：缺件與未知格式要「明確失敗並提供來源診斷」，不可靜默缺圖。例如 727 缺 383 附件、262 陰影 bank（NATIVE-ACTOR-LAYERS:11），以及 T011-F 的特效資源資格不符，都要有玩家看得到或報告讀得到的診斷。\n\n  另外包括：11 張經典地圖的資料差異與地圖 504 的雙域物理（`native-de-terrain-current.zh-TW.md:11`）、LTzone 區域名稱與色彩（不能由顏色推安全區）、map_page 只有頁 1、2。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T057-2",
+  "title": "T057（M3 2/2）: 資源支援矩陣與失敗診斷（G07.1、G07.4）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T057）。\n**本張範圍（2／2）**：G07.4：缺件與未知格式的明確失敗與來源診斷；11 張經典地圖資料差異、地圖 504、LTzone、map_page。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T057 | backlog(M3) | Cursor＋本機 | 資源支援矩陣與失敗診斷（G07.1、G07.4）**。\n  - G07.1：完成可重跑、綁資源 SHA 的資源命名空間與格式矩陣，做到逐成員覆蓋（目前只到 exhaustive_member_coverage_pending）。\n  - G07.4：缺件與未知格式要「明確失敗並提供來源診斷」，不可靜默缺圖。例如 727 缺 383 附件、262 陰影 bank（NATIVE-ACTOR-LAYERS:11），以及 T011-F 的特效資源資格不符，都要有玩家看得到或報告讀得到的診斷。\n\n  另外包括：11 張經典地圖的資料差異與地圖 504 的雙域物理（`native-de-terrain-current.zh-TW.md:11`）、LTzone 區域名稱與色彩（不能由顏色推安全區）、map_page 只有頁 1、2。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T057-1"
+  ]
+ },
+ {
+  "id": "T058-1",
+  "title": "T058（M3 1/2）: src/：遮擋、屋頂、附件、透明與特效排序（G07.3）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T058）。\n**本張範圍（1／2）**：地形、跨區塊、遮擋與屋頂（含屋頂進出）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T058 | backlog(M3) | Cursor | `src/`：遮擋、屋頂、附件、透明與特效排序（G07.3）**。G07.3 目前是 partially_verified，要對照當前正式核心核實地形、跨區塊、遮擋、屋頂、附件、名稱與特效排序，包括屋頂進出（NATIVE-WORLD-ROOFS:35）。照明、水下、map303 背景、RGB565 等價沒有列在 G07，仍歸「畫面等價研究」。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T058-2",
+  "title": "T058（M3 2/2）: src/：遮擋、屋頂、附件、透明與特效排序（G07.3）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T058）。\n**本張範圍（2／2）**：附件、名稱與特效排序。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T058 | backlog(M3) | Cursor | `src/`：遮擋、屋頂、附件、透明與特效排序（G07.3）**。G07.3 目前是 partially_verified，要對照當前正式核心核實地形、跨區塊、遮擋、屋頂、附件、名稱與特效排序，包括屋頂進出（NATIVE-WORLD-ROOFS:35）。照明、水下、map303 背景、RGB565 等價沒有列在 G07，仍歸「畫面等價研究」。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T058-1"
+  ]
+ },
+ {
+  "id": "T059-1",
+  "title": "T059（M3 1/2）: 音效裝置生命週期（G09）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T059）。\n**本張範圍（1／2）**：原始 WAV 與影格事件；不能有重複事件或無限聲音。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T059 | backlog(M3) | Cursor＋本機 | 音效裝置生命週期（G09）**。依 G09 的 work：\n  - 原始 WAV 與影格事件；\n  - 無裝置、裝置變更、同時多聲、切換場景與退出回收；\n  - 不能有重複事件、無限聲音，或因裝置失敗而崩潰。\n\n  實際聽覺驗收由 T030 做。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ },
+ {
+  "id": "T059-2",
+  "title": "T059（M3 2/2）: 音效裝置生命週期（G09）",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T059）。\n**本張範圍（2／2）**：無裝置、裝置變更、同時多聲、切換場景與退出回收；裝置失敗不崩潰。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T059 | backlog(M3) | Cursor＋本機 | 音效裝置生命週期（G09）**。依 G09 的 work：\n  - 原始 WAV 與影格事件；\n  - 無裝置、裝置變更、同時多聲、切換場景與退出回收；\n  - 不能有重複事件、無限聲音，或因裝置失敗而崩潰。\n\n  實際聽覺驗收由 T030 做。（2 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。",
+  "depends_on": [
+   "T059-1"
+  ]
+ },
+ {
+  "id": "T060-1",
+  "title": "T060（M3 1/1）: 聊天",
+  "stage": "code",
+  "priority": "P2",
+  "runner": "claude-local",
+  "text": "runner: claude-local。M3 主線任務（#296 開放，使用者 2026-11-12 17:03 同意；TASKS.md 的 T060）。\n**本張範圍（1／1）**：聊天視窗收發、過濾視窗、私訊的當版行為；NPC 對話 opcode 45（全部）。只做本張範圍；同一任務的其他張由各自的 Issue 處理。\n\n任務全文（TASKS.md 現行版本）：\n- **T060 | backlog(M3) | Cursor＋本機 | 聊天**。CLAUDE.md 目標明列「聊天」。要驗證聊天視窗收發、過濾視窗、私訊的當版行為；目前 `chat_filtered_window_tests.rs:22`、`direct_chat_window_tests.rs:438` 是 GUI ignored 測試（#54），GUI 部分併入 T034 清單。另外要解析 NPC 對話 opcode 45（sayCode 加座標，範圍 8 格、大喊 50 格、全服；`native-de-chat-current.zh-TW.md:9-11`）。（1 張）\n\n共通規則：動手前先查 `docs/REUSE-MAP.md`（可唯讀參考 tw-bin-engine 與 lito-launcher-server）；只改本張範圍需要的檔案；不連正式服務或 DB；不啟停既有遊戲程序；只寫專案資料夾內；報告 `docs/reports/issue-<本 Issue 號>.md` 分「已驗證／推測／待驗證」；需要開遊戲或實機才能確認的項目列在「待驗證」，不要標成通過。"
+ }
+]

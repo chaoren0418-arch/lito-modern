@@ -108,3 +108,4 @@
 - 2026-11-12 — #155 T022-5: T022（M2 5/10）: src/：未接的 91 個技能（code，claude-local，PR #292 已合併）→ [報告](reports/issue-155.md)
 - 2026-11-12 — #149 T027-5: T027（M2 5/6）: src/：候選獨有的 48 個技能重做進 src（code，claude-local，PR 已合併）→ [報告](reports/issue-149.md)
 - 2026-11-12 — #156 T022-6: T022（M2 6/10）: src/：未接的 91 個技能（code，claude-local，PR #295 已合併）→ [報告](reports/issue-156.md)
+- 2026-11-12 — #296 M3 開放：44 張原樣升級為主線（使用者 2026-11-12 同意）（plan，claude-chat，PR #297 已合併）→ [報告](reports/issue-296.md)
