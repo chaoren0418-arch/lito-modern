@@ -322,10 +322,7 @@ pub fn run(
             )?;
             let result = (|| -> Result<Option<Settings>> {
                 state.0.borrow_mut().create(hwnd)?;
-                let _ = ShowWindow(hwnd, SW_SHOW);
-                if !IsWindowVisible(hwnd).as_bool() {
-                    let _ = ShowWindow(hwnd, SW_SHOW);
-                }
+                super::window_presentation::present(hwnd);
                 let _ = SetFocus(Some(state.0.borrow().control(ENDPOINT)));
                 let mut msg = MSG::default();
                 loop {
