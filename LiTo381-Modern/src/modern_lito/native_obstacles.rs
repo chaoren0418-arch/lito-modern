@@ -1,11 +1,12 @@
 //! Dynamic occupancy qualified against the deployed arena object contracts.
 use super::native_world::{Actor, World};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
-pub enum EncounterMode { Quest, TimeAttack }
+pub enum EncounterMode { Quest, Siege, TimeAttack }
 impl EncounterMode {
     /// Native room wire modes, not map IDs or inferred sprite families.
+    /// Siege War (3) has no encounter actors; it only qualifies its inner gate.
     pub fn from_room_mode(mode: u8) -> Option<Self> {
-        match mode { 2 => Some(Self::Quest), 4 => Some(Self::TimeAttack), _ => None }
+        match mode { 2 => Some(Self::Quest), 3 => Some(Self::Siege), 4 => Some(Self::TimeAttack), _ => None }
     }
 }
 pub fn guardian(a:&Actor)->bool {
@@ -21,7 +22,7 @@ pub fn encounter_actor(mode: Option<EncounterMode>, a: &Actor) -> bool {
     let namespace = match mode {
         Some(EncounterMode::Quest) => 0x6c000000..=0x6cffffff,
         Some(EncounterMode::TimeAttack) => 0x6d000000..=0x6dffffff,
-        None => return false,
+        Some(EncounterMode::Siege) | None => return false,
     };
     namespace.contains(&a.id) && a.graphics != 0 && a.walk_action == 0
 }

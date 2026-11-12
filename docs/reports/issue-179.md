@@ -13,7 +13,7 @@
 本輪接手卡在合併佇列的舊分支，只做同步與合併後修正，**沒有新增本張範圍外功能**。
 
 ### 做了什麼
-- `git merge origin/main`（885c5c0）。衝突 5 檔：`native_item_actions.rs`（3 處，兩邊內容相同，取 main）、`native_login.rs`（4 處）、`native_login_window.rs`（6 處）、`native_skill_selection.rs`、`native_skills.rs`。
+- `git merge origin/main`（885c5c0，之後再同步到 main 最新版；#151 已把 107 加進 `item_targeted`，本分支再補 73）。衝突 5 檔：`native_item_actions.rs`（3 處，兩邊內容相同，取 main）、`native_login.rs`（4 處）、`native_login_window.rs`（6 處）、`native_skill_selection.rs`、`native_skills.rs`。
 - **物品技能改用 main 的設計**：main 由 #145（T027 批一）已加入 `native_skills::ItemTarget`（含連線 epoch、InputStamp、背包 revision、地圖快照）與 `item_targeted`／`cast_item(&ItemTarget)`，背包開著時選物品施放。本分支舊的 `inventory_target`／`item_request(s, skill, &Choice)`／「關閉背包後施放」流程已移除，改將 main 的 `item_targeted` 由 `12|21|100` 擴充為本張要求的 `12|21|73|100|107`。`native_login.rs` 衝突全取 main（含 `cast_with_input`、傳送書籤、`CombatInput`）。
 - `native_login_window.rs`：保留本分支的 C76 銷毀、選項送出／取消、信件欄位；移除殘留的 `skill_item_choice`，技能說明文字改用 `skill_item_target`。
 - **修正合併後的控制 ID 衝突**：本分支 `ITEM_MAIL` 與 main 的 `SKILL_LABEL` 同為 318（`cargo check` 出現 unreachable pattern 警告，會讓信件按鈕與技能標籤共用同一 HWND ID）。`ITEM_MAIL` 改為未使用的 321。

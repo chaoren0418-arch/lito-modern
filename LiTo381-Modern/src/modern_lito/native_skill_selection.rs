@@ -109,7 +109,7 @@ impl Ground {
 /// Shared by the actual native window and isolated ClientSession probes.
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
-    let target = if matches!(skill,2|3|13|14|31|32|49|52|54|60|72|78|97|98|99|131|206) {
+    let target = if native_skills::selector_only(skill) || matches!(skill,2|3|13|60|131) {
         None
     } else {
         target
@@ -208,6 +208,15 @@ impl Model {
                         77 => "#77 究極光裂術（選取目標，十格內）".into(),
                         78 => "#78 絕對屏障（自己，消耗 2 顆魔法寶石）".into(),
                         206 => "#206 專注（伺服器判定三格內對象）".into(),
+                        101 => "#101 行走加速（自己）".into(),
+                        102 => "#102 燃燒鬥志（自己）".into(),
+                        103 => "#103 暗黑盲咒（選取目標，三格內）".into(),
+                        104 => "#104 毒性抵抗（自己）".into(),
+                        105 => "#105 雙重破壞（自己）".into(),
+                        106 => "#106 暗影閃避（自己）".into(),
+                        107 => "#107 暗影之牙（開啟背包選取武器）".into(),
+                        108 => "#108 會心一擊（選取目標，一格內）".into(),
+                        109 => "#109 力量提升（自己）".into(),
                         13 => "#13 偵測術（自己）".into(),
                         15 => "#15 火箭（選取目標）".into(),
                         18 => "#18 起死回生術（選取目標，十格內）".into(),
@@ -221,8 +230,7 @@ impl Model {
                         60 => "#60 隱身術（自己，消耗 1 顆魔法寶石）".into(),
                         131 => "#131 世界樹的呼喚（自己）".into(),
                         63 => "#63 生命之泉（點選地面）".into(),
-                        73 => "#73 創造魔法武器（選取背包物品）".into(),
-                        107 => "#107 暗影之牙（選取背包物品）".into(),
+                        73 => "#73 創造魔法武器（開啟背包選取物品）".into(),
                         _ => format!("#{id} {}（尚未支援）", catalog::name(id).unwrap_or("未知技能")),
                     },
                 })

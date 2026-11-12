@@ -25,10 +25,12 @@ public final class NativeTeleportFailureHarness {
  public static void main(String[] args)throws Exception {
   boolean gui=args.length>1&&args[1].startsWith("gui-");
   String scenario=args.length>1?args[1].replaceFirst("^gui-",""):"timeout";
-  if(!Set.of("timeout","cancel-expiry","cancel-expiry-source","cancel-retry","refused","wrong-service").contains(scenario))throw new IllegalArgumentException("unknown recovery scenario");
+  if(!Set.of("timeout","cancel-expiry","cancel-expiry-source","cancel-retry","cancel-repeat","refused","refused-cancel-repeat","wrong-service").contains(scenario))throw new IllegalArgumentException("unknown recovery scenario");
   boolean sourceExpiry=scenario.equals("cancel-expiry-source");
   boolean cancelExpiry=scenario.equals("cancel-expiry")||sourceExpiry;
-  boolean refused=scenario.equals("refused");
+  // Repeated cancellation is client-side only; the server sees the same
+  // sessions as cancel-retry／refused, so session counts and TTLs are unchanged.
+  boolean refused=scenario.equals("refused")||scenario.equals("refused-cancel-repeat");
   boolean wrongService=scenario.equals("wrong-service");
   int expectedSessions=wrongService?10:8;
   Path root=Path.of(args[0]).toAbsolutePath().normalize();
