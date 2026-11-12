@@ -56,7 +56,6 @@ impl Launch {
             c.attacker == event.actor
                 && c.attacker_incarnation == actor.incarnation
                 && c.action_sequence == event.sequence
-                && c.projectile.flight_type == 0
                 && supports_graphics(c.projectile.graphics)
         })?;
         Some(Self {
@@ -385,7 +384,6 @@ impl Effects {
         }) {
             let Some(cue) = world.projectiles.iter().find(|c| {
                 key(c) == event.key
-                    && c.projectile.flight_type == 0
                     && supports_graphics(c.projectile.graphics)
             }) else {
                 continue;

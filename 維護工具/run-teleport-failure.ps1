@@ -3,7 +3,7 @@
 param(
  [Parameter(Mandatory)][string]$TestBinary,
  [Parameter(Mandatory)][string]$ReferenceJar,
- [ValidateSet('timeout','cancel-expiry','cancel-retry','refused','wrong-service')][string]$Scenario='timeout',
+ [ValidateSet('timeout','cancel-expiry','cancel-expiry-source','cancel-retry','refused','wrong-service')][string]$Scenario='timeout',
  [switch]$WhatIf
 )
 $ErrorActionPreference='Stop'
@@ -37,18 +37,20 @@ $javaArgs=@(('-Djava.io.tmpdir='+$tmp),'-Dfile.encoding=UTF-8','-Xverify:all','-
 $testNames=@{
  'timeout'='destination_timeout_retires_old_authority_and_allows_fresh_login'
  'cancel-expiry'='cancellation_retires_destination_and_expired_handoff_requires_fresh_selection'
+ 'cancel-expiry-source'='source_handoff_expiry_confirms_c8_before_manual_selection'
  'cancel-retry'='cancellation_then_immediate_retry_consumes_staged_character_once'
  'refused'='refused_destination_retires_authority_and_allows_fresh_login'
  'wrong-service'='wrong_service_destination_retires_authority_and_allows_fresh_login'
 }
 $testArgs=@($testNames[$Scenario],'--exact','--ignored','--nocapture')
+$bindingArgs=@('recovery_registry::source_binding_matches_compiled_checkout','--exact','--nocapture')
 $removedEnvironment=@('JAVA_TOOL_OPTIONS','_JAVA_OPTIONS','JDK_JAVA_OPTIONS','CLASSPATH')
 function Format-Command([string]$Executable,[string[]]$Arguments){
  '& '+"'"+$Executable.Replace("'","''")+"' "+(($Arguments|ForEach-Object {"'"+$_.Replace("'","''")+"'"}) -join ' ')
 }
 # Read-only preview: no directory, lease, snapshot or process is created.
 if($WhatIf){
- [ordered]@{what_if=$true;repo=$taskRoot;target=$target;test_binary=$TestBinary;reference_jar=$ReferenceJar;jar_sha256=$jarSha;whitelisted=($jarSha -in $whitelist);e149=($jarSha -eq $e149);lease=$leasePath;run=$root;runtime=$runtime;classes=$classes;tmp=$tmp;immutable=$immutable;receipt=(Join-Path $root 'receipt.json');output=$output;working_directory=$root;environment=@{TEMP=$tmp;TMP=$tmp;LITO_TELEPORT_ROOT=$runtime;LITO_TELEPORT_SCENARIO=$Scenario;LITO_TELEPORT_REFERENCE_SHA=$jarSha.ToLowerInvariant()};removed_environment=$removedEnvironment;commands=@((Format-Command $javac $javacArgs),(Format-Command $java $javaArgs),(Format-Command $immutable $testArgs))}|ConvertTo-Json -Depth 6
+ [ordered]@{what_if=$true;repo=$taskRoot;target=$target;test_binary=$TestBinary;reference_jar=$ReferenceJar;jar_sha256=$jarSha;whitelisted=($jarSha -in $whitelist);e149=($jarSha -eq $e149);lease=$leasePath;run=$root;runtime=$runtime;classes=$classes;tmp=$tmp;immutable=$immutable;receipt=(Join-Path $root 'receipt.json');output=$output;working_directory=$root;environment=@{TEMP=$tmp;TMP=$tmp;LITO_TELEPORT_ROOT=$runtime;LITO_TELEPORT_SCENARIO=$Scenario;LITO_TELEPORT_REFERENCE_SHA=$jarSha.ToLowerInvariant()};removed_environment=$removedEnvironment;commands=@((Format-Command $immutable $bindingArgs),(Format-Command $javac $javacArgs),(Format-Command $java $javaArgs),(Format-Command $immutable $testArgs))}|ConvertTo-Json -Depth 6
  return
 }
 if($jarSha -notin $whitelist){throw 'Review candidate drift: JAR is not whitelisted'}
@@ -233,6 +235,7 @@ function Stop-OwnedProcess($Owned){
  }
 }
 function Assert-Ready($Ready,$Server){
+ if($Ready.scenario -cne $Scenario -or $Ready.requested_source -cne '測試乙' -or $Ready.default_source -cne '測試甲'){throw 'ready source/scenario binding mismatch'}
  if($Ready.jar_sha256 -ne $jarSha -or $Ready.jar_sha256 -ne $e149){throw 'ready JAR binding mismatch'}
  if($Server.process.HasExited -or $Ready.pid -ne $Server.entry.pid){throw 'ready PID binding mismatch'}
  if($Ready.login_host -cne '127.0.0.1' -or $Ready.town_host -cne '127.0.0.2' -or $Ready.destination_host -cne $(if($Scenario -eq 'refused'){'127.0.0.1'}else{'127.0.0.3'})){throw 'Unexpected ready loopback address'}
@@ -265,7 +268,7 @@ catch {throw "Cannot acquire lease $leasePath. Inspect its owning runner and rec
 $receipt=@{status='running';scenario=$Scenario;root=$root;runtime=$runtime;output=$output;jar_path=$ReferenceJar;jar_sha256=$jarSha;processes=@();listeners=@();cleanup_errors=@();drift_errors=@();source_pins=@{};class_pins=@{};formal_deployed=$false}
 $processes=[Collections.Generic.List[object]]::new()
 $rootCreated=$false;$classesRecorded=$false;$failure=$null
-$leaseSeconds=if($Scenario -eq 'cancel-expiry'){340}else{220}
+$leaseSeconds=if($Scenario -eq 'cancel-expiry-source'){460}elseif($Scenario -eq 'cancel-expiry'){340}else{220}
 try {
  $runner=[Diagnostics.Process]::GetCurrentProcess()
  $leaseData=@{pid=$PID;start_utc=$runner.StartTime.ToUniversalTime().ToString('o');root=$root}|ConvertTo-Json
@@ -287,6 +290,26 @@ try {
  foreach($name in @('LiTo381-Modern/Cargo.toml','LiTo381-Modern/Cargo.lock','LiTo381-Modern/.cargo/config.toml','LiTo381-Modern/tests/oracle/NativePeerHarness.java','LiTo381-Modern/tests/oracle/NativeTeleportFailureHarness.java','維護工具/run-teleport-failure.ps1','LiTo381-Modern/tests/native_teleport_failure.rs','LiTo381-Modern/src/modern_lito/native_services.rs','LiTo381-Modern/src/modern_lito/native_teleport.rs','LiTo381-Modern/src/modern_lito/native_login.rs','LiTo381-Modern/src/modern_lito/native_connection.rs')){
   $receipt.source_pins[$name]=Get-Pin (Join-Path $taskRoot $name)
  }
+ Save-Receipt
+ # A binary built from another checkout or an older Java/runner revision must
+ # fail before compilation/server startup. The registry comes from src, not
+ # an untracked historical overlay or a previous linked-image qualification.
+ $bindingCheck=Start-OwnedProcess 'source-registry' $immutable $bindingArgs
+ if(!$bindingCheck.process.WaitForExit(60000)){throw 'Source registry check timeout'}
+ Complete-OwnedLog $bindingCheck 'stdout'
+ $bindingText=[IO.File]::ReadAllText((Join-Path $root 'source-registry.stdout.txt'),[Text.Encoding]::UTF8)
+ if($bindingCheck.process.ExitCode -ne 0 -or $bindingText -notmatch 'running 1 test\b' -or $bindingText -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;'){throw 'Current source/fixture registry check failed'}
+ $bindings=[regex]::Matches($bindingText,'(?m)LITO_TELEPORT_BINDING=(\{[^\r\n]+\})')
+ if($bindings.Count -ne 1){throw 'Missing/ambiguous current source binding'}
+ $binding=$bindings[0].Groups[1].Value|ConvertFrom-Json
+ if($binding.schema -cne 'current-src-teleport-binding-v1' -or $binding.registry.Count -ne 13 -or $binding.fixture.Count -ne 14 -or $binding.scope -cne 'T023-1-current-controller-memory-fixture' -or $binding.historical_overlay_applied -ne $false -or $binding.historical_qualification_reused -ne $false){throw 'Unexpected source registry scope'}
+ foreach($pin in $binding.source_pins.PSObject.Properties){
+  $path=[IO.Path]::GetFullPath((Join-Path $project $pin.Name))
+  if(!$path.StartsWith($taskRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Registry path outside current worktree'}
+  if((Get-Pin $path) -ne $pin.Value){throw "Registry source drift: $($pin.Name)"}
+  $receipt.source_pins[[IO.Path]::GetRelativePath($taskRoot,$path)]=$pin.Value
+ }
+ $receipt.source_registry=$binding
  Save-Receipt
  $compiler=Start-OwnedProcess 'javac' $javac $javacArgs
  if(!$compiler.process.WaitForExit(60000)){throw 'Harness compile timeout'}
@@ -326,10 +349,16 @@ try {
  $result=Get-Content -LiteralPath $resultPath -Raw -Encoding utf8|ConvertFrom-Json
  if($result.status -ne 'sessions_closed' -or $result.memberships_empty -ne $true -or $result.actual_client_sessions -ne $(if($Scenario -eq 'wrong-service'){10}else{8}) -or $result.authority_mutations -ne 0 -or $result.staged_loadouts_after_reentry -ne 0 -or $result.sql_access -ne $false -or $result.state_persistent -ne $false -or $result.full_game_reentry_verified -ne $true -or $result.jar_sha256 -ne $jarSha){throw 'Isolation/cleanup result mismatch'}
  $receipt.server=$result;$receipt.status='verified_'+$Scenario
+ if($Scenario -eq 'cancel-expiry-source'){
+  foreach($role in @('a','b')){
+   $player=Get-Content -LiteralPath (Join-Path $runtime ($role+'-failure.json')) -Raw -Encoding utf8|ConvertFrom-Json
+   if($player.scenario -cne $Scenario -or $player.requested_source -cne '測試乙' -or $player.expiry_wait_ms -lt 33000 -or $player.source_wait_ms -lt 31000 -or $player.manual_selection -ne $true -or $player.full_game_reentry_verified -ne $true){throw 'Natural stage/source expiry evidence missing'}
+  }
+ }
 } catch {$failure=$_.Exception.Message;$receipt.status=if(@($receipt.processes|Where-Object {$null -ne $_.identity_error}).Count){'blocked'}else{'failed'};$receipt.error=$failure}
 finally {
  # Attempt each owned process independently, including failed compilation.
- foreach($kind in @('rust','java','javac')){
+ foreach($kind in @('rust','java','javac','source-registry')){
   foreach($owned in @($processes|Where-Object {$_.entry.kind -eq $kind})){
    try {Stop-OwnedProcess $owned} catch {$receipt.cleanup_errors+=@($kind+': '+$_.Exception.Message)}
    $receipt.cleanup_errors+=@($owned.entry.cleanup_errors|ForEach-Object {$kind+': '+$_})

@@ -1,5 +1,10 @@
 //! Native skill choices are learned IDs scoped to a live caster, never combo indices.
 use super::{native_skills, native_world::World};
+#[path = "native_skill_catalog.rs"]
+pub mod catalog;
+#[cfg(test)]
+#[path = "native_skillbook_tests.rs"]
+mod skill_ui_tests;
 use anyhow::{ensure, Context, Result};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -15,6 +20,9 @@ impl Owner {
             return None;
         }
         let a = world.own_actor()?;
+        if a.dead || !world.hp.is_some_and(|hp| hp[0] > 0) {
+            return None;
+        }
         Some(Self {
             connection,
             generation: world.generation,
@@ -29,6 +37,7 @@ pub struct Target {
     incarnation: u64,
     target_revision: u64,
     generation: u64,
+    corpse_action: Option<u64>,
 }
 impl Target {
     pub fn capture(world: &World, id: u32) -> Option<Self> {
@@ -41,10 +50,21 @@ impl Target {
             incarnation: a.incarnation,
             target_revision: a.target_revision,
             generation: world.generation,
+            corpse_action: a.dead.then_some(a.action_sequence),
         })
     }
+    /// A living selection cannot become a corpse authorization after death,
+    /// and a captured corpse cannot become a living authorization on revival.
+    pub fn resolve_for_skill(self, world: &World, skill: u16) -> Option<u32> {
+        if skill != 41 { return self.resolve(world); }
+        (world.generation == self.generation && world.actor_visible(self.id)
+            && world.actors.get(&self.id).is_some_and(|a|
+                a.incarnation == self.incarnation && a.target_revision == self.target_revision
+                && a.dead && self.corpse_action == Some(a.action_sequence)
+                && !super::native_obstacles::destroyed_guardian(a))).then_some(self.id)
+    }
     pub fn resolve(self, world: &World) -> Option<u32> {
-        (world.generation == self.generation
+        (self.corpse_action.is_none() && world.generation == self.generation
             && world.actor_visible(self.id)
                 && world.actors.get(&self.id).is_some_and(|a| {
                 a.incarnation == self.incarnation
@@ -89,11 +109,11 @@ impl Ground {
 /// Shared by the actual native window and isolated ClientSession probes.
 /// This returns intent only; the controller still owns the send and pending gates.
 pub fn choice(world: &World, skill: u16, target: Option<Target>) -> Result<Choice> {
-    let target = if matches!(skill,2|3|13|14|31|32|49|52|54|60|72|78|131|206) {
+    let target = if matches!(skill,2|3|13|14|31|32|49|52|54|60|72|78|97|98|99|131|206) {
         None
     } else {
         target
-            .map(|t| t.resolve(world).context("選取的目標已失效，請重新點選"))
+            .map(|t| t.resolve_for_skill(world, skill).context("選取的目標已失效，請重新點選"))
             .transpose()?
     };
     native_skills::request(world, skill, target)?;
@@ -108,6 +128,7 @@ pub struct Model {
     owner: Option<Owner>,
     rows: Vec<Row>,
     selected: Option<u16>,
+    bindings: [Option<u16>; 8],
 }
 impl Model {
     pub fn rows(&self) -> &[Row] {
@@ -115,6 +136,23 @@ impl Model {
     }
     pub fn selected(&self) -> Option<u16> {
         self.selected
+    }
+    pub fn bindings(&self) -> &[Option<u16>; 8] {
+        &self.bindings
+    }
+    /// Bind identities, never the current row index. None explicitly clears.
+    pub fn bind(&mut self, slot: usize, id: Option<u16>) -> Result<()> {
+        ensure!(slot < self.bindings.len(), "快捷格超出範圍");
+        ensure!(self.owner.is_some(), "技能書已失效");
+        ensure!(id.is_none_or(|id| self.rows.iter().any(|r| r.id == id)), "尚未學會此技能");
+        self.bindings[slot] = id;
+        Ok(())
+    }
+    pub fn bound(&self, connection: u64, world: &World, slot: usize) -> Result<u16> {
+        ensure!(self.owner.is_some() && self.owner == Owner::current(connection, world), "快捷列已失效");
+        let id = self.bindings.get(slot).copied().flatten().context("快捷格尚未綁定技能")?;
+        ensure!(world.learned_skills.contains(&id), "尚未學會此技能");
+        Ok(id)
     }
     pub fn sync(&mut self, connection: u64, world: &World, active: bool) -> bool {
         let owner = active.then(|| Owner::current(connection, world)).flatten();
@@ -126,9 +164,29 @@ impl Model {
                     id,
                     label: match id {
                         1 => "#1 治癒術（選取目標／自己）".into(),
+                        97 => "#97 暗隱術（自己）".into(),
+                        98 => "#98 附加劇毒（自己）".into(),
+                        99 => "#99 影之防護（自己）".into(),
+                        100 => "#100 提煉魔石（選取背包物品）".into(),
                         2 => "#2 日光術（自己）".into(),
                         3 => "#3 護盾（自己）".into(),
                         4 => "#4 光箭（選取目標）".into(),
+                        5 => "#5 指定傳送（隨機／書籤）".into(),
+                        12 => "#12 擬似魔法武器（選取背包物品）".into(),
+                        20 => "#20 闇盲咒術（選取目標，一格內）".into(),
+                        21 => "#21 鎧甲護持（選取背包物品）".into(),
+                        22 => "#22 寒冰氣息（選取目標，六格內）".into(),
+                        23 => "#23 能量感測（選取怪物，畫面內）".into(),
+                        25 => "#25 燃燒的火球（選取目標，六格內）".into(),
+                        27 => "#27 壞物術（選取目標，四格內；消耗魔法寶石）".into(),
+                        29 => "#29 緩速術（選取目標，八格內）".into(),
+                        30 => "#30 巖牢（選取目標，八格內）".into(),
+                        33 => "#33 木乃伊的詛咒（選取目標，兩格內）".into(),
+                        36 => "#36 迷魅術（選取怪物，畫面內）".into(),
+                        37 => "#37 聖潔之光（選取目標／自己）".into(),
+                        39 => "#39 魔力奪取（選取目標／自己，四格內）".into(),
+                        40 => "#40 黑闇之影（選取目標，三格內）".into(),
+                        41 => "#41 造屍術（選取屍體，畫面內）".into(),
                         6 => "#6 冰箭（選取目標）".into(),
                         7 => "#7 風刃（選取目標）".into(),
                         8 => "#8 神聖武器（選取目標／自己）".into(),
@@ -163,7 +221,7 @@ impl Model {
                         60 => "#60 隱身術（自己，消耗 1 顆魔法寶石）".into(),
                         131 => "#131 世界樹的呼喚（自己）".into(),
                         63 => "#63 生命之泉（點選地面）".into(),
-                        _ => format!("#{id} 技能（尚未支援）"),
+                        _ => format!("#{id} {}（尚未支援）", catalog::name(id).unwrap_or("未知技能")),
                     },
                 })
                 .collect()
@@ -171,6 +229,15 @@ impl Model {
             Vec::new()
         };
         let changed = self.owner != owner || self.rows != rows;
+        if self.owner != owner {
+            self.bindings = [None; 8];
+        } else {
+            for binding in &mut self.bindings {
+                if binding.is_some_and(|id| !world.learned_skills.contains(&id)) {
+                    *binding = None;
+                }
+            }
+        }
         if self.owner != owner
             || self
                 .selected
@@ -196,6 +263,12 @@ impl Model {
     pub fn choice(&self, connection: u64, world: &World, target: Option<Target>) -> Result<Choice> {
         self.choice_at(connection, world, target, None)
     }
+    pub fn selected_skill(&self, connection: u64, world: &World) -> Result<u16> {
+        ensure!(self.owner.is_some() && self.owner == Owner::current(connection, world), "技能畫面已失效");
+        let skill = self.selected.context("請先選擇已學會的技能")?;
+        ensure!(world.learned_skills.contains(&skill), "技能清單已更新");
+        Ok(skill)
+    }
     pub fn choice_at(
         &self,
         connection: u64,
@@ -203,11 +276,16 @@ impl Model {
         target: Option<Target>,
         ground: Option<Ground>,
     ) -> Result<Choice> {
+        let skill = self.selected.context("請先選擇已學會的技能")?;
+        self.choice_id_at(connection, world, skill, target, ground)
+    }
+    /// Hotbar and book share exactly the same selected-ground/target guards.
+    pub fn choice_id_at(&self, connection: u64, world: &World, skill: u16,
+        target: Option<Target>, ground: Option<Ground>) -> Result<Choice> {
         ensure!(
             self.owner.is_some() && self.owner == Owner::current(connection, world),
             "技能畫面已失效"
         );
-        let skill = self.selected.context("請先選擇已學會的技能")?;
         if matches!(skill, 58 | 63) {
             let position = ground
                 .and_then(|g| g.resolve(connection, world))

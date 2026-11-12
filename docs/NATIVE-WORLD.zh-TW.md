@@ -15,7 +15,7 @@ pwsh -NoProfile -File .\啟動現代客戶端.ps1 -NativeLoginEndpoint 127.0.0.1
 - S_STATUS（0x0C）完整保留正式 schema0 的 37 bytes；自己的物件 ID 取自此封包，與 S_PUT_OBJECT 對上才具備可呈現的本地角色。
 - S_PUT_OBJECT（0x0B）保留完整位置、ID、gfx、動作、方向、速度、lawful、名稱、稱號、公會與尾段，依 u32 ID 更新，最多 2048 筆。門可以沒有名稱；沒有把空名稱當成壞角色。
 - S_TIME、S_E9、HP／MP 更新及 S_EVENT subtype33 挑戰有界解析。未知 world opcode 留在 snapshot 的 unhandled_opcodes，未宣告其行為已完成。
-- 挑戰只記錄收到的 challenge/range，尚未發送 C_ADDR，沒有偽造原 BIN 的執行狀態。本輪不宣稱長時間戰鬥／完整性相容。
+- 挑戰（#187）：只對正式範圍（0x004ED840、5 bytes）以相容設定檔回覆 C_ADDR——對伺服器原始碼所述 relocation-free `call $+5`（`E8 00 00 00 00`）以正式 seed／CRC 演算法計算，protectedState=0；不讀記憶體、不讀 LiTo.bin。其他範圍只記錄不回覆，同一挑戰只回一次，換世界／退役清除。這不是原版程式記憶體實測；伺服器不回成功封包，伺服器端接受與長時間戰鬥相容仍待真機驗證。
 
 ## 原資源渲染
 
