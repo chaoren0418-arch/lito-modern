@@ -55,6 +55,7 @@ cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir 
 ```
 
 - 兩次 check 的警告都只出現在既有檔案；本張改動的檔案沒有新警告。
+- 第 2 次嘗試（2026-11-12）：同步 `origin/main`（95cb918，含 #182），解 `native_world_view.rs` 衝突——四 profile finite History 的 active sequence 保留與 main 新增的 `world.status4183.sequences()` 保留兩者都留。同步後 `cargo check ... --all-targets` 結束碼 **0**（Finished in 2m 57s）。`cargo test` 依規定交 PR CI。
 - javac（JDK 17.0.17，UTF-8）以唯讀 `formal-server-E1498871.jar`（實算 SHA256 `E1498871C7BE6B287821C57EF5D95933DB1740D9B4D4A80F6C3465F21D99D498`）編譯 `NativePeerHarness.java`、`NativeTeleportFailureHarness.java`：結束碼 **0**，產出 3 個 class（輸出在 `scratch/javac170/`，不入 git）。沒有啟動 Java。
 - runner 以 PowerShell AST parser 解析：0 個語法錯誤。這只是語法檢查，不是 runner 實跑（runner 需要 PowerShell 7）。
 

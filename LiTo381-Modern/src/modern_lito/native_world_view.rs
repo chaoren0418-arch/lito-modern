@@ -250,7 +250,15 @@ impl Presentation {
                 retained.extend(history.active_finite_sequences());
             }
         }
+        retained.extend(world.status4183.sequences());
         self.finite_audio_history.retain_sequences(&retained);
+        let status_retired=self.frame.as_ref().is_some_and(|frame|!frame.status4183_current());
+        if status_retired {
+            self.frame=None;self.rendered_revision=None;
+        }
+        self.deferred_native_audio.retain(|cue| {
+            if cue.status_current(){true}else{cue.discard();false}
+        });
         let mut changed = self.fence.select(target) || root_changed;
         let light_owner = environment.epoch.filter(|epoch|*epoch==connection && connection!=0);
         let mut water_error=None;
@@ -289,6 +297,7 @@ impl Presentation {
                 pending.job.cancel();
             }
         }
+        changed |= status_retired;
         if let Some(error) = binding_error {
             changed |= self.error.as_deref() != Some(error.as_str());
             self.error = Some(error);
@@ -369,7 +378,8 @@ impl Presentation {
                                 done.frame.receipt["native_finite_audio_history"]=serde_json::json!(report);Ok(())
                             });
                             if let Err(e)=bound {self.error=Some(format!("native audio publication: {e:#}"));}
-                            else if Some(*captured_environment) == expected_environment && done.frame.static_active(world) {
+                            else if Some(*captured_environment) == expected_environment && done.frame.static_active(world)
+                                && done.frame.status4183_current() {
                                 if done.frame.environment_key() != expected_environment {
                                     self.error = Some("world frame environment binding mismatch".into());
                                 } else {

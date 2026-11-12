@@ -93,7 +93,20 @@ impl HurtCallback {
         serde_json::json!({"target":self.target,"incarnation":self.incarnation,"sequence":self.sequence,"projectile":self.projectile,"graphics":self.graphics,"accepted":self.accepted,"dispatch_ns":self.dispatch_ns,"deferred_due_to_environment":self.deferred})
     }
 }
+/// Every presentation arrival (arrow, spell, class1, ...) enters the animator
+/// here. An accepted hurt on the local body is counted for held-input
+/// retirement; lifecycle and timing checks remain in Animator::impact.
+pub(crate) fn dispatch_impact(
+    animator: &mut super::native_world_animation::Animator,
+    local_impacts: &mut super::native_navigation::ImpactStamp,
+    actor: &super::native_world::Actor, sequence: u64, local_id: Option<u32>,
+) -> bool {
+    let accepted = animator.impact(actor, sequence);
+    if accepted && local_id == Some(actor.id) { local_impacts.record(actor); }
+    accepted
+}
 pub struct Frame {
+    status4183_leases: Vec<std::sync::Arc<AtomicBool>>,
     pub(crate) player_walk_plan: Option<std::sync::Arc<super::native_player_callbacks::WalkPlan>>,
     pub(crate) static2941: super::native_static2941::DrawGuard,
     pub ground_items: Vec<super::native_world::Actor>,
@@ -105,6 +118,7 @@ pub struct Frame {
     pub native_ambient: Vec<super::native_ambient_bridge::Prepared>,
     pub(crate) ambient_owner:std::sync::Arc<()>,
     pub(crate) finite_hurt_callbacks:Vec<HurtCallback>,
+    pub(crate) local_impacts:super::native_navigation::ImpactStamp,
     pub navigation: std::sync::Arc<super::native_navigation::Navigation>,
     movement_key: (u32, u64, u16, u16, u8, u8, u64),
     movement_arrived: bool,
@@ -121,6 +135,9 @@ pub struct Frame {
     pub receipt: serde_json::Value,
 }
 impl Frame {
+    pub(crate) fn status4183_current(&self)->bool {
+        self.status4183_leases.iter().all(|lease|lease.load(Ordering::Acquire))
+    }
     pub(crate) fn composition_current(&self, world:&World)->bool {
         self.static2941.active(world) && self.identity().matches_world(world)
             && self.input_revision==world.visual_revision
@@ -402,6 +419,7 @@ impl FiniteHistory {
     pub(crate) fn restores_other_effects(&self)->bool {self.restore_other_effects}
 }
 pub struct Model {
+    status4183: super::native_status4183::Stage,
     static2941: super::native_static2941::Stage,
     world_generation:u64,
     lighting: super::native_world_lighting::Runtime,
@@ -448,6 +466,7 @@ pub struct Model {
     cone_cold_effects:super::native_cone_cold::Effects,
     effect_source_owner:std::sync::Arc<()>,
     many_effects:super::native_attack_many::Effects,
+    local_impacts:super::native_navigation::ImpactStamp,
 }
 pub struct Completion {
     pub(crate) static2941_ready: Vec<super::native_static2941::Prepared>,
@@ -752,6 +771,7 @@ impl Model {
 
             animator: Default::default(),
             projectiles: Default::default(),
+            local_impacts: Default::default(),
             skill_effects: Default::default(),
             item_effects: super::native_skill_effects::Effects::items(),
             reagent_effects: super::native_skill_effects::Effects::reagent(),
@@ -762,6 +782,7 @@ impl Model {
             class1_effects: Default::default(),
             disintegrate_effects:Default::default(),
             call_lightning_effects:Default::default(),
+            status4183:Default::default(),
             cone_cold_effects:Default::default(),
             static2941: Default::default(),
             effect_source_owner:std::sync::Arc::new(()),
@@ -798,7 +819,8 @@ impl Model {
         // A new world retires every transient model runtime even on the same map.
         // Construct first so cancellation/failure leaves the old model intact.
         if self.world_generation!=world.generation {
-            let replacement=Self::load(&self.root,world,cancel)?;
+            let mut replacement=Self::load(&self.root,world,cancel)?;
+            replacement.local_impacts=self.local_impacts;
             *self=replacement;
         }
         // Direct controller callers and the scene worker share the same reload
@@ -818,11 +840,13 @@ impl Model {
                 let mut next=Self::load(&self.root,world,cancel)?;
                 next.lighting=std::mem::take(&mut self.lighting);
                 next.wire_audio=self.wire_audio.clone();
+                next.local_impacts=self.local_impacts;
                 *self=next;
             }
         }
         let _ = self.static2941.prepare(&self.root, world, cancel, &mut self.effect_catalog)?;
         let render_start = std::time::Instant::now();
+        self.status4183.prepare(&self.root,world,cancel,&mut self.effect_catalog);
         self.projectiles.prepare(&self.root, cancel, world);
         self.skill_effects.prepare_with_catalog(&self.root,world,cancel,&mut self.effect_catalog);
         self.item_effects.prepare(&self.root, world, cancel);
@@ -867,6 +891,7 @@ impl Model {
             .begin(elapsed_ns, world.actors.keys().copied())?;
         let mut poses = std::collections::BTreeMap::new();
         for actor in world.actors.values() {
+            if super::native_status4183::is_object(world,actor) {continue;}
             if let Some(p)=world.player_walk.as_ref().filter(|p|p.current(world)
                 && world.own_actor().is_some_and(|own|own.id==actor.id)) {
                 self.animator.source_motion(self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(),
@@ -938,7 +963,8 @@ impl Model {
             let Some(actor) = world.actors.get(&impact.target) else {
                 continue;
             };
-            let accepted = self.animator.impact(actor, impact.sequence);
+            let accepted = dispatch_impact(&mut self.animator, &mut self.local_impacts,
+                actor, impact.sequence, (!observer).then_some(local_id));
             let row = serde_json::json!({"target":impact.target,"sequence":impact.sequence,"projectile":impact.projectile,"accepted":accepted});
             if lightning_keys.contains(&(impact.target,impact.sequence,impact.projectile)){finite_hurt_callbacks.push(HurtCallback::capture(world,actor,self.effect_source_owner.clone(),impact.sequence,impact.projectile,accepted,elapsed_ns,11736));lightning_impact_receipts.push(row);}
             else if cold_keys.contains(&(impact.target,impact.sequence,impact.projectile)){finite_hurt_callbacks.push(HurtCallback::capture(world,actor,self.effect_source_owner.clone(),impact.sequence,impact.projectile,accepted,elapsed_ns,11738));cold_impact_receipts.push(row);}
@@ -1024,6 +1050,7 @@ impl Model {
         };
         for actor in actors {
             check(cancel)?;
+            if super::native_status4183::is_object(world,actor) {continue;}
             let style = actor.draw_state.style(!observer && actor.id == local_id, green_counter.unwrap_or(0));
             if style == super::native_actor_states::Style::Hidden {
                 audible_actors.push(actor.id);
@@ -1268,6 +1295,7 @@ impl Model {
             elapsed_ns,
         );
         let static2941 = self.static2941.draw_to(world, &mut effect_target, projection, cancel)?;
+        let (status4183_receipt,status4183_audio)=self.status4183.draw_to(world,&mut effect_target,projection)?;
         let effect_submissions = effect_queue.len();
         let terrain_start = std::time::Instant::now();
         let layers = super::native_world_layers::compose_with_presentations(
@@ -1326,7 +1354,7 @@ impl Model {
         let hash_start = std::time::Instant::now();
         let mut sounds = Vec::new();
         let mut legacy_audio = Vec::new();
-        let mut native_audio = Vec::new();
+        let mut native_audio = status4183_audio;
         let mut audio_receipts = Vec::new();
         let wire_audio = self.wire_audio.take(world);
         let audible = || {
@@ -1339,6 +1367,7 @@ impl Model {
                 .chain(reagent_events.iter())
                 .chain(travel_events.iter())
                 .chain(spell_events.iter())
+                .chain(self.projectiles.entered_events().iter())
                 .chain(class1_events.iter())
                 .chain(disintegrate_events.iter())
                 .chain(lightning_events.iter())
@@ -1350,8 +1379,9 @@ impl Model {
                     (e.sound.is_some() || e.prepared_audio.is_some()) && (e.actor == 0 || audible_actors.contains(&e.actor))
                 })
         };
-        let audio_dropped = audible().count().saturating_sub(32);
-        for event in audible().take(32) {
+        let audio_budget = 32usize.saturating_sub(native_audio.len());
+        let audio_dropped = audible().count().saturating_sub(audio_budget);
+        for event in audible().take(audio_budget) {
             if let Some(cue)=&event.prepared_audio {
                 let mut row=serde_json::json!({"event":event,"prepared":true,"native_group":true,
                     "mode":format!("{:?}",cue.group().mode),"candidates":cue.group().candidates()});
@@ -1411,6 +1441,7 @@ impl Model {
         let bgra_us = bgra_start.elapsed().as_micros();
         receipt["minimap"] = minimap_receipt;
         receipt["world_labels"] = label_receipt;
+        receipt["status4183"] = status4183_receipt;
         receipt["emblems"] = emblem_receipt;
         receipt["clan_markers"] = marker_receipt;
         receipt["roofs"] = roofs.receipt().clone();
@@ -1451,6 +1482,7 @@ impl Model {
         };
         receipt["static2941"] = serde_json::json!({"sequences":static2941.sequences(),"flags":0,"direction6_alias":-1,"shadow":-1,"paint_advances_clock":false});
         Ok(Frame {
+            status4183_leases:world.status4183.leases(),
             player_walk_plan: world.own_actor().and_then(|actor|
                 super::native_player_callbacks::WalkPlan::load(
                     self.effect_catalog.as_ref().expect("Model catalog ownership").catalog(),actor).ok()).map(std::sync::Arc::new),
@@ -1464,6 +1496,7 @@ impl Model {
             native_ambient,
             ambient_owner:self.effect_source_owner.clone(),
             finite_hurt_callbacks,
+            local_impacts: self.local_impacts,
             navigation: self.navigation.clone(),
             movement_key: if observer {(local_id,0,view_position[0],view_position[1],0,0,0)} else {let own=world.own_actor().unwrap();(own.id,own.motion_revision,own.x,own.y,own.speed,own.brave,own.action_sequence)},
             movement_arrived: own_pose.is_some_and(|p|p.phase=="idle"),

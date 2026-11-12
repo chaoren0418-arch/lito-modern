@@ -1,4 +1,7 @@
 //! Qualified overlays with separate lazy skill, potion, and Life Stream banks.
+#[cfg(test)]
+#[path = "native_t021_render_tests.rs"]
+mod t021_tests;
 use super::{
     compositor::Canvas,
     native_combat_animation::EnteredEvent,
@@ -299,6 +302,8 @@ pub struct Effects {
     selector_error: Option<String>,
     additional_bank: Option<SharedEffectBank>,
     additional_error: Option<String>,
+    dark_elf_bank: Option<SharedEffectBank>,
+    dark_elf_error: Option<String>,
     tw_heal_error: Option<String>,
     clips: BTreeMap<u16, Clip>,
     error: Option<String>,
@@ -407,6 +412,24 @@ impl Effects {
                 Err(e)=>self.additional_error=Some(format!("{e:#}")),
             }
         }
+        // Exact T021 definitions, including shadow armor's inherited clothing slots.
+        if self.profile == Profile::Skills && self.dark_elf_bank.is_none() && self.dark_elf_error.is_none()
+            && world.effects.iter().chain(self.active.iter().map(|a| &a.cue))
+                .any(|e| super::native_dark_elf_effects::GRAPHICS.contains(&e.graphics)) {
+            let loaded = (|| -> anyhow::Result<_> {
+                let context = SharedActionCatalog::reuse_for_model(root, cancel, shared)?;
+                let bank = SharedEffectBank::load_reviewed_dark_elf(context, cancel)?;
+                let mut clips = BTreeMap::new();
+                for gfx in super::native_dark_elf_effects::GRAPHICS {
+                    clips.insert(gfx, Clip::new(Arc::clone(bank.animation(u32::from(gfx), 0)?))?);
+                }
+                Ok((bank, clips))
+            })();
+            match loaded {
+                Ok((bank, clips)) => { self.clips.extend(clips); self.dark_elf_bank = Some(bank); }
+                Err(e) => self.dark_elf_error = Some(format!("{e:#}")),
+            }
+        }
         // S37's explicit11722..11725 selects the reviewed TW data namespace. It does
         // not rewrite a wire graphics ID or replace the legacy catalog.
         if self.profile == Profile::Skills && self.tw_heal_bank.is_none()
@@ -493,7 +516,7 @@ impl Effects {
             for active in &mut self.active {
                 let cue = &active.cue;
                 let result = (|| -> anyhow::Result<_> {
-                    let bank = if matches!(cue.graphics,11722..=11725) { self.tw_heal_bank.as_ref() } else if self.profile==Profile::Skills && super::native_additional_finite_effects::GRAPHICS.contains(&cue.graphics) {self.additional_bank.as_ref()} else if self.profile==Profile::Skills && super::native_selector_effects::GRAPHICS.contains(&cue.graphics) {self.selector_bank.as_ref()} else { self.bank.as_ref() }
+                    let bank = if super::native_dark_elf_effects::GRAPHICS.contains(&cue.graphics) { self.dark_elf_bank.as_ref() } else if matches!(cue.graphics,11722..=11725) { self.tw_heal_bank.as_ref() } else if self.profile==Profile::Skills && super::native_additional_finite_effects::GRAPHICS.contains(&cue.graphics) {self.additional_bank.as_ref()} else if self.profile==Profile::Skills && super::native_selector_effects::GRAPHICS.contains(&cue.graphics) {self.selector_bank.as_ref()} else { self.bank.as_ref() }
                         .ok_or_else(|| anyhow::anyhow!("effect bank absent"))?;
                     let elapsed = now.saturating_sub(active.start);
                     // Native timers quantize the common clock, not each
@@ -537,7 +560,19 @@ impl Effects {
                     let mut drawn=!sample.finished && !frame.frame.rgba.is_empty();
                     let mut layers=None;
                     let position=WorldCell{x:i32::from(cue.position[0]),y:i32::from(cue.position[1])};
-                    if cue.graphics==11725 {
+                    if cue.graphics == 2943 {
+                        let clothing = bank.frame(2954, 0, sample.source_frame, sample.finished)?;
+                        let clothing_drawn = !sample.finished && !clothing.frame.rgba.is_empty();
+                        let mut batch = Vec::new();
+                        if drawn { batch.push((frame.frame, super::native_world_effects::Mix::Screen)); }
+                        if clothing_drawn { batch.push((clothing.frame, super::native_world_effects::Mix::Multiply)); }
+                        if !batch.is_empty() { target.submit_batch(&batch, position, projection)?; }
+                        layers = Some(serde_json::json!([
+                            {"graphics":2943,"sprite":frame.sprite_name,"subframe":frame.subframe,"drawn":drawn},
+                            {"graphics":2954,"sprite":clothing.sprite_name,"subframe":clothing.subframe,"drawn":clothing_drawn}
+                        ]));
+                        drawn |= clothing_drawn;
+                    } else if cue.graphics==11725 {
                         let clothing=bank.frame(11726,0,sample.source_frame,sample.finished)?;
                         let clothing_drawn=!sample.finished && !clothing.frame.rgba.is_empty();
                         let mut batch=Vec::new();
@@ -562,7 +597,14 @@ impl Effects {
             }
         }
         self.active.retain(|a| !finished.contains(&a.cue.sequence));
-        let mut receipt = serde_json::json!({"presentation":if self.profile==Profile::Reagent {"modern_explicit_action3_once"} else {"qualified_native_class0"},"started":self.started,"omitted":self.omitted,"active":self.active.len(),"effects":rows,"load_error":self.error.as_ref().or(self.tw_heal_error.as_ref()).or(self.additional_error.as_ref()),"sources":self.bank.as_ref().or(self.tw_heal_bank.as_ref()).map(|_|self.bank.iter().chain(self.tw_heal_bank.iter()).flat_map(|b|b.sources()).map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),"entered_events":events,"complete":false});
+        let mut receipt = serde_json::json!({"presentation":if self.profile==Profile::Reagent {"modern_explicit_action3_once"} else {"qualified_native_class0"},"started":self.started,"omitted":self.omitted,"active":self.active.len(),"effects":rows,"load_error":self.error.as_ref().or(self.tw_heal_error.as_ref()).or(self.additional_error.as_ref()).or(self.dark_elf_error.as_ref()),"sources":self.bank.as_ref().or(self.tw_heal_bank.as_ref()).map(|_|self.bank.iter().chain(self.tw_heal_bank.iter()).flat_map(|b|b.sources()).map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),"entered_events":events,"complete":false});
+        if let Some(bank) = &self.dark_elf_bank {
+            receipt["dark_elf_bank"] = serde_json::json!({"loaded":true,"load_error":self.dark_elf_error,
+                "sources":bank.sources().map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,
+                    "sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()});
+        } else if self.dark_elf_error.is_some() {
+            receipt["dark_elf_bank"] = serde_json::json!({"loaded":false,"load_error":self.dark_elf_error});
+        }
         if let Some(bank)=&self.selector_bank {
             receipt["selector_bank"]=serde_json::json!({"lazy":true,"loaded":true,
                 "encoded_bytes":bank.encoded_bytes(),"retained_RGBA_bytes":bank.retained_rgba_bytes(),
