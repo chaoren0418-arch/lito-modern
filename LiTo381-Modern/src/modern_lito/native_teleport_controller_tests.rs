@@ -9,7 +9,7 @@ use std::{io::{Read, Write}, net::TcpListener, path::Path,
 const FIXTURE: &str = include_str!("../../tests/fixtures/native-teleport-controller-current.json");
 const NPC: u32 = 1812987996;
 fn fixture() -> serde_json::Value { serde_json::from_str(FIXTURE).unwrap() }
-fn bytes(name: &str) -> Vec<u8> {
+pub(super) fn bytes(name: &str) -> Vec<u8> {
     let f = fixture(); let text = f["vectors"][name]["hex"].as_str().unwrap();
     (0..text.len()).step_by(2).map(|i| u8::from_str_radix(&text[i..i+2], 16).unwrap()).collect()
 }
@@ -18,12 +18,12 @@ fn endpoint(peer: SocketAddr) -> Vec<u8> {
     let mut b=vec![0xf4,1]; b.extend(ip.octets()); b.extend(peer.port().to_le_bytes()); b
 }
 struct Emission { bodies: Vec<Vec<u8>>, raw: Option<Vec<u8>>, close: bool, done: mpsc::Sender<()> }
-struct FaultPeer {
-    peer: SocketAddr, commands: Arc<Mutex<Vec<Vec<u8>>>>, accepted: Arc<AtomicUsize>,
+pub(super) struct FaultPeer {
+    pub(super) peer: SocketAddr, commands: Arc<Mutex<Vec<Vec<u8>>>>, accepted: Arc<AtomicUsize>,
     stop: Arc<AtomicBool>, tx: mpsc::Sender<Emission>, worker: Option<thread::JoinHandle<anyhow::Result<()>>>,
 }
 impl FaultPeer {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self::at("127.0.0.1:0".parse().unwrap())
     }
     fn at(address: SocketAddr) -> Self {
@@ -59,14 +59,27 @@ impl FaultPeer {
             ensure!(version==crate::modern_lito::native_version::version_request(0),"version request changed");
             let mut outgoing=CipherState::new(seed); let mut accepted=bytes("version"); outgoing.encrypt(&mut accepted);
             socket.write_all(&native_wire::frame(&accepted)?)?;
-            socket.set_read_timeout(Some(Duration::from_millis(10)))?;
+            // Windows leaves a socket indeterminate after an SO_RCVTIMEO expiry
+            // (later I/O may fail with os error 997). Poll in nonblocking mode instead.
+            socket.set_read_timeout(None)?; socket.set_write_timeout(None)?; socket.set_nonblocking(true)?;
             let mut decoder=FrameDecoder::new(native_wire::MAX_FRAME)?;
             while !ending.load(Ordering::Acquire) {
                 while let Ok(e)=rx.try_recv() {
                     let mut wire=Vec::new();
                     for mut body in e.bodies { outgoing.encrypt(&mut body); wire.extend(native_wire::frame(&body)?); }
                     if let Some(raw)=e.raw { wire.extend(raw); }
-                    socket.write_all(&wire)?; let _=e.done.send(());
+                    let (mut at,until)=(0,Instant::now()+Duration::from_secs(2));
+                    while at<wire.len() {
+                        match socket.write(&wire[at..]) {
+                            Ok(0) => anyhow::bail!("synthetic peer write returned zero"),
+                            Ok(n) => at+=n,
+                            Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::Interrupted) => {
+                                ensure!(Instant::now()<until,"synthetic peer write deadline"); thread::sleep(Duration::from_millis(1));
+                            }
+                            Err(e) => return Err(e.into()),
+                        }
+                    }
+                    let _=e.done.send(());
                     if e.close { return Ok(()) }
                 }
                 let mut buf=[0;512];
@@ -80,7 +93,7 @@ impl FaultPeer {
                             ensure!(used>0,"synthetic frame decoder stalled");
                         }
                     }
-                    Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::TimedOut|std::io::ErrorKind::Interrupted) => {}
+                    Err(e) if matches!(e.kind(),std::io::ErrorKind::WouldBlock|std::io::ErrorKind::TimedOut|std::io::ErrorKind::Interrupted) => thread::sleep(Duration::from_millis(1)),
                     Err(e) if matches!(e.kind(),std::io::ErrorKind::ConnectionReset|std::io::ErrorKind::ConnectionAborted) => return Ok(()),
                     Err(e) => return Err(e.into()),
                 }
@@ -89,13 +102,14 @@ impl FaultPeer {
         });
         Self { peer, commands, accepted, stop, tx, worker:Some(worker) }
     }
-    fn emit(&self, bodies:Vec<Vec<u8>>) { self.write(bodies,None,false) }
+    pub(super) fn emit(&self, bodies:Vec<Vec<u8>>) { self.write(bodies,None,false) }
+    pub(super) fn commands(&self)->Vec<Vec<u8>> { self.commands.lock().unwrap().clone() }
     fn write(&self,bodies:Vec<Vec<u8>>,raw:Option<Vec<u8>>,close:bool) {
         let (done,rx)=mpsc::channel(); self.tx.send(Emission{bodies,raw,close,done}).unwrap();
         rx.recv_timeout(Duration::from_secs(2)).unwrap();
     }
     fn opcodes(&self)->Vec<u8> { self.commands.lock().unwrap().iter().map(|b|b[0]).collect() }
-    fn close(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){h.join().unwrap().unwrap();} }
+    pub(super) fn close(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){h.join().unwrap().unwrap();} }
 }
 
 fn recovery_wait(peer: &FaultPeer) -> LoginController {
@@ -434,11 +448,11 @@ pub fn recovery_after_source_wait_confirms_directory(
 impl Drop for FaultPeer {
     fn drop(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){if let Ok(Err(error))=h.join(){eprintln!("synthetic peer {} failed: {error:#}",self.peer);}} }
 }
-fn pump(c:&mut LoginController, ok:impl Fn(&LoginController)->bool) {
+pub(super) fn pump(c:&mut LoginController, ok:impl Fn(&LoginController)->bool) {
     let until=Instant::now()+Duration::from_secs(3);
     loop { c.poll(); if ok(c){return} assert!(Instant::now()<until,"controller {:?}: {:?}, epoch={}, game={}",c.state.phase,c.state.error,c.transport.snapshot().epoch,c.game); thread::sleep(Duration::from_millis(2)); }
 }
-fn seeded(peer:&FaultPeer)->LoginController {
+pub(super) fn seeded_rental(peer:&FaultPeer)->LoginController {
     let mut c=LoginController::default();
     c.start(peer.peer,Limits{io_slice:Duration::from_millis(5),write_chunk:3,..Limits::default()}).unwrap();
     pump(&mut c,|c|c.state.phase==LoginPhase::ReadyForLogin);
@@ -454,6 +468,10 @@ fn seeded(peer:&FaultPeer)->LoginController {
     c.state.inventory.accept(c.transport.snapshot().epoch,&bytes("inventory")).unwrap();
     let owner=c.merchant_owner().unwrap(); c.state.merchant.begin(owner,NPC,Instant::now()).unwrap();
     c.state.merchant.accept(crate::modern_lito::native_merchant::parse(&bytes("dialog")).unwrap(),Instant::now()).unwrap();
+    c
+}
+fn seeded(peer:&FaultPeer)->LoginController {
+    let mut c=seeded_rental(peer);
     c.rental_npc_action(NPC,"LT_TELEPORT_B").unwrap();
     pump(&mut c,|_|peer.opcodes().contains(&0x27)); c
 }

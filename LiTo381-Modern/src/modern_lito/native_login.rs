@@ -14,6 +14,9 @@ use super::native_forced_combat::{self, Input as CombatInput};
 #[path = "native_rental_return_tests.rs"]
 mod rental_return_tests;
 #[cfg(test)]
+#[path = "native_rental_lifecycle_tests.rs"]
+mod rental_lifecycle_tests;
+#[cfg(test)]
 #[path = "native_battle_withdrawal_tests.rs"]
 mod battle_withdrawal_tests;
 #[cfg(test)]
@@ -25,6 +28,9 @@ mod teleport_recovery_tests;
 #[cfg(test)]
 #[path = "native_login_movement_tests.rs"]
 mod movement_tests;
+#[cfg(test)]
+#[path = "native_lifecycle_tests.rs"]
+mod lifecycle_tests;
 #[cfg(test)]
 #[path = "native_skill_controller_tests.rs"]
 mod skill_ui_tests;
@@ -321,6 +327,7 @@ pub struct Snapshot {
     pub services: Option<super::native_services::Directory>,
     pub rental_set: Option<u8>,
     pub rental_restart_acks: u64,
+    pub rental_return_outcome: Option<RentalReturnOutcome>,
     pub battle_withdrawal_pending: bool,
     pub shop_points: Option<u32>,
     pub merchant: super::native_merchant::Session,
@@ -347,6 +354,13 @@ struct TeleportRecovery {
     source: String,
     character: String,
 }
+/// A fresh authenticated directory after timeout is recovery, not a normal return.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
+pub enum RentalReturnOutcome {
+    Normal,
+    Reconnected,
+}
+
 struct RentalReturnReconnect {
     login_peer: SocketAddr,
     source: String,
@@ -370,6 +384,7 @@ pub struct LoginController {
     item_pending: Option<super::native_item_actions::Pending>,
     skill_pending: Option<super::native_skills::Pending>,
     skill_item_pending: bool,
+    skill_summon_pending: bool,
     teleport_spell: Option<(super::native_navigation::InputStamp, Instant, u16)>,
     teleport_bookmarks: super::native_teleport_spell::Bookmarks,
     skill_ready: Option<Instant>,
@@ -421,6 +436,7 @@ impl Default for LoginController {
             attack_pending: None,
             skill_pending: None,
             skill_item_pending: false,
+            skill_summon_pending: false,
             teleport_spell: None,
             teleport_bookmarks: Default::default(),
             skill_ready: None,
@@ -446,6 +462,7 @@ impl Default for LoginController {
                 services: None,
                 rental_set: None,
                 rental_restart_acks: 0,
+                rental_return_outcome: None,
                 battle_withdrawal_pending: false,
                 shop_points: None,
                 merchant: Default::default(),
@@ -646,13 +663,15 @@ impl LoginController {
             let feedback = if self.state.phase.active_world() && self.skill_context.as_ref().is_none_or(|c|
                 !c.interrupted(self.transport.snapshot().epoch, &self.state.world)) {
                 if self.player_callbacks.pending() { super::native_skills::Feedback::Pending }
+                else if self.skill_summon_pending { pending.observe_summon(&self.state.world, now) }
                 else if self.skill_item_pending { pending.observe_item(&self.state.world, now) }
                 else { pending.observe(&self.state.world, now) }
             } else {
                 super::native_skills::Feedback::Interrupted
             };
             self.state.skill_feedback = feedback;
-            if feedback != super::native_skills::Feedback::Pending {
+            if feedback != super::native_skills::Feedback::Pending
+                && !(self.skill_summon_pending && pending.hold_summon(feedback, now)) {
                 self.player_callbacks.cancel_pending();
                 self.skill_pending = None;
                 self.skill_context = None;
@@ -695,7 +714,7 @@ impl LoginController {
         frame: &super::native_world_scene::Frame,
         input: CombatInput,
     ) -> Result<()> {
-        self.cast_request(skill, target, None, None, None, frame, input)
+        self.cast_request(skill, target, None, None, None, None, frame, input)
     }
     pub fn cast_ground(
         &mut self,
@@ -709,12 +728,12 @@ impl LoginController {
                 .contains(i32::from(position[0]), i32::from(position[1])),
             "地面選點不在已載入地圖"
         );
-        self.cast_request(skill, None, Some(position), None, None, frame, CombatInput::default())
+        self.cast_request(skill, None, Some(position), None, None, None, frame, CombatInput::default())
     }
     pub fn cast_item(&mut self, skill: u16, item: &super::native_skills::ItemTarget,
         frame: &super::native_world_scene::Frame) -> Result<()> {
         ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(), "等待目前物品操作回覆");
-        self.cast_request(skill, None, None, Some(item), None, frame, CombatInput::default())
+        self.cast_request(skill, None, None, Some(item), None, None, frame, CombatInput::default())
     }
     pub fn teleport_labels(&self)->Vec<String> {
         self.teleport_bookmarks.labels(&self.state,self.transport.snapshot().epoch)
@@ -726,7 +745,11 @@ impl LoginController {
         choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks).is_ok()
     }
     pub fn cast_teleport(&mut self,choice:&super::native_teleport_spell::Choice,frame:&super::native_world_scene::Frame)->Result<()> {
-        self.cast_request(5,None,None,None,Some(choice),frame,CombatInput::default())
+        self.cast_request(5,None,None,None,Some(choice),None,frame,CombatInput::default())
+    }
+    pub fn cast_summon(&mut self,choice:&super::native_skills::SummonTarget,frame:&super::native_world_scene::Frame)->Result<()> {
+        ensure!(self.item_pending.is_none() && self.pickup_pending.is_none(),"等待目前物品操作回覆");
+        self.cast_request(51,None,None,None,None,Some(choice),frame,CombatInput::default())
     }
     fn cast_request(
         &mut self,
@@ -735,10 +758,11 @@ impl LoginController {
         ground: Option<[u16; 2]>,
         item: Option<&super::native_skills::ItemTarget>,
         teleport: Option<&super::native_teleport_spell::Choice>,
+        summon: Option<&super::native_skills::SummonTarget>,
         frame: &super::native_world_scene::Frame,
         input: CombatInput,
     ) -> Result<()> {
-        self.cast_request_at(skill, target, ground, item, teleport, frame, input, Instant::now())
+        self.cast_request_full(skill, target, ground, item, teleport, summon, frame, input, Instant::now())
     }
     #[allow(clippy::too_many_arguments)]
     fn cast_request_at(
@@ -748,6 +772,21 @@ impl LoginController {
         ground: Option<[u16; 2]>,
         item: Option<&super::native_skills::ItemTarget>,
         teleport: Option<&super::native_teleport_spell::Choice>,
+        frame: &super::native_world_scene::Frame,
+        input: CombatInput,
+        now: Instant,
+    ) -> Result<()> {
+        self.cast_request_full(skill, target, ground, item, teleport, None, frame, input, now)
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn cast_request_full(
+        &mut self,
+        skill: u16,
+        target: Option<u32>,
+        ground: Option<[u16; 2]>,
+        item: Option<&super::native_skills::ItemTarget>,
+        teleport: Option<&super::native_teleport_spell::Choice>,
+        summon: Option<&super::native_skills::SummonTarget>,
         frame: &super::native_world_scene::Frame,
         input: CombatInput,
         now: Instant,
@@ -771,7 +810,9 @@ impl LoginController {
         );
         ensure!(item.is_none() || (ground.is_none() && target.is_none()), "混合施法目標");
         ensure!(teleport.is_none() || (skill==5 && item.is_none() && ground.is_none() && target.is_none()), "混合傳送目標");
-        let mut body = if let Some(choice)=teleport {
+        ensure!(summon.is_none() || (skill==51 && target.is_none() && ground.is_none() && item.is_none() && teleport.is_none()),"混合召喚目標");
+        let mut body = if let Some(choice)=summon {super::native_skills::summon_request(&self.state,self.transport.snapshot().epoch,choice)?}
+        else if let Some(choice)=teleport {
             choice.request(&self.state,self.transport.snapshot().epoch,&self.teleport_bookmarks)?
         } else {match ground {
             Some(position) => {
@@ -787,7 +828,8 @@ impl LoginController {
             self.transport.snapshot().epoch, &self.state.world, skill, target));
         self.world_tree_request = (skill==131).then(||(super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch,&self.state.world),now));
         self.teleport_spell = teleport.map(|choice| (super::native_navigation::InputStamp::capture(self.transport.snapshot().epoch, &self.state.world), now, choice.destination().map));
-        self.skill_item_pending = item.is_some();
+        self.skill_item_pending = item.is_some() || skill==48;
+        self.skill_summon_pending = summon.is_some();
         self.skill_pending = Some(super::native_skills::Pending {
             since: now,
             casts: self.state.world.own_cast_packets,
@@ -817,12 +859,8 @@ impl LoginController {
         let mut body = self.state.world.attack_request(target)?;
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
-        self.attack_pending = Some(super::native_combat::Pending {
-            since: Instant::now(),
-            count: self.state.world.own_attack_packets,
-            target,
-            generation: self.state.world.generation,
-        });
+        self.attack_pending = Some(super::native_combat::Pending::capture(
+            &self.state.world, target, Instant::now()));
         self.state.attack_feedback = super::native_combat::Feedback::Pending;
         Ok(())
     }
@@ -1165,6 +1203,9 @@ impl LoginController {
         );
         self.state.character_result = None;
         self.state.classic_entry_result = None;
+        // A new explicit selection ends the previous rental return's packet fence.
+        self.state.rental_restart_acks = 0;
+        self.state.merchant.clear();
         self.state.rental_set=None;self.rental_set_pending=None;self.state.shop_points=None;
         self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
         self.state.inventory.begin(
@@ -1221,7 +1262,11 @@ impl LoginController {
     pub fn return_from_rental(&mut self)->Result<()> {
         ensure!(self.merchant_owner().is_some(),"目前不是可返回的租裝村角色");
         ensure!(!self.state.merchant.waiting,"請等待 NPC 回覆後返回");
+        ensure!(self.portal_entry.is_none(),"請等待地圖入口回覆後返回");
         self.transport.send(self.transport.snapshot().epoch,Zeroizing::new(vec![0x10]))?;
+        self.teleport=None;
+        self.interrupt_world_actions();
+        self.state.rental_return_outcome=None;
         self.state.merchant.clear();self.state.rental_restart_acks=0;self.rental_restart_quit_pending=false;
         self.state.phase=LoginPhase::RentalRestartPending;self.deadline=Some(Instant::now()+Duration::from_secs(8));Ok(())
     }
@@ -1469,6 +1514,13 @@ impl LoginController {
                     self.room_mode_received=false;self.state.room_system_message=None;
                     self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
                     if self.state.phase==LoginPhase::ReturningCharacters {
+                        if self.state.rental_restart_acks>0 {
+                            // Keep authority updates hidden until explicit reselection:
+                            // rental removals may follow S_D0 on this same connection.
+                            self.state.inventory.suspend();
+                            self.state.merchant.clear();
+                            self.interrupt_world_actions();
+                        }
                         return Ok(true);
                     }
                     self.state.phase = LoginPhase::LobbyReady;
@@ -1653,8 +1705,8 @@ impl LoginController {
             }
             L::SourceRefresh => {
                 ensure!(!self.rental_restart_quit_pending,"source refresh preceded rental quit acknowledgement");
-                ensure!(self.state.rental_restart_acks==0 || self.state.rental_set.is_none()
-                    || self.state.joined_room.is_none(),"source refresh preceded rental departure");
+                ensure!(self.state.rental_restart_acks==0 || self.state.joined_room.is_none(),
+                    "source refresh preceded rental departure");
                 ensure!(
                     self.state.phase == LoginPhase::ReturningCharacters,
                     "unsolicited source refresh permission"
@@ -1695,6 +1747,27 @@ impl LoginController {
         let dispatched_at = Instant::now();
         if let Some(receipt) = ingress {
             ensure!(receipt.connection_epoch() == self.transport.snapshot().epoch, "world ingress connection retired");
+        }
+        if self.state.phase==LoginPhase::RentalRestartPending
+            || (self.state.rental_restart_acks>0 && matches!(self.state.phase,
+                LoginPhase::ReturningCharacters|LoginPhase::LoadingCharacters|LoginPhase::CharactersReady)) {
+            // Only return controls, the refreshed directory and authoritative
+            // inventory deltas survive this fence. Queued scene/NPC replies
+            // cannot revive battle, restore a consumed list or renew a deadline.
+            if !body.first().is_some_and(|op|matches!(op,0x65|0xf0|0xd0|0xf5|0x03|0xcb|0xfb)) {
+                self.state.inventory.accept(self.transport.snapshot().epoch,body)?;
+                return Ok(());
+            }
+            // Validate control order before World::accept can record an unknown
+            // opcode. Rejected return controls must leave the entire scope intact.
+            if body.first()==Some(&0xd0) {
+                self.accept_room(body)?;
+                return Ok(());
+            }
+            if body.first()==Some(&0xf5) {
+                self.accept_lobby(body)?;
+                return Ok(());
+            }
         }
         if self.state.phase==LoginPhase::TeleportQuitPending {
             if body.first()==Some(&0xf0) {
@@ -1745,8 +1818,8 @@ impl LoginController {
             self.deadline=Some(Instant::now()+Duration::from_secs(8));return Ok(());
         }
         if body.first()==Some(&0xf0) && (self.state.phase==LoginPhase::RentalRestartPending
-            || (self.state.phase==LoginPhase::ReturningCharacters
-                && self.state.rental_restart_acks>0 && self.state.rental_set.is_some())) {
+            || (self.state.rental_restart_acks>0 && matches!(self.state.phase,
+                LoginPhase::ReturningCharacters|LoginPhase::LoadingCharacters|LoginPhase::CharactersReady))) {
             ensure!(body==[0xf0,0] && self.rental_restart_quit_pending
                 && self.state.phase==LoginPhase::ReturningCharacters,
                 "unsolicited, duplicate or malformed rental quit acknowledgement");
@@ -2076,6 +2149,9 @@ impl LoginController {
                 self.state.phase=LoginPhase::CharacterPending;
                 self.deadline=Some(Instant::now()+Duration::from_secs(8));
             } else {
+                if self.state.rental_restart_acks>0 {
+                    self.state.rental_return_outcome=Some(RentalReturnOutcome::Normal);
+                }
                 self.state.phase = LoginPhase::CharactersReady;
                 self.deadline = None;
             }
@@ -2448,6 +2524,7 @@ impl LoginController {
                     && self.state.inventory.items.is_empty() && !self.state.world.ready(),
                     "return source directory retained retired rental authority");
                 self.rental_return_reconnect=None;
+                self.state.rental_return_outcome=Some(RentalReturnOutcome::Reconnected);
             }
             _=>{}
         }
