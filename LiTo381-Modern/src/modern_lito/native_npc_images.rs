@@ -34,4 +34,58 @@ impl Bank {
         let id = match action { "LT_TELEPORT_B" => 7311, "LT_TELEPORT_C" => 7312, _ => return None };
         declared.contains(&id).then(|| self.images.get(&id)).flatten()
     }
+    /// Image placed by the document after action `index` (original inline
+    /// layout). Requires the TeleportMe page and an image this bank verified;
+    /// the command-to-image mapping must agree with the document placement.
+    pub fn trailing_glyph(&self, html: &str, trailing: &[(usize, u16)], index: usize, action: &str) -> Option<&Img> {
+        if html != "TeleportMe" { return None; }
+        let (_, id) = trailing.iter().find(|(i, _)| *i == index)?;
+        let expected = match action { "LT_TELEPORT_B" => 7311, "LT_TELEPORT_C" => 7312, _ => return None };
+        (*id == expected).then(|| self.images.get(id)).flatten()
+    }
+}
+
+/// Placement of one owner-drawn row for `<a>label</a>   <img>`: the label at
+/// the left inset, then one collapsed HTML space, then the image, vertically
+/// centred. A long label is clipped so the image stays inside the row; when the
+/// row cannot hold the image at all, only the label is drawn.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct TrailingRow { pub text: [i32; 4], pub image: Option<[i32; 2]> }
+pub fn trailing_row(row: [i32; 4], inset: i32, label_width: i32, space: i32, image: (i32, i32)) -> TrailingRow {
+    let [left, top, right, bottom] = row;
+    let (left, right) = (left.saturating_add(inset), right.saturating_sub(inset));
+    let (label_width, space) = (label_width.max(0), space.max(0));
+    let room = right.saturating_sub(left).saturating_sub(space).saturating_sub(image.0);
+    if image.0 <= 0 || image.1 <= 0 || room <= 0 {
+        return TrailingRow { text: [left, top, right, bottom], image: None };
+    }
+    let text_right = left.saturating_add(label_width.min(room));
+    let x = text_right.saturating_add(space);
+    let y = top.saturating_add((bottom.saturating_sub(top).saturating_sub(image.1)) / 2);
+    TrailingRow { text: [left, top, text_right, bottom], image: Some([x, y]) }
+}
+
+#[cfg(test)]
+mod layout_tests {
+    use super::*;
+    #[test]
+    fn trailing_image_follows_label_with_one_space_and_is_centred() {
+        // 4px inset, 60px label, 4px space, 13x14 IMG in a 200x24 row.
+        let row = trailing_row([0, 10, 200, 34], 4, 60, 4, (13, 14));
+        assert_eq!(row.text, [4, 10, 64, 34]);
+        assert_eq!(row.image, Some([68, 15]));
+    }
+    #[test]
+    fn long_label_is_clipped_so_the_image_stays_in_the_row() {
+        let row = trailing_row([0, 0, 100, 20], 4, 500, 4, (13, 14));
+        let [x, y] = row.image.unwrap();
+        assert_eq!(row.text[2] + 4, x);
+        assert!(x + 13 <= 96 && y == 3);
+    }
+    #[test]
+    fn row_too_narrow_or_empty_image_draws_only_the_label() {
+        assert_eq!(trailing_row([0, 0, 20, 20], 4, 50, 4, (13, 14)).image, None);
+        assert_eq!(trailing_row([0, 0, 200, 20], 4, 50, 4, (0, 14)).image, None);
+        assert_eq!(trailing_row([0, 0, 200, 20], 4, 50, 4, (0, 14)).text, [4, 0, 196, 20]);
+    }
 }

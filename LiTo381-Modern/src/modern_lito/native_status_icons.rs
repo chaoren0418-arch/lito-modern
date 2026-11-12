@@ -299,8 +299,14 @@ impl Leases {
 
 /// One-line HUD text: AC, MP, skill reuse and up to six server leases.
 pub fn summary(world: &super::native_world::World, now_ms: u64, cooldown_ms: Option<u64>) -> String {
+    summary_with_mp(world, world.mp, now_ms, cooldown_ms)
+}
+
+/// Same as [`summary`], but shows the caller's presented MP (the HUD value
+/// gated behind the own action that caused it) instead of the raw `world.mp`.
+pub fn summary_with_mp(world: &super::native_world::World, mp: Option<[u16; 2]>, now_ms: u64, cooldown_ms: Option<u64>) -> String {
     let ac = world.status.map(|s| s.armor_class.to_string()).unwrap_or_else(|| "—".into());
-    let mp = world.mp.map(|[c, m]| format!("{c}/{m}")).unwrap_or_else(|| "等待資料".into());
+    let mp = mp.map(|[c, m]| format!("{c}/{m}")).unwrap_or_else(|| "等待資料".into());
     let cooldown = match cooldown_ms {
         Some(ms) if ms > 0 => format!("冷卻 {}.{} 秒", ms / 1000, (ms % 1000) / 100),
         _ => "技能就緒".into(),

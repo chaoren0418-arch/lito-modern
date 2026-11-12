@@ -382,6 +382,7 @@ pub mod native_combat_ops;
 pub mod native_forced_combat;
 pub mod native_target_policy;
 pub mod native_combat_animation;
+pub mod native_hurt;
 pub mod native_combat_probe;
 pub mod native_peer_probe;
 pub mod native_peer_room_probe;
@@ -479,3 +480,8 @@ pub mod native_cone_cold;
 pub(crate) mod native_additional_finite_effects;
 
 pub mod native_ability_buffs;
+
+pub(crate) mod native_cube;
+
+#[cfg(test)]
+mod native_t047_tests;

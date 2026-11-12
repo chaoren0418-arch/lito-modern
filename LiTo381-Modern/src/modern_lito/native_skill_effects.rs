@@ -56,6 +56,34 @@ fn qualify(
     }
     Ok(animations)
 }
+
+pub(crate) fn qualify_finite(
+    catalog: &SpriteActionCatalog,
+    gfx: u32,
+) -> super::tower_assets::Result<Vec<(u32, u8, Animation)>> {
+    let row = catalog.sprites.get(&gfx)
+        .ok_or(HonorAssetError::Unsupported("finite effect definition absent"))?;
+    let resolved = catalog.resolve_action(gfx, ActionKey::new(0))?;
+    let animation = resolved.animation;
+    let images = match animation.directionality {
+        Directionality::Undirected => 1,
+        Directionality::EightWay => 8,
+    };
+    if row.header_issue.is_some() || row.image_count != Some(images)
+        || row.actions.len() != 1 || resolved.definition_sprite_id != gfx
+        || row.attributes.iter().any(|attribute| !matches!(
+            (attribute.key.id, attribute.body_bytes.trim_ascii()), (102, b"0") | (104, b"0" | b"8")))
+        || animation.frames_per_second != 24
+        || animation.frames.is_empty() || animation.frames.len() > 256
+        || animation.frames.iter().any(|frame| frame.image_id != 0
+            || super::combat_animation::classify_native_cues(&frame.events)
+                .map_or(true, |cues| cues.non_audio.iter().any(|event| *event != FrameEvent::Hit)
+                    || cues.audio.is_some_and(|group| group.candidates().len() != 1)))
+    {
+        return Err(HonorAssetError::Unsupported("finite effect controls require a dedicated renderer"));
+    }
+    Ok(vec![(gfx, 0, animation.clone())])
+}
 /// Exact original #169 class-0 teleport. Source0 is the terminal dwell;
 /// source1 starts playback and carries sound119.
 pub fn qualify_travel(c: &SpriteActionCatalog) -> super::tower_assets::Result<Vec<(u32,u8,Animation)>> {
@@ -255,8 +283,21 @@ impl Profile {
 #[derive(Clone)]
 struct Active {
     cue: Effect,
+    heading: u8,
     start: u64,
     playback: Playback,
+}
+pub(crate) const FINITE_BANK_LIMIT: usize = 32;
+pub(crate) const FINITE_ERROR_LIMIT: usize = 192;
+pub(crate) const FINITE_BYTE_LIMIT: usize = 64 * 1024 * 1024;
+/// Least recently requested loaded graphics that no active or pending cue owns.
+pub(crate) fn finite_victim(loaded: impl Iterator<Item = u16>, used: &BTreeMap<u16, u64>,
+    protected: &BTreeSet<u16>) -> Option<u16> {
+    loaded.filter(|gfx| !protected.contains(gfx))
+        .min_by_key(|gfx| (used.get(gfx).copied().unwrap_or(0), *gfx))
+}
+fn finite_bank_bytes(bank: &SharedEffectBank) -> usize {
+    bank.encoded_bytes() + bank.retained_rgba_bytes() + bank.sound_bank().file_bytes()
 }
 /// Accepted finite callback state, with no sprite/PCM resource ownership.
 #[derive(Clone)]
@@ -302,6 +343,16 @@ pub struct Effects {
     selector_error: Option<String>,
     additional_bank: Option<SharedEffectBank>,
     additional_error: Option<String>,
+    finite_banks: BTreeMap<u16, SharedEffectBank>,
+    finite_over: BTreeSet<u16>,
+    finite_errors: BTreeMap<u16, String>,
+    /// LRU stamp per loaded finite bank; protected banks are never evicted.
+    finite_used: BTreeMap<u16, u64>,
+    finite_clock: u64,
+    /// Temporarily unloadable graphics with the protected set seen at that
+    /// time. Their cues stay unconsumed and retry once protection changes.
+    finite_deferred: BTreeMap<u16, BTreeSet<u16>>,
+    finite_evicted: u64,
     dark_elf_bank: Option<SharedEffectBank>,
     dark_elf_error: Option<String>,
     tw_heal_error: Option<String>,
@@ -447,6 +498,90 @@ impl Effects {
                 Err(e) => self.tw_heal_error = Some(format!("{e:#}")),
             }
         }
+        if self.profile == Profile::Skills {
+            let requested: BTreeSet<_> = world.effects.iter()
+                .chain(self.active.iter().map(|active| &active.cue))
+                .map(|cue| cue.graphics)
+                .filter(|gfx| !matches!(gfx, 168 | 169 | 189 | 194 | 197 | 2231 | 11722..=11725)
+                    && !self.profile.graphics().contains(gfx)
+                    && !super::native_selector_effects::GRAPHICS.contains(gfx)
+                    && !super::native_additional_finite_effects::GRAPHICS.contains(gfx)
+                    && !super::native_dark_elf_effects::GRAPHICS.contains(gfx))
+                .collect();
+            self.finite_clock += 1;
+            // Banks still needed: playing effects and received cues that have
+            // not started yet. Everything else is an LRU eviction candidate.
+            let protected: BTreeSet<u16> = self.active.iter().map(|active| active.cue.graphics)
+                .chain(world.effects.iter().filter(|e| !self.seen.contains(&e.sequence)).map(|e| e.graphics))
+                .filter(|gfx| requested.contains(gfx))
+                .collect();
+            for gfx in &requested {
+                if self.finite_banks.contains_key(gfx) { self.finite_used.insert(*gfx, self.finite_clock); }
+            }
+            // Errors are diagnostics for referenced cues only. The S37 ring
+            // (128) plus active (64) bounds referenced IDs below this limit.
+            if self.finite_errors.len() >= FINITE_ERROR_LIMIT {
+                self.finite_errors.retain(|gfx, _| requested.contains(gfx));
+                while self.finite_errors.len() >= FINITE_ERROR_LIMIT { self.finite_errors.pop_first(); }
+            }
+            self.finite_deferred.retain(|gfx, _| requested.contains(gfx));
+            for &gfx in &requested {
+                if self.finite_banks.contains_key(&gfx) || self.finite_errors.contains_key(&gfx) {
+                    continue;
+                }
+                if self.finite_deferred.get(&gfx).is_some_and(|seen| *seen == protected) {
+                    continue;
+                }
+                if self.finite_banks.len() >= FINITE_BANK_LIMIT && !self.evict_finite(&protected) {
+                    self.finite_deferred.insert(gfx, protected.clone());
+                    continue;
+                }
+                let loaded = (|| -> anyhow::Result<_> {
+                    let catalog = SharedActionCatalog::reuse_for_model(root, cancel, shared)?;
+                    let screen = catalog.catalog().sprites.get(&u32::from(gfx))
+                        .is_some_and(|row| row.attributes.iter().any(|attribute|
+                            attribute.key == ActionKey::new(104) && attribute.body_bytes.trim_ascii() == b"8"));
+                    let bank = SharedEffectBank::load_finite(catalog, cancel, gfx)?;
+                    anyhow::ensure!(finite_bank_bytes(&bank) <= FINITE_BYTE_LIMIT,
+                        "finite effect {gfx} alone exceeds the {FINITE_BYTE_LIMIT}-byte cache budget");
+                    let clip = Clip::new(Arc::clone(bank.animation(u32::from(gfx), 0)?))?;
+                    Ok((bank, clip, screen))
+                })();
+                match loaded {
+                    Ok((bank, clip, screen)) => {
+                        let needed = finite_bank_bytes(&bank);
+                        while self.finite_banks.values().map(finite_bank_bytes).sum::<usize>() + needed > FINITE_BYTE_LIMIT {
+                            if !self.evict_finite(&protected) { break; }
+                        }
+                        if self.finite_banks.values().map(finite_bank_bytes).sum::<usize>() + needed > FINITE_BYTE_LIMIT {
+                            // Temporary: protected banks hold the budget.
+                            self.finite_deferred.insert(gfx, protected.clone());
+                            continue;
+                        }
+                        self.finite_deferred.remove(&gfx);
+                        self.clips.insert(gfx, clip);
+                        self.finite_banks.insert(gfx, bank);
+                        self.finite_used.insert(gfx, self.finite_clock);
+                        if !screen { self.finite_over.insert(gfx); }
+                    }
+                    Err(error) => {
+                        self.finite_deferred.remove(&gfx);
+                        self.finite_errors.insert(gfx, format!("{error:#}"));
+                    }
+                }
+            }
+        }
+    }
+    /// Drop the least recently requested finite bank outside `protected`.
+    fn evict_finite(&mut self, protected: &BTreeSet<u16>) -> bool {
+        let Some(gfx) = finite_victim(self.finite_banks.keys().copied(), &self.finite_used, protected)
+            else { return false };
+        self.finite_banks.remove(&gfx);
+        self.finite_used.remove(&gfx);
+        self.finite_over.remove(&gfx);
+        self.clips.remove(&gfx);
+        self.finite_evicted += 1;
+        true
     }
     pub fn draw(
         &mut self,
@@ -499,11 +634,17 @@ impl Effects {
                 continue;
             }
             let Some(clip) = self.clips.get(&cue.graphics) else {
+                if self.finite_deferred.contains_key(&cue.graphics) {
+                    // Cache capacity is temporarily held; keep the cue for retry.
+                    self.seen.remove(&cue.sequence);
+                    continue;
+                }
                 self.omitted += 1;
                 continue;
             };
             self.active.push(Active {
                 cue: cue.clone(),
+                heading: world.effect_headings.get(&cue.sequence).copied().unwrap_or(0),
                 start: now,
                 playback: clip.start(),
             });
@@ -516,7 +657,7 @@ impl Effects {
             for active in &mut self.active {
                 let cue = &active.cue;
                 let result = (|| -> anyhow::Result<_> {
-                    let bank = if super::native_dark_elf_effects::GRAPHICS.contains(&cue.graphics) { self.dark_elf_bank.as_ref() } else if matches!(cue.graphics,11722..=11725) { self.tw_heal_bank.as_ref() } else if self.profile==Profile::Skills && super::native_additional_finite_effects::GRAPHICS.contains(&cue.graphics) {self.additional_bank.as_ref()} else if self.profile==Profile::Skills && super::native_selector_effects::GRAPHICS.contains(&cue.graphics) {self.selector_bank.as_ref()} else { self.bank.as_ref() }
+                    let bank = if let Some(bank) = self.finite_banks.get(&cue.graphics) { Some(bank) } else if super::native_dark_elf_effects::GRAPHICS.contains(&cue.graphics) { self.dark_elf_bank.as_ref() } else if matches!(cue.graphics,11722..=11725) { self.tw_heal_bank.as_ref() } else if self.profile==Profile::Skills && super::native_additional_finite_effects::GRAPHICS.contains(&cue.graphics) {self.additional_bank.as_ref()} else if self.profile==Profile::Skills && super::native_selector_effects::GRAPHICS.contains(&cue.graphics) {self.selector_bank.as_ref()} else { self.bank.as_ref() }
                         .ok_or_else(|| anyhow::anyhow!("effect bank absent"))?;
                     let elapsed = now.saturating_sub(active.start);
                     // Native timers quantize the common clock, not each
@@ -531,7 +672,14 @@ impl Effects {
                         let animation=bank.animation(u32::from(cue.graphics),self.profile.action())?;
                         let frame=&animation.frames[crossed.source_frame];
                         let classified=super::combat_animation::classify_native_cues(&frame.events)?;
-                        anyhow::ensure!(classified.non_audio.is_empty(),"finite non-audio cue unsupported");
+                        for event in classified.non_audio {
+                            anyhow::ensure!(event == FrameEvent::Hit, "finite non-audio cue unsupported");
+                            events.push(EnteredEvent {
+                                actor: cue.target.map_or(0, |target| target.0), sequence: cue.sequence,
+                                action: self.profile.action(), frame: crossed.source_frame,
+                                event: "Hit".into(), sound: None, prepared_audio: None,
+                            });
+                        }
                         if let Some(group)=classified.audio {
                             // All source-reviewed finite banks have a single audio candidate.
                             // Weighted producers must supply their reviewed random-word source.
@@ -542,7 +690,7 @@ impl Effects {
                             } else {format!("EffectAudioOverlap({})",sound.unwrap_or(0))};
                             let prepared=super::native_audio_delivery::PreparedCue::from_finite_event(bank.sound_bank(),group,0,
                                 super::native_audio_delivery::FiniteEventKey{sequence:cue.sequence,graphics:cue.graphics,action:self.profile.action(),source_frame:crossed.source_frame})?;
-                            events.push(EnteredEvent {actor:cue.target.map(|t|t.0).unwrap_or(0),sequence:cue.sequence,
+                            events.push(EnteredEvent {actor:if self.profile == Profile::Travel {0} else {cue.target.map(|t|t.0).unwrap_or(0)},sequence:cue.sequence,
                                 action:self.profile.action(),frame:crossed.source_frame,event:label,sound,
                                 prepared_audio:Some(prepared)});
                         }
@@ -550,11 +698,12 @@ impl Effects {
                     if sample.finished {
                         finished.insert(cue.sequence);
                     }
-                    let frame = bank.frame(
+                    let frame = bank.frame_heading(
                         u32::from(cue.graphics),
                         self.profile.action(),
                         sample.source_frame,
                         sample.finished,
+                        active.heading,
                     )?;
                     // Blank slots keep the parent dwell and audio events, but no pixels.
                     let mut drawn=!sample.finished && !frame.frame.rgba.is_empty();
@@ -587,7 +736,8 @@ impl Effects {
                         ]));
                         drawn|=clothing_drawn;
                     } else if drawn {
-                        target.submit(frame.frame,position,projection,match cue.graphics {2510=>super::native_world_effects::Mix::Over,2175|2228=>super::native_world_effects::Mix::Multiply,_=>super::native_world_effects::Mix::Screen})?;
+                        let mix=if cue.graphics==2510 || self.finite_over.contains(&cue.graphics) {super::native_world_effects::Mix::Over}else if matches!(cue.graphics,2175|2228) {super::native_world_effects::Mix::Multiply}else{super::native_world_effects::Mix::Screen};
+                        target.submit(frame.frame,position,projection,mix)?;
                     }
                     let mut row=serde_json::json!({"sequence":cue.sequence,"graphics":cue.graphics,"target":cue.target,"position":cue.position,"action":self.profile.action(),"source_frame":frame.source_frame,"sprite":frame.sprite_name,"subframe":frame.subframe,"drawn":drawn,"finished":sample.finished,"elapsed_ns":elapsed,"native_clock_elapsed_ms":if self.profile==Profile::Reagent {None}else{Some(clock_elapsed_ms)},"next_callback_ms":active.playback.next_callback_millis(),"callback_count":active.playback.callback_count()});
                     if let Some(layers)=layers {row["layers"]=layers;}
@@ -598,6 +748,16 @@ impl Effects {
         }
         self.active.retain(|a| !finished.contains(&a.cue.sequence));
         let mut receipt = serde_json::json!({"presentation":if self.profile==Profile::Reagent {"modern_explicit_action3_once"} else {"qualified_native_class0"},"started":self.started,"omitted":self.omitted,"active":self.active.len(),"effects":rows,"load_error":self.error.as_ref().or(self.tw_heal_error.as_ref()).or(self.additional_error.as_ref()).or(self.dark_elf_error.as_ref()),"sources":self.bank.as_ref().or(self.tw_heal_bank.as_ref()).map(|_|self.bank.iter().chain(self.tw_heal_bank.iter()).flat_map(|b|b.sources()).map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,"sha256":s.sha256.iter().map(|b|format!("{b:02x}")).collect::<String>()})).collect::<Vec<_>>()),"entered_events":events,"complete":false});
+        receipt["finite_banks"] = serde_json::json!({
+            "loaded": self.finite_banks.keys().collect::<Vec<_>>(),
+            "errors": self.finite_errors,
+            "deferred": self.finite_deferred.keys().collect::<Vec<_>>(),
+            "evicted": self.finite_evicted,
+            "retained_bytes": self.finite_banks.values().map(finite_bank_bytes).sum::<usize>(),
+            "entry_limit": FINITE_BANK_LIMIT,
+            "error_limit": FINITE_ERROR_LIMIT,
+            "byte_limit": FINITE_BYTE_LIMIT,
+        });
         if let Some(bank) = &self.dark_elf_bank {
             receipt["dark_elf_bank"] = serde_json::json!({"loaded":true,"load_error":self.dark_elf_error,
                 "sources":bank.sources().map(|s|serde_json::json!({"name":s.name,"bytes":s.bytes,

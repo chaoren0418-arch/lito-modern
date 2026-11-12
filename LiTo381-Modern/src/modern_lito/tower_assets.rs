@@ -63,6 +63,7 @@ pub enum HonorAssetError {
     InvalidInput(&'static str),
     Unsupported(&'static str),
     UnsupportedSoundBank,
+    MissingFrame { member: String, subframe: u32, frames: usize },
     Bound(&'static str),
     Resource(ResourceError),
     Catalog(ActionError),
@@ -76,6 +77,8 @@ impl fmt::Display for HonorAssetError {
             Self::InvalidInput(s) => write!(f, "invalid Honor presentation: {s}"),
             Self::Unsupported(s) => write!(f, "unsupported shared Honor presentation: {s}"),
             Self::UnsupportedSoundBank => write!(f, "shared Honor sound bank is unqualified"),
+            Self::MissingFrame { member, subframe, frames } => write!(f,
+                "SPR {member} requires subframe {subframe}, decoded frame count is {frames}"),
             Self::Bound(s) => write!(f, "Honor presentation exceeds {s} bound"),
             Self::Resource(e) => write!(f, "Honor shared resource: {e}"),
             Self::Catalog(e) => write!(f, "Honor action definition: {e}"),
@@ -190,7 +193,7 @@ pub(crate) struct SharedEffectBank {
     rgba: usize,
 }
 #[derive(Clone, Copy)]
-enum ReferencedFramePolicy { NonEmpty, TwHealingFamily, ReviewedSelectors, ReviewedAdditionalFinite, ReviewedEarthJail, ReviewedDarkElf }
+enum ReferencedFramePolicy { NonEmpty, TwHealingFamily, ReviewedSelectors, ReviewedAdditionalFinite, ReviewedEarthJail, ReceivedFinite, ReviewedDarkElf }
 // Each tuple pins the actual SPR and its last visible original subframe.
 const TW_HEALING_SPRS: &[(&str,usize,[u8;32],usize)]=&[
     ("11722-0.spr",30637,[0x85, 0xf6, 0x87, 0x20, 0x52, 0xfa, 0x33, 0x5c, 0xab, 0x1e, 0xe5, 0x65, 0xc3, 0xe1, 0x84, 0xe2, 0xd4, 0xe7, 0x18, 0xa6, 0x13, 0x7c, 0x87, 0xd2, 0x88, 0x50, 0xc8, 0x8e, 0xcc, 0xa6, 0xf8, 0xe5],12),
@@ -269,10 +272,25 @@ impl SharedEffectBank {
         Self::load_profile(context,cancel,super::native_additional_finite_effects::qualify,
             super::native_additional_finite_effects::GRAPHICS_BINDINGS,false,ReferencedFramePolicy::ReviewedAdditionalFinite)
     }
+    /// A received S37 proc/weapon effect may select any simple class-0 row in
+    /// the pinned shared catalog. Complex controllers retain their own loaders.
+    pub(crate) fn load_finite(
+        context: &SharedActionCatalog,
+        cancel: &AtomicBool,
+        graphics: u16,
+    ) -> Result<Self> {
+        let gfx = u32::from(graphics);
+        let bank = context.catalog().sprites.get(&gfx)
+            .ok_or(HonorAssetError::Unsupported("finite effect definition absent"))?
+            .graphics_id;
+        Self::load_profile(context, cancel,
+            |catalog| super::native_skill_effects::qualify_finite(catalog, gfx),
+            &[(gfx, bank)], true, ReferencedFramePolicy::ReceivedFinite)
+    }
     fn load_profile(
         context: &SharedActionCatalog,
         cancel: &AtomicBool,
-        qualify: fn(&SpriteActionCatalog) -> Result<Vec<(u32, u8, Animation)>>,
+        qualify: impl FnOnce(&SpriteActionCatalog) -> Result<Vec<(u32, u8, Animation)>>,
         bindings: &[(u32,u32)],
         directional: bool,
         frame_policy: ReferencedFramePolicy,
@@ -376,8 +394,8 @@ impl SharedEffectBank {
                 let cues = classify_native_cues(&frame.events)
                     .map_err(|_| HonorAssetError::Unsupported("native cue classification"))?;
                 if !cues.non_audio.is_empty()
-                    && !(directional && frame.events.iter().all(|e|
-                        matches!(e, FrameEvent::Hit | FrameEvent::Sound(_)))) {
+                    && !(directional && cues.non_audio.iter().all(|e|
+                        matches!(e, FrameEvent::Hit))) {
                     return Err(HonorAssetError::Unsupported(
                         "unimplemented visual/gameplay cue",
                     ));
@@ -491,12 +509,13 @@ impl SharedEffectBank {
             for index in 0..animation.frames.len() {
                 for heading in 0..8 {
                     let asset = animation.frame_asset(graphics_bindings.get(&gfx).copied().unwrap_or(gfx), index, heading)?;
-                    let frame = sprites
-                        .get(&asset.file_name())
-                        .and_then(|s| s.decoded.frames.get(asset.subframe as usize))
-                        .ok_or(HonorAssetError::Unsupported(
-                            "referenced SPR subframe missing",
-                        ))?;
+                    let sprite = sprites.get(&asset.file_name())
+                        .ok_or(HonorAssetError::Unsupported("referenced SPR absent"))?;
+                    let frame = sprite.decoded.frames.get(asset.subframe as usize)
+                        .ok_or_else(|| HonorAssetError::MissingFrame {
+                            member: asset.file_name(), subframe: asset.subframe,
+                            frames: sprite.decoded.frames.len(),
+                        })?;
                     let reviewed_blank = matches!(frame_policy,ReferencedFramePolicy::ReviewedDarkElf)
                         && super::native_dark_elf_effects::is_blank(&asset.file_name(),asset.subframe as usize,frame)
                         || matches!(frame_policy,ReferencedFramePolicy::TwHealingFamily)
@@ -506,7 +525,12 @@ impl SharedEffectBank {
                         || matches!(frame_policy,ReferencedFramePolicy::ReviewedAdditionalFinite)
                             && super::native_additional_finite_effects::is_reviewed_blank(&asset.file_name(),asset.subframe as usize,frame)
                         || matches!(frame_policy,ReferencedFramePolicy::ReviewedEarthJail)
-                            && super::native_attack_many::earth_jail::is_blank(&asset.file_name(),asset.subframe as usize,frame);
+                            && super::native_attack_many::earth_jail::is_blank(&asset.file_name(),asset.subframe as usize,frame)
+                        || matches!(frame_policy, ReferencedFramePolicy::ReceivedFinite)
+                            && (frame.x_offset, frame.y_offset, frame.width, frame.height, frame.unknown1, frame.unknown2)
+                                == (192, 120, 0, 0, u16::MAX, 0)
+                            && frame.rgba.is_empty()
+                            && frame.fragments.as_ref().is_some_and(|fragments| fragments.references.is_empty());
                     if !reviewed_blank && (frame.width == 0
                         || frame.height == 0
                         || frame.rgba.len() != frame.width as usize * frame.height as usize * 4)

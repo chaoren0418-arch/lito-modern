@@ -107,6 +107,8 @@ pub struct World {
     pub emblems: super::native_emblems::Cache,
     pub learned_skills: BTreeSet<u16>,
     pub effects: Vec<super::native_skills::Effect>,
+    /// S37 direction at receipt, retained even after its source actor retires.
+    pub effect_headings: BTreeMap<u64, u8>,
     /// Local decode binding; snapshots share irreversible lease retirement.
     #[serde(skip)]
     pub static_effect_receipts: BTreeMap<u64, super::native_static2941::Receipt>,
@@ -168,6 +170,12 @@ pub struct World {
     pub game_time: Option<u32>,
     pub hp: Option<[u16; 2]>,
     pub mp: Option<[u16; 2]>,
+    /// Own action sequence already received when HP/MP last changed. The
+    /// presented HUD value waits until playback has started that action.
+    pub hp_barrier: u64,
+    pub mp_barrier: u64,
+    /// Per-object `(incarnation, action sequence)` at the latest S_HPMETER.
+    pub hp_ratio_barriers: BTreeMap<u32, (u64, u64)>,
     /// Counts S_MANA_POINT/S_STATUS receipts that actually changed `mp`.
     pub mp_notifications: u64,
     /// Server-timed status icons (ICONS1, ICON_I2H, doll, S_MAGE_SHIELD, own S_SPEED).
@@ -919,9 +927,12 @@ impl World {
                     .unwrap_or(position);
                 if self.effects.len() == 128 {
                     let retired = self.effects.remove(0);
+                    self.effect_headings.remove(&retired.sequence);
                     if let Some(receipt) = self.static_effect_receipts.remove(&retired.sequence) { receipt.retire(); }
                     self.effects_dropped += 1;
                 }
+                self.effect_headings.insert(self.visual_revision + 1,
+                    id.map_or(0, |id| self.actors[&id].heading));
                 self.effects.push(super::native_skills::Effect {
                     sequence: self.visual_revision + 1,
                     graphics,
@@ -1089,6 +1100,12 @@ impl World {
                 self.resurrection_relocations.remove(&id);
                 if let Some(a) = self.actors.get_mut(&id) {
                     a.hp_ratio = ratio;
+                    let barrier = (a.incarnation, a.action_sequence);
+                    if self.hp_ratio_barriers.len() >= 1024 {
+                        let actors = &self.actors;
+                        self.hp_ratio_barriers.retain(|id, _| actors.contains_key(id));
+                    }
+                    self.hp_ratio_barriers.insert(id, barrier);
                     self.visual_revision += 1;
                 } else {
                     self.orphan_updates += 1;
@@ -1275,6 +1292,9 @@ impl World {
                 self.resurrection_relocations.remove(&s.object_id);
                 self.set_mp([s.current_mp, s.maximum_mp]);
                 self.status = Some(s);
+                let barrier = self.own_actor().map_or(0, |a| a.action_sequence);
+                self.hp_barrier = barrier;
+                self.mp_barrier = barrier;
             }
             0x7b if matches!(b.get(1), Some(&20 | &40 | &56)) => {
                 if self.status_icons.accept_event(b, self.packet_ms)? {
@@ -1314,9 +1334,12 @@ impl World {
             0x4d | 0x0d => {
                 let value = [r.h()?, r.h()?];
                 r.end()?;
+                let barrier = self.own_actor().map_or(0, |a| a.action_sequence);
                 if op == 0x4d {
-                    self.set_mp(value)
+                    self.set_mp(value);
+                    self.mp_barrier = barrier;
                 } else {
+                    self.hp_barrier = barrier;
                     self.hp = Some(value);
                     if let Some(s) = self.status { self.resurrection_relocations.remove(&s.object_id); }
                 }

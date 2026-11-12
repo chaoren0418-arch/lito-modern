@@ -36,6 +36,9 @@
 - `native_skills.rs` 的 `reuse_millis`：保留 main 的 `68=>1500`，也保留本張的 110–118。
 - `native_login.rs` 的 `interrupt_world_actions`：保留 main 的 `skill_target_pending=None`，也保留本張的 `skill_clan_pending=false`。
 
+第二次合併 `origin/main`（`ed9a9d8`，PR #284 顯示衝突後）有一處衝突：
+- `native_login.rs` 的 `observe_skill`：採用 main 的 `observed`＋`teleport_released`（→ `TeleportReleased`）結構，並在 `observed` 的判斷鏈保留本張的 `skill_clan_pending → observe_clan` 分支。
+
 main 已經把 73 加進 `item_targeted`。那裡的 73 是技能 ID，本張的 73 是 S10 訊息碼，兩者無關。
 
 ## 已驗證
@@ -49,7 +52,7 @@ main 已經把 73 加進 `item_targeted`。那裡的 73 是技能 ID，本張的
   - `BattleTrueTarget.java`：`resolve` 依物件 ID 查目標，ID 重複時拒絕。
 - E149 catalog：原專案唯讀 `驗證紀錄/current/native-E149-skill-catalog-audit/20261024-040044-690336/catalog-facts.json`，重算 SHA256 為 `1EE2338D209CE41154B42B9B51B2A564261AB07FF1340EC7BCCBB188E216B996`（與 #151 相同）。110–118 的 row／column、reuseDelayMillis（112＝2000、其他 0）、maximumRange（112＝1、113＝-1）都依此表。
 
-### 命令與結果（合併 main 之後）
+### 命令與結果（第二次合併 main `ed9a9d8` 之後重跑）
 
 依 2026-11-09 的本機限制，本機只編譯，不執行測試執行檔。Cargo 命令都在 `LiTo381-Modern/` 執行。
 
@@ -64,7 +67,7 @@ python -B 維護工具/test_native_skill_coverage.py
 結束碼 0；Ran 6 tests in 0.060s；OK
 ```
 
-合併前也跑過同樣的 `cargo check`（結束碼 0）與 `--no-run`（結束碼 0）。
+第一次合併（`617fbbc`）前後也各跑過同樣的 `cargo check`（結束碼 0）與 `--no-run`（結束碼 0）。
 
 ## 推測
 
