@@ -124,3 +124,4 @@
 - 2026-11-12 — #319 T036-14: T036（M3 14/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #353 已合併）→ [報告](reports/issue-319.md)
 - 2026-11-12 — #310 T036-5: T036（M3 5/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #354 已合併）→ [報告](reports/issue-310.md)
 - 2026-11-12 — #309 T036-4: T036（M3 4/15）: 廣域回歸：白名單以外的 1055 個待驗測試（code，claude-local，PR #355 已合併）→ [報告](reports/issue-309.md)
+- 2026-11-12 — #325 T037-2: T037（M3 2/2）: docs/G01-G12-AUDIT.md：G12 稽核（code，claude-local，PR #356 已合併）→ [報告](reports/issue-325.md)
