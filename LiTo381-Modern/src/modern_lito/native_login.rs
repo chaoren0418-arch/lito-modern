@@ -340,6 +340,10 @@ pub struct Snapshot {
     pub rental_town_transition: Option<super::native_rental_source::TownTransition>,
     pub battle_withdrawal_pending: bool,
     pub shop_points: Option<u32>,
+    /// 擂台點數商店（C_DA／C_DE→S_DF／S_E0→C_DB），T045-2。
+    pub tournament_shop: super::native_tournament_shop::Session,
+    /// 最近一次 S_SHOW_MAP 指定的地圖頁，T045-2。
+    pub map_view: super::native_map_item::View,
     pub merchant: super::native_merchant::Session,
     pub game_connected: bool,
     pub channel: Option<super::native_lobby::Channel>,
@@ -481,6 +485,8 @@ impl Default for LoginController {
                 rental_town_transition: None,
                 battle_withdrawal_pending: false,
                 shop_points: None,
+                tournament_shop: Default::default(),
+                map_view: Default::default(),
                 merchant: Default::default(),
                 game_connected: false,
                 channel: None,
@@ -569,6 +575,29 @@ impl LoginController {
         }
         self.transport.send(owner.connection,Zeroizing::new(body))?;self.state.merchant.submitted();Ok(())
     }
+    /// 正式 `tournamentShopPhaseAllowed`：GAME 端點、已選角色、LOBBY／CHANNEL／ROOM。
+    /// 客戶端只在確定對應的大廳（LobbyReady）與房間（RoomReady）開放。
+    pub(crate) fn tournament_scope(&self)->Option<super::native_tournament_shop::Scope>{
+        if !self.state.game_connected||!matches!(self.state.phase,LoginPhase::LobbyReady|LoginPhase::RoomReady){return None;}
+        Some(super::native_tournament_shop::Scope{connection:self.transport.snapshot().epoch,
+            character:self.state.selected_character.clone()?,phase:self.state.phase,
+            channel:self.state.channel.as_ref().map(|c|c.id),room:self.state.joined_room.as_ref().map(|r|r.id),
+            inventory:self.state.inventory.owner.clone()})
+    }
+    pub fn open_tournament_shop(&mut self,sell:bool)->Result<()>{
+        let scope=self.tournament_scope().context("目前不能開啟擂台商店")?;
+        let connection=scope.connection;
+        let body=self.state.tournament_shop.begin(scope,sell,Instant::now())?;
+        if let Err(error)=self.transport.send(connection,Zeroizing::new(body)){self.state.tournament_shop.clear();return Err(error);}
+        Ok(())
+    }
+    pub fn tournament_order(&mut self,revision:u64,index:usize,quantity:u32)->Result<()>{
+        let scope=self.tournament_scope();
+        let body=self.state.tournament_shop.order(revision,scope.as_ref(),&self.state.inventory,index,quantity,Instant::now())?;
+        self.transport.send(scope.context("擂台商店範圍已變更")?.connection,Zeroizing::new(body))?;
+        self.state.tournament_shop.submitted(self.state.shop_points);Ok(())
+    }
+    pub fn close_map_view(&mut self){self.state.map_view.close();}
     pub fn rental_npc_quantity(&mut self,revision:u64,quantity:u32)->Result<()>{
         let npc=self.state.merchant.npc.context("no NPC quantity target")?;let owner=self.merchant_target(npc)?;
         ensure!(self.state.merchant.owner.as_ref()==Some(&owner),"NPC quantity character changed");
@@ -1962,6 +1991,18 @@ impl LoginController {
             ensure!(self.state.selected_character.as_deref()==Some(name.as_str()),"points for a different character");
             self.state.shop_points=Some(points);return Ok(());
         }
+        if let Some(listing)=super::native_tournament_shop::parse(body)? {
+            let scope=self.tournament_scope();
+            self.state.tournament_shop.tick(scope.as_ref(),Instant::now());
+            // 格式錯誤的清單是協定錯誤；格式正確但沒有對應開單（已逾時、換頻道）只計數忽略。
+            if self.state.tournament_shop.accept(listing,scope.as_ref(),Instant::now()).is_err() {
+                self.state.tournament_shop.unsolicited=self.state.tournament_shop.unsolicited.saturating_add(1);
+            }
+            return Ok(());
+        }
+        if body.first()==Some(&super::native_map_item::S_SHOW_MAP) {
+            self.state.map_view.accept(&self.state.inventory,body)?;return Ok(());
+        }
         if body.first()==Some(&0xfb){
             let directory=super::native_services::parse(body)?;
             // 進村交接中（C_D9→S_F0→S_F5→C_CF→加入結果）目錄仍須提供已快取的房間 id。
@@ -2496,6 +2537,8 @@ impl LoginController {
             }
         }
         let owner=self.merchant_owner();self.state.merchant.tick(owner.as_ref(),Instant::now());
+        let shop=self.tournament_scope();self.state.tournament_shop.tick(shop.as_ref(),Instant::now());
+        self.state.map_view.tick(&self.state.inventory);
         if self.state.phase==LoginPhase::BattlePending && self.teleport.as_ref().is_some_and(|t|
             owner.as_ref()!=Some(&t.owner)||!self.state.merchant.waiting) {self.teleport=None;}
         if self.pending_roster_forces.expired(Instant::now()) {

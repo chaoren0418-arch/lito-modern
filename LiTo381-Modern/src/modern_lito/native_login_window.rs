@@ -961,6 +961,13 @@ impl Ui {
         if super::native_skills::item_targeted(skill) {
             let epoch = self.controller.transport().snapshot().epoch;
             ensure!(self.skills.selected_skill(epoch, &self.controller.snapshot().world)? == skill, "技能已變更");
+            if super::native_skills::weapon_bound(skill) {
+                // 12／107：正式伺服器以裝備中的武器為目標，不讓玩家另選背包物品。
+                ensure!(!self.ground_view && !self.closing, "目前不能施法");
+                let item = super::native_skills::ItemTarget::equipped_weapon(self.controller.snapshot(), epoch)?;
+                let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+                return self.controller.cast_item(skill, &item, frame);
+            }
             ensure!(self.inventory_view && !self.ground_view && !self.closing, "請開啟背包並選取施法物品");
             let item = self.skill_item_target.as_ref().context("請重新選取施法物品")?;
             let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
@@ -1226,6 +1233,10 @@ impl Ui {
             self.summon_choice.as_ref().is_some_and(|c|super::native_skills::summon_request(snapshot,epoch,c).is_ok())
         } else if self.skills.selected().is_some_and(super::native_skills::item_targeted) {
             self.skills.selected_skill(epoch, &snapshot.world).and_then(|skill| {
+                if super::native_skills::weapon_bound(skill) {
+                    let item = super::native_skills::ItemTarget::equipped_weapon(snapshot, epoch)?;
+                    return super::native_skills::item_request(snapshot, epoch, skill, &item);
+                }
                 let item = self.skill_item_target.as_ref().context("請選取背包物品")?;
                 super::native_skills::item_request(snapshot, epoch, skill, item)
             }).is_ok()
@@ -1867,9 +1878,15 @@ impl Ui {
                         let selection = if let Some(skill) = self.skills.selected()
                             .filter(|id| super::native_skills::item_targeted(*id)) {
                             let epoch = self.controller.transport().snapshot().epoch;
+                            if super::native_skills::weapon_bound(skill) {
+                                super::native_skills::ItemTarget::equipped_weapon(&snapshot, epoch)
+                                    .and_then(|item| super::native_skills::item_request(&snapshot,epoch,skill,&item))
+                                    .err().map(|e|e.to_string()).unwrap_or_else(|| "可對裝備中的武器施法".into())
+                            } else {
                             self.skill_item_target.as_ref().context("請開啟背包並選取施法物品")
                                 .and_then(|item| super::native_skills::item_request(&snapshot,epoch,skill,item))
                                 .err().map(|e|e.to_string()).unwrap_or_else(|| "可對所選背包物品施法".into())
+                            }
                         } else { self
                             .skills
                             .choice_at(

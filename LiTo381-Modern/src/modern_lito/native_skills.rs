@@ -47,6 +47,21 @@ fn can_cast(world: &World, skill: u16) -> Result<()> {
 /// Item object IDs must never pass through the actor-target request path.
 pub fn item_targeted(skill: u16) -> bool { matches!(skill, 12 | 21 | 73 | 100 | 107) }
 
+/// 12 擬似魔法武器／107 暗影之牙：正式 E149 `nativeMaterialItemWeaponEnchantBody` 讀
+/// 請求的物件，檢查 `definition.weapon()` 後交 `CombatWeaponBuffs.equippedWeapon`，buff
+/// 一律掛在 `inventory.equippedWeaponItem()` 上；舊的「任選背包物品」不再決定目標。
+/// 客戶端因此固定送「目前裝備中的武器」的物件 ID。
+pub fn weapon_bound(skill: u16) -> bool { matches!(skill, 12 | 107) }
+/// 正式 `RuntimeInventory$Item.nativeViewName`：裝備中的武器在名稱後加 ` ($9)`
+/// （照明 ` ($10)`、防具 ` ($117)`），之後才接次數與數量。
+pub const EQUIPPED_WEAPON_MARK: &str = " ($9)";
+pub fn equipped_weapon(inventory: &super::native_inventory::Inventory) -> Result<&super::native_inventory::Item> {
+    let mut weapons = inventory.items.values().filter(|i| i.name.contains(EQUIPPED_WEAPON_MARK));
+    let weapon = weapons.next().context("尚未裝備武器，無法施放此技能")?;
+    ensure!(weapons.next().is_none(), "背包顯示多件裝備中的武器，請等待背包更新");
+    Ok(weapon)
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemTarget {
     choice: super::native_item_actions::Choice,
@@ -65,6 +80,12 @@ impl ItemTarget {
         target.validate(s, epoch)?;
         Ok(target)
     }
+    /// 12／107 用：取目前裝備中的武器，背包或裝備一變動就失效（沿用同一份快照守衛）。
+    pub fn equipped_weapon(s: &super::native_login::Snapshot, epoch: u64) -> Result<Self> {
+        let id = equipped_weapon(&s.inventory)?.id;
+        Self::capture(s, epoch, id)
+    }
+    pub fn item_id(&self) -> u32 { self.choice.item.id }
     pub fn validate(&self, s: &super::native_login::Snapshot, epoch: u64) -> Result<()> {
         ensure!(s.game_connected && s.phase.active_world() && !s.observer
             && !s.world.observer_mode && s.world.ready(), "目前不能選取施法物品");
@@ -441,6 +462,24 @@ pub const SUMMON_SELECTIONS: &[SummonSelection] = &[
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn weapon_bound_skills_resolve_only_the_single_equipped_weapon() {
+        use super::super::native_inventory::{Inventory, Item};
+        let item = |id: u32, name: &str| Item { id, use_type: 1, charge: 0, icon: 1, blessing: 1, count: 1,
+            identified: 1, name: name.into(), detail: vec![] };
+        assert!(weapon_bound(12) && weapon_bound(107));
+        assert!(!weapon_bound(21) && !weapon_bound(73) && !weapon_bound(100));
+        let mut inv = Inventory::default();
+        inv.items.insert(1, item(1, "$95"));
+        inv.items.insert(2, item(2, "$20 ($117)"));
+        inv.items.insert(3, item(3, "$100 ($10)"));
+        assert!(equipped_weapon(&inv).is_err(), "armor/light marks are not weapons");
+        inv.items.insert(0xfedc_ba98, item(0xfedc_ba98, "+7 $41 ($9) (3)"));
+        assert_eq!(equipped_weapon(&inv).unwrap().id, 0xfedc_ba98);
+        inv.items.insert(5, item(5, "$42 ($9)"));
+        assert!(equipped_weapon(&inv).is_err(), "ambiguous equipment is never guessed");
+    }
 
     /// Skill 60's dword is bracketed by the shared native 4D69F0 clock, not a
     /// second OS uptime source with a different epoch or resolution.
