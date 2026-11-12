@@ -266,6 +266,7 @@ fn controller_revival_retires_old_life_work_but_preserves_withdrawal_deadline() 
         count: 0,
         target: other,
         generation: c.state.world.generation,
+        messages: 0,
     });
     c.skill_pending = Some(super::super::native_skills::Pending {
         since: now,
@@ -315,6 +316,7 @@ fn peer_or_orphan_revival_does_not_clear_own_death_or_unrelated_work() {
             count: 0,
             target: other,
             generation: c.state.world.generation,
+            messages: 0,
         });
         c.accept_game(&resurrection(target, target, 0, 61)).unwrap();
         assert_eq!(c.state.world.own_actor().unwrap(), &own);

@@ -20,7 +20,7 @@ S_SPEED（0x29）及 S_EMOTION／brave（0x62）均為 `c d c h`，共八個 byt
 
 本輪重新讀取並核對原版反組譯：4A7240 寫入 actor+1C／本地 831718；4AF9F0 寫入 actor+21／本地 831680；4E8750 的共同分支讀取這兩種值。速度 1 的時間倍率為 3/4，速度 2 為 2；brave1 為 3/4、brave3 為 7/8、brave4 僅在明列的走路動作為 3/4、brave5 為 3/8。brave6 在這個共同分支不變，不猜成其他倍率。兩組倍率組合後驅動同一份走路／待機虛擬時間。
 
-抽樣間保留分數時間；速度變更在觀察到的邊界生效，保持目前步伐進度。連續輸入等待動畫抵達，因此也跟隨速度變化。這是新引擎的高精度時鐘，不聲稱逐項重現舊程式的整數毫秒截斷、+2 callback、非玩家 queue catch-up 或第三段特殊全域分支；這些及攻擊專用速度仍待接入。
+抽樣間保留分數時間；速度變更在觀察到的邊界生效，保持目前步伐進度。連續輸入等待動畫抵達，因此也跟隨速度變化。這是新引擎的高精度時鐘，不聲稱逐項重現舊程式的整數毫秒截斷、+2 callback、非玩家 queue catch-up 或第三段特殊全域分支；這些仍待接入。攻擊專用間隔（#168）：`native_combat_ops::attack_interval_ms` 依正式 EmptyMelee.interval（引用 ActionIntervalCalculator 的 ATTACK 倍率：速度1 ×0.755、速度2 ×2、brave6 ×0.775、brave1／5 ×0.755、brave3 ×0.855×0.9，brave4 不加速攻擊），與上面走路／待機的動畫倍率不同；控制器的空揮節奏 gate 可接受此間隔，但 GUI 尚未取得自己攻擊動作的時長，目前傳 None（不啟用本地節奏，交由伺服器靜默丟棄並以兩秒逾時提示）；攻擊動畫播放速度未改。
 
 反組譯全文／當前 LiTo.bin 與三份函數摘錄的 SHA256 見 `驗證紀錄/current/native-navigation/source-pins.json`。全程只讀取來源，沒有啟動、注入或操作原版程序。正式封包模式由 NativeNavigationOracle 直接使用固定 JAR 的 Protocol builders 產生。
 

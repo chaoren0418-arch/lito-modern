@@ -912,23 +912,39 @@ impl Ui {
         self.controller.enter_map_portal(choice,frame)
     }
     unsafe fn attack_target(&mut self) -> Result<()> {
-        let target = self
+        let Some(target) = self
             .target
             .and_then(|t| t.resolve(&self.controller.snapshot().world))
-            .context("請先點選有效目標")?;
+        else {
+            // No selection: native target-zero swing in the current heading.
+            self.held.clear();
+            self.held_attack.clear();
+            let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+            ensure!(frame.movement_ready(&self.controller.snapshot().world), "等待目前動作完成");
+            let heading = self.controller.snapshot().world.own_actor().context("角色尚未就緒")?.heading;
+            let input = self.combat_input();
+            return self.controller.empty_attack_with_input(heading, None, input);
+        };
         self.held.clear();
         ensure!(
             self.controller.snapshot().attack_feedback != super::native_combat::Feedback::Pending,
             "等待攻擊回覆中"
         );
+        let epoch = self.controller.transport().snapshot().epoch;
+        if self.controller.snapshot().world.attack_out_of_reach(target) {
+            self.held_attack.press_chase(target, epoch, &self.controller.snapshot().world);
+            self.input_tick();
+            return Ok(());
+        }
         self.controller.snapshot().world.attack_request(target)?;
-        self.held_attack.press(
-            target,
-            self.controller.transport().snapshot().epoch,
-            &self.controller.snapshot().world,
-        );
+        self.held_attack.press(target, epoch, &self.controller.snapshot().world);
         self.input_tick();
         Ok(())
+    }
+    unsafe fn start_chase(&mut self, id: u32) {
+        let epoch = self.controller.transport().snapshot().epoch;
+        self.held_attack.press_chase(id, epoch, &self.controller.snapshot().world);
+        self.input_tick();
     }
     unsafe fn toggle_selected_door(&mut self)->Result<()> {
         let target=self.target.and_then(|t|t.resolve(&self.controller.snapshot().world)).context("請先點選門")?;
@@ -970,6 +986,25 @@ impl Ui {
                 .continue_attack_with_input(&mut self.held_attack, frame, input)
             {
                 self.text(STATUS, &format!("{error:#}"));
+            }
+        }
+        if self.held.direction().is_none() && self.held_attack.chasing() {
+            if let Some(frame) = self.world_presentation.frame.as_ref() {
+                let epoch = self.controller.transport().snapshot().epoch;
+                let heading = if frame.movement_ready(&self.controller.snapshot().world) {
+                    let feedback = self.controller.snapshot().attack_feedback;
+                    let world = &self.controller.snapshot().world;
+                    self.held_attack.chase_heading(epoch, world, &frame.navigation, feedback)
+                } else { None };
+                if let Some(heading) = heading {
+                    match self.controller.move_presented(heading, frame) {
+                        Ok(()) => self.held_attack.chase_sent(),
+                        Err(error) => {
+                            self.held_attack.clear();
+                            self.text(STATUS, &format!("{error:#}"));
+                        }
+                    }
+                }
             }
         }
         if let (Some(heading), Some(frame)) = (
@@ -1043,6 +1078,22 @@ impl Ui {
                     SRCCOPY,
                 );
                 if drawn > 0 {
+                    let world = &self.controller.snapshot().world;
+                    if let Some((ring, [l, t, r, b])) = frame.target_ring(world, self.target.and_then(|t| t.resolve(world))) {
+                        // Frame pixels → letterboxed viewport (same mapping as StretchDIBits).
+                        let px = |v: i32| view.x + v * view.width / 800;
+                        let py = |v: i32| view.y + v * view.height / 600;
+                        let [cr, cg, cb] = ring.tone.rgb();
+                        let pen = CreatePen(PS_SOLID, (2 * dpi / 96).max(1), COLORREF(u32::from(cr) | u32::from(cg) << 8 | u32::from(cb) << 16));
+                        if !pen.is_invalid() {
+                            let old_pen = SelectObject(dc, pen.into());
+                            let old_brush = SelectObject(dc, GetStockObject(NULL_BRUSH));
+                            let _ = Ellipse(dc, px(l), py(t), px(r), py(b));
+                            SelectObject(dc, old_brush);
+                            SelectObject(dc, old_pen);
+                            let _ = DeleteObject(pen.into());
+                        }
+                    }
                     self.painted = Some((
                         frame.receipt["elapsed_ns"].as_u64().unwrap_or(0),
                         frame.receipt["visual_revision"].as_u64().unwrap_or(0),view));
@@ -2244,9 +2295,20 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                                     cell,
                                 )
                             });
+                        // Clicking the already-selected attackable target again
+                        // starts a mouse attack that walks toward it (bounded
+                        // chase through the same checked movement path).
+                        let again = target.as_ref().zip(ui.target.as_ref())
+                            .is_some_and(|(new, old)| new.id == old.id)
+                            && target.as_ref().is_some_and(|t| world.attack_reach(t.id).is_some());
                         ui.target = target;
                         ui.ground = ground;
                         ui.held_attack.clear();
+                        if again {
+                            if let Some(id) = ui.target.as_ref().map(|t| t.id) {
+                                ui.start_chase(id);
+                            }
+                        }
                     }
                     return LRESULT(0);
                 }
