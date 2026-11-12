@@ -43,7 +43,10 @@
 | T025 材料 | 58 個材料技能 | 列為伺服器待定 |
 | T028 顯示 | HPBAR、傷害數字、奇古獸 | 不是技能 ID 層級的缺口，分類不改；顯示由 T046、T047 處理 |
 
-## 統計
+## 統計（#140 基線）
+
+#145 增補：技能 5、12、20–23、25、27 已接入，13 個本批整合案通過完整本機套件。以下保留 #140 的盤點基線；八列最新狀態及限制見表與 [#145 報告](reports/issue-145.md)，不把離線通過當作 GUI／正式施法驗收。
+
 - 以 E149 為準可驗：**114**；伺服器待定：**67**；合計 181。
 - 伺服器待定的原因分布（一個技能可以有多個原因）：材料 58、受控 6、處理器待查 6、立方體 4、自施政策 2、伺服器停用 1、暈眩 1。
 - 客戶端狀態：main 已接 38、候選獨有 48＋97／98、97–100 中未接的 99／100、未接 91（#92 E3）。
@@ -52,7 +55,7 @@
   - lib 測試：`native_tw_presentation_tests.rs` 經 `include!` 引入的 `unqualified_loader_keeps_world_update_ok_without_retry_or_authority_mutation`（34、38、77）。這個測試只斷言 request 的前 3 bytes（`:100-103`），不是完整封包。
 
   有測試、但所有測試都還沒執行的技能有 24 個。
-- 「資源／特效核對」欄目前全部是「待核對」，由 M2 各批回填。
+- 「資源／特效核對」欄在 #140 初版全部是「待核對」，由 M2 各批回填；#145 已回填本批八列。
 
 ## 表
 目標欄是 SQL 的 target／target_to／ranged／area；訊息欄是 happen／fail 的訊息 ID。
@@ -63,14 +66,14 @@
 | 2 | 日光術 | `LIGHT` | 共通魔法／法師 | LightSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 4 | 0／0 | main 已接 | `light_uses_self_selector_without_predicting_authority_and_scopes_UI_choice`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 3 | 保護罩 | `SHIELD` | 共通魔法／法師 | ShieldSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 8 | 0／0 | main 已接 | `selection_uses_formal_packets_and_preserves_authority`（未執行（白名單外））；`spell_requests_use_formal_selectors_and_never_predict_mana`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 | BUFF selector 有語意衝突，伺服器已停用 SQL 覆寫、保留既有行為，以 E149 既有行為驗 |
 | 4 | 光箭 | `LIGHT_ARROW` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 10／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 3 | 0／0 | main 已接 | `hidden_targets_are_rejected_until_visible_and_identity_replacement_invalidates_selection`（未執行（白名單外））；`formal_attack_spell_layout_and_request_guards`（未執行（白名單外））；`selection_uses_formal_packets_and_preserves_authority`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
-| 5 | 指定傳送 | `TELEPORT` | 共通魔法／法師 | （dispatcher 特例） | ⑤ h(map) h(x) h(y) | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 10 | 0／0 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
+| 5 | 指定傳送 | `TELEPORT` | 共通魔法／法師 | （dispatcher 特例） | ⑤ h(map) h(x) h(y) | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 10 | 0／0 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | S5A／C08 離線通過；169 沿既有；GUI 待驗 | 以 E149 為準可驗 |  |
 | 6 | 冰箭 | `ICE_ARROW` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 10／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 4 | 0／0 | main 已接 | `formal_attack_spell_layout_and_request_guards`（未執行（白名單外））；`destroyed_guardian_retires_attacks_spells_and_selection_even_if_repaired_between_polls`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 7 | 風刃 | `WIND_CUTTER` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 10／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 4 | 0／0 | main 已接 | `formal_attack_spell_layout_and_request_guards`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 8 | 神聖武器 | `HOLY_WEAPON` | 共通魔法／法師 | WeaponBuffSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 10 | 0／0 | main 已接 | `object_selector_screen_and_owner_guards_preserve_authority`（未執行（白名單外））；`spell_requests_use_formal_selectors_and_never_predict_mana`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 9 | 解毒術 | `CURE_POISON` | 共通魔法／法師 | CurseRemovalSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 15 | 211／280 | main 已接 | `object_and_coordinate_envelopes_preserve_authority_and_gate_live_targets`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 10 | 寒冷戰慄 | `CHILL_TOUCH` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 3／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 8 | 0／0 | main 已接 | `request_layout_guards_and_server_authority_do_not_predict_healing_or_hurt`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 11 | 毒咒 | `CURSE_POISON` | 共通魔法／法師 | PoisonSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 1／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 10 | 0／280 | main 已接 | `object_and_coordinate_envelopes_preserve_authority_and_gate_live_targets`（未執行（白名單外）） | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
-| 12 | 擬似魔法武器 | `ENCHANT_WEAPON` | 共通魔法／法師 | ItemWeaponEnchantSpell | ④ d(target) | none／0／射程 0／範圍 0 | 不適用（目標是物品 object ID，不是角色） | MP 20 | 0／0 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
+| 12 | 擬似魔法武器 | `ENCHANT_WEAPON` | 共通魔法／法師 | ItemWeaponEnchantSpell | ④ d(target) | none／0／射程 0／範圍 0 | 不適用（目標是物品 object ID，不是角色） | MP 20 | 0／0 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | 原資源離線通過；GUI 待驗 | 以 E149 為準可驗 |  |
 | 13 | 無所遁形術 | `DETECTION` | 共通魔法／法師 | DetectionSpell | ① 無尾段 | none／3／射程 0／範圍 -1 | 不適用（非物件目標） | MP 15 | 0／0 | main 已接 | `detection_selector_menu_guards_and_cooldown_leave_authority_unchanged`（未執行（白名單外））；`invisibility_tick_envelope_guards_clock_and_menu_preserve_authority`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 14 | 負重強化 | `DECREASE_WEIGHT` | 共通魔法／法師 | WeightSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 10、HP 50 | 0／0 | main 已接 | `nine_server_selectors_ignore_hover_and_never_spend_local_authority`（已執行通過（白名單，#101））；`selector_learning_death_and_mana_guards_do_not_forge_requests`（已執行通過（白名單，#101）） | 待核對 | 以 E149 為準可驗 |  |
 | 15 | 火箭 | `FIRE_ARROW` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 10／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 6 | 0／0 | main 已接 | `formal_attack_spell_layout_and_request_guards`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
@@ -78,27 +81,27 @@
 | 17 | 極光雷電 | `LIGHTNING` | 共通魔法／法師 | LineAttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 3 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／0 | main 已接 | `request_clock_reuse_range_and_target_guard_preserve_authority`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 18 | 起死回生術 | `TURN_UNDEAD` | 共通魔法／法師 | TurnUndeadSpell | ⑩ d(target) h(x) h(y) | attack／2／射程 10／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／280 | main 已接 | `low_mana_turn_undead_times_out_without_predicted_mana_death_or_rejection`（未執行（白名單外））；`selector_clock_range_and_dead_target_guards_never_predict_death_or_mana`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 19 | 中級治癒術 | `EXTRA_HEAL` | 共通魔法／法師 | HealingSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 15 | 77／280 | main 已接 | `tw_higher_heal_requests_use_learned_ids_original_clocks_and_never_predict_authority`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
-| 20 | 闇盲咒術 | `CURSE_BLIND` | 共通魔法／法師 | BlindSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 1／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／280 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
-| 21 | 鎧甲護持 | `BLESSED_ARMOR` | 共通魔法／法師 | ItemArmorEnchantSpell | ④ d(target) | none／0／射程 0／範圍 0 | 不適用（目標是物品 object ID，不是角色） | MP 20 | 0／0 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
-| 22 | 寒冰氣息 | `FROZEN_CLOUD` | 共通魔法／法師 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 3 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／0 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
-| 23 | 能量感測 | `REVEAL_WEAKNESS` | 共通魔法／法師 | RevealWeaknessSpell | ④ d(target) | buff／2／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 8 | 0／280 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
-| 25 | 燃燒的火球 | `BURNING_FIREBALL` | 共通魔法／法師 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 3 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／0 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
+| 20 | 闇盲咒術 | `CURSE_BLIND` | 共通魔法／法師 | BlindSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 1／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／280 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | 原資源離線通過；GUI 待驗 | 以 E149 為準可驗 |  |
+| 21 | 鎧甲護持 | `BLESSED_ARMOR` | 共通魔法／法師 | ItemArmorEnchantSpell | ④ d(target) | none／0／射程 0／範圍 0 | 不適用（目標是物品 object ID，不是角色） | MP 20 | 0／0 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | 原資源離線通過；GUI 待驗 | 以 E149 為準可驗 |  |
+| 22 | 寒冰氣息 | `FROZEN_CLOUD` | 共通魔法／法師 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 3 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／0 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | 原資源離線通過；GUI 待驗 | 以 E149 為準可驗 |  |
+| 23 | 能量感測 | `REVEAL_WEAKNESS` | 共通魔法／法師 | RevealWeaknessSpell | ④ d(target) | buff／2／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 8 | 0／280 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | 原資源離線通過；GUI 待驗 | 以 E149 為準可驗 |  |
+| 25 | 燃燒的火球 | `BURNING_FIREBALL` | 共通魔法／法師 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 3 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 0／0 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | 原資源離線通過；GUI 待驗 | 以 E149 為準可驗 |  |
 | 26 | 通暢氣脈術 | `PHYSICAL_ENCHANT_DEX` | 共通魔法／法師 | AbilityBuffSpell | ④ d(target) | buff／4／射程 -1／範圍 0 | 政策上不需要（自身用自身 object ID 走 7-byte 分派）；實機回報不按 Ctrl 無法自施，成因未判定（`source-completion-work-current.zh-TW.md:41`、`combat-integration-lifecycle.zh-TW.md:282`、`:285`） | MP 50 | 294／280 | main 已接 | `ability_buffs_keep_native_screen_asymmetric_edges`（已執行通過（白名單，#101））；`ability_buffs_reject_unlearned_dead_missing_and_outside_screen_targets`（已執行通過（白名單，#101））；`both_ability_buffs_use_explicit_self_or_selected_object_without_authority_writes`（已執行通過（白名單，#101）） | 待核對 | 伺服器待定：自施政策（伺服器 TASKS T022 待驗） |  |
-| 27 | 壞物術 | `WEAPON_BREAK` | 共通魔法／法師 | WeaponBreakSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 4／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 32 | 0／280 | 候選獨有（T027 批 1） | 尚無 | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
+| 27 | 壞物術 | `WEAPON_BREAK` | 共通魔法／法師 | WeaponBreakSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 4／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 32 | 0／280 | 已接（#145） | `native_t027_batch1`（13 案通過，詳 #145） | 原資源離線通過；GUI 待驗 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
 | 28 | 吸血鬼之吻 | `VAMPIRIC_TOUCH` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 4／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 12 | 0／0 | main 已接 | `vampiric_envelope_range_and_authority_do_not_predict_healing_or_hurt`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
-| 29 | 緩速術 | `SLOW` | 共通魔法／法師 | EntangleSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 -1／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 277／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
-| 30 | 巖牢 | `EARTH_JAIL` | 共通魔法／法師 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 8／範圍 3 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 24 | 0／0 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
+| 29 | 緩速術 | `SLOW` | 共通魔法／法師 | EntangleSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 -1／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 20 | 277／280 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | S29／752 原影格通過；GUI 待驗 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
+| 30 | 巖牢 | `EARTH_JAIL` | 共通魔法／法師 | AreaAttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 8／範圍 3 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 24 | 0／0 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | S39／1805＋1807＋1806、兩次 Hit、煙霧尾段通過；GUI 待驗 | 以 E149 為準可驗 |  |
 | 31 | 魔法屏障 | `COUNTER_MAGIC` | 共通魔法／法師 | CounterMagicSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 20 | 0／0 | main 已接 | `nine_server_selectors_ignore_hover_and_never_spend_local_authority`（已執行通過（白名單，#101））；`selector_learning_death_and_mana_guards_do_not_forge_requests`（已執行通過（白名單，#101）） | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
 | 32 | 冥想術 | `MEDITATION` | 共通魔法／法師 | RegenSpell | ① 無尾段 | none／0／射程 0／範圍 0 | 不適用（非物件目標） | MP 5、HP 30 | 0／0 | main 已接 | `nine_server_selectors_ignore_hover_and_never_spend_local_authority`（已執行通過（白名單，#101））；`selector_learning_death_and_mana_guards_do_not_forge_requests`（已執行通過（白名單，#101）） | 待核對 | 以 E149 為準可驗 |  |
-| 33 | 木乃伊的詛咒 | `CURSE_PARALYZE` | 共通魔法／法師 | ParalysisSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 2／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 150 | 0／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×2（伺服器 T025） |  |
+| 33 | 木乃伊的詛咒 | `CURSE_PARALYZE` | 共通魔法／法師 | ParalysisSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 2／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 150 | 0／280 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | S25／746 收包與原資源通過；GUI 待驗 | 伺服器待定：材料 40318×2（伺服器 T025） |  |
 | 34 | 極道落雷 | `CALL_LIGHTNING` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 18 | 0／0 | main 已接 | `unqualified_loader_keeps_world_update_ok_without_retry_or_authority_mutation（include! native_tw_presentation_tests.rs）`（已執行通過（lib，#101））；`current_c02_exact_object_coordinates_and_readonly_authority`（未執行（白名單外））；`invalid_unlearned_dead_invisible_blocked_and_missing_states_cannot_make_requests`（未執行（白名單外））；`mp_and_lawful_are_server_permission_inputs_and_never_locally_spent`（未執行（白名單外））；`range_six_boundary_and_target_changes_use_current_received_coordinates`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 35 | 高級治癒術 | `GREATER_HEAL` | 共通魔法／法師 | HealingSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 20 | 77／280 | main 已接 | `tw_higher_heal_requests_use_learned_ids_original_clocks_and_never_predict_authority`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
-| 36 | 迷魅術 | `TAMING_MONSTER` | 共通魔法／法師 | TamingSpell | ⑩ d(target) h(x) h(y) | buff／2／射程 -1／範圍 0 | 不需要：目標只能是 WORLD／Quest／Time Attack 的怪物，找不到就拒絕非怪物目標（`ClientSession.java:72350-72368`）；Quest／Time Attack 用 canAttackQuestMonster／canAttackTimeAttackActor 判定，不經 ForcedCombat。讀的是 src/main @2066774，E149 待核對 | MP 30、HP 20 | 0／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025）、受控 NPC（伺服器 T023） |  |
-| 37 | 聖潔之光 | `REMOVE_CURSE` | 共通魔法／法師 | CurseRemovalSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 20 | 155／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
+| 36 | 迷魅術 | `TAMING_MONSTER` | 共通魔法／法師 | TamingSpell | ⑩ d(target) h(x) h(y) | buff／2／射程 -1／範圍 0 | 不需要：目標只能是 WORLD／Quest／Time Attack 的怪物，找不到就拒絕非怪物目標（`ClientSession.java:72350-72368`）；Quest／Time Attack 用 canAttackQuestMonster／canAttackTimeAttackActor 判定，不經 ForcedCombat。讀的是 src/main @2066774，E149 待核對 | MP 30、HP 20 | 0／280 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | 228 原影格／Sound132／容量319通過；正式同伴待驗 | 伺服器待定：材料 40318×1（伺服器 T025）、受控 NPC（伺服器 T023） |  |
+| 37 | 聖潔之光 | `REMOVE_CURSE` | 共通魔法／法師 | CurseRemovalSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 20 | 155／280 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | S25／227 原影格／Sound122通過；GUI 待驗 | 以 E149 為準可驗 |  |
 | 38 | 冰錐 | `CONE_OF_COLD` | 共通魔法／法師 | AttackSpell | ⑩ d(target) h(x) h(y) | attack／3／射程 6／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 18 | 0／0 | main 已接 | `unqualified_loader_keeps_world_update_ok_without_retry_or_authority_mutation（include! native_tw_presentation_tests.rs）`（已執行通過（lib，#101））；`cold_request_uses_observed_C14_and_six_cell_range_without_spending_authority`（未執行（白名單外））；`cold_selector_rechecks_target_life_generation_owner_and_book`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
-| 39 | 魔力奪取 | `MANA_DRAIN` | 共通魔法／法師 | ManaDrainSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 4／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 1、HP 50 | 690／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 以 E149 為準可驗 |  |
-| 40 | 黑闇之影 | `DARKNESS` | 共通魔法／法師 | BlindSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 3／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 15 | 0／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
-| 41 | 造屍術 | `CREATE_ZOMBIE` | 共通魔法／法師 | CreateZombieSpell | ④ d(target) | buff／2／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 5、HP 80 | 0／280 | 候選獨有（T027 批 2） | 尚無 | 待核對 | 伺服器待定：材料 40318×1（伺服器 T025）、受控 NPC（伺服器 T023） |  |
+| 39 | 魔力奪取 | `MANA_DRAIN` | 共通魔法／法師 | ManaDrainSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 4／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 1、HP 50 | 690／280 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | 2171 原影格／Sound806、HP／MP權威更新通過；GUI 待驗 | 以 E149 為準可驗 |  |
+| 40 | 黑闇之影 | `DARKNESS` | 共通魔法／法師 | BlindSpell | ⑩ d(target) h(x) h(y) | buff／3／射程 3／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 15 | 0／280 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | S0A／2175 原影格／Multiply通過；GUI 待驗 | 伺服器待定：材料 40318×1（伺服器 T025） |  |
+| 41 | 造屍術 | `CREATE_ZOMBIE` | 共通魔法／法師 | CreateZombieSpell | ④ d(target) | buff／2／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 5、HP 80 | 0／280 | 已接（#146） | `native_t027_batch2`（11 案通過，詳 #146） | 226 原影格／Sound139、屍體移除後固定位置通過；正式同伴待驗 | 伺服器待定：材料 40318×1（伺服器 T025）、受控 NPC（伺服器 T023） |  |
 | 42 | 體魄強健術 | `PHYSICAL_ENCHANT_STR` | 共通魔法／法師 | AbilityBuffSpell | ④ d(target) | buff／4／射程 -1／範圍 0 | 不需要（自身用自身 object ID 走 7-byte 分派） | MP 50 | 292／280 | main 已接 | `ability_buffs_keep_native_screen_asymmetric_edges`（已執行通過（白名單，#101））；`ability_buffs_reject_unlearned_dead_missing_and_outside_screen_targets`（已執行通過（白名單，#101））；`both_ability_buffs_use_explicit_self_or_selected_object_without_authority_writes`（已執行通過（白名單，#101）） | 待核對 | 伺服器待定：自施政策（伺服器 TASKS T022 待驗） |  |
 | 43 | 加速術 | `HASTE` | 共通魔法／法師 | HasteSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 不需要（自身／友方輔助） | MP 40 | 184／280 | main 已接 | `selection_uses_formal_packets_and_preserves_authority`（未執行（白名單外））；`spell_requests_use_formal_selectors_and_never_predict_mana`（未執行（白名單外）） | 待核對 | 以 E149 為準可驗 |  |
 | 44 | 魔法相消術 | `CANCELLATION` | 共通魔法／法師 | CancellationSpell | ④ d(target) | buff／3／射程 -1／範圍 0 | 依目標而定：對敵方不需要；對同隊需要 Ctrl（附 LFC1） | MP 40 | 0／280 | 候選獨有（T027 批 3） | 尚無 | 待核對 | 伺服器待定：材料 40318×2（伺服器 T025） |  |
@@ -320,3 +323,7 @@ SQL 的 happen／fail 欄只記技能本身的訊息。以下是伺服器在拒�
 | 玩家之間的交易 | 不適用 | G01–G12 沒有這一項 | 不適用 | 不適用 | 不適用 | 不適用 | 排除（TASKS「排除或延後」） |
 
 **統計**：28 列。支援 8、部分 8、缺失 5、拒絕 1、待核對 4、不適用 2。「支援」的列都只有客戶端實作與舊版 JAR 的隔離驗證，還沒對 E149 重驗。
+
+## T027 批 2 回填（#146）
+
+只回填 29、30、33、36、37、39、40、41；離線送收包與原資源測試通過不等於正式服務或 GUI 驗收。原伺服器待定分類及 #140／#141 盤點基線保留。41 使用明確屍體意圖，39 未選目標時允許自施；八個技能的成本、材料與成功結果仍由伺服器決定。詳見 [Issue #146 報告](reports/issue-146.md)。

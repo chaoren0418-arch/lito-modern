@@ -119,6 +119,10 @@ pub(crate) fn active(cancel: &AtomicBool) -> Result<()> {
     }
 }
 
+#[path = "static2941_assets.rs"]
+mod static2941;
+pub(crate) use static2941::Static2941Bank;
+
 struct LoadedSprite {
     provenance: SpriteProvenance,
     decoded: DecodedSprite,
@@ -186,7 +190,7 @@ pub(crate) struct SharedEffectBank {
     rgba: usize,
 }
 #[derive(Clone, Copy)]
-enum ReferencedFramePolicy { NonEmpty, TwHealingFamily, ReviewedSelectors, ReviewedAdditionalFinite }
+enum ReferencedFramePolicy { NonEmpty, TwHealingFamily, ReviewedSelectors, ReviewedAdditionalFinite, ReviewedEarthJail }
 // Each tuple pins the actual SPR and its last visible original subframe.
 const TW_HEALING_SPRS: &[(&str,usize,[u8;32],usize)]=&[
     ("11722-0.spr",30637,[0x85, 0xf6, 0x87, 0x20, 0x52, 0xfa, 0x33, 0x5c, 0xab, 0x1e, 0xe5, 0x65, 0xc3, 0xe1, 0x84, 0xe2, 0xd4, 0xe7, 0x18, 0xa6, 0x13, 0x7c, 0x87, 0xd2, 0x88, 0x50, 0xc8, 0x8e, 0xcc, 0xa6, 0xf8, 0xe5],12),
@@ -247,6 +251,12 @@ impl SharedEffectBank {
         qualify: fn(&SpriteActionCatalog) -> Result<Vec<(u32, u8, Animation)>>,
     ) -> Result<Self> {
         Self::load_profile(context, cancel, qualify, &[], true, ReferencedFramePolicy::NonEmpty)
+    }
+    pub(crate) fn load_reviewed_earth_jail(
+        context: &SharedActionCatalog, cancel: &AtomicBool,
+        qualify: fn(&SpriteActionCatalog) -> Result<Vec<(u32,u8,Animation)>>,
+    ) -> Result<Self> {
+        Self::load_profile(context,cancel,qualify,&[],true,ReferencedFramePolicy::ReviewedEarthJail)
     }
     pub(crate) fn load_reviewed_selectors(context:&SharedActionCatalog,cancel:&AtomicBool)->Result<Self> {
         Self::load_profile(context,cancel,super::native_selector_effects::qualify,
@@ -444,6 +454,10 @@ impl SharedEffectBank {
                 && !super::native_additional_finite_effects::reviewed_blank_source_matches(&name,&bytes,&decoded) {
                 return Err(HonorAssetError::Unsupported("original2251 no-block source changed"));
             }
+            if matches!(frame_policy,ReferencedFramePolicy::ReviewedEarthJail)
+                && !super::native_attack_many::earth_jail::source_matches(&name,&bytes,&decoded) {
+                return Err(HonorAssetError::Unsupported("earth jail original SPR/blank slots changed"));
+            }
             let decoded_bytes = decoded
                 .retained_rgba_bytes()
                 .ok_or(HonorAssetError::Bound("decoded SPR"))?;
@@ -481,7 +495,9 @@ impl SharedEffectBank {
                         || matches!(frame_policy,ReferencedFramePolicy::ReviewedSelectors)
                             && is_reviewed_selector_blank(&asset.file_name(),asset.subframe as usize,frame)
                         || matches!(frame_policy,ReferencedFramePolicy::ReviewedAdditionalFinite)
-                            && super::native_additional_finite_effects::is_reviewed_blank(&asset.file_name(),asset.subframe as usize,frame);
+                            && super::native_additional_finite_effects::is_reviewed_blank(&asset.file_name(),asset.subframe as usize,frame)
+                        || matches!(frame_policy,ReferencedFramePolicy::ReviewedEarthJail)
+                            && super::native_attack_many::earth_jail::is_blank(&asset.file_name(),asset.subframe as usize,frame);
                     if !reviewed_blank && (frame.width == 0
                         || frame.height == 0
                         || frame.rgba.len() != frame.width as usize * frame.height as usize * 4)
