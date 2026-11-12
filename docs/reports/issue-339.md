@@ -79,6 +79,7 @@ REUSE-MAP 沒有 T058 的列。與本張相關的只有第 67、156 列（特效
 **C. 編譯**
 
 - `cargo check --locked --offline -j1 --all-targets --target-dir target/current`（在 `LiTo381-Modern/`）：`Finished dev profile`，exit 0。本張新增與修改的 7 個 `.rs` 檔沒有任何警告（輸出裡的警告都在其他既有檔案）。這一步包含 lib 測試與 `tests/` 的型別檢查，不包含執行。
+- 之後合併當時的 `origin/main`（落後 16 個 commit，自動合併無衝突，`mod.rs` 兩邊都有改）再跑同一個指令：`Finished dev profile`，exit 0。合併進來的其他改動只確認能一起編譯，沒有逐行對照。
 
 **D. 現行程式的靜態核對（讀碼）**
 
