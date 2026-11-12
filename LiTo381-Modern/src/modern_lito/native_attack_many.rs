@@ -33,7 +33,11 @@ pub fn decode(b:&[u8])->Result<Option<Attack>> {
     let count=h(end+1) as usize;ensure!(count<=128&&b.len()==end+3+count*5,"attack-many target count/tail");
     let mut targets=Vec::with_capacity(count);
     for n in 0..count {let at=end+3+n*5;let id=d(at);ensure!(id!=0&&matches!(b[at+4],0|0x20),"invalid attack-many target/marker");targets.push(TargetHit{id,hit:b[at+4]!=0});}
-    let profile=(matches!(h(15),170|171|1804|1805)&&b[17]==8&&b[1]==18)||(h(15)==758&&b[17]==0&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
+    // T027 batch 4 (#148) admits the exact formal profiles blizzard59 757/type0,
+    // earthquake62 1812/type0 and lightning-storm65 3924/type8 (all action18).
+    // Their finite presentations are not qualified yet: Effects omits them
+    // (no generic substitute), while the cast action and target list are kept.
+    let profile=(matches!(h(15),170|171|1804|1805|3924)&&b[17]==8&&b[1]==18)||(matches!(h(15),757|758|1812)&&b[17]==0&&b[1]==18)||(h(15)==3934&&b[17]==0&&b[1]==19);
     if !profile||end!=19{return Ok(None);}
     Ok(Some(Attack{action:b[1],caster:d(2),position:[h(6),h(8)],heading:b[10],sequence:d(11),graphics:h(15),targets}))
 }

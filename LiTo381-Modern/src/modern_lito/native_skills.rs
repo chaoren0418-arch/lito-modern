@@ -172,7 +172,7 @@ pub fn self_tick_request(world:&World,skill:u16,target:Option<u32>,tick:ClientTi
 }
 /// One classification for wire admission and clearing unrelated hovered actors.
 pub fn selector_only(skill: u16) -> bool {
-    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 206)
+    matches!(skill, 14 | 31 | 32 | 49 | 52 | 53 | 54 | 59 | 62 | 72 | 78 | 97 | 98 | 99 | 101 | 102 | 104 | 105 | 106 | 109 | 110 | 111 | 112 | 114 | 115 | 117 | 206)
 }
 /// Requests whose tail ends in one MS950 `s` field: ⑪ True Target (113) and
 /// ⑦／⑧ Call／Run Clan (116／118).
@@ -226,19 +226,21 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     let own = world.own_actor().unwrap();
     let mut b = vec![0x14, ((skill - 1) / 8) as u8, ((skill - 1) % 8) as u8];
     match skill {
-        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 57 | 68 => {
+        1 | 8 | 9 | 19 | 26 | 35 | 37 | 42 | 43 | 44 | 48 | 55 | 57 | 68 => {
             let id = target.unwrap_or(own.id);
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
                     && world.actor_visible(id)
-                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 68) {
+                    && if skill==44 {own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y))<=3} else if matches!(skill, 8 | 9 | 26 | 37 | 42 | 43 | 44 | 48 | 55 | 68) {
                         in_native_screen([own.x, own.y], [actor.x, actor.y])
                     } else {
                         own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= 19
                     },
                 "技能目標不可用"
             );
+            // 55: clan／party, room／instance and action support are server-owned;
+            // the client never guesses membership from names (solo self may be refused).
             // Displayed clans can reject a known mismatch, but cannot authorize
             // the server's source-character clan membership or material commit.
             if matches!(skill, 26 | 42 | 68) && id != own.id {
@@ -268,7 +270,9 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
             b.extend_from_slice(&actor.x.to_le_bytes());
             b.extend_from_slice(&actor.y.to_le_bytes());
         }
-        41 => {
+        // 61 shares 41's explicit corpse intent; the S24/321 consent, HP restore and
+        // the new life are server-owned. Neither 3944 nor 230 is a success ACK.
+        41 | 61 => {
             let id = target.context("請先選取屍體")?;
             let actor = world.actors.get(&id).context("屍體已離開")?;
             ensure!(id != own.id && actor.dead && world.actor_visible(id)
@@ -292,14 +296,14 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
                 b.extend_from_slice(&actor.y.to_le_bytes());
             }
         }
-        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 77 | 103 | 108 => {
+        4 | 6 | 7 | 10 | 11 | 15 | 16 | 17 | 18 | 20 | 22 | 25 | 27 | 28 | 29 | 30 | 33 | 34 | 38 | 40 | 45 | 46 | 47 | 50 | 56 | 64 | 65 | 66 | 77 | 103 | 108 => {
             let id = target.context("請先選取法術目標")?;
             let actor = world.actors.get(&id).context("技能目標已離開")?;
             ensure!(
                 id != own.id
                     && world.actor_visible(id)
                     && !actor.dead && !super::native_obstacles::destroyed_guardian(actor)
-                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33=>2,40|46|47=>3,50=>6,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
+                    && own.x.abs_diff(actor.x).max(own.y.abs_diff(actor.y)) <= match skill {29|30|45=>8,33=>2,40|46|47|56|64=>3,50=>6,65|66=>10,10|103=>3,11|20|108=>1,27|28=>4,17|22|25|34|38=>6,_=>10},
                 "法術目標不可用或超出範圍"
             );
             b.extend_from_slice(&id.to_le_bytes());
@@ -311,7 +315,7 @@ pub fn request(world: &World, skill: u16, target: Option<u32>) -> Result<Vec<u8>
     Ok(b)
 }
 pub fn reuse_millis(skill: u16) -> u64 {
-    match skill {97=>9990,98..=100=>0,44=>500,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118=>0,112=>2000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
+    match skill {97=>9990,98..=100=>0,44=>500,56|64=>500,59|62|66=>1500,65=>2000,45=>100,46|47|50=>500,51=>1000,53=>1500,27=>3000,22=>300,33|77=>5000,60|101|104|105|106|107|108|109|110|111|113..=118=>0,112=>2000,102=>2990,103=>990,68=>1500,11|13|17|18|20|25|29|30|39|40|49|57|72=>500,78=>12000,206=>1000,19=>100,35=>200,28=>50,_=>10}
 }
 pub fn client_clock_millis(skill:u16)->u64 {match skill {50=>1000,33=>5000,10|35=>200,19|28=>100,2|16|32=>10,17=>100,18|57|72=>500,206=>1200,_=>0}}
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
@@ -525,6 +529,9 @@ pub const SUMMON_SELECTIONS: &[SummonSelection] = &[
     SummonSelection { selection:18, label:"巨大牛人", required_level:72 },
     SummonSelection { selection:274, label:"黑豹", required_level:72 },
 ];
+#[cfg(test)]
+#[path = "native_t027_batch4_tests.rs"]
+mod t027_batch4_tests;
 #[cfg(test)]
 mod tests {
     use super::*;
