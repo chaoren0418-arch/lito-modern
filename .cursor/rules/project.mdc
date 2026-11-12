@@ -1,7 +1,7 @@
 ﻿# lito-modern — LiTo381 重建版（Rust 原生客戶端）
 
 本檔是所有 AI 工具（Claude、Cursor、Codex、ChatGPT）與人的共同規則。`AGENTS.md` 與 `.cursor/rules/project.mdc` 是本檔的複本，改動請只改本檔並重新同步。
-本 repo 根目錄是 `D:\lineage開發\3-lito開發\lito重建版`。相鄰的登入器／伺服器是獨立 repo（lito-launcher-server），**唯讀**引用。
+本 repo 根目錄是 `D:\lineage開發\3-lito開發\lito重建版`。相鄰的登入器／伺服器是獨立 repo（lito-launcher-server），**唯讀**引用；tw-bin-engine（C# 天堂 3.81 客戶端重建）也是**唯讀**參考來源，對照表見 `docs/REUSE-MAP.md`。
 
 ## 對話分工與語言（使用者規定，所有 AI 必讀）
 - **全程使用繁體中文**：對使用者的回報、Issue／PR 留言、報告文件一律繁體中文（程式碼、指令、檔名維持原文）。
@@ -47,6 +47,7 @@
 4. 建置產物只進 `target/`、`dist/`；不進 git。
 5. 不以 stub、假畫面冒充功能完成；報告分「已驗證／推測／待驗證」。
 6. 不啟動、附加、停止既有遊戲程序；不連正式服務或 DB。
+7. **實作前先查 `docs/REUSE-MAP.md`**（2026-11-12，#267）：可唯讀參考 tw-bin-engine（本機 `D:\BinEngine`，讀 `origin/main`）與 lito-launcher-server（本 repo 上層 `D:\lineage開發\3-lito開發`）的原始碼與文件；不複製資源檔（pak／map／sprite／surf／XML）、不改對方 repo（不 checkout、不寫檔、不開分支）。參考時在 PR 寫明引用的檔案與 commit；TW 3.81 與 LiTo 3.81C／E149 的差異以本 repo `docs/PROTOCOL-CONTRACT.md` 為準。
 
 ## 工作方式
 - `PLAN.md`：里程碑與目前狀態。`TASKS.md`：任務清單，每項含範圍、驗收條件、狀態。

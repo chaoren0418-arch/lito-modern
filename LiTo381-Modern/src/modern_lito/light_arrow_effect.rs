@@ -370,6 +370,17 @@ impl LightArrowPath {
         {
             return Err(LightArrowError::InvalidInput("native world coordinates"));
         }
+        Self::build_native_path(from, target)
+    }
+    /// S39's missing first target falls back one heading step, even at a u16 edge.
+    pub(crate) fn new_area_fireball(from: WorldCell, target: WorldCell) -> Result<Self> {
+        if [from.x,from.y].iter().any(|v| !(0..=65535).contains(v))
+            || [target.x,target.y].iter().any(|v| !(-1..=65536).contains(v)) {
+            return Err(LightArrowError::InvalidInput("area world coordinates"));
+        }
+        Self::build_native_path(from, target)
+    }
+    fn build_native_path(from: WorldCell, target: WorldCell) -> Result<Self> {
         let dx = i64::from(target.x) - i64::from(from.x);
         let dy = i64::from(target.y) - i64::from(from.y);
         let distance = dx.abs().max(dy.abs());
@@ -654,6 +665,10 @@ impl LightArrowAssets {
         let mut sprites = BTreeMap::new();
         let mut encoded = 0usize;
         let mut rgba = 0usize;
+        // The 229-entry class4 budget includes four flight banks. Ice arrow
+        // needs eight: 224 all-caster banks + eight flight banks + one impact.
+        // Keep all byte/pixel budgets and the other profiles' entry cap intact.
+        let sprite_limit = MAX_SPRITES + if effect.gfx == 1797 { 4 } else { 0 };
         for bound in [&effect, &impact].into_iter().chain(casters.values()) {
             let headings = if bound.gfx == effect.gfx && effect.gfx!=1797 && bound.sequence.animation.directionality == Directionality::EightWay {
                 4
@@ -674,7 +689,7 @@ impl LightArrowAssets {
                         image: frame.image_id,
                     };
                     if !sprites.contains_key(&key) {
-                        if sprites.len() >= MAX_SPRITES {
+                        if sprites.len() >= sprite_limit {
                             return Err(LightArrowError::Bound("sprite entries"));
                         }
                         let name = key.name();
@@ -1597,6 +1612,55 @@ mod tests {
                 .draw_effect(canvas, &path, projection, assets.effect_duration(&path))
                 .unwrap()
         });
+    }
+    #[test]
+    #[ignore = "LITO_SHARED_RESOURCE_ROOT; all14 ice-arrow casters against the independent C# golden, memory only"]
+    fn actual_shared_ice_arrow_all_casters_match_golden_and_launch_once() {
+        // Establish the independent all-caster RGBA golden before comparing the
+        // ice profile. A comparison of two unqualified native outputs is not an oracle.
+        actual_shared_light_arrow_full_chain_all_casters_and_rgba_match_csharp();
+        let root = std::env::var_os("LITO_SHARED_RESOURCE_ROOT").expect("explicit shared root");
+        let cancel = AtomicBool::new(false);
+        let context = SharedActionCatalog::load(Path::new(&root), &cancel).unwrap();
+        let appearances: Vec<_> = (0..7)
+            .flat_map(|class| (0..2).map(move |sex| BaseAppearance { class, sex }))
+            .collect();
+        let wanted = LightArrowAssets::wanted_appearances(&appearances).unwrap();
+        let golden = LightArrowAssets::load_selected(&context, wanted.clone(), &cancel).unwrap();
+        let ice = LightArrowAssets::load_selected_profile(&context, wanted, 1797, &cancel).unwrap();
+        assert_eq!(ice.casters.len(), 14);
+        assert_eq!(ice.sprite_sources().len(), 233); // 224 caster banks + 8 flight + 1 impact.
+        for appearance in appearances {
+            let launch = golden.cast_launch_delay(appearance).unwrap();
+            let end = golden.cast_duration(appearance).unwrap();
+            assert_eq!(ice.cast_launch_delay(appearance).unwrap(), launch);
+            assert_eq!(ice.cast_duration(appearance).unwrap(), end);
+            for heading in 0..8 {
+                // Millisecond sampling covers every source dwell; include the
+                // exact rational Hit/terminal boundaries and their preceding ns.
+                let mut times: Vec<_> = (0..=end.as_millis() as u64)
+                    .map(Duration::from_millis).collect();
+                times.extend([launch.saturating_sub(Duration::from_nanos(1)), launch,
+                    end - Duration::from_nanos(1), end]);
+                times.sort(); times.dedup();
+                let mut playback = ice.start_cast(appearance).unwrap();
+                let mut hits = 0;
+                for elapsed in times {
+                    let actual = ice.caster_frame(appearance, heading, elapsed).unwrap();
+                    let expected = golden.caster_frame(appearance, heading, elapsed).unwrap();
+                    assert_eq!(actual.sprite_name, expected.sprite_name);
+                    assert_eq!(actual.subframe, expected.subframe);
+                    assert_eq!(actual.frame, expected.frame);
+                    assert_eq!(actual.finished, elapsed >= end);
+                    let sample = playback.advance(elapsed).unwrap();
+                    hits += sample.crossed_cues.iter().filter(|c| c.event == FrameEvent::Hit).count();
+                    if elapsed < launch { assert_eq!(hits, 0); }
+                    else { assert_eq!(hits, 1); }
+                }
+                assert_eq!(hits, 1);
+                assert!(playback.advance(end).unwrap().crossed_cues.is_empty());
+            }
+        }
     }
     fn hex(text: &str) -> [u8; 32] {
         assert_eq!(text.len(), 64);

@@ -540,24 +540,25 @@ fn five_item_spells_never_send_actor_or_catalog_id_or_spend_locally() {
     use lito_modern::modern_lito::native_skills as skills;
     let mut s = battle();
     s.world.mp = Some([100,100]);
-    let target = add_target(&mut s);
+    add_target(&mut s);
+    let target = skills::ItemTarget::capture(&s,2,u32::MAX).unwrap();
     for (skill,row,col) in [(12,1,3),(21,2,4),(73,9,0),(100,12,3),(107,13,2)] {
         s.world.learned_skills.insert(skill);
         let before = serde_json::to_value(&s).unwrap();
-        assert_eq!(skills::item_request(&s,skill,&target).unwrap(),[0x14,row,col,255,255,255,255]);
+        assert_eq!(skills::item_request(&s,2,skill,&target).unwrap(),[0x14,row,col,255,255,255,255]);
         let mut classic = s.clone();
         classic.phase = LoginPhase::WorldReady;
-        assert_eq!(skills::item_request(&classic,skill,&target).unwrap(),[0x14,row,col,255,255,255,255]);
+        assert_eq!(skills::item_request(&classic,2,skill,&target).unwrap(),[0x14,row,col,255,255,255,255]);
         assert!(skills::request(&s.world,skill,Some(2)).is_err());
         assert_eq!(serde_json::to_value(&s).unwrap(),before);
         s.world.learned_skills.remove(&skill);
-        assert!(skills::item_request(&s,skill,&target).is_err());
+        assert!(skills::item_request(&s,2,skill,&target).is_err());
     }
     s.world.learned_skills.insert(73);
     s.inventory.items.get_mut(&u32::MAX).unwrap().charge += 1;
-    assert!(skills::item_request(&s,73,&target).is_err());
+    assert!(skills::item_request(&s,2,73,&target).is_err());
     s.inventory.items.remove(&u32::MAX);
-    assert!(skills::item_request(&s,73,&target).is_err());
+    assert!(skills::item_request(&s,2,73,&target).is_err());
 }
 
 #[test]
@@ -617,9 +618,10 @@ fn formal_e149_options_and_item_skill_vectors_match_production_builders() {
     assert_eq!(selection.text_request(&s,"orc").unwrap(),packet(fixture,"polymorph"));
     assert_eq!(actions::target_location_request(ID,u32::MAX,[32768,65535]).unwrap(),packet(fixture,"target_location"));
     s.world.mp = Some([100,100]);
+    let item_target = skills::ItemTarget::capture(&s,2,u32::MAX).unwrap();
     for skill in [12,21,73,100,107] {
         s.world.learned_skills.insert(skill);
-        assert_eq!(skills::item_request(&s,skill,&target).unwrap(),packet(fixture,&format!("skill_{skill}")));
+        assert_eq!(skills::item_request(&s,2,skill,&item_target).unwrap(),packet(fixture,&format!("skill_{skill}")));
     }
     for (key, expected) in [("charge_zero",0),("count_one",1)] {
         s.inventory.accept(2,&packet(fixture,key)).unwrap();

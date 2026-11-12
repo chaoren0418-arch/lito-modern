@@ -8,6 +8,10 @@
 // --- §2 first plaintext frame ---
 pub const S_KEY: u8 = 0x01;
 
+// Legacy integrity contract: JAR E1498871 Protocol.addressChallenge/addressProof.
+pub const S_EVENT: u8 = 0x7B;
+pub const C_ADDR: u8 = 0x2A;
+
 // --- §4 handshake / LOGIN / GAME bootstrap ---
 pub const C_VERSION: u8 = 0x00;
 pub const C_LOGIN: u8 = 0x01;

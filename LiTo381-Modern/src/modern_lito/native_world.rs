@@ -68,25 +68,48 @@ pub struct Actor {
     pub status_tail: Option<[u8; 5]>,
     pub relations: super::native_actor_relations::Relations,
 }
+/// Native camera anchor relative to the own cell: `sub_4E7A40` L484790–L484809
+/// passes `x+6`, `y-18` to `sub_4855A0`, and `sub_4C51B0` uses the same
+/// `+0x8006`／`+0x7FEE` bias. Local cameras store the own-equivalent cell.
+pub const NATIVE_CAMERA_ANCHOR_OFFSET: [i32; 2] = [6, -18];
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct World {
+    #[serde(skip)]
+    pub(crate) status4183: super::native_status4183::Runtime,
+    #[serde(skip)]
+    pub(crate) player_walk: Option<super::native_player_callbacks::WalkPose>,
     /// GAME-owned clan context survives scene replacement, not reconnection.
     pub relations: super::native_actor_relations::Context,
     /// Role comes from S_E5, never inferred from the bounds sent to all peers.
     pub observer_mode: bool,
     /// Local camera only; no actor or authoritative player coordinates are created.
     pub observer_camera: Option<[u16;2]>,
+    /// Last own-actor cell behind the native process-wide camera anchor
+    /// `dword_75AA50/54`. Native writes that anchor only through `sub_485580`:
+    /// own S_PUT_OBJECT (`sub_4E7A40`, anchor = own + `NATIVE_CAMERA_ANCHOR_OFFSET`),
+    /// own steps (`sub_4E2150`), teleport (`sub_48BC80`) and timed scene moves
+    /// (`sub_4C51B0`). S_WORLD, S_E2 and S_E5 never write it, so an observer
+    /// without an own actor keeps the previous anchor. Survives scene retirement.
+    pub native_view_anchor: Option<[u16;2]>,
     pub portal:Option<super::native_portal::Pending>,
     pub completed_portals:u64,
     pub resurrection_packets: u64,
     pub last_resurrection: Option<Resurrection>,
+    /// S_RESURRECT may be followed by a spawn relocation before HP/ratio.
+    /// Honor and spell revivals close this window with vitals, without moving.
+    pub resurrection_relocations: BTreeSet<u32>,
     /// Server-supplied half-open observer area. This does not enable observer mode
     /// or impose spectator rules on ordinary player movement.
     pub observer_bounds: Option<ObserverBounds>,
     pub door_attributes: BTreeMap<u64, super::native_doors::Record>,
+    /// Qualified by the controller's authoritative room, cleared on world reset.
+    pub encounter_mode: Option<super::native_obstacles::EncounterMode>,
     pub emblems: super::native_emblems::Cache,
     pub learned_skills: BTreeSet<u16>,
     pub effects: Vec<super::native_skills::Effect>,
+    /// Local decode binding; snapshots share irreversible lease retirement.
+    #[serde(skip)]
+    pub static_effect_receipts: BTreeMap<u64, super::native_static2941::Receipt>,
     pub effects_dropped: u64,
     /// Direct S4A cues, scoped to this world. No inferred spell or expiry.
     pub wire_sounds: Vec<WireSound>,
@@ -113,6 +136,8 @@ pub struct World {
     pub own_attack_packets: u64,
     pub last_attack: Option<super::native_combat::Attack>,
     pub projectiles: Vec<super::native_combat::ProjectileCue>,
+    /// S15 retirement of the native retained-projectile sentinel (-1).
+    pub retained_projectile_removed_at: u64,
     pub many_attacks: Vec<super::native_attack_many::Cue>,
     pub many_attacks_dropped:u64,
     pub projectile_cues_dropped: u64,
@@ -127,6 +152,8 @@ pub struct World {
     pub predicted_moves: u64,
     pub local_corrections: u64,
     pub movement_locks: u64,
+    /// S_BLINK is independent of timed paralysis. Queueing C_BLINK does not unlock.
+    pub movement_lock: MovementLock,
     pub orphan_updates: u64,
     pub actors: BTreeMap<u32, Actor>,
     pub status: Option<status_receipt::Status>,
@@ -134,9 +161,24 @@ pub struct World {
     pub game_time: Option<u32>,
     pub hp: Option<[u16; 2]>,
     pub mp: Option<[u16; 2]>,
+    /// Counts S_MANA_POINT/S_STATUS receipts that actually changed `mp`.
+    pub mp_notifications: u64,
+    /// Server-timed status icons (ICONS1, ICON_I2H, doll, S_MAGE_SHIELD, own S_SPEED).
+    pub status_icons: super::native_status_icons::Leases,
+    /// Receipt clock of the packet currently being accepted (lease start).
+    #[serde(skip)]
+    packet_ms: u64,
     pub integrity_challenge: Option<[u32; 3]>,
+    pub integrity_status: super::native_integrity::Status,
     pub minimap: super::native_minimap::State,
     pub unhandled_opcodes: BTreeSet<u8>,
+}
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub enum MovementLock {
+    #[default]
+    Open,
+    AckPending,
+    AwaitRelease,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
 pub struct Resurrection {
@@ -280,18 +322,49 @@ pub fn actor(b: &[u8]) -> Result<Actor> {
     Ok(a)
 }
 impl World {
+    pub fn death_confirmation_ready(&self) -> bool {
+        self.ready() && !self.observer_mode && self.battle_result.is_none()
+            && self.death_confirmation_pending && self.hp.is_some_and(|hp| hp[0] == 0)
+            && self.own_actor().is_some_and(|a| a.dead
+                && Some(a.action_sequence) != self.last_death_confirmed_action)
+    }
+
+    /// Commit only after the bounded transport accepts CE0. A failed enqueue
+    /// leaves the request available; no local clock decides the next life.
+    pub fn acknowledge_death(&mut self, send: impl FnOnce(&[u8]) -> Result<()>) -> Result<()> {
+        ensure!(self.death_confirmation_ready(), "death authority no longer pending");
+        let count = self.death_confirmations_sent.checked_add(1).context("death confirmation counter exhausted")?;
+        send(&[0xe0])?;
+        self.death_confirmation_pending = false;
+        self.death_confirmations_sent = count;
+        self.last_death_confirmed_action = self.own_actor().map(|a| a.action_sequence);
+        Ok(())
+    }
+
     pub fn set_observer_mode(&mut self, enabled:bool) {
-        if self.observer_mode!=enabled {self.visual_revision+=1;}
+        if self.observer_mode!=enabled {
+            self.visual_revision+=1;
+            self.control_interruptions+=1;
+        }
         self.observer_mode=enabled;
         if !enabled {self.observer_camera=None;}
         self.refresh_observer_camera();
     }
+    /// Own cell currently behind the native camera anchor (see `native_view_anchor`).
+    pub fn native_anchor_cell(&self)->Option<[u16;2]> {
+        self.own_actor().map(|a|[a.x,a.y]).or(self.native_view_anchor)
+    }
     fn refresh_observer_camera(&mut self) {
         if !self.observer_mode {return;}
+        let retained=self.native_anchor_cell();
         if let Some(b)=&self.observer_bounds {
             let contains=|p:[u16;2]|(0..2).all(|i|p[i]>=b.min[i]&&p[i]<b.max_exclusive[i]);
             if self.observer_camera.is_none_or(|p|!contains(p)) {
-                self.observer_camera=Some(std::array::from_fn(|i|b.min[i]+(b.max_exclusive[i]-b.min[i])/2));
+                // Native keeps the untouched anchor. Only when it is absent or
+                // outside the half-open box (where native shows no arena) does
+                // the local camera fall back to the box centre.
+                self.observer_camera=Some(retained.filter(|p|contains(*p)).unwrap_or_else(||
+                    std::array::from_fn(|i|b.min[i]+(b.max_exclusive[i]-b.min[i])/2)));
             }
         }
     }
@@ -309,8 +382,28 @@ impl World {
     }
     /// Empty authority without reusing the identity of any previously rendered
     /// world. The next map packet advances this generation, including reconnects.
+    pub(crate) fn retire_static_effects(&mut self) {
+        for receipt in self.static_effect_receipts.values() { receipt.retire(); }
+        self.static_effect_receipts.clear();
+    }
+    pub(crate) fn accept_received(&mut self, body: &[u8], ingress: super::native_connection::IngressReceipt) -> Result<bool> {
+        ensure!(ingress.connection_epoch() != 0, "static receipt without connection");
+        let before = self.visual_revision;
+        // 4183 keeps wire receipt (decode) and model dispatch as distinct samples.
+        let handled = self.accept_at(body,
+            super::native_status4183::ms_at(ingress.decoded_at()), super::native_status4183::now_ms())?;
+        if handled && body.first() == Some(&0x37) && self.visual_revision != before {
+            if let Some(cue) = self.effects.last().filter(|cue| cue.graphics == 2941 && cue.sequence == self.visual_revision) {
+                let receipt = super::native_static2941::Receipt::received(self, cue, ingress);
+                self.static_effect_receipts.insert(cue.sequence, receipt);
+            }
+        }
+        Ok(handled)
+    }
     pub fn clear_preserving_generation(&mut self) {
-        *self = Self { generation: self.generation,
+        self.retire_static_effects();
+        let native_view_anchor=self.native_anchor_cell();
+        *self = Self { generation: self.generation, native_view_anchor,
             relations:std::mem::take(&mut self.relations), ..Default::default() };
     }
     /// Ordinary view: see-invisible/GM perception is not yet a qualified mode.
@@ -343,6 +436,7 @@ impl World {
         super::native_combat::attack_request(target, other.x, other.y, ranged)
     }
     fn action(&mut self, id: u32, action: u8, source: &'static str) {
+        if action == 8 { self.resurrection_relocations.remove(&id); }
         if let Some(a) = self.actors.get_mut(&id) {
             if action == 8 { a.draw_state.native_light_dead = true; }
             // Guardian damage uses persistent S_ACTION 32..35 states, not
@@ -390,18 +484,44 @@ impl World {
             "local actor cannot move"
         );
         ensure!(
-            self.movement_blocks.is_empty(),
+            self.movement_blocks.is_empty() && self.movement_lock == MovementLock::Open,
             "movement restricted by server state"
         );
         let a = self.own_actor().context("local actor missing")?;
         ensure!(!a.dead, "dead actor cannot move");
         let (x,y)=destination(a.x, a.y, heading)?;
-        ensure!(!super::native_obstacles::blocks(self,x,y),"門或守護塔擋住去路");
+        ensure!(!super::native_obstacles::blocks(self,x,y),"動態物件擋住去路");
         let mut b = vec![0x0a];
         b.extend(a.x.to_le_bytes());
         b.extend(a.y.to_le_bytes());
         b.push(heading);
         Ok(b)
+    }
+    /// Shared terrain preflight. No packet or prediction is produced for an
+    /// unloaded sector, blocked edge, wrong map, or restricted local actor.
+    pub fn checked_move_request(
+        &self,
+        heading: u8,
+        navigation: &super::native_navigation::Navigation,
+    ) -> Result<Vec<u8>> {
+        ensure!(self.map_id.map(u32::from) == Some(navigation.map_id), "movement map mismatch");
+        let body = self.move_request(heading)?;
+        let own = self.own_actor().context("local actor absent")?;
+        ensure!(navigation.can_step_with_edges(i32::from(own.x), i32::from(own.y), heading,
+            |x, y, direction| super::native_doors::edge_override(self, x, y, direction)),
+            "map edge blocks movement");
+        Ok(body)
+    }
+    /// The single TCP owner must accept the exact opcode-only acknowledgement
+    /// before a mode-17 release can be consumed. Duplicate S_BLINKs coalesce.
+    pub fn acknowledge_movement_lock(
+        &mut self,
+        send: impl FnOnce(&[u8]) -> Result<()>,
+    ) -> Result<bool> {
+        if self.movement_lock != MovementLock::AckPending { return Ok(false); }
+        send(&[0x5a])?;
+        self.movement_lock = MovementLock::AwaitRelease;
+        Ok(true)
     }
     /// Accepted Tournament movement has no self echo. Keep prediction explicit
     /// until an authoritative object/position packet replaces it.
@@ -429,6 +549,21 @@ impl World {
     pub fn ready(&self) -> bool {
         !self.observer_mode && self.started && self.portal.is_none() && self.own_actor().is_some()
     }
+    /// C_ADDR body for the current challenge, only while a supported reply is pending.
+    pub fn integrity_reply(&self) -> Option<[u8; 13]> {
+        use super::native_integrity::{Challenge, Status};
+        let [id, address, length] = self.integrity_challenge?;
+        (self.integrity_status == Status::ReplyPending)
+            .then(|| Challenge { id, address, length }.compatibility_proof())
+            .flatten()
+    }
+    /// Record that the pending reply entered the owning connection's queue.
+    pub fn integrity_reply_queued(&mut self) {
+        use super::native_integrity::Status;
+        if self.integrity_status == Status::ReplyPending {
+            self.integrity_status = Status::ReplyQueued;
+        }
+    }
     pub fn finish_portal_if_ready(&mut self)->Result<bool>{
         let Some(pending)=self.portal else{return Ok(false)};
         let Some(actor)=self.own_actor()else{return Ok(false)};
@@ -438,11 +573,70 @@ impl World {
     /// False means another subsystem owns the opcode. Unknown world opcodes
     /// are listed explicitly; receipt does not imply their behavior is implemented.
     pub fn accept(&mut self, b: &[u8]) -> Result<bool> {
+        let now = super::native_status4183::now_ms();
+        self.accept_at(b, now, now)
+    }
+    pub(crate) fn accept_at(&mut self, b: &[u8], received_ms: u64, dispatched_ms: u64) -> Result<bool> {
+        ensure!(received_ms <= dispatched_ms, "packet dispatch precedes receipt");
+        // Keep the previous scheduler across world resets long enough to retire
+        // its leases. Failed parsing must not consume any scheduler state.
+        let mut status = std::mem::take(&mut self.status4183);
+        self.packet_ms = received_ms;
+        let accepted = match self.accept_inner(b) {
+            Ok(accepted)=>accepted,
+            Err(error)=>{self.status4183=status;return Err(error);}
+        };
+        if accepted {
+            let put = (b.first() == Some(&0x0b)).then(||u32::from_le_bytes(b[5..9].try_into().unwrap()));
+            status.synchronize(self, put, received_ms, dispatched_ms);
+        }
+        self.status4183 = status;
+        Ok(accepted)
+    }
+    pub(crate) fn poll_status4183(&mut self, now_ms: u64) -> Result<()> {
+        self.status4183.poll(now_ms, &mut self.visual_revision)
+    }
+    /// Retires server-timed leases. An elapsed own S_SPEED timer returns the
+    /// local actor to normal speed, as the native local timer does.
+    pub fn poll_status_icons(&mut self, now_ms: u64) -> bool {
+        let expired = self.status_icons.poll(now_ms);
+        if expired.is_empty() {
+            return false;
+        }
+        if expired.contains(&super::native_status_icons::Key::Speed) {
+            if let Some(a) = self.status.and_then(|s| self.actors.get_mut(&s.object_id)) {
+                a.speed = 0;
+                a.speed_seconds = 0;
+            }
+        }
+        self.visual_revision += 1;
+        true
+    }
+    fn set_mp(&mut self, value: [u16; 2]) {
+        if self.mp != Some(value) {
+            self.mp = Some(value);
+            self.mp_notifications += 1;
+        }
+    }
+    fn accept_inner(&mut self, b: &[u8]) -> Result<bool> {
         let op = *b.first().context("empty world packet")?;
         let mut r = Reader { b, at: 1 };
+        // S_MESSAGE also carries room rules and start refusals before S_WORLD.
+        if op == 0x0f {
+            let kind = r.c()?;
+            let text = r.s()?;
+            r.end()?;
+            ensure!(!text.is_empty(), "empty system message");
+            let revision = self.revision.checked_add(1).context("world revision")?;
+            self.system_message_count += 1;
+            self.last_system_message = Some((kind, text));
+            self.revision = revision;
+            return Ok(true);
+        }
         if op==0x5a{
             let destination=super::native_portal::parse(b)?;ensure!(self.ready(),"portal before ready world or repeated pending portal");
             let object_id=self.own_actor().unwrap().id;let generation=self.generation.checked_add(1).context("portal generation")?;
+            self.retire_static_effects();
             *self=Self{portal:Some(super::native_portal::Pending{destination,object_id}),completed_portals:self.completed_portals,
                 map_id:Some(destination.map),generation,started:true,learned_skills:std::mem::take(&mut self.learned_skills),
                 relations:std::mem::take(&mut self.relations),..Default::default()};
@@ -480,8 +674,11 @@ impl World {
             let underwater = r.c()?;
             r.end()?;
             let generation = self.generation.checked_add(1).context("world generation")?;
+            self.retire_static_effects();
+            let native_view_anchor=self.native_anchor_cell();
             *self = Self {
                 observer_mode: self.observer_mode,
+                native_view_anchor,
                 learned_skills: std::mem::take(&mut self.learned_skills),
                 relations: std::mem::take(&mut self.relations),
                 map_id: Some(map),
@@ -534,10 +731,14 @@ impl World {
                 let event = Resurrection { target: r.d()?, action: r.c()?, source: r.d()?, graphics: r.h()? };
                 r.end()?;
                 ensure!(event.target != 0 && event.source != 0, "zero resurrection identity");
+                // Settlement is terminal for this world, even if a scheduled
+                // revival was already queued by the server.
+                if self.battle_result.is_some() { return Ok(true); }
+                let count = self.resurrection_packets.checked_add(1).context("resurrection counter exhausted")?;
+                let revision = self.visual_revision.checked_add(1).context("resurrection revision exhausted")?;
                 if let Some(a) = self.actors.get_mut(&event.target) {
                     // A new life retires held death, old selections and projectile
                     // arrivals. HP and ratio still await their own server packets.
-                    let revision = self.visual_revision + 1;
                     a.incarnation = revision;
                     a.target_revision = revision;
                     a.action_sequence = revision;
@@ -549,6 +750,7 @@ impl World {
                     a.draw_state.native_light_dead = false;
                     a.graphics = event.graphics;
                     a.walk_action = event.action;
+                    self.resurrection_relocations.insert(event.target);
                     self.projectiles.retain(|p| p.attacker != event.target && p.target != event.target);
                     if self.status.is_some_and(|s| s.object_id == event.target) {
                         self.death_confirmation_pending = false;
@@ -558,7 +760,7 @@ impl World {
                 } else {
                     self.orphan_updates += 1;
                 }
-                self.resurrection_packets += 1;
+                self.resurrection_packets = count;
                 self.last_resurrection = Some(event);
             }
             0xe2 => {
@@ -648,10 +850,6 @@ impl World {
                     self.orphan_updates += 1;
                 }
             }
-            0x0f => {
-                let kind=r.c()?;let text=r.s()?;r.end()?;ensure!(!text.is_empty(),"empty system message");
-                self.system_message_count+=1;self.last_system_message=Some((kind,text));
-            }
             0x10 => {
                 ensure!(b.len() <= 8192, "message byte budget");
                 let code = r.h()?;
@@ -663,7 +861,7 @@ impl World {
                 r.end()?;
                 self.message_count += 1;
                 self.last_message = Some((code, args));
-                if matches!(code, 276 | 278 | 280 | 285 | 299 | 316 | 352) {
+                if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352) {
                     self.last_skill_rejection = Some((self.message_count, code));
                 }
             }
@@ -689,7 +887,8 @@ impl World {
                     .map(|id| [self.actors[&id].x, self.actors[&id].y])
                     .unwrap_or(position);
                 if self.effects.len() == 128 {
-                    self.effects.remove(0);
+                    let retired = self.effects.remove(0);
+                    if let Some(receipt) = self.static_effect_receipts.remove(&retired.sequence) { receipt.retire(); }
                     self.effects_dropped += 1;
                 }
                 self.effects.push(super::native_skills::Effect {
@@ -722,6 +921,8 @@ impl World {
                 ensure!(matches!(result, -1..=1), "invalid battle result");
                 ensure!(self.battle_result.is_none(), "duplicate battle result");
                 self.battle_result = Some(result);
+                self.death_confirmation_pending = false;
+                self.resurrection_relocations.clear();
                 self.visual_revision += 1;
             }
             0xdb => {
@@ -748,7 +949,7 @@ impl World {
                 if let Some(actor)=self.actors.get(&attack.caster).filter(|a|!a.dead) {
                     if self.many_attacks.len()==128 {self.many_attacks.remove(0);self.many_attacks_dropped+=1;}
                     let targets=attack.targets.iter().map(|t|(t.id,t.hit,self.actors.get(&t.id).map(|a|a.incarnation))).collect();
-                    self.many_attacks.push(super::native_attack_many::Cue{attack:attack.clone(),caster_incarnation:actor.incarnation,action_sequence:actor.action_sequence,targets});
+                    self.many_attacks.push(super::native_attack_many::Cue{target_origin:super::native_attack_many::capture_target_origin(&attack,&self.actors),attack:attack.clone(),caster_incarnation:actor.incarnation,action_sequence:actor.action_sequence,targets});
                 }
                 if let Some(a)=self.actors.get_mut(&attack.caster){a.heading=attack.heading;}
                 self.attack_packets+=1;
@@ -760,10 +961,10 @@ impl World {
                     self.unhandled_opcodes.insert(op);
                     return Ok(false);
                 };
-                let spell = attack
-                    .projectile
-                    .as_ref()
-                    .is_some_and(|p| p.flight_type == 0);
+                let spell = attack.projectile.as_ref().is_some_and(|p| {
+                    (p.flight_type == 0 || matches!(attack.action, 18 | 19))
+                        && !super::native_projectiles::supports_graphics(p.graphics)
+                });
                 self.action(
                     attack.attacker,
                     attack.action,
@@ -793,15 +994,15 @@ impl World {
                 if let Some(a) = self.actors.get_mut(&attack.attacker) {
                     a.heading = attack.heading;
                 }
-                // Ordinary arrow hurt is released by presentation on arrival.
+                // Qualified class3 projectile hurt is released on arrival.
                 // Unknown projectile classes retain the previous fallback.
                 if attack.damage_marker > 0
                     && !attack.projectile.as_ref().is_some_and(|p| {
-                        (p.flight_type == 0x7f && p.graphics == 66)
-                            || (p.flight_type == 0 && (super::native_spell_projectiles::supports_graphics(p.graphics)
+                        super::native_projectiles::supports_graphics(p.graphics)
+                            || super::native_spell_projectiles::supports_graphics(p.graphics)
                                 || super::native_class1::supports_graphics(p.graphics)
                                 || super::native_disintegrate::supports_graphics(p.graphics)
-                                || super::native_cone_cold::supports_graphics(p.graphics)))
+                                || super::native_cone_cold::supports_graphics(p.graphics)
                     })
                 {
                     self.action(attack.target, 2, "damage");
@@ -845,6 +1046,7 @@ impl World {
                 let ratio = r.c()?;
                 r.end()?;
                 ensure!(id != 0 && ratio <= 100, "invalid HP ratio");
+                self.resurrection_relocations.remove(&id);
                 if let Some(a) = self.actors.get_mut(&id) {
                     a.hp_ratio = ratio;
                     self.visual_revision += 1;
@@ -898,6 +1100,7 @@ impl World {
                 );
                 self.door_attributes.retain(|_,r|r.owner.is_none_or(|(id,_)|id!=a.id));
                 if self.actors.contains_key(&a.id) {self.minimap.remove(a.id);}
+                self.resurrection_relocations.remove(&a.id);
                 self.actors.insert(a.id, a);
                 self.visual_revision += 1;
             }
@@ -913,8 +1116,9 @@ impl World {
                 // authoritative destination is one step in the wire heading.
                 let (x, y) = destination(x, y, heading)?;
                 if let Some(a) = self.actors.get_mut(&id) {
-                    a.motion_from = if self.status.is_some_and(|s| s.object_id == id) {
-                        None // Own S_MOVE_OBJECT is authoritative correction, not a new prediction.
+                    let respawn = self.resurrection_relocations.remove(&id);
+                    a.motion_from = if respawn || self.status.is_some_and(|s| s.object_id == id) {
+                        None // Respawn and own corrections relocate, without a predicted step.
                     } else {
                         Some(source) // Original4E1870 starts at the received source cell, including corrections.
                     };
@@ -947,6 +1151,11 @@ impl World {
                 let id = r.d()?;
                 r.end()?;
                 ensure!(id != 0, "zero removed actor");
+                if id == u32::MAX {
+                    self.visual_revision += 1;
+                    self.retained_projectile_removed_at = self.visual_revision;
+                }
+                self.resurrection_relocations.remove(&id);
                 if self.minimap.remove(id) {self.visual_revision += 1;}
                 if self.actors.remove(&id).is_some() {
                     self.door_attributes.retain(|_,r|r.owner.is_none_or(|(owner,_)|owner!=id));
@@ -956,6 +1165,9 @@ impl World {
             0x63 => {
                 r.end()?;
                 self.movement_locks += 1;
+                if self.movement_lock == MovementLock::Open {
+                    self.movement_lock = MovementLock::AckPending;
+                }
             }
             0x25 => {
                 let mode = r.c()?;
@@ -965,9 +1177,15 @@ impl World {
                     "unverified paralysis mode"
                 );
                 if mode == 17 {
-                    // Formal 6928A147 C35 acknowledgement: movement-lock
-                    // release is not a cure for independently timed controls.
+                    // Unsolicited/duplicate releases cannot acknowledge a new
+                    // lock or cure independently timed movement restrictions.
+                    if self.movement_lock == MovementLock::AwaitRelease {
+                        self.movement_lock = MovementLock::Open;
+                    }
                 } else if mode % 2 == 0 {
+                    // Restrictions (including Quake mode24) can race a queued
+                    // C_MOVE. They carry no coordinates or per-step acceptance:
+                    // keep prediction explicit, never guess a rollback or ACK.
                     if self.movement_blocks.insert(mode) {
                         self.control_interruptions += 1;
                     }
@@ -986,6 +1204,10 @@ impl World {
                 );
                 if op == 0x29 {
                     super::native_speed::factor(mode, 0, 0)?;
+                    // Only the local actor turns the writeH duration into a timer.
+                    if self.status.is_some_and(|s| s.object_id == id) {
+                        self.status_icons.speed(mode, seconds, self.packet_ms);
+                    }
                 } else {
                     super::native_speed::factor(0, mode, 0)?;
                 }
@@ -1010,8 +1232,19 @@ impl World {
                     self.visual_revision += 1;
                 }
                 self.hp = Some([s.current_hp, s.maximum_hp]);
-                self.mp = Some([s.current_mp, s.maximum_mp]);
+                self.resurrection_relocations.remove(&s.object_id);
+                self.set_mp([s.current_mp, s.maximum_mp]);
                 self.status = Some(s);
+            }
+            0x7b if matches!(b.get(1), Some(&20 | &40 | &56)) => {
+                if self.status_icons.accept_event(b, self.packet_ms)? {
+                    self.visual_revision += 1;
+                }
+            }
+            0x6d => {
+                if self.status_icons.accept_shield(b, self.packet_ms)? {
+                    self.visual_revision += 1;
+                }
             }
             0xe9 => {
                 let t = r.d()?;
@@ -1023,23 +1256,29 @@ impl World {
                 r.end()?;
                 self.game_time = Some(time);
             }
-            0x7b if b.get(1) == Some(&33) => {
-                r.c()?;
-                let challenge = [r.d()?, r.d()?, r.d()?];
-                r.end()?;
-                ensure!(
-                    challenge.iter().all(|v| *v != 0),
-                    "invalid integrity challenge"
-                );
-                self.integrity_challenge = Some(challenge);
+            super::native_opcodes::S_EVENT if b.get(1) == Some(&33) => {
+                use super::native_integrity::{Challenge, Status};
+                let challenge = Challenge::parse(b)?;
+                let repeated = self.integrity_challenge == Some(challenge.fields())
+                    && self.integrity_status == Status::ReplyQueued;
+                self.integrity_challenge = Some(challenge.fields());
+                // A repeated, already answered challenge is not answered twice.
+                if !repeated {
+                    self.integrity_status = if challenge.compatibility_proof().is_some() {
+                        Status::ReplyPending
+                    } else {
+                        Status::UnsupportedRange
+                    };
+                }
             }
             0x4d | 0x0d => {
                 let value = [r.h()?, r.h()?];
                 r.end()?;
                 if op == 0x4d {
-                    self.mp = Some(value)
+                    self.set_mp(value)
                 } else {
-                    self.hp = Some(value)
+                    self.hp = Some(value);
+                    if let Some(s) = self.status { self.resurrection_relocations.remove(&s.object_id); }
                 }
             }
             _ => {

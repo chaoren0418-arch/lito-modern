@@ -24,13 +24,19 @@ struct FaultPeer {
 }
 impl FaultPeer {
     fn new() -> Self {
-        let listener=TcpListener::bind("127.0.0.1:0").unwrap(); listener.set_nonblocking(true).unwrap();
+        Self::at("127.0.0.1:0".parse().unwrap())
+    }
+    fn at(address: SocketAddr) -> Self {
+        Self::waiting_at(address, Duration::from_secs(5))
+    }
+    fn waiting_at(address: SocketAddr, accept_timeout: Duration) -> Self {
+        let listener=TcpListener::bind(address).unwrap(); listener.set_nonblocking(true).unwrap();
         let peer=listener.local_addr().unwrap(); let (tx, rx)=mpsc::channel::<Emission>();
         let commands=Arc::new(Mutex::new(Vec::new())); let log=commands.clone();
         let accepted=Arc::new(AtomicUsize::new(0)); let count=accepted.clone();
         let stop=Arc::new(AtomicBool::new(false)); let ending=stop.clone();
         let worker=thread::spawn(move || -> anyhow::Result<()> {
-            let deadline=Instant::now()+Duration::from_secs(5);
+            let deadline=Instant::now()+accept_timeout;
             let mut socket=loop {
                 if ending.load(Ordering::Acquire) { return Ok(()) }
                 match listener.accept() {
@@ -91,6 +97,229 @@ impl FaultPeer {
     fn opcodes(&self)->Vec<u8> { self.commands.lock().unwrap().iter().map(|b|b[0]).collect() }
     fn close(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){h.join().unwrap().unwrap();} }
 }
+
+fn recovery_wait(peer: &FaultPeer) -> LoginController {
+    let mut c = LoginController::default();
+    c.start(peer.peer, Limits::default()).unwrap();
+    pump(&mut c, |c| c.state.phase == LoginPhase::ReadyForLogin);
+    c.game = true; c.readiness_acked = true; c.state.game_connected = true;
+    c.state.phase = LoginPhase::CharacterPending;
+    c.state.selected_source = Some("測試乙".into());
+    c.state.sources = vec![Source { name: "測試乙".into(), endpoint: peer.peer }];
+    c.state.selected_character = Some("TestKnight".into());
+    c.recovery_character = Some("TestKnight".into());
+    c.state.inventory.begin(c.transport.snapshot().epoch, "TestKnight").unwrap();
+    c.deadline = Some(Instant::now() - Duration::from_millis(1));
+    c
+}
+
+fn game_packet(key: &str) -> Vec<u8> {
+    let f: serde_json::Value = serde_json::from_str(include_str!("../../tests/fixtures/native-game-current.json")).unwrap();
+    let hex = f["packets"][key].as_str().unwrap();
+    (0..hex.len()).step_by(2).map(|i| u8::from_str_radix(&hex[i..i+2], 16).unwrap()).collect()
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_c8_waits_for_complete_directory_and_never_replays_c9() {
+    let mut peer = FaultPeer::new(); let mut c = recovery_wait(&peer);
+    let epoch = c.transport.snapshot().epoch;
+    c.poll();
+    assert_eq!(c.state.phase, LoginPhase::LoadingCharacters);
+    assert!(c.state.characters.is_empty() && c.state.selected_character.is_none());
+    assert!(c.recovery_character.is_none() && c.state.inventory.owner.is_none());
+    assert!(c.select_character(0).is_err());
+    pump(&mut c, |_| peer.opcodes().contains(&0xc8));
+    assert_eq!(*peer.commands.lock().unwrap(), vec![source_request("測試乙").unwrap().to_vec()]);
+    let deadline = c.deadline.unwrap();
+    assert!(deadline > Instant::now() + Duration::from_secs(7));
+    assert!(deadline <= Instant::now() + Duration::from_secs(8));
+    let received = c.transport.snapshot().negotiated.as_ref().unwrap().rx_counter;
+    peer.emit(vec![vec![3, 1]]);
+    pump(&mut c, |c| c.transport.snapshot().negotiated.as_ref().unwrap().rx_counter != received);
+    assert!(c.select_character(0).is_err());
+    assert_eq!(c.deadline, Some(deadline));
+    peer.emit(vec![game_packet("row")]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::CharactersReady);
+    assert_eq!(c.state.characters[0].name, "重建角色");
+    assert_eq!(c.state.directory_generation, 1);
+    assert_eq!(c.transport.snapshot().epoch, epoch);
+    assert_eq!(peer.opcodes(), vec![0xc8]);
+    c.select_character(0).unwrap();
+    pump(&mut c, |_| peer.opcodes().contains(&0xc9));
+    assert_eq!(*peer.commands.lock().unwrap(), vec![source_request("測試乙").unwrap().to_vec(), game_packet("select")]);
+    stop(&mut c); peer.close();
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_missing_character_refreshes_without_publishing_default_source() {
+    let mut peer = FaultPeer::new(); let mut c = recovery_wait(&peer);
+    c.state.phase = LoginPhase::LoadingCharacters;
+    c.state.selected_character = None; c.state.inventory.clear();
+    c.deadline = Some(Instant::now() + Duration::from_secs(8));
+    peer.emit(vec![vec![3, 0]]);
+    pump(&mut c, |_| peer.opcodes().contains(&0xc8));
+    assert_eq!(c.state.phase, LoginPhase::LoadingCharacters);
+    assert_eq!(c.state.directory_generation, 0);
+    assert!(c.state.characters.is_empty() && !c.directory.complete());
+    assert!(c.select_character(0).is_err());
+    peer.emit(vec![vec![3, 0]]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::CharactersReady);
+    assert_eq!(c.state.directory_generation, 1);
+    assert_eq!(peer.opcodes(), vec![0xc8]);
+    stop(&mut c); peer.close();
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_c8_timeout_is_bounded_and_cancel_cannot_restart_it() {
+    for cancel in [false, true] {
+        let mut peer = FaultPeer::new(); let mut c = recovery_wait(&peer);
+        c.poll(); pump(&mut c, |_| peer.opcodes().contains(&0xc8));
+        if cancel { c.cancel(); c.cancel(); }
+        else { c.deadline = Some(Instant::now() - Duration::from_millis(1)); }
+        pump(&mut c, |c| c.is_quiescent());
+        assert_eq!(c.state.phase, if cancel { LoginPhase::Closed } else { LoginPhase::Failed });
+        retired(&c);
+        assert!(c.teleport_recovery.is_none() && c.recovery_character.is_none());
+        assert_eq!(c.transport.snapshot().epoch, 1);
+        assert_eq!(peer.opcodes(), vec![0xc8]);
+        peer.close();
+    }
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_partial_inventory_fails_without_c8_retry() {
+    let mut peer = FaultPeer::new(); let mut c = recovery_wait(&peer);
+    c.state.inventory.batches = 1;
+    pump(&mut c, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+    retired(&c); peer.close();
+    assert!(peer.opcodes().is_empty());
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_refresh_is_not_available_to_a_direct_teleport() {
+    let mut old = FaultPeer::new(); let mut target = FaultPeer::new();
+    let mut c = seeded(&old);
+    old.emit(vec![bytes("availability"), endpoint(target.peer)]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+    target.emit(vec![game_packet("ready"), vec![3, 0]]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::Failed && c.is_quiescent());
+    retired(&c); old.close(); target.close();
+    assert!(c.state.error.as_deref().unwrap().contains("teleport character absent"));
+    assert!(!target.opcodes().contains(&0xc8) && !target.opcodes().contains(&0xc9));
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_natural_eight_second_waits_do_not_publish_or_retry() {
+    let mut peer = FaultPeer::new(); let mut c = recovery_wait(&peer);
+    let start = Instant::now();
+    c.deadline = Some(start + Duration::from_secs(8));
+    while c.state.phase == LoginPhase::CharacterPending {
+        c.poll();
+        assert!(start.elapsed() < Duration::from_secs(12), "continuation exceeded bound");
+        if start.elapsed() < Duration::from_secs(8) {
+            assert_eq!(c.state.phase, LoginPhase::CharacterPending);
+            assert!(peer.opcodes().is_empty());
+        }
+        thread::sleep(Duration::from_millis(5));
+    }
+    assert!(start.elapsed() >= Duration::from_secs(8));
+    assert_eq!(c.state.phase, LoginPhase::LoadingCharacters);
+    let confirmation = Instant::now();
+    while c.state.phase == LoginPhase::LoadingCharacters || !c.is_quiescent() {
+        c.poll();
+        assert!(confirmation.elapsed() < Duration::from_secs(12), "C8 exceeded bound");
+        thread::sleep(Duration::from_millis(5));
+    }
+    assert!(start.elapsed() >= Duration::from_secs(16));
+    assert_eq!(c.state.phase, LoginPhase::Failed);
+    retired(&c); peer.close();
+    assert_eq!(peer.opcodes(), vec![0xc8]);
+}
+
+fn authenticated_recovery_redirect(accept_timeout: Duration) -> (LoginController, FaultPeer, FaultPeer) {
+    let mut old = FaultPeer::new(); let mut target = FaultPeer::new();
+    let mut c = seeded(&old);
+    c.teleport.as_mut().unwrap().character = "重建角色".into();
+    old.emit(vec![bytes("availability"), endpoint(target.peer)]);
+    pump(&mut c, |c| c.transport.snapshot().epoch == 2 && c.state.phase == LoginPhase::GameLoginPending);
+    stop(&mut c); c.cancel(); c.poll(); retired(&c);
+    old.close(); target.close();
+    assert!(c.teleport_recovery.is_some());
+    let login = FaultPeer::at(old.peer);
+    let game = FaultPeer::waiting_at("127.0.0.1:0".parse().unwrap(), accept_timeout);
+    c.start(login.peer, Limits::default()).unwrap();
+    pump(&mut c, |c| c.state.phase == LoginPhase::ReadyForLogin);
+    assert!(login.opcodes().is_empty(), "cancel must not auto-login");
+    c.login("SyntheticAccount", "SyntheticOnly").unwrap();
+    let mut sources = vec![0x3b, 1];
+    sources.extend(crate::modern_lito::native_login::encode_text("測試乙", 63).unwrap().iter());
+    sources.push(0); sources.extend([127, 0, 0, 1]); sources.extend(game.peer.port().to_le_bytes());
+    login.emit(vec![vec![0xe7], sources]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::SourcesReady);
+    c.select_source(0).unwrap();
+    assert!(c.teleport_recovery.is_none());
+    login.emit(vec![endpoint(game.peer)]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::RedirectReady);
+    (c, login, game)
+}
+
+#[cfg_attr(test, test)]
+pub fn recovery_after_second_cancel_uses_explicit_login_and_source_once() {
+    let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(5));
+    c.begin_game().unwrap();
+    pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+    game.emit(vec![game_packet("ready"), vec![3, 1], game_packet("row"), vec![0xc8, 0], bytes("inventory")]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::CharacterSelected && c.state.inventory.batches > 0);
+    assert_eq!(c.state.selected_character.as_deref(), Some("重建角色"));
+    assert!(c.recovery_character.is_none());
+    stop(&mut c); login.close(); game.close();
+    assert_eq!(login.opcodes(), vec![1, 0xc8]);
+    assert!(!game.opcodes().contains(&0xc8) && !game.opcodes().contains(&0xc9));
+    assert!(c.teleport_recovery.is_none());
+}
+
+// Integration supplies the same natural 31s observer used by the owned E149
+// entry. The peer provides only synthetic packets, never a claimed server TTL.
+pub fn recovery_after_source_wait_confirms_directory(
+    observe: impl FnOnce(&mut LoginController) -> anyhow::Result<u128>,
+) {
+    let (mut c, mut login, mut game) = authenticated_recovery_redirect(Duration::from_secs(40));
+    let epoch = c.transport.snapshot().epoch;
+    let start = Instant::now();
+    let observed = observe(&mut c).unwrap();
+    assert!(start.elapsed() >= Duration::from_secs(31) && observed >= 31000);
+    assert_eq!(c.transport.snapshot().epoch, epoch);
+    assert_eq!(game.accepted.load(Ordering::Acquire), 0, "GAME opened during source wait");
+    c.begin_game().unwrap();
+    pump(&mut c, |c| c.state.phase == LoginPhase::GameLoginPending);
+    // Simulate a complete empty default-source directory after source expiry.
+    game.emit(vec![game_packet("ready"), vec![3, 0]]);
+    pump(&mut c, |_| game.opcodes().contains(&0xc8));
+    assert_eq!(c.state.phase, LoginPhase::LoadingCharacters);
+    assert!(c.state.characters.is_empty() && c.recovery_character.is_none());
+    assert_eq!(c.state.directory_generation, 0);
+    retired(&c);
+    assert!(c.select_character(0).is_err());
+    let rx = c.transport.snapshot().negotiated.as_ref().unwrap().rx_counter;
+    game.emit(vec![vec![3, 1]]);
+    pump(&mut c, |c| c.transport.snapshot().negotiated.as_ref().unwrap().rx_counter > rx);
+    assert_eq!(c.state.phase, LoginPhase::LoadingCharacters);
+    assert!(c.select_character(0).is_err());
+    game.emit(vec![game_packet("row")]);
+    pump(&mut c, |c| c.state.phase == LoginPhase::CharactersReady);
+    assert_eq!(c.state.directory_generation, 1);
+    assert!(c.state.selected_character.is_none() && c.state.inventory.owner.is_none());
+    assert!(!game.opcodes().contains(&0xc9), "C9 sent before explicit choice");
+    let c8 = source_request("測試乙").unwrap().to_vec();
+    assert_eq!(game.commands.lock().unwrap().iter().filter(|b| b[0] == 0xc8).collect::<Vec<_>>(), vec![&c8]);
+    c.select_character(0).unwrap();
+    pump(&mut c, |_| game.opcodes().contains(&0xc9));
+    assert_eq!(c.state.selected_character.as_deref(), Some("重建角色"));
+    stop(&mut c); login.close(); game.close();
+    assert!(c.teleport_recovery.is_none() && c.recovery_character.is_none());
+    assert_eq!(c.transport.snapshot().epoch, epoch + 1);
+    assert_eq!(game.opcodes().iter().filter(|&&op| op == 0xc9).count(), 1);
+}
 impl Drop for FaultPeer {
     fn drop(&mut self) { self.stop.store(true,Ordering::Release); if let Some(h)=self.worker.take(){if let Ok(Err(error))=h.join(){eprintln!("synthetic peer {} failed: {error:#}",self.peer);}} }
 }
@@ -124,6 +353,54 @@ fn retired(c:&LoginController) {
     assert!(c.state.selected_character.is_none() && c.state.services.is_none());
 }
 fn stop(c:&mut LoginController) { c.cancel(); pump(c,|c|c.is_quiescent()); }
+
+#[cfg_attr(test, test)]
+pub fn skill5_portal_ack_is_once_and_cancel_retires_the_request() {
+    let mut peer=FaultPeer::new();let mut c=seeded(&peer);
+    c.teleport=None;c.state.merchant.clear();c.state.joined_room=None;
+    c.state.phase=LoginPhase::WorldReady;
+    let epoch=c.transport.snapshot().epoch;
+    c.state.environment.begin(epoch).unwrap();
+    c.state.world.learned_skills.insert(5);
+    let map=c.state.world.map_id.unwrap();let own=c.state.world.own_actor().unwrap();
+    let destination=super::super::native_portal::Destination{map,x:own.x+1,y:own.y};
+    c.teleport_spell=Some((super::super::native_navigation::InputStamp::capture(epoch,&c.state.world),Instant::now(),map));
+    let mut portal=vec![0x5a];portal.extend(map.to_le_bytes());portal.extend(destination.x.to_le_bytes());portal.extend(destination.y.to_le_bytes());
+    peer.emit(vec![portal.clone()]);
+    pump(&mut c,|c|c.state.world.portal.is_some());
+    assert!(c.teleport_spell.is_none());assert_eq!(c.state.world.portal.unwrap().destination,destination);
+    pump(&mut c,|_|peer.opcodes().contains(&8));
+    let before=serde_json::to_value(&c.state).unwrap();
+    assert!(c.accept_game(&portal).is_err());assert_eq!(serde_json::to_value(&c.state).unwrap(),before);
+    assert_eq!(peer.opcodes().iter().filter(|&&op|op==8).count(),1);
+    stop(&mut c);peer.close();assert!(c.teleport_spell.is_none());
+}
+#[cfg_attr(test, test)]
+pub fn skill5_cancel_eof_rejection_and_timeout_never_send_portal_ack() {
+    for case in 0..4 {
+        let mut peer=FaultPeer::new();let mut c=seeded(&peer);
+        c.teleport=None;c.state.merchant.clear();c.state.joined_room=None;
+        c.state.phase=LoginPhase::WorldReady;c.state.world.learned_skills.insert(5);
+        let epoch=c.transport.snapshot().epoch;let now=Instant::now();
+        let since=if case==3 {now-Duration::from_secs(3)} else {now};
+        c.teleport_spell=Some((super::super::native_navigation::InputStamp::capture(epoch,&c.state.world),since,c.state.world.map_id.unwrap()));
+        c.skill_pending=Some(super::super::native_skills::Pending{since,
+            casts:c.state.world.own_cast_packets,messages:c.state.world.message_count,
+            generation:c.state.world.generation,incarnation:c.state.world.own_actor().unwrap().incarnation});
+        c.state.skill_feedback=super::super::native_skills::Feedback::Pending;
+        let position=c.state.world.own_actor().map(|a|(a.x,a.y));
+        match case {
+            0=>stop(&mut c),
+            1=>{peer.write(vec![],None,true);pump(&mut c,|c|c.state.phase==LoginPhase::Failed&&c.is_quiescent());},
+            2=>{peer.emit(vec![vec![0x10,0x14,1,0]]);pump(&mut c,|c|c.skill_pending.is_none());
+                assert_eq!(c.state.skill_feedback,super::super::native_skills::Feedback::Rejected(276));},
+            _=>{c.poll();assert_eq!(c.state.skill_feedback,super::super::native_skills::Feedback::NoResponse);},
+        }
+        assert!(c.teleport_spell.is_none());assert!(c.state.world.portal.is_none());
+        if case>=2 {assert_eq!(c.state.world.own_actor().map(|a|(a.x,a.y)),position);}
+        stop(&mut c);peer.close();assert!(!peer.opcodes().contains(&8));
+    }
+}
 fn record(name:&str,c:&LoginController,peers:&[&FaultPeer],extra:serde_json::Value) {
     let profile=if cfg!(debug_assertions){"Debug"}else{"Release"};
     let path=Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current/verification/native-teleport-wire").join(profile);

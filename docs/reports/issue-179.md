@@ -8,7 +8,34 @@
 
 **本張尚不能完整結案**：TW 治療資源資格不符仍需處理，不能放寬 `tower_assets.rs` 門檻；特殊 useType 6／29／28／31–36 的伺服器阻塞見下表。本輪實際測試結果及未修改基準分支對照列於下方。
 
-## 已驗證
+## 第 3 次（2026-11-12，claude-local）：與 main 同步
+
+本輪接手卡在合併佇列的舊分支，只做同步與合併後修正，**沒有新增本張範圍外功能**。
+
+### 做了什麼
+- `git merge origin/main`（885c5c0）。衝突 5 檔：`native_item_actions.rs`（3 處，兩邊內容相同，取 main）、`native_login.rs`（4 處）、`native_login_window.rs`（6 處）、`native_skill_selection.rs`、`native_skills.rs`。
+- **物品技能改用 main 的設計**：main 由 #145（T027 批一）已加入 `native_skills::ItemTarget`（含連線 epoch、InputStamp、背包 revision、地圖快照）與 `item_targeted`／`cast_item(&ItemTarget)`，背包開著時選物品施放。本分支舊的 `inventory_target`／`item_request(s, skill, &Choice)`／「關閉背包後施放」流程已移除，改將 main 的 `item_targeted` 由 `12|21|100` 擴充為本張要求的 `12|21|73|100|107`。`native_login.rs` 衝突全取 main（含 `cast_with_input`、傳送書籤、`CombatInput`）。
+- `native_login_window.rs`：保留本分支的 C76 銷毀、選項送出／取消、信件欄位；移除殘留的 `skill_item_choice`，技能說明文字改用 `skill_item_target`。
+- **修正合併後的控制 ID 衝突**：本分支 `ITEM_MAIL` 與 main 的 `SKILL_LABEL` 同為 318（`cargo check` 出現 unreachable pattern 警告，會讓信件按鈕與技能標籤共用同一 HWND ID）。`ITEM_MAIL` 改為未使用的 321。
+- `native_skill_selection.rs`：保留 73／107 的「選取背包物品」標籤，12／21／100 用 main 既有標籤，預設分支用 main 的 `catalog::name`。
+- `tests/native_item_actions.rs`：兩個物品技能測試改用 `ItemTarget::capture(&s, 2, u32::MAX)` 與新簽名 `item_request(&s, 2, skill, &target)`；斷言內容（`14 row col FF FF FF FF`、未學會拒絕、charge 變動／物品移除拒絕、E149 fixture 向量）不變。
+
+### 怎麼驗證（本輪）
+| 指令 | 結束碼 |
+|---|---:|
+| `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets` | 0（無 error；本輪造成的 unreachable pattern 警告已清除） |
+| `cargo test <同參數> --no-run --test native_item_actions --test native_skills --test native_skill_selection --test native_t021 --test native_t027_batch1 --test native_item_sessions --test native_inventory` | 0（只編譯） |
+
+依使用者 2026-11-09 規定，本機**不執行**編譯出的測試程式；本輪沒有 `test result:` 原文。測試交 GitHub Actions（`cargo test --locked --lib`）；整合測試 target 未在 CI 執行，列為待驗證。下方「已驗證」各節是**第 2 次（合併前程式碼）**的本機結果，合併後未重跑，不能當成目前分支的通過證據。
+
+### 本輪待驗證
+1. 合併後 `native_item_actions`、`native_skills`、`native_t021`、`native_t027_batch1` 等整合測試的實跑結果（交 Codex／CI）。
+2. 73／107 改走 main 的 `ItemTarget` 路徑後，背包開著時施放的 UI 流程（原生 GUI 驗收）。
+3. `formal_item_session` 五情境合併後重跑。
+
+---
+
+## 已驗證（第 2 次，合併前程式碼）
 
 ### 做了什麼
 
@@ -23,7 +50,7 @@
 | 其他耗材 | 補已核對的 signed useType 預設分支 `F7–FA、FC–FE`；`FF` 因船票與其他物品共用同一值，維持拒絕，沒有用名稱／圖示猜測格式。 |
 | C76 | 新增「銷毀整疊」與獨立確認／取消，顯示來源物品；`76 d(objid)` 沒有數量欄位。改選物品後不能確認舊物品，S17 前不移除任何資料。 |
 | 選項生命週期 | 來源更新、換角色／連線、換場景或控制中斷後拒絕；Esc／取消／關閉背包會取消選項。單一物品 pending gate、逾時不重送。 |
-| 技能 12／21／73／100／107 | 新增 `native_skills::item_request`、`LoginController::cast_item`，送 `14 row col d(item_objid)`；已學會、存活、連線／物品快照與既有施法 gate 都保留。支援 BattlePending／WorldReady。先在背包選物品、關閉背包後施放；世界角色目標不能混用。 |
+| 技能 12／21／73／100／107 | 送 `14 row col d(item_objid)`；已學會、存活、連線／物品快照與既有施法 gate 都保留。支援 BattlePending／WorldReady。（第 3 次起改用 main 的 `ItemTarget`／`cast_item`，背包開著時選物品施放；本列原「關閉背包後施放」流程已移除。） |
 | unsigned ID | 以 `0xFEDCBA98`、`0xFFFFFFFF` 驗證雙目標、銷毀、五個技能及 S19／S1A／S17；既有背包模型本來就是 u32，沒有改成 signed。 |
 | Storm_Walk 42501 | 沿用已有的 type5 路徑及 `native-target-item-current.json`；本次重驗封包／失效選點／portal feedback，沒有重跑 SQL 或宣稱遊戲內傳送已驗收。 |
 | 生命之泉 | 保留 C14 地面請求，依 S4D、S1A／S17 更新 MP 與材料；不從物品名稱／icon 推算 40318。驗證送出不預扣、獨立權威 delta。 |
@@ -168,6 +195,8 @@ test result: FAILED. 10 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out;
 - 本報告：`docs/reports/issue-179.md`；沒有改 `docs/REPORT.md`。
 
 ## 給下一棒的提示
+
+- （第 3 次）分支已與 main 885c5c0 同步；物品技能唯一入口是 `native_skills::ItemTarget` + `item_targeted`（現含 73／107）。之後不要再加第二套 `Choice` 版施法路徑。新增視窗控制 ID 前先查 `native_login_window.rs` 的 const 表，避免再撞號（本輪 318 撞號已改 321）。
 
 Claude 審查本分支時請分別裁定：客戶端修正、正式五情境證據、逐項伺服器阻塞、TW 資源門檻。保持 T045 未完成；不要將 baseline 同樣失敗改記成通過。
 
