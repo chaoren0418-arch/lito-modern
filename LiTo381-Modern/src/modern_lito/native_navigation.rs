@@ -220,12 +220,14 @@ pub fn heading(key: usize) -> Option<u8> {
 #[derive(Clone,Copy,Debug,PartialEq,Eq)]
 pub struct InputStamp {
     epoch:u64, generation:u64, corrections:u64, locks:u64, interruptions:u64,
+    movement_lock:super::native_world::MovementLock,
     actor:Option<(u32,u64,bool)>, result:Option<i32>,
 }
 impl InputStamp {
     pub fn capture(epoch:u64,w:&super::native_world::World)->Self {
         Self{epoch,generation:w.generation,corrections:w.local_corrections,
             locks:w.movement_locks,interruptions:w.control_interruptions,
+            movement_lock:w.movement_lock,
             actor:w.own_actor().map(|a|(a.id,a.incarnation,a.dead)),result:w.battle_result}
     }
 }
