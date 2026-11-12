@@ -141,3 +141,4 @@
 - 2026-11-13 — #342 T060-1: T060（M3 1/1）: 聊天（code，claude-local，PR #366 已合併）→ [報告](reports/issue-342.md)
 - 2026-11-13 — #303 T031-1: T031（M3 1/2）: packaging/**：clean host 可攜交付（code，claude-local，PR #371 已合併）→ [報告](reports/issue-303.md)
 - 2026-11-13 — #341 T059-2: T059（M3 2/2）: 音效裝置生命週期（G09）（code，claude-local，PR #372 已合併）→ [報告](reports/issue-341.md)
+- 2026-11-13 — #329 T049-2: T049（M3 2/2）: src/：背包與介面文字（code，claude-local，PR 已合併）→ [報告](reports/issue-329.md)
