@@ -273,6 +273,13 @@ impl Ui {
                     SRCCOPY,
                 );
                 SetStretchBltMode(draw.hDC, STRETCH_BLT_MODE(mode));
+                if book
+                    && crate::modern_lito::native_inventory_icons::spell_icon_route(id).ok()
+                        == Some(crate::modern_lito::native_inventory_icons::SpellIconRoute::UnknownSpell)
+                {
+                    // Original S1E shows icon 91 for skills outside LTSpellDesc.
+                    label.push_str("〔原版未知技能圖示〕");
+                }
             } else if book {
                 label.push_str(if self.skill_icons.error(id).is_some() {
                     "〔圖示未提供〕"

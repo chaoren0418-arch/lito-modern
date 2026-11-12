@@ -119,7 +119,55 @@ pub struct Reader {
     root: PathBuf,
     ordinary: u32,
     lito: u32,
-    spell_index: Option<Vec<u16>>,
+}
+/// LiTo S1E skill-row icons (`word_508648`, 176 signed WORDs). Source: unpacked
+/// PE `LiTo.unpacked-oep-current.exe` SHA256 4271D92F…5C2AB6E9, VA 00508648,
+/// file offset 0x108648. Index is skill ID - 1 (S1E bit `group*8+bit`).
+/// The original handler (004AEEB5..004AEEF3) never reads shared SpellIcon.idx;
+/// that file differs for skills 79/111/118–120/167/172 and stops at 168.
+pub const LITO_SPELL_ICONS: [u16; 176] = [
+    383, 384, 385, 386, 387, 657, 663, 775, 388, 389, 390, 391, 392, 755, 651, 659,
+    393, 394, 395, 396, 397, 655, 848, 0, 398, 399, 400, 401, 402, 647, 746, 793,
+    403, 404, 405, 406, 407, 643, 791, 749, 408, 409, 410, 411, 412, 661, 850, 726,
+    413, 414, 415, 1578, 417, 622, 1570, 758, 418, 419, 420, 421, 422, 649, 784, 822,
+    1579, 424, 425, 426, 427, 653, 752, 1571, 428, 429, 1577, 1582, 432, 715, 1610, 1576,
+    0, 0, 0, 0, 0, 0, 1624, 1887, 1881, 2349, 2343, 0, 0, 0, 0, 0,
+    1097, 1100, 1103, 1106, 1109, 1112, 1115, 1118, 1121, 1124, 1127, 1130, 1574, 1575, 1611, 0,
+    894, 878, 875, 883, 885, 1751, 881, 888, 0, 0, 0, 0, 0, 0, 0, 0,
+    811, 731, 846, 1755, 1744, 1731, 0, 0, 743, 802, 0, 0, 0, 0, 0, 0,
+    820, 729, 871, 772, 853, 856, 761, 764, 767, 867, 733, 769, 891, 799, 723, 2340,
+    720, 869, 736, 796, 739, 825, 1621, 781, 1737, 1756, 1734, 828, 2346, 2355, 2352, 2337,
+];
+/// `LiTo/LTtext` LTSpellDesc-c.tbl: declared 176, 147 keyed rows
+/// (dword_647E20 / dword_647E24). An index is used only when its row exists.
+pub const LTSPELLDESC_DECLARED: u16 = 176;
+pub const LTSPELLDESC_ROWS: &[std::ops::RangeInclusive<u16>] =
+    &[0..=22, 24..=79, 86..=90, 96..=110, 112..=119, 128..=133, 136..=137, 144..=175];
+/// 004AEEEC: absent/out-of-range rows push icon 0x5B with "unknown spell".
+pub const UNKNOWN_SPELL_ICON: u16 = 91;
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum SpellIconRoute {
+    Lito(u16),
+    UnknownSpell,
+}
+impl SpellIconRoute {
+    pub fn graphic(self) -> u16 {
+        match self {
+            Self::Lito(g) => g,
+            Self::UnknownSpell => UNKNOWN_SPELL_ICON,
+        }
+    }
+}
+/// Pure mirror of the original S1E icon choice; never consults a buff table.
+pub fn spell_icon_route(skill: u16) -> Result<SpellIconRoute> {
+    let index = skill.checked_sub(1).context("技能 ID 0 無效")?;
+    if index < LTSPELLDESC_DECLARED && LTSPELLDESC_ROWS.iter().any(|r| r.contains(&index)) {
+        let graphic = LITO_SPELL_ICONS[usize::from(index)];
+        ensure!(graphic != 0, "原版技能圖示表為 0");
+        Ok(SpellIconRoute::Lito(graphic))
+    } else {
+        Ok(SpellIconRoute::UnknownSpell)
+    }
 }
 fn list_count(b: &[u8]) -> Result<u32> {
     ensure!(b.len() <= 16, "icon list budget");
@@ -155,7 +203,6 @@ impl Reader {
             root: root.into(),
             ordinary: 0,
             lito: 0,
-            spell_index: None,
         };
         r.ordinary = list_count(&r.member("list.ico", true, 16, cancel)?.1)?;
         r.lito = list_count(&r.member("LTlist.ico", false, 16, cancel)?.1)?;
@@ -203,27 +250,11 @@ impl Reader {
         let (archive, bytes) = self.member(&name, sharded, MAX_TBT_BYTES, cancel)?;
         Icon::decode(id, &archive, &name, &bytes, cancel)
     }
-    /// Spell IDs and graphic IDs are different namespaces. Consult the native
-    /// archive override first, then the shared one-based SpellIcon.idx.
+    /// Spell IDs and graphic IDs are different namespaces: the LiTo S1E table
+    /// (or the original unknown-spell icon 91) selects a shared `%d.tbt`.
     pub fn load_spell(&mut self, skill: u16, cancel: &AtomicBool) -> Result<Icon> {
-        if self.spell_index.is_none() {
-            let (_, bytes) = self.member("spellicon.idx", false, 440, cancel)?;
-            self.spell_index = Some(decode_spell_index(&bytes)?);
-        }
-        let graphic = spell_graphic(self.spell_index.as_ref().unwrap(), skill)?;
-        self.load(graphic, cancel)
+        self.load(spell_icon_route(skill)?.graphic(), cancel)
     }
-}
-
-fn decode_spell_index(bytes: &[u8]) -> Result<Vec<u16>> {
-    ensure!(!bytes.is_empty() && bytes.len() <= 440 && bytes.len() % 2 == 0,
-        "技能圖示索引長度錯誤");
-    Ok(bytes.chunks_exact(2).map(|p| u16::from_le_bytes([p[0], p[1]])).collect())
-}
-fn spell_graphic(index: &[u16], skill: u16) -> Result<u16> {
-    let graphic = skill.checked_sub(1).and_then(|i| index.get(usize::from(i)))
-        .copied().filter(|&id| id != 0).context("原始資源未提供此技能圖示")?;
-    Ok(graphic)
 }
 type Entry = std::result::Result<Icon, String>;
 struct Completion {
@@ -420,15 +451,44 @@ impl Drop for Service {
 mod skill_ui_tests {
     use super::*;
     #[test]
-    fn index_is_bounded_one_based_and_never_fabricates_an_icon() {
-        let index = decode_spell_index(&[0x7f, 1, 0, 0, 0x81, 1]).unwrap();
-        assert_eq!(spell_graphic(&index, 1).unwrap(), 383);
-        assert_eq!(spell_graphic(&index, 3).unwrap(), 385);
-        for id in [0, 2, 4, 206, u16::MAX] { assert!(spell_graphic(&index, id).is_err()); }
-        for bytes in [vec![], vec![1], vec![0; 442]] { assert!(decode_spell_index(&bytes).is_err()); }
-        let mut extended = vec![0; 440];
-        extended[438..].copy_from_slice(&20001u16.to_le_bytes());
-        assert_eq!(spell_graphic(&decode_spell_index(&extended).unwrap(), 220).unwrap(), 20001);
+    /// Exact 181-entry coverage: every catalog skill resolves, the unknown-spell
+    /// set is pinned, and the table entries that differ from shared
+    /// SpellIcon.idx stay on the LiTo value.
+    fn catalog_icon_route_is_complete_and_exact() {
+        use crate::modern_lito::native_skill_selection::catalog::CATALOG;
+        const UNKNOWN: &[u16] = &[
+            112, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195,
+            201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216,
+            217, 218, 219, 220,
+        ];
+        assert_eq!(CATALOG.len(), 181);
+        let rows: usize = LTSPELLDESC_ROWS.iter().map(|r| r.clone().count()).sum();
+        assert_eq!(rows, 147);
+        let mut unknown = Vec::new();
+        for &(id, _) in CATALOG {
+            match spell_icon_route(id).unwrap() {
+                SpellIconRoute::Lito(g) => assert!(g != 0 && g < 20000, "skill {id}"),
+                SpellIconRoute::UnknownSpell => unknown.push(id),
+            }
+        }
+        assert_eq!(unknown, UNKNOWN);
+        assert_eq!(CATALOG.len() - unknown.len(), 145);
+        for (id, g) in [
+            (1, 383), (2, 384), (3, 385), (4, 386), (58, 419), (63, 784), (79, 1610),
+            (87, 1624), (88, 1887), (89, 1881), (90, 2349), (91, 2343), (111, 1611),
+            (113, 894), (118, 1751), (132, 1755), (133, 1744), (134, 1731), (160, 2340),
+            (167, 1621), (169, 1737), (170, 1756), (171, 1734), (172, 828), (173, 2346),
+            (174, 2355), (175, 2352), (176, 2337),
+        ] {
+            assert_eq!(spell_icon_route(id).unwrap(), SpellIconRoute::Lito(g), "skill {id}");
+        }
+        assert_eq!(spell_icon_route(206).unwrap().graphic(), UNKNOWN_SPELL_ICON);
+        // Rows absent from LTSpellDesc and indices past its declared count.
+        assert_eq!(spell_icon_route(120).unwrap(), SpellIconRoute::Lito(888));
+        for id in [24, 81, 92, 121, 135, 177, 221, u16::MAX] {
+            assert_eq!(spell_icon_route(id).unwrap(), SpellIconRoute::UnknownSpell, "skill {id}");
+        }
+        assert!(spell_icon_route(0).is_err());
     }
     #[test]
     fn skill_cache_is_keyed_by_skill_and_shutdown_retires_assets() {
@@ -449,21 +509,34 @@ mod skill_ui_tests {
     fn real_skill_icons_and_async_service_preserve_mapping_and_missing_assets() {
         let root = PathBuf::from(std::env::var_os("LITO_CLIENT_ROOT").expect("LITO_CLIENT_ROOT"));
         let cancel = AtomicBool::new(false);
+        // The embedded row set must equal the actual LTtext LTSpellDesc-c.tbl.
+        let lt = root.join("LiTo");
+        let pin = |n: &str| super::super::native_world_scene::read_pin(&lt.join(n), 1024 * 1024, &cancel).unwrap();
+        let table = super::super::native_resources::read_native_text_optional(
+            &lt, pin("LTtext.idx"), pin("LTtext.pak"), "ltspelldesc-c.tbl", &cancel,
+        ).unwrap().expect("LTSpellDesc-c.tbl");
+        let mut lines = table.split(|&b| b == b'\n').map(|l| l.strip_suffix(b"\r").unwrap_or(l));
+        let declared: u16 = std::str::from_utf8(lines.next().unwrap()).unwrap().trim().parse().unwrap();
+        assert_eq!(declared, LTSPELLDESC_DECLARED);
+        let actual: BTreeSet<u16> = lines.filter_map(|l| {
+            let n = l.iter().take_while(|b| b.is_ascii_digit()).count();
+            (n > 0 && l.get(n) == Some(&b' ')).then(|| std::str::from_utf8(&l[..n]).unwrap().parse().unwrap())
+        }).collect();
+        let embedded: BTreeSet<u16> = LTSPELLDESC_ROWS.iter().flat_map(|r| r.clone()).collect();
+        assert_eq!(actual, embedded);
+        // Every catalog skill must decode its routed original graphic.
         let mut reader = Reader::open(&root, &cancel).unwrap();
-        for id in [1, 2, 3, 4, 58, 63] {
-            let icon = reader.load_spell(id, &cancel).unwrap();
-            assert!(icon.covered_pixels > 0);
-            let graphic = spell_graphic(reader.spell_index.as_ref().unwrap(), id).unwrap();
-            assert_eq!(icon.id, graphic);
-            println!("skill={id} graphic={graphic} source={}/{} sha256={}", icon.source.archive, icon.source.member, icon.source.sha256);
-        }
-        let mut available = 0;
-        let mut missing = Vec::new();
+        let mut unknown = Vec::new();
         for &(id, _) in crate::modern_lito::native_skill_selection::catalog::CATALOG {
-            if reader.load_spell(id, &cancel).is_ok() { available += 1; } else { missing.push(id); }
+            let route = spell_icon_route(id).unwrap();
+            let icon = reader.load_spell(id, &cancel)
+                .unwrap_or_else(|e| panic!("skill {id} graphic {}: {e:#}", route.graphic()));
+            assert_eq!(icon.id, route.graphic());
+            assert!(icon.covered_pixels > 0, "skill {id}");
+            if route == SpellIconRoute::UnknownSpell { unknown.push(id); }
+            println!("skill={id} graphic={} source={}/{} sha256={}", icon.id, icon.source.archive, icon.source.member, icon.source.sha256);
         }
-        println!("catalog icons available={available} missing={missing:?}");
-        assert_eq!(available + missing.len(), 181);
+        assert_eq!(unknown.len(), 36);
         let mut service = Service::spells(root);
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
         loop {
@@ -473,7 +546,8 @@ mod skill_ui_tests {
             std::thread::sleep(std::time::Duration::from_millis(2));
         }
         assert!(service.icon(1).is_some() && service.icon(3).is_some());
-        assert!(service.icon(206).is_some() || service.error(206).is_some());
+        assert_eq!(service.icon(206).unwrap().id, UNKNOWN_SPELL_ICON);
+        assert!(service.error(206).is_none());
         service.tick(&[]);
         assert_eq!(service.cached(), 0);
         service.cancel();
