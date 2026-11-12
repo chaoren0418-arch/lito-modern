@@ -78,7 +78,15 @@ PR 變成衝突狀態，再合併一次 main。main 這段時間在 `native_comb
 - `observe` 的中斷條件採 main 的生命比對，但目標 0（空揮）不檢查目標生命，否則空揮會一送出就被判成「已中止」。
 - `native_login.rs` 保留本張的 `empty_attack_with_input`，呼叫改用 `capture`；`native_resurrection_tests.rs`、`tests/native_combat.rs` 採 main 版本（`capture`），本張原本補的 `own_attack_log` 行不在衝突區、保留。
 - 合併後本機 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：`Finished dev profile ... in 3m 09s`，exit=0（既有警告，不宣稱零警告）。
-- 合併後的 `cargo test --lib` 結果以這次 push 後 PR #278 的 CI 為準，本機未執行（待驗證，結果會補在 PR 留言）。
+- 合併後第一輪 CI（run 43164321342，commit `b01cba8`）**失敗**，不算通過：
+
+```text
+test modern_lito::native_login::lifecycle_tests::lifecycle_tests_attack_wait_retires_on_target_or_attacker_replacement ... FAILED
+test result: FAILED. 2175 passed; 1 failed; 591 ignored; 0 measured; 0 filtered out; finished in 21.54s
+```
+
+  原因：main 新增的這個測試只把 `own_attack_packets` 加 1 來模擬回覆；本張規則要求回覆在 `own_attack_log` 裡指名同一目標才算確認（避免把他目標的延遲回覆當成確認）。已在測試補一行 `own_attack_log.push((count, id))`，和本張先前對 `tests/native_combat.rs` 的處理一致；程式行為不改。
+- 修正後的 CI 結果以下一次 push 的 PR #278 CI 為準（待驗證，會補在 PR 留言）。
 
 ## 推測
 
