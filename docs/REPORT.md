@@ -92,3 +92,4 @@
 - 2026-11-12 — #168 T029-2: T029（M2 2/2）: src/：非技能的戰鬥基礎（code，claude-local，PR 已合併）→ [報告](reports/issue-168.md)
 - 2026-11-12 — #193 T061-2: T061（M2 2/2）: src/：Ctrl 強制目標與目標選取政策（code，claude-local，PR #257 已合併）→ [報告](reports/issue-193.md)
 - 2026-11-12 — #191 T055-2: T055（M2 2/2）: src/：租裝來源整合（G06.3）（code，claude-local，PR 已合併）→ [報告](reports/issue-191.md)
+- 2026-11-12 — #179 T045-1: T045（M2 1/2）: src/：物品系統缺口（code，claude-local，PR #265 已合併）→ [報告](reports/issue-179.md)
