@@ -128,6 +128,8 @@ pub struct World {
     pub last_message: Option<(u16, Vec<String>)>,
     pub last_skill_rejection: Option<(u64, u16)>,
     pub last_summon_rejection: Option<(u64, u16)>,
+    /// Message sequence of the last S10 code 79; read only by item-targeted casts.
+    pub last_item_skill_rejection: Option<u64>,
     pub death_confirmation_pending: bool,
     pub death_confirmations_sent: u64,
     pub last_death_confirmed_action: Option<u64>,
@@ -865,6 +867,9 @@ impl World {
                 if matches!(code,353|743) {self.last_summon_rejection=Some((self.message_count,code));}
                 if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352) {
                     self.last_skill_rejection = Some((self.message_count, code));
+                }
+                if code == 79 {
+                    self.last_item_skill_rejection = Some(self.message_count);
                 }
             }
             0x37 | 0x53 => {

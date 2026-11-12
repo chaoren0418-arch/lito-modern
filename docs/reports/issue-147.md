@@ -110,6 +110,7 @@ PR #250 因 main 前進（#143／#194／#195／#261／#267 等）變成 DIRTY。
 合併後本機 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 2m 13s`）。本機仍未執行 `cargo test`（規定不得執行編譯產物），改看 PR CI，列為「待驗證」。
 
 - 推送後 main 又前進（#167／#170／#178／#190 等），再合併一次，衝突 2 檔：`native_skills.rs` 同時保留本批的召喚型別和 main 新增的 `#[cfg(test)] mod tests`；`native_world_scene.rs` 採用 main 的四類 History（`skills:[_;4]`、`retire_source`、`active_finite_sequences`），並把本批的 `spells`／`class1` 歷史接回 `for_source`（來源退役時 retire）、`merge_disintegrate_admission`、restore 和測試用的 `from_profiles`。再合併後 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 49s`）。
+- 第三次合併 main（#151 技能 101–109）：無目標技能改由 main 的 `native_skills::selector_only()` 判斷，53 加入該函式（`request` 與 `choice` 共用）；法術目標分支與距離表取聯集（45／46／47／50 加上 103／108）；`reuse_millis` 合併兩邊的值；`World` 同時保留 `last_summon_rejection` 和 main 的 `last_item_skill_rejection`。合併後 `cargo check …--all-targets`：**exit 0**（`Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 57s`）。
 ## 推測
 
 離線封包與原資源測試支持客戶端請求、解碼、守衛與指定呈現行為；不代表正式 E149 服務實際接受、機率／材料扣除或與原版逐像素、原生排程完全一致。

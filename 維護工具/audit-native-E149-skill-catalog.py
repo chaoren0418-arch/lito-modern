@@ -65,6 +65,36 @@ def parameter_fields(c,desc,trail=()):
  require(set(mapped)==fields and set(mapped.values())==set(range(len(params))),'incomplete constructor field binding')
  return {field:dict(kind='argument',index=index) for field,index in mapped.items()},dict(descriptor=desc,code_sha256=hashlib.sha256(method['code']['bytes']).hexdigest().upper(),assignments=assignments,argument_locals_not_modified=True,constructor_validation_executed=False)
 
+def source_ids(path):
+    """Recognize explicit request arms and the shared selector/item classifiers."""
+    text = path.read_text(encoding='utf-8-sig')
+    scope = text[text.index('pub fn request('):text.index('pub fn reuse_millis(')]
+    ids = set()
+    for match in re.finditer(r'^\s*((?:\d+\s*\|\s*)*\d+)\s*=>', scope, re.M):
+        ids.update(map(int, re.findall(r'\d+', match[1])))
+
+    def helper_ids(name):
+        pattern = (r'pub fn ' + name + r'\s*\(\s*skill\s*:\s*u16\s*\)\s*->\s*bool\s*'
+                   r'\{\s*matches!\(\s*skill\s*,\s*([\d\s|]+)\)\s*\}')
+        match = re.search(pattern, text)
+        require(match is not None or 'pub fn ' + name not in text,
+                name + ' classification syntax differs')
+        return set(map(int, re.findall(r'\d+', match[1]))) if match else set()
+
+    selectors = helper_ids('selector_only')
+    require(not selectors or re.search(r'\bid\s+if\s+selector_only\(id\)\s*=>', scope),
+            'selector helper is not wired into request')
+    ids.update(selectors)
+    ground_scope = text[text.index('pub fn ground_request('):text.index('pub fn in_native_screen(')]
+    ground = re.search(r'ensure!\(\s*matches!\(\s*skill\s*,\s*([\d\s|]+)\)', ground_scope)
+    require(ground is not None, 'ground arm syntax differs')
+    ground_ids = set(map(int, re.findall(r'\d+', ground[1])))
+    item_ids = helper_ids('item_targeted')
+    return dict(actor_or_selector_request_ids=sorted(ids), ground_request_ids=sorted(ground_ids),
+                inventory_request_ids=sorted(item_ids), all_request_ids=sorted(ids | ground_ids | item_ids),
+                path=str(path), sha256=sha(path))
+
+
 def main():
  w=read(R/'工作佇列.json');require(not w['active_workloads'] and not w['active_workload_sessions'] and not w['source_and_corresponding_QA_frozen'],'workload/freeze active');require(w['current_user_requested_goal']['test_execution_deferred_by_user'],'development-only phase required')
  ref=w['current_E149_object374448_development'];require(sha(ref['qualification'])==ref['qualification_sha256'],'latest source qualification changed');q=read(ref['qualification']);check_pins(q['source_pins']);cp=Path(q['candidate']);require(sha(cp)==q['candidate_sha256'],'source candidate changed');candidate=read(cp)
@@ -162,12 +192,6 @@ def main():
      if member['owner']!=CAT or (member['name'],member['descriptor']) not in factory_by_name:continue
      factory=factory_by_name[(member['name'],member['descriptor'])];record_descriptor=member['descriptor'][3:];helpers=[x for x in calls if record_descriptor in x['member']['descriptor'] and x['member']['owner']!=CAT]
      factory_calls.append(dict(factory=member,offset=call['offset'],client_method=method['name'],client_descriptor=method['descriptor'],code_sha256=hashlib.sha256(method['code']['bytes']).hexdigest().upper(),same_method_typed_helper_calls=helpers,record_argument_dataflow_verified=False,per_skill_branch_verified=False))
-   def source_ids(path):
-    text=path.read_text('utf-8-sig');scope=text[text.index('pub fn request('):text.index('pub fn reuse_millis(')];ids=set()
-    for match in re.finditer(r'^\s*((?:\d+\s*\|\s*)*\d+)\s*=>',scope,re.M):ids.update(map(int,re.findall(r'\d+',match[1])))
-    ground=re.search(r'ensure!\(matches!\(skill, ([0-9 |]+)\), "此地面技能尚未接入"\)',text);require(ground is not None,'ground arm syntax differs');ground_ids=set(map(int,re.findall(r'\d+',ground[1])))
-    item=re.search(r'pub fn item_targeted\(skill:u16\)->bool \{matches!\(skill,([0-9|]+)\)\}',text);item_ids=set(map(int,re.findall(r'\d+',item[1]))) if item else set()
-    return dict(actor_or_selector_request_ids=sorted(ids),ground_request_ids=sorted(ground_ids),inventory_request_ids=sorted(item_ids),all_request_ids=sorted(ids|ground_ids|item_ids),path=str(path),sha256=sha(path))
    normal=source_ids(P/'src/modern_lito/native_skills.rs');latest=source_ids(Path(candidate['effective_overlay_paths']['LiTo381-Modern/src/modern_lito/native_skills.rs']));catalog_ids=sorted({d['skill_id'] for d in definitions});missing=sorted(set(catalog_ids)-set(latest['all_request_ids']))
    byid=[dict(skill_id=i,definitions=[d for d in definitions if d['skill_id']==i],normal_request_recognized=i in normal['all_request_ids'],candidate_request_recognized=i in latest['all_request_ids'],current_learned_book_observed=False,gameplay_verified=False) for i in catalog_ids]
    facts=dict(catalog_class_sha256=class_pins[CAT],initializer_code_sha256=hashlib.sha256(code).hexdigest().upper(),initializer_instructions=len(rows),allocated_objects=len(allocations),initialized_static_fields=len(statics),opaque_helper_calls=opaque,static_maps=statics,constructor_bindings={key:proof for key,(_,proof) in binding_cache.items()},factories=factories,factory_calls=factory_calls,definitions_by_id=byid,unmapped_entries=unmapped,class_pins=class_pins)
