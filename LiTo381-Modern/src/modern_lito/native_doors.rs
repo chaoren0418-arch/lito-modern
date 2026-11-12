@@ -37,14 +37,28 @@ pub fn record(w:&World,id:u32)->Option<&Record>{
 pub fn blocks(w:&World,x:u16,y:u16)->bool {
     w.door_attributes.values().any(|r|r.attribute.position==[x,y]&&r.attribute.passable==65&&current_owner(w,r).is_some())
 }
+/// Unowned attributes are directional terrain updates (including boundaries).
+/// Qualified arena doors use BattleDoor.blocks(destination) instead: their
+/// attribute must not trap an actor already on the closing door's source cell,
+/// or open a static wall the server still checks independently.
+pub fn edge_override(w: &World, x: u16, y: u16, direction: u8) -> Option<bool> {
+    let key = Attribute { position: [x, y], direction, passable: 0 }.key();
+    let r = w.door_attributes.get(&key)?;
+    r.owner.is_none().then_some(r.attribute.passable == 65)
+}
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct Choice {
     pub epoch:u64,pub generation:u64,pub id:u32,pub incarnation:u64,
     pub attribute:Attribute,pub sequence:u64,
 }
+/// GameHub activates `siegeGate` instead of the interactive `door` in Siege War
+/// (room mode 3); openBattleDoor only accepts the latter and silently ignores
+/// any other object. The inner gate opens when two outer towers fall.
+pub fn operable(w:&World)->bool {w.encounter_mode!=Some(super::native_obstacles::EncounterMode::Siege)}
 impl Choice {
     pub fn capture(epoch:u64,w:&World,id:u32)->Result<Self>{
         let a=w.actors.get(&id).context("門已離開視野")?;
+        ensure!(operable(w),"攻城內門須摧毀外側守護塔才會開啟");
         let r=record(w,id).context("尚未取得可操作的門狀態")?;
         ensure!(w.actor_visible(id),"門不在目前視野");
         Ok(Self{epoch,generation:w.generation,id,incarnation:a.incarnation,attribute:r.attribute,sequence:r.sequence})
@@ -52,6 +66,7 @@ impl Choice {
     pub fn request(&self,epoch:u64,w:&World)->Result<Vec<u8>>{
         ensure!(self.epoch==epoch&&self.generation==w.generation,"門選取已過期");
         let a=w.actors.get(&self.id).context("門已離開視野")?;
+        ensure!(operable(w),"攻城內門須摧毀外側守護塔才會開啟");
         let r=record(w,self.id).context("門狀態已失效")?;
         ensure!(a.incarnation==self.incarnation&&r.sequence==self.sequence&&r.attribute==self.attribute
             &&w.actor_visible(self.id),"門已變更，請重新選取");

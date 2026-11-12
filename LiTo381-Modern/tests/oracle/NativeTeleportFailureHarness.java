@@ -25,8 +25,12 @@ public final class NativeTeleportFailureHarness {
  public static void main(String[] args)throws Exception {
   boolean gui=args.length>1&&args[1].startsWith("gui-");
   String scenario=args.length>1?args[1].replaceFirst("^gui-",""):"timeout";
-  boolean cancelExpiry=scenario.equals("cancel-expiry");
-  boolean refused=scenario.equals("refused");
+  if(!Set.of("timeout","cancel-expiry","cancel-expiry-source","cancel-retry","cancel-repeat","refused","refused-cancel-repeat","wrong-service").contains(scenario))throw new IllegalArgumentException("unknown recovery scenario");
+  boolean sourceExpiry=scenario.equals("cancel-expiry-source");
+  boolean cancelExpiry=scenario.equals("cancel-expiry")||sourceExpiry;
+  // Repeated cancellation is client-side only; the server sees the same
+  // sessions as cancel-retry／refused, so session counts and TTLs are unchanged.
+  boolean refused=scenario.equals("refused")||scenario.equals("refused-cancel-repeat");
   boolean wrongService=scenario.equals("wrong-service");
   int expectedSessions=wrongService?10:8;
   Path root=Path.of(args[0]).toAbsolutePath().normalize();
@@ -52,10 +56,10 @@ public final class NativeTeleportFailureHarness {
      // reports refusal. Independently prove this is an actual closed port.
     }
    }
-   login.setSoTimeout((cancelExpiry||gui)?180000:90000);town.setSoTimeout((cancelExpiry||gui)?180000:90000);
+   login.setSoTimeout(sourceExpiry?420000:(cancelExpiry||gui)?180000:90000);town.setSoTimeout(sourceExpiry?420000:(cancelExpiry||gui)?180000:90000);
    Path file=root.resolve("server.properties");
    NativePeerHarness.write(file,"bind=127.0.0.1\ngame.bind=127.0.0.2\nport="+town.getLocalPort()+"\nadvertised.host=127.0.0.2\nadvertised.port="+town.getLocalPort()+
-    "\nserver.name=傳送失敗測試\nlogin.classic.server.names=測試乙,測試甲\ndatabase.mode=memory\ndatabase.read.only=true\nstate.persistence.enabled=false\n"+
+    "\nserver.name=傳送失敗測試\nlogin.classic.server.names=測試甲,測試乙\ndatabase.mode=memory\ndatabase.read.only=true\nstate.persistence.enabled=false\n"+
     "state.file=state.properties\ncapture.directory=captures\nmaps.directory=maps\ndatabase.legacy.properties=unused-sql.properties\nsource.servers.file=\n"+
     "login.bootstrap.sequence=login_ok,time_limit,classic_server_list,lito_server_list\nlito.rental.town.directory.enabled=true\nmax.frame=65535\n"+
     "lito.rental.town.directory.host=127.0.0.2\nlito.rental.town.directory.port="+town.getLocalPort()+"\nlito.rental.town.room.id=60001\nlito.rental.town.map=500\n"+
@@ -63,9 +67,9 @@ public final class NativeTeleportFailureHarness {
    ServerConfig config=ServerConfig.load(file);if(!config.databaseMode().equals("memory")||!config.databaseReadOnly()||config.statePersistenceEnabled())throw new IllegalStateException("isolation");
    for(var component:ServerConfig.class.getRecordComponents())if(component.getType()==Path.class){Path path=(Path)component.getAccessor().invoke(config);if(path!=null&&!path.toAbsolutePath().normalize().startsWith(root))throw new IllegalStateException("external path");}
    var memoryBacking=new MemoryAccountRepository("PeerFixture","TestOnlyPassword");
-   var routes=new LinkedHashMap<String,AccountRepository>();routes.put("測試乙",memoryBacking);routes.put("測試甲",new MemoryAccountRepository("PeerFixture","TestOnlyPassword"));
+   var routes=new LinkedHashMap<String,AccountRepository>();routes.put("測試甲",new MemoryAccountRepository("PeerFixture","TestOnlyPassword"));routes.put("測試乙",memoryBacking);
    GameStateStore state=new GameStateStore(config.stateFile(),false);
-   // Both players use source 0; the hub shares its initial memory child.
+   // Both players explicitly choose the nondefault source; the hub uses its backing.
    try(AccountRepository accounts=new SourceRoutedAccountRepository(routes);CaptureLog capture=new CaptureLog(config.captureDirectory());GameHub hub=new GameHub(config,state,memoryBacking)) {
     var sessions=new CopyOnWriteArrayList<NativePeerHarness.Session>();var failures=new ConcurrentLinkedQueue<Throwable>();var acceptors=new ArrayList<Thread>();
     for(int endpoint=0;endpoint<(wrongService?3:2);endpoint++){
@@ -76,11 +80,11 @@ public final class NativeTeleportFailureHarness {
      }}catch(Throwable e){failures.add(e);}},"failure-acceptor");acceptors.add(acceptor);acceptor.start();
     }
     try {
-     NativePeerHarness.write(root.resolve("ready.json"),"{\"port\":"+login.getLocalPort()+",\"login_host\":\"127.0.0.1\",\"town_host\":\"127.0.0.2\",\"town_port\":"+town.getLocalPort()+",\"destination_host\":\""+(refused?"127.0.0.1":"127.0.0.3")+"\",\"pid\":"+ProcessHandle.current().pid()+",\"destination_port\":"+unavailablePort+",\"destination_refused\":"+refused+",\"destination_wrong_service\":"+wrongService+",\"jar_sha256\":\""+sha+"\"}");
+     NativePeerHarness.write(root.resolve("ready.json"),"{\"scenario\":\""+scenario+"\",\"requested_source\":\"測試乙\",\"default_source\":\"測試甲\",\"port\":"+login.getLocalPort()+",\"login_host\":\"127.0.0.1\",\"town_host\":\"127.0.0.2\",\"town_port\":"+town.getLocalPort()+",\"destination_host\":\""+(refused?"127.0.0.1":"127.0.0.3")+"\",\"pid\":"+ProcessHandle.current().pid()+",\"destination_port\":"+unavailablePort+",\"destination_refused\":"+refused+",\"destination_wrong_service\":"+wrongService+",\"jar_sha256\":\""+sha+"\"}");
      // Match the owned runner's 220s lease with 20s reserved for cleanup.
      // The former 110s overall fixture cutoff closed live recovery sockets
      // during original map loading; GAME/S_KEY and player clocks are unchanged.
-     long until=System.nanoTime()+((cancelExpiry||gui)?320_000_000_000L:200_000_000_000L);var previous=new IdentityHashMap<ClientSession,String>();
+     long until=System.nanoTime()+(sourceExpiry?440_000_000_000L:(cancelExpiry||gui)?320_000_000_000L:200_000_000_000L);var previous=new IdentityHashMap<ClientSession,String>();
      try(var trace=Files.newBufferedWriter(root.resolve("server-trace.jsonl"));var stages=Files.newBufferedWriter(root.resolve("staged-trace.jsonl"))){while(System.nanoTime()<until){
       if(!failures.isEmpty())throw new IllegalStateException("session failure",failures.peek());
       stages.write(stagedSnapshot(hub)+"\n");stages.flush();

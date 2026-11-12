@@ -53,7 +53,7 @@ Rust 原生 Windows x64 客戶端（G01–G12），沿用既有資源與 UI，�
 | 伺服器文件 | `PLAN.md`、`TASKS.md`、`docs/server-source-gap.md`、`lito伺服器/LiTo381-Server/docs/maintenance/` 86 檔（70 份 md／txt＋16 份 JSON）；本 repo `修補提案/` | **逐檔全讀**：md 全文；JSON 用 python 走訪全部元素。對照見報告附錄 F |
 | 伺服器隔離候選 | 398 個 `build*.py` 與收據串成的鏈（附錄 D），加上 E149 class 清單（E8） | 讀到「建置鏈、收據與 class 清單」層級。候選 JAR 的位元組碼沒有反編譯，因為客戶端只以 E149 為對象，候選都在 8d26 之後、沒有部署 |
 
-tw-bin（P01–P38）不屬於本 repo，不在範圍內。證據可以用 `bash 維護工具/check-issue-92-evidence.sh <lito-modern 根> <lito-launcher-server 根> <暫存目錄>` 重跑。
+tw-bin（P01–P38）不屬於本 repo，它的工作不算進本 repo 的範圍；但 2026-11-12 起 tw-bin-engine 改為**唯讀參考來源**（#267，見下方「與參考 repo 的關係」與 `docs/REUSE-MAP.md`）。證據可以用 `bash 維護工具/check-issue-92-evidence.sh <lito-modern 根> <lito-launcher-server 根> <暫存目錄>` 重跑。
 
 ### 必須寫明的事實（證據 E1–E8 見報告）
 1. **技能接線大多不在 `src/`**：main 38、候選獨有 48、97–100 共 4、未接 91，合計 181，逐 ID 去重（E3）。「候選獨有 48」是用目錄裡 1–98 的 ID 扣掉 main 與 97／98 算出來的，不是解析候選原始碼得到。例外：候選的 `item_targeted` 含 107，所以嚴格來說是候選 49、未接 90。107 在 TASKS 的 T022 批 2 註明有候選參考實作；總數 181 與張數不受影響。
@@ -145,8 +145,13 @@ M3 的不確定項：
 - V1 已完成，U-V1-1、U-V1-2 沒有兌現，已關閉。
 - 計數口徑：以 `## M*` 下的 `###` 項目計，M2 開放後分母是 11＋23＝**34 項**；以張數（Issue）計是 11＋57＝**68 張**。調度台實際用哪一種，沒有讀過調度器原始碼，屬推測（依 M0／M1／V1 的 11 推得）。兩者是同一份範圍的兩種計數，沒有增減項目。M3 開放時再加 18 項（44 張）。不確定項上限：M2 +8 張、M3 +18 張。
 
-## 與 lito-launcher-server 的關係
-重建版只**唯讀**引用正式 JAR 與協定；任何伺服器端修改在那個 repo 做，這裡只更新 pin。T004 要寫一份協定契約文件取代純 SHA。
+## 與參考 repo 的關係（lito-launcher-server、tw-bin-engine）
+重建版只**唯讀**引用正式 JAR 與協定；任何伺服器端修改在那個 repo 做，這裡只更新 pin。協定以 `docs/PROTOCOL-CONTRACT.md`（T004）為準。
+
+**實作前先查 `docs/REUSE-MAP.md`**（2026-11-12，#267）：可以唯讀參考 tw-bin-engine（`D:\BinEngine`，讀 `origin/main`）與 lito-launcher-server（本 repo 上層，讀 `origin/main`）的原始碼與文件；不複製資源檔、不改對方 repo。注意：
+- TW 對的是 L1J 系 `1-伺服器`，opcode 與部分欄位長度和 LiTo 3.81C 不同，只能參考做法與欄位語意。
+- LS 的 `src/main` 已併入 E149 之後的戰鬥候選，寫進客戶端的格式要先對 E149 核對。
+- 基底評估（繼續 Rust 或改用 TW C# 引擎）見 `docs/REUSE-MAP.md` §4；目前建議繼續 Rust，等使用者決定。
 
 ## 分工
 Claude：PLAN／TASKS、審 PR、CI、架構。Cursor：Rust 實作。ChatGPT：Rust 棘手錯誤第二意見。使用者：驗收與觀測（GUI 實機驗收在 M2 之後）。測試由本機 `dot`／`codex-local` 執行。

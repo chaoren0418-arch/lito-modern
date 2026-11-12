@@ -602,6 +602,8 @@ fn invisibility_tick_envelope_guards_clock_and_menu_preserve_authority() {
         let b=skills::self_tick_request(&w,60,None,skills::ClientTick::from_wrapping_millis(tick)).unwrap();
         let mut expected=vec![0x14,7,3];expected.extend_from_slice(&(tick as u32).to_le_bytes());assert_eq!(b,expected);
     }
+    // The native 4D69F0 clock is initialized by controller creation, as in 480A60.
+    let _controller=lito_modern::modern_lito::native_login::LoginController::default();
     let start=skills::ClientTick::now().unwrap();let actual=skills::request(&w,60,None).unwrap();let end=skills::ClientTick::now().unwrap();
     assert_eq!(&actual[..3],[0x14,7,3]);assert_eq!(actual.len(),7);
     let sent=u32::from_le_bytes(actual[3..].try_into().unwrap());

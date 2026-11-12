@@ -61,7 +61,7 @@ fn current_jar_far_attack_vectors_preserve_native_unsigned_fields() {
     assert_eq!(w.attack_request(2).unwrap(), p("request"));
 }
 #[test]
-fn malformed_ranged_packets_are_atomic_and_other_effect_branches_remain_unknown() {
+fn malformed_ranged_packets_are_atomic_for_every_flight_type() {
     let mut w = world();
     let before = serde_json::to_value(&w).unwrap();
     let b = p("hit");
@@ -69,7 +69,7 @@ fn malformed_ranged_packets_are_atomic_and_other_effect_branches_remain_unknown(
         assert!(w.accept(&b[..end]).is_err(), "truncation {end}");
         assert_eq!(serde_json::to_value(&w).unwrap(), before);
     }
-    for offset in [11, 16, 27, 28, 29] {
+    for offset in [11, 16, 28, 29] {
         let mut bad = b.clone();
         match offset {
             11 => bad[11] = 8,
@@ -86,9 +86,22 @@ fn malformed_ranged_packets_are_atomic_and_other_effect_branches_remain_unknown(
     let mut bad = p("miss");
     bad[10] = 1;
     assert!(w.accept(&bad).is_err());
-    let mut unknown = b;
-    unknown[18] = 0x01;
-    assert!(combat::decode_attack(&unknown).unwrap().is_none());
+    for flight_type in 0..=u8::MAX {
+        let mut typed = b.clone();
+        typed[18] = flight_type;
+        let attack = combat::decode_attack(&typed).unwrap().unwrap();
+        assert_eq!(attack.projectile.unwrap().flight_type, flight_type);
+        for end in 16..typed.len() {
+            assert!(
+                w.accept(&typed[..end]).is_err(),
+                "type {flight_type}, end {end}"
+            );
+            assert_eq!(serde_json::to_value(&w).unwrap(), before);
+        }
+        typed.push(0);
+        assert!(w.accept(&typed).is_err());
+        assert_eq!(serde_json::to_value(&w).unwrap(), before);
+    }
 }
 #[test]
 fn ranged_authority_acknowledges_and_queues_launch_without_inventing_hp() {
@@ -130,6 +143,21 @@ fn ranged_cues_have_a_visible_budget_and_orphan_attackers_do_not_spawn_effects()
 }
 #[test]
 fn original_arrow_follows_actor_hit_event_and_finishes_without_hp_mutation() {
+    render_projectile("hit", 0, 20, 66);
+}
+
+#[test]
+fn original_throwing_action63_launches_sting2989_through_world_model() {
+    render_projectile("throwing", 2786, 62, 2989);
+}
+
+#[test]
+fn original_stone_and_energy_resources_reach_model_arrival_and_retirement() {
+    render_projectile("stone", 0, 20, 1156);
+    render_projectile("energy", 0, 20, 2349);
+}
+
+fn render_projectile(key: &str, actor_graphics: u16, stance: u8, projectile_graphics: u16) {
     use lito_modern::modern_lito::native_world_scene::Model;
     use std::{path::Path, sync::atomic::AtomicBool};
     let mut w = world();
@@ -138,11 +166,14 @@ fn original_arrow_follows_actor_hit_event_and_finishes_without_hp_mutation() {
     own.y = 32797;
     own.speed = 0;
     own.brave = 0;
-    w.accept(&p("hit")).unwrap();
+    own.graphics = actor_graphics;
+    own.walk_action = stance;
+    w.accept(&p(key)).unwrap();
     let before = serde_json::to_value(&w).unwrap();
     let cancel = AtomicBool::new(false);
     let mut model = Model::load(Path::new(r"D:\lineage開發\0-客戶端"), &w, &cancel).unwrap();
     let output = Path::new(env!("CARGO_MANIFEST_DIR")).join("target/current/verification");
+    std::fs::create_dir_all(&output).unwrap();
     let mut frames = Vec::new();
     let mut flying = 0;
     let mut arrivals = 0;
@@ -170,7 +201,7 @@ fn original_arrow_follows_actor_hit_event_and_finishes_without_hp_mutation() {
         {
             flying += 1;
             if ms % 100 == 0 {
-                let path = output.join(format!("native-arrow66-{ms}.png"));
+                let path = output.join(format!("native-projectile{projectile_graphics}-{ms}.png"));
                 let mut enc = png::Encoder::new(std::fs::File::create(&path).unwrap(), 800, 600);
                 enc.set_color(png::ColorType::Rgba);
                 enc.set_depth(png::BitDepth::Eight);
@@ -193,10 +224,10 @@ fn original_arrow_follows_actor_hit_event_and_finishes_without_hp_mutation() {
             .as_array()
             .unwrap()
             .len(),
-        8
+        match projectile_graphics { 1156 => 9, 2349 => 16, _ => 8 }
     );
     assert_eq!(serde_json::to_value(&w).unwrap(), before);
-    std::fs::write(output.join("native-arrow66.json"),serde_json::to_vec_pretty(&serde_json::json!({"scope":"formal packet vector + original resources; not a TCP session","frames":frames,"hp_unchanged":true})).unwrap()).unwrap();
+    std::fs::write(output.join(format!("native-projectile{projectile_graphics}.json")),serde_json::to_vec_pretty(&serde_json::json!({"scope":"E149 packet vector + original resources; offline fixture","frames":frames,"hp_unchanged":true})).unwrap()).unwrap();
 }
 #[test]
 fn projectile_launch_is_once_and_retired_on_actor_removal_or_new_world() {
@@ -406,4 +437,183 @@ fn same_id_replacement_before_launch_cannot_bind_an_old_cue() {
             .update(&w, std::iter::empty(), 10_000_000_000)
             .is_empty());
     }
+}
+
+#[test]
+fn e149_resource_mapping_preserves_arrow_and_throwing_vectors() {
+    let fixture: serde_json::Value =
+        serde_json::from_slice(include_bytes!("fixtures/native-ranged-current.json")).unwrap();
+    assert_eq!(
+        fixture["jar_sha256"],
+        "e1498871c7be6b287821c57ef5d95933db1740d9b4d4a80f6c3465f21d99d498"
+    );
+    assert_eq!(p("mapped_hit"), p("hit"));
+    assert_eq!(p("mapped_throwing"), p("throwing"));
+    let mut w = world();
+    w.accept(&p("throwing")).unwrap();
+    let attack = w.last_attack.as_ref().unwrap();
+    assert_eq!(attack.action, 63);
+    assert_eq!(attack.projectile.as_ref().unwrap().graphics, 2989);
+    assert_eq!((w.own_attack_packets, w.own_cast_packets), (1, 0));
+    assert!(w.actors[&2].actions.is_empty());
+}
+
+#[test]
+fn physical_class3_types_launch_once_and_release_hurt_only_at_arrival() {
+    use lito_modern::modern_lito::native_projectiles::Projectiles;
+    for graphics in [66u16, 1156, 2349, 2989] {
+        for flight_type in 0..=u8::MAX {
+            let mut w = world();
+            w.actors.get_mut(&2).unwrap().x = 32741;
+            w.actors.get_mut(&2).unwrap().y = 32801;
+            let mut packet = p("hit");
+            packet[16..18].copy_from_slice(&graphics.to_le_bytes());
+            packet[18] = flight_type;
+            w.accept(&packet).unwrap();
+            assert_eq!((w.own_attack_packets, w.own_cast_packets), (1, 0));
+            assert!(w.actors[&2].actions.is_empty());
+            let before = serde_json::to_value(&w).unwrap();
+            let mut effects = Projectiles::default();
+            let event = launch_event(&w);
+            assert!(effects.update(&w, std::iter::once(&event), 0).is_empty());
+            assert!(effects.update(&w, std::iter::once(&event), 1).is_empty());
+            assert!(effects
+                .update(&w, std::iter::empty(), 329_999_999)
+                .is_empty());
+            assert_eq!(effects.update(&w, std::iter::empty(), 330_000_000).len(), 1);
+            assert!(effects
+                .update(&w, std::iter::once(&event), 1_000_000_000)
+                .is_empty());
+            assert_eq!(serde_json::to_value(&w).unwrap(), before);
+        }
+    }
+}
+
+#[test]
+fn throwing_stance_preloads_its_own_resources_before_any_attack_cue() {
+    use lito_modern::modern_lito::{
+        compositor::Canvas,
+        native_projectiles::Projectiles,
+        world_map::{PixelPoint, ViewProjection, WorldCell},
+    };
+    use std::{path::Path, sync::atomic::AtomicBool};
+    let mut w = world();
+    w.actors.get_mut(&1).unwrap().walk_action = 62;
+    let mut effects = Projectiles::default();
+    let root = Path::new(r"D:\lineage開發\0-客戶端");
+    let cancel = AtomicBool::new(false);
+    effects.prepare(root, &cancel, &w);
+    let receipt = effects.draw(
+        root,
+        &cancel,
+        &mut Canvas::new(10, 10).unwrap(),
+        ViewProjection {
+            anchor_cell: WorldCell { x: 32729, y: 32797 },
+            anchor_pixel: PixelPoint { x: 0, y: 0 },
+        },
+        0,
+    );
+    assert_eq!(receipt["launched"], 0);
+    assert!(receipt["load_error"].is_null());
+    let sources = receipt["sources"].as_array().unwrap();
+    assert_eq!(sources.len(), 8);
+    assert!(sources
+        .iter()
+        .all(|source| source["name"].as_str().unwrap().starts_with("2989-")));
+}
+
+#[test]
+fn throwing_flights_retire_on_identity_change_and_do_not_hurt_misses_or_dead_targets() {
+    use lito_modern::modern_lito::native_projectiles::Projectiles;
+    for case in [
+        "miss",
+        "zero_damage",
+        "dead",
+        "target_replaced",
+        "attacker_replaced",
+        "new_world",
+    ] {
+        let mut w = world();
+        w.actors.get_mut(&2).unwrap().x = 32741;
+        w.actors.get_mut(&2).unwrap().y = 32801;
+        let mut packet = p("throwing");
+        if case == "miss" {
+            packet[6..10].fill(0);
+        }
+        if matches!(case, "miss" | "zero_damage") {
+            packet[10] = 0;
+        }
+        w.accept(&packet).unwrap();
+        let mut effects = Projectiles::default();
+        assert!(effects
+            .update(&w, std::iter::once(&launch_event(&w)), 0)
+            .is_empty());
+        match case {
+            "dead" => w.actors.get_mut(&2).unwrap().dead = true,
+            "target_replaced" => w.actors.get_mut(&2).unwrap().incarnation += 1,
+            "attacker_replaced" => w.actors.get_mut(&1).unwrap().incarnation += 1,
+            "new_world" => {
+                w.accept(&[0x28, 0x34, 2, 0]).unwrap();
+            }
+            _ => {}
+        }
+        assert!(
+            effects
+                .update(&w, std::iter::empty(), 1_000_000_000)
+                .is_empty(),
+            "{case}"
+        );
+    }
+}
+
+#[test]
+fn interleaved_arrow_and_sting_keep_separate_resources_and_arrivals() {
+    use lito_modern::modern_lito::{
+        compositor::Canvas,
+        native_projectiles::Projectiles,
+        world_map::{PixelPoint, ViewProjection, WorldCell},
+    };
+    use std::{path::Path, sync::atomic::AtomicBool};
+    let mut w = ranged_world("hit");
+    let arrow = launch_event(&w);
+    w.accept(&p("throwing")).unwrap();
+    let mut sting = launch_event(&w);
+    sting.action = 63;
+    let events = [arrow, sting];
+    let root = Path::new(r"D:\lineage開發\0-客戶端");
+    let cancel = AtomicBool::new(false);
+    let mut effects = Projectiles::default();
+    effects.prepare(root, &cancel, &w);
+    assert!(effects.update(&w, events.iter(), 0).is_empty());
+    let receipt = effects.draw(
+        root,
+        &cancel,
+        &mut Canvas::new(400, 400).unwrap(),
+        ViewProjection {
+            anchor_cell: WorldCell { x: 32729, y: 32797 },
+            anchor_pixel: PixelPoint { x: 200, y: 200 },
+        },
+        0,
+    );
+    assert!(receipt["load_error"].is_null());
+    assert_eq!(receipt["sources"].as_array().unwrap().len(), 16);
+    let flights = receipt["flights"].as_array().unwrap();
+    assert_eq!(flights.len(), 2);
+    for (flight, graphics) in flights.iter().zip([66, 2989]) {
+        assert_eq!(flight["graphics"], graphics);
+        assert_eq!(flight["drawn"], true);
+        assert!(flight["sprite"]
+            .as_str()
+            .unwrap()
+            .starts_with(&format!("{graphics}-")));
+    }
+    let arrivals = effects.update(&w, events.iter(), 330_000_000);
+    assert_eq!(
+        arrivals
+            .iter()
+            .map(|impact| impact.projectile)
+            .collect::<Vec<_>>(),
+        [17, 20]
+    );
+    assert!(effects.update(&w, events.iter(), 1_000_000_000).is_empty());
 }

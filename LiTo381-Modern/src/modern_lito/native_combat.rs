@@ -26,6 +26,11 @@ pub struct Pending {
     pub count: u64,
     pub target: u32,
     pub generation: u64,
+    /// Object lives at send time: `(own id, own incarnation)` and the target's
+    /// incarnation. Removal plus same-ID re-entry (Return-to-Nature release,
+    /// rental portal rebuild, corpse re-put) is a different life, like S11.
+    pub attacker: Option<(u32, u64)>,
+    pub target_incarnation: Option<u64>,
 }
 /// One physical press owns a target and world. Cancellation requires a fresh press.
 #[derive(Default)]
@@ -90,6 +95,16 @@ impl HeldAttack {
     }
 }
 impl Pending {
+    pub fn capture(world: &super::native_world::World, target: u32, since: std::time::Instant) -> Self {
+        Self {
+            since,
+            count: world.own_attack_packets,
+            target,
+            generation: world.generation,
+            attacker: world.own_actor().map(|a| (a.id, a.incarnation)),
+            target_incarnation: world.actors.get(&target).map(|a| a.incarnation),
+        }
+    }
     pub fn observe(&self, world: &super::native_world::World, now: std::time::Instant) -> Feedback {
         if world.generation != self.generation {
             return Feedback::Interrupted;
@@ -98,8 +113,10 @@ impl Pending {
             return Feedback::Acknowledged;
         }
         if world.battle_result.is_some()
-            || world.own_actor().is_none_or(|a| a.dead)
-            || !world.actors.contains_key(&self.target)
+            || world.own_actor().is_none_or(|a| a.dead
+                || self.attacker.is_some_and(|life| life != (a.id, a.incarnation)))
+            || world.actors.get(&self.target).is_none_or(|a|
+                self.target_incarnation.is_some_and(|life| life != a.incarnation))
         {
             return Feedback::Interrupted;
         }
@@ -156,6 +173,9 @@ pub struct Projectile {
     pub graphics: u16,
     pub from: [u16; 2],
     pub to: [u16; 2],
+    pub retain_on_arrival: u8,
+    /// Original bounded, NUL-terminated MS950 bytes, without the terminator.
+    pub name: Vec<u8>,
 }
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct ProjectileCue {
@@ -188,14 +208,12 @@ pub fn decode_attack(b: &[u8]) -> Result<Option<Attack>> {
     let projectile_id = u32::from_le_bytes(b[12..16].try_into()?);
     if projectile_id != 0 {
         ensure!(b.len() >= 19, "truncated attack effect header");
-        // Other native effect branches remain explicitly unhandled.
-        if !matches!(b[18], 0 | 0x7f) {
-            return Ok(None);
-        }
-        ensure!(
-            b.len() == 29 && b[27..29] == [0, 0],
-            "invalid ranged attack tail"
-        );
+        // Native 4A5ED0 reads hchhhhcs for every nonzero projectile ID.
+        // The byte is passed to the effect constructor, while list.spr's
+        // attribute 109 selects its class. It is not a packet discriminator.
+        ensure!((29..=156).contains(&b.len()), "invalid ranged attack tail length");
+        ensure!(b.last() == Some(&0) && !b[28..b.len()-1].contains(&0),
+            "invalid ranged attack name terminator");
         let h = |at| u16::from_le_bytes([b[at], b[at + 1]]);
         let graphics = h(16);
         ensure!(
@@ -208,6 +226,8 @@ pub fn decode_attack(b: &[u8]) -> Result<Option<Attack>> {
             graphics,
             from: [h(19), h(21)],
             to: [h(23), h(25)],
+            retain_on_arrival: b[27],
+            name: b[28..b.len()-1].to_vec(),
         });
         return Ok(Some(a));
     }

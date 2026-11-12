@@ -1,9 +1,26 @@
 #[path = "support/two_player_battle.rs"]
 mod two_player_battle;
+#[path = "support/two_player_lifecycle.rs"]
+mod two_player_lifecycle;
 
 use anyhow::{ensure, Context, Result};
 use serde_json::{json, Value};
 use two_player_battle::{ready_endpoints, TwoPlayerBattle, ACCOUNTS, ACTOR_IDS, REFERENCE_SHA};
+
+#[test]
+#[ignore = "requires pinned E149, JAVA_HOME JDK17 and read-only client assets; owns loopback memory server"]
+fn two_real_players_attack_vitals_death_settlement_and_reentry() -> Result<()> {
+    let mut fixture = TwoPlayerBattle::start()?;
+    let result = two_player_lifecycle::exercise(&mut fixture);
+    fixture.save_snapshots(if result.is_ok() {
+        "lifecycle-complete"
+    } else {
+        "lifecycle-failure"
+    })?;
+    result?;
+    fixture.close()?;
+    Ok(())
+}
 
 #[test]
 fn reference_rejects_missing_file_and_legacy_fixture() {
