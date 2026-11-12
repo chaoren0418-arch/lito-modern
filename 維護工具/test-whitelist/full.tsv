@@ -783,17 +783,17 @@ native_light_mask	loader_uses_only_the_named_base_resource_and_checks_hash_and_c
 native_light_mask	mask_uses_max_instead_of_sum_and_rejects_invalid_input_before_mutation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_light_mask	original_center_alignment_truncates_negative_halves_then_clears_x_low_bits	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_light_mask	source_header_preserves_shared_ranges_empty_slot_and_exact_original_pixels	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
-native_light_spell	direct_sound_cursor_consumes_once_bounds_bursts_and_does_not_replay_across_worlds	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_light_spell	formal_change_light_is_atomic_unsigned_actor_scoped_and_does_not_change_motion_owner	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_light_spell	formal_direct_sound_is_bounded_atomic_and_cleared_with_the_world	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_light_spell	direct_sound_cursor_consumes_once_bounds_bursts_and_does_not_replay_across_worlds	no	-	run	-	#308	-
+native_light_spell	formal_change_light_is_atomic_unsigned_actor_scoped_and_does_not_change_motion_owner	no	-	run	-	#308	-
+native_light_spell	formal_direct_sound_is_bounded_atomic_and_cleared_with_the_world	no	-	run	-	#308	-
 native_light_spell	light_uses_self_selector_without_predicting_authority_and_scopes_UI_choice	no	-	covered	-	whitelist	-
 native_light_spell	original_light_definition_and_149_bitmap_are_inspected_without_alias_guessing	no	-	run	client	#306	-
-native_light_spell	original_light_single_bitmap_retires_on_166ms_callback_without_embedded_sound	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_light_spell	scene_prepares_the_original_direct_145_WAV_once_without_inventing_light_duration	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_light_spell	original_light_single_bitmap_retires_on_166ms_callback_without_embedded_sound	no	-	run	client	#308	-
+native_light_spell	scene_prepares_the_original_direct_145_WAV_once_without_inventing_light_duration	no	-	run	client	#308	-
 native_lightning	all_eight_lightning_banks_match_independent_pixels_origin_and_multi_target_hit_once	no	-	run	client	#306	-
 native_lightning	many_common_clock_quantizes_birth_and_late_dispatch_without_replaying_hits	no	-	run	client	#306	-
-native_lightning	many_hits_reject_miss_replacement_removal_death_and_new_world	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_lightning	many_packet_is_atomic_bounded_and_preserves_each_unsigned_target_marker	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_lightning	many_hits_reject_miss_replacement_removal_death_and_new_world	no	-	run	client	#308	-
+native_lightning	many_packet_is_atomic_bounded_and_preserves_each_unsigned_target_marker	no	-	run	-	#308	-
 native_lightning	request_clock_reuse_range_and_target_guard_preserve_authority	no	-	covered	-	whitelist	-
 native_lobby	deployed_channel_results_are_exact_and_keep_full_unsigned_tails	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_lobby	deployed_chinese_room_row_is_bounded_and_updates_by_server_id	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
@@ -852,26 +852,26 @@ native_obstacles	original_guardian_assets_render_healthy_damaged_and_held_destro
 native_obstacles	repeated_guardian_hits_never_queue_character_hurt_or_hide_original_states	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_painted_input	painted_masks_and_camera_survive_unpainted_idle_ticks_without_copying_canvas	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_painted_input	painted_surface_rejects_portals_updates_actor_life_and_control_interruptions	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
-native_poison_cure	cure_uses_its_own_timing_and_sound_with_direct_192_graphics_bank	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_poison_cure	cure_uses_its_own_timing_and_sound_with_direct_192_graphics_bank	no	-	run	client	#308	-
 native_poison_cure	object_and_coordinate_envelopes_preserve_authority_and_gate_live_targets	no	-	covered	-	whitelist	-
-native_poison_cure	reagent_and_probability_refusals_do_not_invent_a_poison_or_expire_one_locally	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_poison_cure	verified_numeric_comma_does_not_relax_other_delimiters	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	arrival_is_once_at_the_original_30ms_terminal_callback_even_when_frames_skip	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	current_jar_far_attack_vectors_preserve_native_unsigned_fields	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	malformed_ranged_packets_are_atomic_and_other_effect_branches_remain_unknown	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	no_hurt_for_miss_zero_damage_death_removed_or_replaced_objects	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_poison_cure	reagent_and_probability_refusals_do_not_invent_a_poison_or_expire_one_locally	no	-	run	-	#308	-
+native_poison_cure	verified_numeric_comma_does_not_relax_other_delimiters	no	-	run	-	#308	-
+native_ranged	arrival_is_once_at_the_original_30ms_terminal_callback_even_when_frames_skip	no	-	run	-	#308	-
+native_ranged	current_jar_far_attack_vectors_preserve_native_unsigned_fields	no	-	run	-	#308	-
+native_ranged	malformed_ranged_packets_are_atomic_for_every_flight_type	no	-	run	-	#308	-
+native_ranged	no_hurt_for_miss_zero_damage_death_removed_or_replaced_objects	no	-	run	-	#308	-
 native_ranged	original_arrow_follows_actor_hit_event_and_finishes_without_hp_mutation	no	-	run	client	#306	-
-native_ranged	projectile_launch_is_once_and_retired_on_actor_removal_or_new_world	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	ranged_authority_acknowledges_and_queues_launch_without_inventing_hp	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	ranged_cues_have_a_visible_budget_and_orphan_attackers_do_not_spawn_effects	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	same_id_replacement_before_launch_cannot_bind_an_old_cue	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_ranged	zero_damage_hit_freezes_live_target_at_launch_and_never_retargets	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_reagent_skills	completion_waits_for_sampled_effect_and_caster_with_bounded_diagnostics	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_ranged	projectile_launch_is_once_and_retired_on_actor_removal_or_new_world	no	-	run	client	#308	-
+native_ranged	ranged_authority_acknowledges_and_queues_launch_without_inventing_hp	no	-	run	-	#308	-
+native_ranged	ranged_cues_have_a_visible_budget_and_orphan_attackers_do_not_spawn_effects	no	-	run	-	#308	-
+native_ranged	same_id_replacement_before_launch_cannot_bind_an_old_cue	no	-	run	-	#308	-
+native_ranged	zero_damage_hit_freezes_live_target_at_launch_and_never_retargets	no	-	run	client	#308	-
+native_reagent_skills	completion_waits_for_sampled_effect_and_caster_with_bounded_diagnostics	no	-	run	-	#308	-
 native_reagent_skills	explicit_modern_original_action3_once_has_nineteen_frames_and_one_sound	no	-	run	client	#306	-
-native_reagent_skills	formal_action19_effect_and_mana_keep_authority_atomic	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_reagent_skills	formal_action19_effect_and_mana_keep_authority_atomic	no	-	run	-	#308	-
 native_reagent_skills	formal_reagent_request_self_screen_boundary_and_no_prediction	no	-	covered	-	whitelist	-
-native_reagent_skills	life_stream_choice_is_owned_ground_and_invalidated_by_correction	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_reagent_skills	reagent_effect_is_fixed_bounded_reset_and_not_an_actor_effect	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_reagent_skills	life_stream_choice_is_owned_ground_and_invalidated_by_correction	no	-	run	-	#308	-
+native_reagent_skills	reagent_effect_is_fixed_bounded_reset_and_not_an_actor_effect	no	-	run	client	#308	-
 native_reagent_skills	world_scene_prepares_original_sound_once_and_preserves_server_state	no	-	run	client	#306	-
 native_rental_entry_guard	rental_entry_rejects_ordinary_channel_before_wire_and_remains_usable_after_return	yes	-	excluded	-	#318	env: 未設定 LITO_RENTAL_ENTRY_GUARD_ROOT，等雜項環境變數一張（#318）
 native_rental_routes	formal_rental_npcs_are_reachable_on_original_geometry_without_crossing_actors	no	-	run	client	#306	-
@@ -903,24 +903,24 @@ native_room_ui	draft_cannot_outlive_connection_character_channel_owner_or_receiv
 native_room_ui	edits_preserve_opaque_received_options_and_match_formal_bytes_without_retaining_password	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_room_ui	kick_choice_keeps_named_member_across_reordering_and_rejects_changed_identity	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_room_ui	lobby_room_choice_follows_id_through_live_counts_and_order_without_crossing_scope	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
-native_skill_selection	actual_render_camera_ground_cells_and_object_hits_reject_stale_worlds	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_skill_selection	all_learned_rows_visible_but_unsupported_and_invalid_choices_cannot_cast	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_skill_selection	learned_insert_remove_preserves_id_never_retargets_combo_row	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_skill_selection	owner_change_fences_selection_before_and_after_refresh	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_skill_selection	request_rechecks_learned_mp_hp_and_target_range_without_refresh	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skill_selection	actual_render_camera_ground_cells_and_object_hits_reject_stale_worlds	no	-	run	client	#308	-
+native_skill_selection	all_learned_rows_visible_but_unsupported_and_invalid_choices_cannot_cast	no	-	run	-	#308	-
+native_skill_selection	learned_insert_remove_preserves_id_never_retargets_combo_row	no	-	run	-	#308	-
+native_skill_selection	owner_change_fences_selection_before_and_after_refresh	no	-	run	-	#308	-
+native_skill_selection	request_rechecks_learned_mp_hp_and_target_range_without_refresh	no	-	run	-	#308	-
 native_skill_selection	selection_uses_formal_packets_and_preserves_authority	no	-	covered	-	whitelist	-
-native_skill_selection	stale_target_never_becomes_another_actor_or_implicit_self_heal	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_skills	current_book_is_atomic_add_remove_and_survives_map_but_not_new_world_owner	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_skills	detection_original749_frames_sound_once_and_generation_retirement	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skill_selection	stale_target_never_becomes_another_actor_or_implicit_self_heal	no	-	run	-	#308	-
+native_skills	current_book_is_atomic_add_remove_and_survives_map_but_not_new_world_owner	no	-	run	-	#308	-
+native_skills	detection_original749_frames_sound_once_and_generation_retirement	no	-	run	client	#308	-
 native_skills	detection_selector_menu_guards_and_cooldown_leave_authority_unchanged	no	-	covered	-	whitelist	-
-native_skills	effects_preserve_formal_unsigned_ids_and_are_bounded_atomic_and_map_scoped	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	effects_preserve_formal_unsigned_ids_and_are_bounded_atomic_and_map_scoped	no	-	run	-	#308	-
 native_skills	invisibility_tick_envelope_guards_clock_and_menu_preserve_authority	no	-	covered	-	whitelist	-
 native_skills	legacy_higher_heal_aliases_keep_original744_pixels_wire_ids_and_individual_sounds	no	-	run	client	#306	-
 native_skills	original_tw_basic_heal_frames_sound_clock_and_retirement_preserve_authority	no	-	run	client	#306	-
-native_skills	skill_feedback_requires_authority_and_expires_without_guessing_success	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	skill_feedback_requires_authority_and_expires_without_guessing_success	no	-	run	-	#308	-
 native_skills	source_heal_and_shield_effects_play_once_independently_of_actor_replacement	no	-	run	client	#306	-
 native_skills	spell_requests_use_formal_selectors_and_never_predict_mana	no	-	covered	-	whitelist	-
-native_skills	tw_higher_full_heal_group_budget_rejects_both_layers_atomically	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_skills	tw_higher_full_heal_group_budget_rejects_both_layers_atomically	no	-	run	client	#308	-
 native_skills	tw_higher_heal_original_slots_clothes_sound_and_retirement_preserve_authority	no	-	run	client	#306	-
 native_skills	tw_higher_heal_requests_use_learned_ids_original_clocks_and_never_predict_authority	no	-	covered	-	whitelist	-
 native_stalac_layers	all_stalac_frames_match_independent_fragment_compositor_and_cues_once	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
@@ -961,25 +961,25 @@ native_terrain_residence	resident_native_city_pixels_match_complete_original_ter
 native_travel	actual_sql_wand_portal_retires_owner_and_preserves_peer_scene	yes	-	excluded	-	#320	db: SQL／MySQL peer 流程；#319 已盤點，執行張 #320 還有前置阻擋，未放行
 native_travel	original_169_bitmap_sound_once_terminal_dwell_and_portal_retirement	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_travel	original_169_frames_sound_and_controls_are_exact	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
-native_turn_undead	actual_quest554_source_spawn_can_route_to_original_ranged_target	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_turn_undead	actual_quest_wall_rejection_replans_to_a_reachable_casting_line	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_turn_undead	actual_quest554_source_spawn_can_route_to_original_ranged_target	no	-	run	client	#308	-
+native_turn_undead	actual_quest_wall_rejection_replans_to_a_reachable_casting_line	no	-	run	client	#308	-
 native_turn_undead	low_mana_turn_undead_times_out_without_predicted_mana_death_or_rejection	no	-	covered	-	whitelist	-
-native_turn_undead	original_754_zero_frames_sound_and_skipped_subframe_are_exact	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_turn_undead	original_boss_summon_circle_definition_and_terminal_are_finite	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_turn_undead	original_754_zero_frames_sound_and_skipped_subframe_are_exact	no	-	run	client	#308	-
+native_turn_undead	original_boss_summon_circle_definition_and_terminal_are_finite	no	-	run	client	#308	-
 native_turn_undead	original_turn_undead_frames_pixels_sound_once_and_zero_terminal_retirement_after_death	no	-	run	client	#306	-
 native_turn_undead	selector_clock_range_and_dead_target_guards_never_predict_death_or_mana	no	-	covered	-	whitelist	-
 native_type12_prop	model_uses_original_catalogue_half_without_mutating_world_or_animation	no	-	run	client	#306	-
 native_type12_prop	original_type12_is_a_single_image_not_an_invented_breath_action	no	-	run	client	#306	-
-native_vampiric_touch	all_eight_banks_frozen_heading_offset_once_sound_and_effect_hit	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_vampiric_touch	miss_replacement_and_map_change_cannot_hurt_a_new_target	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_vampiric_touch	server_reuse_and_recovered_client_clock_are_separate	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_vampiric_touch	all_eight_banks_frozen_heading_offset_once_sound_and_effect_hit	no	-	run	client	#308	-
+native_vampiric_touch	miss_replacement_and_map_change_cannot_hurt_a_new_target	no	-	run	client	#308	-
+native_vampiric_touch	server_reuse_and_recovered_client_clock_are_separate	no	-	run	-	#308	-
 native_vampiric_touch	vampiric_envelope_range_and_authority_do_not_predict_healing_or_hurt	no	-	covered	-	whitelist	-
 native_water_light	all_native_water_channel_tables_and_private_CRT_resource_plane_match	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_water_light	original_water_raster_samples_and_surface_guards_match_in_both_formats	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_water_light	rgba_water_has_no_level31_identity_shortcut_and_preserves_alpha_and_atomic_errors	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）
 native_weapon_expiry	two_equipped_weapons_expire_after_real_one_hour_and_restore_original_weapon	yes	-	excluded	-	#318	env: 未設定 LITO_WEAPON_ROOT，等雜項環境變數一張（#318）
-native_wind_cutter	class4_launch_freezes_target_and_retires_reused_identity	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
-native_wind_cutter	class4_zero_distance_zero_damage_and_miss_keep_authority	no	-	excluded	-	#308	helper-pending: 跨函式 helper 閉合審查未完成（#308 技能／戰鬥 2／2）
+native_wind_cutter	class4_launch_freezes_target_and_retires_reused_identity	no	-	run	client	#308	-
+native_wind_cutter	class4_zero_distance_zero_damage_and_miss_keep_authority	no	-	run	client	#308	-
 native_wind_cutter	formal_attack_spell_layout_and_request_guards	no	-	covered	-	whitelist	-
 native_wind_cutter	original_class4_flight_impact_audio_and_hurt_are_once	no	-	run	client	#306	-
 native_world	clearing_authority_does_not_reuse_a_prior_render_generation	no	-	excluded	-	#309	helper-pending: 跨函式 helper 閉合審查未完成（#309 世界／渲染、#310 背包／登入／傳送）

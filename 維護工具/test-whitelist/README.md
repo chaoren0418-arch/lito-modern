@@ -74,6 +74,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File 維護工具\run-local-test-
 | `helper-open` | 2 | #307 審到一半、轉 #309 複核 | #309 |
 | `real-db` | 1 | 需要正式 DB 設定 | T030 |
 
+#308 之後（技能／戰鬥 2／2 審完）：`run` 154（多了 #308 的 43 項：25 項不需前置、18 項要客戶端資源；`run` 裡共 94 項要客戶端資源）、`covered` 38、`excluded` 863；`helper-pending` 剩 259，全部在等 #309、#310 的結果併入。`native_ranged` 有一列在 #167 改過名，總帳已改用現行名稱 `malformed_ranged_packets_are_atomic_for_every_flight_type`（#54 的舊名是 `…_and_other_effect_branches_remain_unknown`）。
+
 **T036 後續各張怎麼更新總帳**：審查放行一個項目，就把那一列的 verdict 改成 `run`、reason 改成 `-`、source 改成自己的 Issue 號，並依審查結果填 requires。判定永久不能跑的，保留 `excluded` 並把 reason 改成確定的理由。不要刪列：1055 列要一直都在，才看得出每一項的去向。需要客戶端以外前置條件（環境變數、JAR、fixture 目錄）的項目，目前腳本沒有對應的準備步驟，放行前要先在腳本補上，否則會以測試失敗的形式出現。
 
 ## 技能精確對照
