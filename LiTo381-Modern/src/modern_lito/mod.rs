@@ -448,6 +448,7 @@ pub mod native_world_text;
 pub mod native_world_labels;
 pub mod native_clan_markers;
 pub mod native_emblems;
+pub mod native_name_badge;
 pub mod native_label_update_probe;
 pub mod native_emblem_probe;
 
