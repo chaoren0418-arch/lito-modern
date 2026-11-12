@@ -109,6 +109,11 @@ struct Ui {
     ground_view: bool,
     pickup_rows: Vec<super::native_ground_pickup::Choice>,
     pickup_choice: Option<super::native_ground_pickup::Choice>,
+    /// 走向一格外的地面物品；bool 是到達後是否整疊拾取。
+    pickup_approach: Option<(super::native_ground_pickup::Approach, bool)>,
+    pickup_throttle: super::native_ground_pickup::Throttle,
+    /// 直接點選拾取的提示：文字（None 表示顯示控制器的拾取狀態）與顯示期限。
+    pickup_note: Option<(Option<String>, std::time::Instant)>,
     inventory_rows: Vec<(u32, String)>,
     inventory_owner: Option<super::native_inventory::Owner>,
     inventory_names: super::native_inventory_names::Service,
@@ -226,6 +231,7 @@ impl Ui {
     /// Focus loss, minimize or a modal size/menu loop: nothing held continues.
     unsafe fn release_input(&mut self, audio: bool) {
         self.item_cursor = None;
+        self.pickup_approach = None;
         self.held.clear();
         self.held_attack.clear();
         if audio {
@@ -1157,11 +1163,13 @@ impl Ui {
         {
             self.held.clear();
             self.held_attack.clear();
+            self.pickup_approach = None;
             return;
         }
         if self.controller.snapshot().world.death_confirmation_pending {
             self.held.clear();
             self.held_attack.clear();
+            self.pickup_approach = None;
             if let Some(frame) = &self.world_presentation.frame {
                 if frame.death_ready(&self.controller.snapshot().world) {
                     if let Err(e) = self.controller.confirm_death(frame) {
@@ -1174,6 +1182,7 @@ impl Ui {
         if self.inventory_view || self.rental.open || self.companions.open {
             self.held.clear();
             self.held_attack.clear();
+            self.pickup_approach = None;
             return;
         }
         let input = self.combat_input();
@@ -1204,11 +1213,136 @@ impl Ui {
                 }
             }
         }
+        self.pickup_tick();
         if let Err(error) = self.controller.continue_movement(
             &mut self.held, self.world_presentation.frame.as_ref(),
         ) {
             self.held_attack.clear();
             self.text(STATUS, &format!("{error:#}"));
+        }
+    }
+    fn note_pickup(&mut self, text: Option<String>) {
+        self.pickup_note = Some((text, std::time::Instant::now() + std::time::Duration::from_secs(5)));
+    }
+    /// 直接點選地面物品（原版 `sub_4062E0` 類別 9 分支）：一格內直接送，
+    /// 一格外先走過去。`pick_all` 為 false 時堆疊改開數量面板。
+    unsafe fn ground_click(&mut self, id: u32, pick_all: bool) {
+        use super::native_ground_pickup as pickup;
+        self.target = None;
+        self.ground = None;
+        self.held.clear();
+        self.held_attack.clear();
+        self.pickup_approach = None;
+        let epoch = self.controller.transport().snapshot().epoch;
+        let (plan, approach) = {
+            let world = &self.controller.snapshot().world;
+            let plan = world.own_actor().zip(world.actors.get(&id)).and_then(|(own, item)| {
+                pickup::click([own.x, own.y], [item.x, item.y], item.experience, pick_all)
+            });
+            let approach = (plan == Some(pickup::Click::Approach))
+                .then(|| pickup::Approach::begin(epoch, world, id, std::time::Instant::now()))
+                .flatten();
+            (plan, approach)
+        };
+        let result = match plan {
+            Some(pickup::Click::Approach) if approach.is_some() => {
+                self.pickup_approach = approach.map(|a| (a, pick_all));
+                self.pickup_note = None;
+                Ok(())
+            }
+            Some(click @ (pickup::Click::Send(_) | pickup::Click::Prompt(_))) => self.ground_pick(id, click),
+            _ => Err(anyhow::anyhow!("此處沒有可拾取的物品")),
+        };
+        if let Err(error) = result {
+            self.note_pickup(Some(format!("{error:#}")));
+        }
+    }
+    /// 已在一格內：再核對一次目前畫面、權威狀態與通行，才送出或開數量面板。
+    unsafe fn ground_pick(&mut self, id: u32, click: super::native_ground_pickup::Click) -> Result<()> {
+        use super::native_ground_pickup as pickup;
+        let frame = self.world_presentation.frame.as_ref().context("等待世界畫面")?;
+        let choice = pickup::Choice::capture(self.controller.snapshot(), frame, id)?;
+        let own = self.controller.snapshot().world.own_actor().map(|a| [a.x, a.y]).context("目前沒有世界角色")?;
+        ensure!(
+            pickup::unobstructed(own, [choice.item.x, choice.item.y], |x, y, h| frame.navigation.can_step(x, y, h)),
+            "與物品之間有障礙，無法拾取"
+        );
+        match click {
+            pickup::Click::Send(quantity) => {
+                let now = std::time::Instant::now();
+                ensure!(self.pickup_throttle.ready(now), "拾取間隔未到，請稍候再點");
+                self.controller.pickup(choice, quantity, frame)?;
+                self.pickup_throttle.sent(now);
+                self.note_pickup(None);
+            }
+            pickup::Click::Prompt(stack) => {
+                if !(self.inventory_view && self.ground_view) {
+                    self.action(GROUND_TOGGLE)?;
+                }
+                let index = self.pickup_rows.iter().position(|c| c == &choice)
+                    .context("地面物品清單已更新，請重新點選")?;
+                send(self.control(INVENTORY_LIST), LB_SETCURSEL, WPARAM(index), LPARAM(0));
+                self.pickup_choice = Some(choice);
+                self.text(ITEM_QUANTITY, &stack.to_string());
+                self.refresh_item_actions();
+            }
+            pickup::Click::Approach => {}
+        }
+        Ok(())
+    }
+    unsafe fn pickup_tick(&mut self) {
+        use super::native_ground_pickup as pickup;
+        let Some((approach, pick_all)) = self.pickup_approach.clone() else { return; };
+        if self.held.direction().is_some() || self.held_attack.active() {
+            self.pickup_approach = None;
+            return;
+        }
+        let Some(frame) = self.world_presentation.frame.as_ref() else { return; };
+        let epoch = self.controller.transport().snapshot().epoch;
+        let (step, ready, plan) = {
+            let world = &self.controller.snapshot().world;
+            let step = approach.next(epoch, world, std::time::Instant::now(), |x, y, h| {
+                frame.navigation.can_step(x, y, h)
+                    && u16::try_from(x).ok().zip(u16::try_from(y).ok()).is_some_and(|(x, y)| {
+                        super::native_world::destination(x, y, h)
+                            .is_ok_and(|(nx, ny)| !super::native_obstacles::blocks(world, nx, ny))
+                    })
+            });
+            let plan = world.own_actor().zip(world.actors.get(&approach.id())).and_then(|(own, item)| {
+                pickup::click([own.x, own.y], [item.x, item.y], item.experience, pick_all)
+            });
+            (step, frame.movement_ready(world) && frame.input_ready(world), plan)
+        };
+        match step {
+            pickup::ApproachStep::Ended(reason) => {
+                self.pickup_approach = None;
+                self.note_pickup(Some(reason.to_owned()));
+            }
+            // 上一步的動作或畫面還沒完成：等下一個 tick。
+            _ if !ready => {}
+            pickup::ApproachStep::Step(heading) => match self.controller.move_presented(heading, frame) {
+                Ok(()) => {
+                    if let Some((approach, _)) = &mut self.pickup_approach {
+                        approach.stepped();
+                    }
+                }
+                Err(error) => {
+                    self.pickup_approach = None;
+                    self.note_pickup(Some(format!("{error:#}")));
+                }
+            },
+            pickup::ApproachStep::Arrived => {
+                self.pickup_approach = None;
+                let result = match plan {
+                    Some(click @ (pickup::Click::Send(_) | pickup::Click::Prompt(_))) => {
+                        self.ground_pick(approach.id(), click)
+                    }
+                    _ => Err(anyhow::anyhow!("地面物品已更新，請重新點選")),
+                };
+                if let Err(error) = result {
+                    self.note_pickup(Some(format!("{error:#}")));
+                }
+            }
         }
     }
     unsafe fn paint_world(&mut self, parent: HWND) {
@@ -1571,6 +1705,10 @@ impl Ui {
                         super::native_ground_pickup::Choice::capture(snapshot, frame, a.id).ok()
                     })
                     .collect();
+                // 先近後遠；畫面的繪製順序不適合當清單順序。
+                if let Some(own) = snapshot.world.own_actor() {
+                    super::native_ground_pickup::order(&mut self.pickup_rows, [own.x, own.y]);
+                }
             }
             rows = self
                 .pickup_rows
@@ -2032,6 +2170,11 @@ impl Ui {
                             "正在等待退出戰鬥確認…".to_owned()
                         } else if self.item_cursor.is_some() {
                             "請點選物品目標位置；Esc取消".to_owned()
+                        } else if self.pickup_approach.is_some() {
+                            "正在走向地面物品；Esc 或移動可取消".to_owned()
+                        } else if let Some((text, _)) = self.pickup_note.as_ref()
+                            .filter(|(_, until)| std::time::Instant::now() < *until) {
+                            text.clone().unwrap_or_else(|| format!("拾取：{}", snapshot.pickup_feedback.label()))
                         } else if snapshot.item_feedback == super::native_item_actions::Feedback::TargetRejected {
                             snapshot.world.last_system_message.as_ref()
                                 .filter(|(kind,_)|*kind==9).map(|(_,text)|text.clone())
@@ -2278,10 +2421,11 @@ impl Ui {
             }
             ITEM_USE if self.ground_view => {
                 let choice = self.pickup_choice.clone().context("請先選取地面物品")?;
-                let quantity = self
-                    .read(ITEM_QUANTITY, 10)?
-                    .parse::<u32>()
-                    .context("請輸入有效的拾取數量")?;
+                // 與原版數量回呼相同：留白等於整疊；0 或超過整疊不送。
+                let quantity = super::native_ground_pickup::prompt_quantity(
+                    &self.read(ITEM_QUANTITY, 10)?, choice.item.experience)?;
+                let now = std::time::Instant::now();
+                ensure!(self.pickup_throttle.ready(now), "拾取間隔未到，請稍候再按");
                 self.held.clear();
                 self.held_attack.clear();
                 let frame = self
@@ -2290,6 +2434,7 @@ impl Ui {
                     .as_ref()
                     .context("等待世界畫面")?;
                 self.controller.pickup(choice, quantity, frame)?;
+                self.pickup_throttle.sent(now);
                 self.refresh_item_actions();
             }
             ITEM_USE | ITEM_DROP => {
@@ -2524,6 +2669,8 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                 }
                 WM_LBUTTONDOWN if ui.world_view && !ui.inventory_view && !(ui.rental.open || ui.companions.open) => {
                     let _ = SetFocus(Some(hwnd));
+                    // 任何新的點選都取消走向地面物品。
+                    ui.pickup_approach = None;
                     let mut area = RECT::default();
                     let _ = GetClientRect(hwnd, &mut area);
                     let dpi = GetDpiForWindow(hwnd).max(96) as i32;
@@ -2566,30 +2713,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                             }
                             return LRESULT(0);
                         }
-                        if picked.is_some_and(|id| surface.is_ground_item(id)) {
-                            let choice = super::native_ground_pickup::Choice::capture(
-                                ui.controller.snapshot(),ui.world_presentation.frame.as_ref().unwrap(),picked.unwrap());
-                            match choice {
-                                Ok(choice) => {
-                                    ui.target = None;
-                                    ui.ground = None;
-                                    if let Err(error) = ui.action(GROUND_TOGGLE) {
-                                        ui.text(STATUS, &format!("{error:#}"));
-                                    } else if let Some(index) =
-                                        ui.pickup_rows.iter().position(|c| c == &choice)
-                                    {
-                                        send(
-                                            ui.control(INVENTORY_LIST),
-                                            LB_SETCURSEL,
-                                            WPARAM(index),
-                                            LPARAM(0),
-                                        );
-                                        ui.pickup_choice = Some(choice);
-                                        ui.refresh_item_actions();
-                                    }
-                                }
-                                Err(error) => ui.text(STATUS, &format!("{error:#}")),
-                            }
+                        if let Some(id) = picked.filter(|id| surface.is_ground_item(*id)) {
+                            // 原版「全部拾取」選項（byte_502278）初值是開的：直接送整疊。
+                            // 按住 Shift（MK_SHIFT）點堆疊時改問數量，這是新引擎的操作。
+                            ui.ground_click(id, wparam.0 & 0x0004 == 0);
                             return LRESULT(0);
                         }
                         let target = point
@@ -2809,6 +2936,9 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 ground_view: false,
                 pickup_rows: vec![],
                 pickup_choice: None,
+                pickup_approach: None,
+                pickup_throttle: Default::default(),
+                pickup_note: None,
                 inventory_rows: vec![],
                 inventory_owner: None,
                 inventory_names: super::native_inventory_names::Service::start(
@@ -2977,6 +3107,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                         ui.target = None;
                         ui.ground = None;
                         ui.item_cursor = None;
+                        ui.pickup_approach = None;
                         continue;
                     }
                 }
