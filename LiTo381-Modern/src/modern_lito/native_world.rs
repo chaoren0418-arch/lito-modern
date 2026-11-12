@@ -68,6 +68,10 @@ pub struct Actor {
     pub status_tail: Option<[u8; 5]>,
     pub relations: super::native_actor_relations::Relations,
 }
+/// Native camera anchor relative to the own cell: `sub_4E7A40` L484790–L484809
+/// passes `x+6`, `y-18` to `sub_4855A0`, and `sub_4C51B0` uses the same
+/// `+0x8006`／`+0x7FEE` bias. Local cameras store the own-equivalent cell.
+pub const NATIVE_CAMERA_ANCHOR_OFFSET: [i32; 2] = [6, -18];
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct World {
     #[serde(skip)]
@@ -78,6 +82,13 @@ pub struct World {
     pub observer_mode: bool,
     /// Local camera only; no actor or authoritative player coordinates are created.
     pub observer_camera: Option<[u16;2]>,
+    /// Last own-actor cell behind the native process-wide camera anchor
+    /// `dword_75AA50/54`. Native writes that anchor only through `sub_485580`:
+    /// own S_PUT_OBJECT (`sub_4E7A40`, anchor = own + `NATIVE_CAMERA_ANCHOR_OFFSET`),
+    /// own steps (`sub_4E2150`), teleport (`sub_48BC80`) and timed scene moves
+    /// (`sub_4C51B0`). S_WORLD, S_E2 and S_E5 never write it, so an observer
+    /// without an own actor keeps the previous anchor. Survives scene retirement.
+    pub native_view_anchor: Option<[u16;2]>,
     pub portal:Option<super::native_portal::Pending>,
     pub completed_portals:u64,
     pub resurrection_packets: u64,
@@ -324,12 +335,21 @@ impl World {
         if !enabled {self.observer_camera=None;}
         self.refresh_observer_camera();
     }
+    /// Own cell currently behind the native camera anchor (see `native_view_anchor`).
+    pub fn native_anchor_cell(&self)->Option<[u16;2]> {
+        self.own_actor().map(|a|[a.x,a.y]).or(self.native_view_anchor)
+    }
     fn refresh_observer_camera(&mut self) {
         if !self.observer_mode {return;}
+        let retained=self.native_anchor_cell();
         if let Some(b)=&self.observer_bounds {
             let contains=|p:[u16;2]|(0..2).all(|i|p[i]>=b.min[i]&&p[i]<b.max_exclusive[i]);
             if self.observer_camera.is_none_or(|p|!contains(p)) {
-                self.observer_camera=Some(std::array::from_fn(|i|b.min[i]+(b.max_exclusive[i]-b.min[i])/2));
+                // Native keeps the untouched anchor. Only when it is absent or
+                // outside the half-open box (where native shows no arena) does
+                // the local camera fall back to the box centre.
+                self.observer_camera=Some(retained.filter(|p|contains(*p)).unwrap_or_else(||
+                    std::array::from_fn(|i|b.min[i]+(b.max_exclusive[i]-b.min[i])/2)));
             }
         }
     }
@@ -365,7 +385,8 @@ impl World {
     }
     pub fn clear_preserving_generation(&mut self) {
         self.retire_static_effects();
-        *self = Self { generation: self.generation,
+        let native_view_anchor=self.native_anchor_cell();
+        *self = Self { generation: self.generation, native_view_anchor,
             relations:std::mem::take(&mut self.relations), ..Default::default() };
     }
     /// Ordinary view: see-invisible/GM perception is not yet a qualified mode.
@@ -521,6 +542,18 @@ impl World {
     pub fn accept(&mut self, b: &[u8]) -> Result<bool> {
         let op = *b.first().context("empty world packet")?;
         let mut r = Reader { b, at: 1 };
+        // S_MESSAGE also carries room rules and start refusals before S_WORLD.
+        if op == 0x0f {
+            let kind = r.c()?;
+            let text = r.s()?;
+            r.end()?;
+            ensure!(!text.is_empty(), "empty system message");
+            let revision = self.revision.checked_add(1).context("world revision")?;
+            self.system_message_count += 1;
+            self.last_system_message = Some((kind, text));
+            self.revision = revision;
+            return Ok(true);
+        }
         if op==0x5a{
             let destination=super::native_portal::parse(b)?;ensure!(self.ready(),"portal before ready world or repeated pending portal");
             let object_id=self.own_actor().unwrap().id;let generation=self.generation.checked_add(1).context("portal generation")?;
@@ -563,8 +596,10 @@ impl World {
             r.end()?;
             let generation = self.generation.checked_add(1).context("world generation")?;
             self.retire_static_effects();
+            let native_view_anchor=self.native_anchor_cell();
             *self = Self {
                 observer_mode: self.observer_mode,
+                native_view_anchor,
                 learned_skills: std::mem::take(&mut self.learned_skills),
                 relations: std::mem::take(&mut self.relations),
                 map_id: Some(map),
@@ -735,10 +770,6 @@ impl World {
                 } else {
                     self.orphan_updates += 1;
                 }
-            }
-            0x0f => {
-                let kind=r.c()?;let text=r.s()?;r.end()?;ensure!(!text.is_empty(),"empty system message");
-                self.system_message_count+=1;self.last_system_message=Some((kind,text));
             }
             0x10 => {
                 ensure!(b.len() <= 8192, "message byte budget");
