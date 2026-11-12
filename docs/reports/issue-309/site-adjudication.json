@@ -54,7 +54,7 @@
      "note": "寫 <CARGO_MANIFEST_DIR>/target/current/scratch/native-backend-485f-evidence/run-<pid>-<n>/<prefix>-check-<name>.json；目錄用 create_dir 搶占、檔案用 create_new，不覆寫既有檔。std::process::id 只取 PID 命名。"},
     {"file": "src/modern_lito/native_city_runtime.rs", "fn": "", "kinds": ["process"], "verdict": "falsepos", "note": "Command::Back／Enter／Pan 是本模組的 enum，不是 std::process::Command。"},
     {"file": "src/modern_lito/native_backend_485f_evidence.rs", "fn": "actual_runtime_rejection_close_and_join_remain_distinct_from_world_admission", "kinds": "*", "verdict": "net-unreviewed",
-     "note": "讀 fixture 檔並經 native_login_transport 連線；連線目的端的所有權本張沒有審結。"},
+     "note": "讀 logs/continuation-20261003/r486-map-binding.json（原機 snapshot manifest）後啟動 native_city_runtime::Runtime 工作執行緒；測試斷言 workers_started==0，但 Runtime 內可達 native_login_transport::Transport::connect，本張沒有審結。"},
     {"file": "src/modern_lito/native_login_transport.rs", "fn": "", "kinds": "*", "verdict": "net-unreviewed", "note": "Transport::connect：TcpStream::connect_timeout。"},
     {"file": "src/modern_lito/native_login_events.rs", "fn": "", "kinds": "*", "verdict": "net-unreviewed", "note": "owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。"},
     {"file": "src/modern_lito/native_login_bootstrap.rs", "fn": "", "kinds": "*", "verdict": "net-unreviewed", "note": "JavaFixtureAdapter::load 與 redirect。"},

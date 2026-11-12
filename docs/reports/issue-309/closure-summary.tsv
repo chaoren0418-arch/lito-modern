@@ -11,7 +11,7 @@ native_actor_relations	master_update_preserves_byte_identity_even_when_decoded_t
 native_actor_relations	ms950_trails_and_duplicate_unicode_encodings_keep_wire_identity	no	P	c	24	7		LiTo381-Modern/tests/native_actor_relations.rs:32
 native_actor_relations	repeated_put_preserves_side_only_and_resets_prior_flag_transitions	no	P	ct	226	41		LiTo381-Modern/tests/native_actor_relations.rs:100
 native_actor_relations	transition_budget_rejection_does_not_partially_clear_registered_actors	no	P	ct	224	41		LiTo381-Modern/tests/native_actor_relations.rs:137
-native_actor_states	hidden_targets_are_rejected_until_visible_and_identity_replacement_invalidates_selection	no	P	ct	261	43		LiTo381-Modern/tests/native_actor_states.rs:156
+native_actor_states	hidden_targets_are_rejected_until_visible_and_identity_replacement_invalidates_selection	no	P	ct	262	43		LiTo381-Modern/tests/native_actor_states.rs:156
 native_actor_states	hide_show_between_input_samples_requires_a_fresh_selection_or_press	no	P	ct	247	43		LiTo381-Modern/tests/native_actor_states.rs:481
 native_actor_states	initial_flags_and_twenty_four_tick_color_priority	no	P	c	26	6		LiTo381-Modern/tests/native_actor_states.rs:60
 native_actor_states	model_state_updates_invalidate_pixels_without_restarting_animation_or_audio	no	R	Tcgt	1766	106	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_actor_states.rs:402
@@ -96,7 +96,7 @@ native_object_dispatch	all_263423_original_object_routes_arguments_and_gate_byte
 native_observer_camera	observer_camera_bounds_do_not_create_role_or_actor	no	P	ct	233	41		LiTo381-Modern/tests/native_observer_camera.rs:6
 native_observer_camera	observer_camera_half_open_edges_and_invalid_direction_preserve_authority	no	P	ct	224	41		LiTo381-Modern/tests/native_observer_camera.rs:8
 native_observer_camera	observer_role_change_map_replacement_and_clear_retire_camera	no	P	ct	225	41		LiTo381-Modern/tests/native_observer_camera.rs:25
-native_obstacles	destroyed_guardian_retires_attacks_spells_and_selection_even_if_repaired_between_polls	no	P	ct	279	44		LiTo381-Modern/tests/native_obstacles.rs:64
+native_obstacles	destroyed_guardian_retires_attacks_spells_and_selection_even_if_repaired_between_polls	no	P	ct	280	44		LiTo381-Modern/tests/native_obstacles.rs:64
 native_obstacles	formal_guardian_occupancy_includes_one_hp_and_excludes_destroyed_or_removed_objects	no	P	ct	226	41		LiTo381-Modern/tests/native_obstacles.rs:6
 native_obstacles	guardian_state_updates_hold_authority_without_turning_players_into_obstacles	no	P	ct	227	41		LiTo381-Modern/tests/native_obstacles.rs:19
 native_obstacles	repeated_guardian_hits_never_queue_character_hurt_or_hide_original_states	no	R	ct	359	45	ro-root=16	LiTo381-Modern/tests/native_obstacles.rs:81
@@ -108,7 +108,7 @@ native_resource_loading	ranged_capture_floor_waits_without_a_frame_rate_assumpti
 native_stalac_layers	all_stalac_frames_match_independent_fragment_compositor_and_cues_once	no	R	ct	867	72	ro-root=32	LiTo381-Modern/tests/native_stalac_layers.rs:61
 native_stalac_layers	layered_submission_budget_rejects_the_whole_group	no	R		124	8	ro-root=16	LiTo381-Modern/tests/native_stalac_layers.rs:95
 native_stalac_layers	stalac_miss_replaced_target_and_map_retire_without_hurt_authority	no	R	ct	588	58	ro-root=23	LiTo381-Modern/tests/native_stalac_layers.rs:104
-native_stalac_layers	stalac_packet_range_clock_and_no_predicted_authority	no	P	ct	254	42		LiTo381-Modern/tests/native_stalac_layers.rs:51
+native_stalac_layers	stalac_packet_range_clock_and_no_predicted_authority	no	P	ct	255	42		LiTo381-Modern/tests/native_stalac_layers.rs:51
 native_startup	endpoints_roots_and_schema_are_explicit_without_legacy_fields	no	P		10	2		LiTo381-Modern/tests/native_startup.rs:12
 native_startup	settings_are_adjacent_to_executable_independent_of_working_directory	no	P		4	2		LiTo381-Modern/tests/native_startup.rs:65
 native_startup	unicode_bom_duplicate_keys_and_input_budgets_are_checked	no	P		9	2		LiTo381-Modern/tests/native_startup.rs:50
@@ -128,10 +128,10 @@ native_world_effects	effect_bounds_missing_fragments_and_all_arrow_heading_banks
 native_world_effects	fragment_and_flat_sinks_have_identical_clock_events_retirement_and_generation	no	R	ct	623	60	ro-root=23	LiTo381-Modern/tests/native_world_effects.rs:184
 native_world_effects	live_model_submits_all_stationary_profiles_once_without_world_mutation	no	R	Tcgt	1753	105	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_world_effects.rs:233
 native_world_entry	formal_map_rejection_is_visible_and_does_not_change_world	no	P	ct	223	41		LiTo381-Modern/tests/native_world_entry.rs:86
-native_world_entry	learned_world_tree_is_selector_only_and_cross_map_admission_stays_owned	no	R	ct	670	74	ro-root=16	LiTo381-Modern/tests/native_world_entry.rs:70
+native_world_entry	learned_world_tree_is_selector_only_and_cross_map_admission_stays_owned	no	R	ct	671	74	ro-root=16	LiTo381-Modern/tests/native_world_entry.rs:70
 native_world_labels	cp950_layout_uses_body_bounds_and_native_prefix_rules	no	R	ct	333	48	ro-root=20	LiTo381-Modern/tests/native_world_labels.rs:51
 native_world_labels	lawful_palette_boundaries_and_hover_identity	no	P	ct	227	42		LiTo381-Modern/tests/native_world_labels.rs:23
-native_world_layers	ground_pointer_uses_visible_pixels_and_never_rebinds_a_stale_item	no	R	Tcgt	2133	132	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_world_layers.rs:278
+native_world_layers	ground_pointer_uses_visible_pixels_and_never_rebinds_a_stale_item	no	R	Tcgt	2134	132	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_world_layers.rs:278
 native_world_layers	pixel_pick_preserves_authority_and_stale_frame_fences	no	R	Tcgt	1764	105	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_world_layers.rs:233
 native_world_layers	same_depth_overlap_preserves_reverse_insertion_and_transparent_holes	no	R	ct	611	62	ro-root=25	LiTo381-Modern/tests/native_world_layers.rs:160
 native_world_layers	scene_composition_rejects_invalid_identity_budget_and_unqualified_sprites	no	R	ct	603	62	ro-root=25	LiTo381-Modern/tests/native_world_layers.rs:198
@@ -172,5 +172,5 @@ native_world_roofs	roof_enter_leave_reverse_scope_and_clock_follow_bounded_quant
 native_world_roofs	stale_map_roof_frames_and_cancelled_composition_are_rejected	no	R	ct	543	61	ro-root=22	LiTo381-Modern/tests/native_world_roofs.rs:284
 native_world_text	outline_offsets_rgb555_color_and_clipping_match_scalar_composition	no	P		9	3		LiTo381-Modern/tests/native_world_text.rs:49
 rebuild_wire	current_formal_jar_cipher_matches_native_x64_rx_tx_and_partial_io	no	P		42	6		LiTo381-Modern/tests/rebuild_wire.rs:2
-native_ground_skills	original_wave_duration_gates_repeated_ground_audio_and_world_reset	no	R	Tcgt	1754	105	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_ground_skills.rs:276
+native_ground_skills	original_wave_duration_gates_repeated_ground_audio_and_world_reset	no	R	Tcgt	1754	105	gdi=14,ro-root=39,thread=1	LiTo381-Modern/tests/native_ground_skills.rs:278
 lib	modern_lito::native_disintegrate_tests::actual_fragment_submission_uses_screen_multiply_and_remains_click_through	yes	R	ct	604	64	ro-root=20	LiTo381-Modern/src/modern_lito/native_disintegrate_tests.rs:591

@@ -1225,8 +1225,8 @@ def summarize(result, scope_path, adj_path, out_dir):
         for (kind, f, fn, v), e in sorted(sites.items()):
             fh.write("\t".join([kind, f, fn, v, str(len(e["tests"])), " | ".join(sorted(e["details"])), e["note"]]) + "\n")
     # same four columns as 維護工具/test-whitelist/tests.tsv (target, test, ignored, features)
-    for fname, classes in (("approved-candidates.tsv", "PL"), ("resource-root-readonly.tsv", "RG"),
-                           ("still-excluded.tsv", "WNU?")):
+    for fname, classes in (("approved-candidates.tsv", "PLW"), ("resource-root-readonly.tsv", "RG"),
+                           ("still-excluded.tsv", "NU?")):
         with io.open(os.path.join(out_dir, fname), "w", encoding="utf-8", newline="\n") as fh:
             for r in rows:
                 if r[3] in classes:
