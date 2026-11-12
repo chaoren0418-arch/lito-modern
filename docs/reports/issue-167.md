@@ -65,7 +65,7 @@ JAR唯讀引用相鄰登入器的 `LiTo381-Launcher/app/server/LiTo381-SharedRes
 
 以原 `維護工具/run-local-test-suite.ps1` 的 `Measure-TestResult` 判讀。要求結束碼0、可解析的 `running N tests`／`test result:`、N大於0、failed為0。TEMP／TMP導向本worktree的 `scratch/issue-167/tmp`。
 
-``powershell
+```powershell
 cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets
 $common = @('--locked','--offline','-j1','--target','x86_64-pc-windows-msvc','--target-dir','target/current')
 cargo test @common --test native_ranged -- --test-threads=1
@@ -76,7 +76,7 @@ cargo test @common --test native_world
 cargo test @common --test native_fire_arrow -- --test-threads=1
 cargo test @common --test native_ice_arrow -- --test-threads=1
 cargo test @common --lib ranged_effect::tests
-``
+```
 
 最終 `cargo check --all-targets` 結束碼 **0**，gate **PASS**。八組測試合計 **61 passed、0 failed、0 ignored**，每組結束碼0且gate PASS。完成全部測試後再執行一次同參數cargo check，結束碼同為0。
 
