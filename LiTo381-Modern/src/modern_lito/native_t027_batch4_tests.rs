@@ -333,9 +333,10 @@ fn rejections_keep_their_codes_and_silence_times_out() {
 
 /// The exact original `list.spr` rows (row15937, SHA256 523C61AD…), text only.
 const ROWS: &[u8] = b"#230  1       lfs orange          0.Breath(0 7,0.0:4 0.1:2[124 0.2:2 0.3:4 0.4:4 0.5:2 0.6:2) 104.attr(8)\n#760  1       fog of sleeping     0.fire(0 21,0.20:6 0.0:6[136 0.1:6 0.2:6 0.3:6 0.4:6 0.5:6 0.6:6 0.7:6 0.8:6 0.9:6 0.10:6 0.11:6 0.12:6 0.13:6 0.14:6 0.15:6 0.16:6 0.17:6 0.18:6 0.19:6) 104.attr(8)\n#2230 1   disease m\t\t  0.animation(0 11,0.10:3 0.0:3[839 0.1:3 0.2:3 0.3:3 0.4:3 0.5:3 0.6:3 0.7:3 0.8:3 0.9:3) 102.type(0) 104.attr(128)\n";
-/// A parse failure of a changed row is also a rejection (never a fallback).
+/// The file header declares exactly the three excerpted rows. A parse failure of a
+/// changed row is also a rejection (never a fallback).
 fn qualify(rows: &[u8]) -> std::result::Result<Vec<(u32, u8, super::super::sprite_actions::Animation)>, String> {
-    let c = SpriteActionCatalog::parse_for_inspection(&[b"11297 0 0\n".as_slice(), rows].concat(), ActionLimits::default())
+    let c = SpriteActionCatalog::parse_for_inspection(&[b"3 0 0\n".as_slice(), rows].concat(), ActionLimits::default())
         .map_err(|e| format!("parse: {e}"))?;
     super::super::native_additional_finite_effects::qualify_batch4(&c).map_err(|e| format!("qualify: {e:?}"))
 }
