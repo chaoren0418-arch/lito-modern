@@ -115,6 +115,7 @@ struct Ui {
     inventory_icons: super::native_inventory_icons::Service,
     inventory_icon_rows: Vec<(u32, u16)>,
     inventory_choice: Option<super::native_item_actions::Choice>,
+    missing_ammo: super::native_equipment::MissingAmmoNotice,
     skill_item_target: Option<super::native_skills::ItemTarget>,
     summon_choice: Option<super::native_skills::SummonTarget>,
     teleport_rows: Vec<String>,
@@ -743,20 +744,20 @@ impl Ui {
     }
     unsafe fn draw_inventory(&self, draw: &DRAWITEMSTRUCT) {
         let selected = draw.itemState.0 & ODS_SELECTED.0 != 0;
-        let background = GetSysColor(if selected {
-            COLOR_HIGHLIGHT
-        } else {
-            COLOR_WINDOW
-        });
+        // Rows are black, as the native name colours (white, pale yellow) and
+        // the blessed halo assume a dark surface; this is a layout choice of
+        // this list, not the original inventory frame.
+        let background = if selected { GetSysColor(COLOR_HIGHLIGHT) } else { 0 };
         FillRect(
             draw.hDC,
             &draw.rcItem,
-            GetSysColorBrush(if selected {
-                COLOR_HIGHLIGHT
+            if selected {
+                GetSysColorBrush(COLOR_HIGHLIGHT)
             } else {
-                COLOR_WINDOW
-            }),
+                HBRUSH(GetStockObject(BLACK_BRUSH).0)
+            },
         );
+        let mut name_color = super::native_text_format::WHITE;
         if self.inventory_owner != self.controller.snapshot().inventory.owner {
             return;
         }
@@ -773,9 +774,14 @@ impl Ui {
             .get(id)
             .filter(|_| !self.ground_view)
         {
+            name_color = super::native_text_format::name_color(item.identified, item.blessing)
+                .unwrap_or(name_color);
             if let Some(icon) = self.inventory_icons.icon(item.icon) {
                 let b = background;
-                let pixels = icon.bgra([b as u8, (b >> 8) as u8, (b >> 16) as u8]);
+                let pixels = icon.bgra_styled(
+                    [b as u8, (b >> 8) as u8, (b >> 16) as u8],
+                    super::native_inventory_icons::IconStyle::of(item.identified, item.blessing),
+                );
                 let mut info = BITMAPINFO::default();
                 info.bmiHeader = BITMAPINFOHEADER {
                     biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
@@ -806,18 +812,19 @@ impl Ui {
             }
         }
         let old_font = SelectObject(draw.hDC, self.font.into());
+        let [r, g, b] = super::native_text_format::rgb(name_color);
         let old_color = SetTextColor(
             draw.hDC,
-            COLORREF(GetSysColor(if selected {
-                COLOR_HIGHLIGHTTEXT
+            if selected {
+                COLORREF(GetSysColor(COLOR_HIGHLIGHTTEXT))
             } else {
-                COLOR_WINDOWTEXT
-            })),
+                COLORREF(u32::from(r) | u32::from(g) << 8 | u32::from(b) << 16)
+            },
         );
         let old_mode = SetBkMode(draw.hDC, TRANSPARENT);
         let mut text: Vec<u16> = label.encode_utf16().collect();
         let mut area = draw.rcItem;
-        area.left += px(if self.ground_view { 4 } else { 44 });
+        area.left += px(if self.ground_view || *id == 0 { 4 } else { 44 });
         area.right -= px(4);
         DrawTextW(
             draw.hDC,
@@ -1522,14 +1529,31 @@ impl Ui {
             let _ = InvalidateRect(Some(self.parent), None, true);
         }
         let inventory = &self.controller.snapshot().inventory;
-        let mut rows: Vec<_> = inventory
-            .items
-            .values()
-            .map(|i| {
-                (
-                    i.id,
-                    super::native_inventory_names::label(i, self.inventory_names.catalog()).text,
-                )
+        // 裝備中 → 彈藥 → 其他；標題列的 ID 為 0（物品 ID 不會是 0），不能被選為物品。
+        let stance = {
+            let snapshot = self.controller.snapshot();
+            snapshot
+                .phase
+                .active_world()
+                .then(|| snapshot.world.own_actor().map(|a| a.walk_action))
+                .flatten()
+        };
+        let mut rows: Vec<_> = super::native_equipment::Summary::of(inventory)
+            .rows(stance)
+            .into_iter()
+            .filter_map(|row| match row {
+                super::native_equipment::Row::Header(text) => Some((0, text)),
+                super::native_equipment::Row::Item(id) => inventory.items.get(&id).map(|i| {
+                    (
+                        id,
+                        super::native_inventory_names::label_as(
+                            i,
+                            self.inventory_names.catalog(),
+                            inventory.owner.as_ref().map(|o| o.character.as_str()),
+                        )
+                        .text,
+                    )
+                }),
             })
             .collect();
         if self.ground_view {
@@ -1553,10 +1577,13 @@ impl Ui {
                 .iter()
                 .map(|choice| {
                     let a = &choice.item;
+                    // Ground rows are plain text: inline format codes of the
+                    // resolved name are not drawn as characters.
                     let name = self
                         .inventory_names
                         .catalog()
                         .and_then(|c| c.resolve(&a.name).ok())
+                        .map(|n| super::native_inventory_names::plain(&n))
                         .unwrap_or_else(|| a.name.clone());
                     (
                         a.id,
@@ -1611,7 +1638,8 @@ impl Ui {
             let selected = usize::try_from(index)
                 .ok()
                 .and_then(|i| self.inventory_rows.get(i))
-                .map(|r| r.0);
+                .map(|r| r.0)
+                .filter(|id| *id != 0);
             let same_owner = owner == self.inventory_owner && !self.ground_view;
             if self.ground_view {
                 self.pickup_choice = None;
@@ -1661,11 +1689,13 @@ impl Ui {
             let height = send(list, LB_GETITEMHEIGHT, WPARAM(0), LPARAM(0)).0.max(1) as i32;
             let mut rect = RECT::default();
             let _ = GetClientRect(list, &mut rect);
-            self.inventory_icon_rows
+            // 依清單實際顯示的列（含分組標題）取圖示，不依背包原順序。
+            let items = &self.controller.snapshot().inventory.items;
+            self.inventory_rows
                 .iter()
                 .skip(top)
                 .take(((rect.bottom.max(0) / height) + 2).min(32) as usize)
-                .map(|r| r.1)
+                .filter_map(|r| items.get(&r.0).map(|i| i.icon))
                 .collect()
         } else {
             vec![]
@@ -1680,6 +1710,11 @@ impl Ui {
         self.refresh_skills();
         let snapshot = self.controller.snapshot();
         let phase = snapshot.phase;
+        let missing_ammo = self.missing_ammo.observe(
+            snapshot.world.system_message_count,
+            snapshot.world.last_system_message.as_ref(),
+            snapshot.inventory.revision,
+        );
         let is_character = matches!(
             phase,
             LoginPhase::CharactersReady | LoginPhase::CharacterPending
@@ -2005,6 +2040,9 @@ impl Ui {
                             super::native_item_actions::Feedback::SceneUpdated
                             | super::native_item_actions::Feedback::TargetNoResponse) {
                             snapshot.item_feedback.label().to_owned()
+                        } else if missing_ammo {
+                            // 伺服器拒絕遠程攻擊的原文；背包一有變動就不再顯示。
+                            super::native_equipment::MISSING_AMMO_MESSAGE.to_owned()
                         } else if let Some((9,text)) = &snapshot.world.last_system_message {
                             if text.starts_with("戰鬥中無法退出，請停止攻擊並等待 ") {
                                 text.clone()
@@ -2012,8 +2050,12 @@ impl Ui {
                         } else {format!("{selection}；F1 治癒／F2 護盾／F3 光箭")};
                         let buffs = super::native_status_icons::summary_with_mp(&snapshot.world, frame.vitals.mp,
                             super::native_status4183::now_ms(), self.controller.skill_cooldown_ms(std::time::Instant::now()));
-                        format!("地圖 {}　HP {}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}",
-                            snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),buffs,target,ground,
+                        // 弓／鐵手甲姿勢才顯示彈藥；數量只來自伺服器的背包封包。
+                        let ammo = snapshot.world.own_actor()
+                            .and_then(|a| super::native_equipment::Summary::of(&snapshot.inventory).hud(a.walk_action))
+                            .map(|text| format!("　{text}")).unwrap_or_default();
+                        format!("地圖 {}　HP {}{}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}",
+                            snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),ammo,buffs,target,ground,
                             snapshot.attack_feedback.text(),
                             match self.controller.triple_arrow_receipt() {
                                 Some(receipt)=>format!("{}（{receipt}）",snapshot.skill_feedback.label()),
@@ -2460,6 +2502,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                 ui.release_input(release == hud::Release::InputAndAudio);
             }
             match msg {
+                // Empty list area matches the black owner-drawn rows.
+                WM_CTLCOLORLISTBOX if HWND(lparam.0 as *mut _) == ui.control(INVENTORY_LIST) => {
+                    return LRESULT(GetStockObject(BLACK_BRUSH).0 as isize);
+                }
                 WM_DRAWITEM => {
                     let draw = &*(lparam.0 as *const DRAWITEMSTRUCT);
                     if draw.CtlID == u32::from(SKILLS)
@@ -2771,6 +2817,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 inventory_icons: super::native_inventory_icons::Service::new(resource_root.clone()),
                 inventory_icon_rows: vec![],
                 inventory_choice: None,
+                missing_ammo: Default::default(),
                 skill_item_target: None,
                 summon_choice:None,
                 teleport_rows:vec![],

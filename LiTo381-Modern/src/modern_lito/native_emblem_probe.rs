@@ -27,11 +27,14 @@ impl Probe {
         let own = w.own_actor().context("emblem own")?;
         let bot = w.actors.get(&2).context("emblem bot")?;
         let (own_id, bot_id, requests, responses, draws) = match self.step {
+            // Draw counts follow native 489D15: only the hover actor (the bot
+            // in this fixture) shows its image beside the name, so the own
+            // image and an uncached bot ID contribute no row.
             0 => (0, u32::MAX, 1, 1, 1),
-            1 => (u32::MAX, u32::MAX, 1, 1, 2),
-            2 => (u32::MAX, 0x80000000, 2, 2, 2),
-            3 => (u32::MAX, 7, 3, 2, 1),
-            4 => (u32::MAX, 0, 3, 2, 1),
+            1 => (u32::MAX, u32::MAX, 1, 1, 1),
+            2 => (u32::MAX, 0x80000000, 2, 2, 1),
+            3 => (u32::MAX, 7, 3, 2, 0),
+            4 => (u32::MAX, 0, 3, 2, 0),
             5 => (0, 0, 3, 2, 0),
             _ => unreachable!(),
         };
