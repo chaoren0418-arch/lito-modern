@@ -30,7 +30,16 @@ cargo test --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir t
 exit=0   （只編譯，未執行；沒有 test result:，不算通過）
 ```
 
-新增回歸 `collision_tests_delayed_arrow_hurt_on_local_body_retires_held_walk_but_bystander_hit_does_not`（`native_login_movement_tests.rs`）走真實路徑：`World::accept` 解 29 位元組 S_ATTACK 箭矢封包 → `Animator::pose` 由合成 sprite 目錄的攻擊影格產生 `Hit` → `native_projectiles::Projectiles::update` 發射並在抵達時產生 impact → `dispatch_impact`（與 `Model::draw` 同一函式）→ 依本地姿勢是否 `idle` 建立 `Frame` → `continue_movement`。驗證：封包不改受擊者 action sequence；命中旁觀者被接受但本地輸入保留並送到 C_MOVE 送出端；命中本地時受傷姿勢期間不可移動、輸入已清空；受傷動畫結束後舊輸入仍為空、`predicted_moves==0`；重新按下才再送到送出端。**本案例的執行結果待 CI**，不在本機宣稱通過。
+新增回歸 `collision_tests_delayed_arrow_hurt_on_local_body_retires_held_walk_but_bystander_hit_does_not`（`native_login_movement_tests.rs`）走真實路徑：`World::accept` 解 29 位元組 S_ATTACK 箭矢封包 → `Animator::pose` 由合成 sprite 目錄的攻擊影格產生 `Hit` → `native_projectiles::Projectiles::update` 發射並在抵達時產生 impact → `dispatch_impact`（與 `Model::draw` 同一函式）→ 依本地姿勢是否 `idle` 建立 `Frame` → `continue_movement`。驗證：封包不改受擊者 action sequence；命中旁觀者被接受但本地輸入保留並送到 C_MOVE 送出端；命中本地時受傷姿勢期間不可移動、輸入已清空；受傷動畫結束後舊輸入仍為空、`predicted_moves==0`；重新按下才再送到送出端。
+
+CI（PR #217，run 43150934729，commit `d714d5f`，已合併 origin/main）`cargo test --locked --lib --no-fail-fast` 結果：
+
+```text
+test modern_lito::native_login::movement_tests::collision_tests_delayed_arrow_hurt_on_local_body_retires_held_walk_but_bystander_hit_does_not ... ok
+test result: ok. 2045 passed; 0 failed; 585 ignored; 0 measured; 0 filtered out; finished in 10.41s
+```
+
+`native_login::movement_tests` 下其餘 11 個既有碰撞／移動案例同次皆為 ok。585 個 ignored 是專案既有標記，不算通過。
 
 以下為第 1 次嘗試的本機紀錄（規定生效前）：
 
@@ -123,7 +132,7 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 - G04.4／G04.7 的完整進出場、死亡復活、換圖與同 ID 替換同步由 T044-3 處理。本張只測其既有狀態如何影響占位，不宣稱完成全部生命週期。
 - 尚未收到的物件／場地狀態不能本地預判；保留伺服器權威修正。既有探針的路線搜尋仍以靜態地形及目的格避障為主，每一步經 `checked_move_request` 時再核對動態方向邊；不宣稱新增動態自動尋路。
 - 完整測試庫與 Release 不在本輪驗證聲明內。
-- 第 2 次嘗試的新案例與修改後的既有 lib 測試：本機只編譯，執行結果以 PR CI 的 `cargo test --lib` 為準。`tests/` 下的整合測試（`native_navigation` 等）CI 不跑，第 2 次修改後未重跑。
+- 第 2 次嘗試的新案例與修改後的既有 lib 測試：本機只編譯，執行結果以 PR CI 的 `cargo test --lib` 為準（上方已附通過結果）。`tests/` 下的整合測試（`native_navigation` 等）CI 不跑，第 2 次修改後未重跑。
 - 實機上箭矢命中時按住方向鍵的手感（受傷結束後需重按）待真機驗收。
 
 ## 產出路徑
