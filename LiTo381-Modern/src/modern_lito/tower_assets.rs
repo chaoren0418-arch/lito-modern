@@ -44,6 +44,19 @@ const LIST_SHA: [u8; 32] = [
     0xa8, 0xb4, 0x43, 0x5f, 0x01, 0x7e, 0x70, 0x74, 0xd3, 0x5b, 0x58, 0x34, 0xe8, 0xb9, 0xf1, 0x27,
 ];
 
+// Exact paired generations; never mix a pack with another generation's text.
+// #163 additionally reviewed the current launcher pack's five healing definitions;
+// action, attachment, SPR hash and blank-slot qualification below remains mandatory.
+const TW_HEALING_GENERATIONS: [([u8; 32], [u8; 32], usize); 2] = [
+    ([0xb3, 0x78, 0x8d, 0xf4, 0xc7, 0xf0, 0x77, 0xef, 0x3f, 0xf1, 0x5b, 0x07, 0x0a, 0x5d, 0x02, 0x0c, 0xcb, 0x22, 0x4e, 0x48, 0xde, 0xc3, 0x75, 0x7c, 0x4c, 0xd3, 0x45, 0x28, 0xfc, 0xa4, 0xb2, 0x18],
+     [0x7e, 0xbe, 0x2b, 0x46, 0x4c, 0x8b, 0x1e, 0xa9, 0xc5, 0x8a, 0xc9, 0x85, 0xdd, 0x8f, 0xf4, 0xc8, 0x23, 0x78, 0x4d, 0x82, 0x31, 0x89, 0x42, 0x62, 0xed, 0xdc, 0xd7, 0x69, 0x1c, 0xa9, 0x40, 0x08], 5974928),
+    ([0x92, 0xb5, 0x12, 0xa3, 0x23, 0x49, 0xd0, 0x77, 0x5e, 0x10, 0x36, 0xf1, 0x83, 0x2e, 0x21, 0xf1, 0x14, 0x1a, 0xe6, 0x6e, 0x64, 0x82, 0x1d, 0x69, 0x78, 0xf0, 0x87, 0x92, 0x46, 0xe5, 0x9c, 0xa7],
+     [0x28, 0xc4, 0xfc, 0x60, 0x08, 0x33, 0xfb, 0x8c, 0x60, 0x9a, 0xb1, 0x95, 0xa6, 0x7f, 0xf9, 0x26, 0xe8, 0xff, 0xa5, 0x71, 0x10, 0x0d, 0x8d, 0x4b, 0x38, 0x9a, 0x23, 0xbe, 0x8c, 0x2c, 0x8d, 0xb8], 5990880),
+];
+fn reviewed_tw_healing_generation(pack: [u8; 32], text: [u8; 32], bytes: usize) -> bool {
+    TW_HEALING_GENERATIONS.contains(&(pack, text, bytes))
+}
+
 #[derive(Debug)]
 pub enum HonorAssetError {
     Cancelled,
@@ -286,10 +299,8 @@ impl SharedEffectBank {
         cancel: &AtomicBool,
     ) -> Result<Self> {
         active(cancel)?;
-        const PACK_SHA: [u8; 32] = [0xb3, 0x78, 0x8d, 0xf4, 0xc7, 0xf0, 0x77, 0xef, 0x3f, 0xf1, 0x5b, 0x07, 0x0a, 0x5d, 0x02, 0x0c, 0xcb, 0x22, 0x4e, 0x48, 0xde, 0xc3, 0x75, 0x7c, 0x4c, 0xd3, 0x45, 0x28, 0xfc, 0xa4, 0xb2, 0x18];
-        const TEXT_SHA: [u8; 32] = [0x7e, 0xbe, 0x2b, 0x46, 0x4c, 0x8b, 0x1e, 0xa9, 0xc5, 0x8a, 0xc9, 0x85, 0xdd, 0x8f, 0xf4, 0xc8, 0x23, 0x78, 0x4d, 0x82, 0x31, 0x89, 0x42, 0x62, 0xed, 0xdc, 0xd7, 0x69, 0x1c, 0xa9, 0x40, 0x08];
-        if context.pack_sha256()!=PACK_SHA || context.text_sha256()!=TEXT_SHA
-            || context.decoded_bytes()!=5_974_928 || context.catalog().sprites.len()!=5 {
+        if !reviewed_tw_healing_generation(context.pack_sha256(), context.text_sha256(), context.decoded_bytes())
+            || context.catalog().sprites.len()!=5 {
             return Err(HonorAssetError::Unsupported("unreviewed TW healing catalog generation"));
         }
         let catalog=context.catalog();let mut qualified=Vec::new();
@@ -320,7 +331,7 @@ impl SharedEffectBank {
         let mut inherited_slots=qualified.iter().find(|(gfx,_,_)|*gfx==11725).unwrap().2.clone();
         for f in &mut inherited_slots.frames {f.events.clear();}
         qualified.push((11726,0,inherited_slots));
-        Self::load_qualified_profile(root,0,TEXT_SHA,catalog,qualified,&[],false,ReferencedFramePolicy::TwHealingFamily,cancel)
+        Self::load_qualified_profile(root,0,context.text_sha256(),catalog,qualified,&[],false,ReferencedFramePolicy::TwHealingFamily,cancel)
     }
     // Both callers above bind a reviewed generation before this bounded shared loader.
     fn load_qualified_profile(
@@ -935,6 +946,23 @@ impl TowerAssets {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn tw_healing_generations_reject_mixed_changed_and_unknown_identity() {
+        for (pack, text, bytes) in super::TW_HEALING_GENERATIONS {
+            assert!(super::reviewed_tw_healing_generation(pack, text, bytes));
+            assert!(!super::reviewed_tw_healing_generation(pack, text, bytes + 1));
+            let mut changed_pack = pack; changed_pack[0] ^= 1;
+            assert!(!super::reviewed_tw_healing_generation(changed_pack, text, bytes));
+            let mut changed_text = text; changed_text[0] ^= 1;
+            assert!(!super::reviewed_tw_healing_generation(pack, changed_text, bytes));
+            for (other_pack, other_text, other_bytes) in super::TW_HEALING_GENERATIONS {
+                if pack == other_pack { continue; }
+                assert!(!super::reviewed_tw_healing_generation(pack, other_text, bytes));
+                assert!(!super::reviewed_tw_healing_generation(other_pack, text, other_bytes));
+            }
+        }
+        assert!(!super::reviewed_tw_healing_generation([0; 32], [0; 32], 0));
+    }
     use super::super::{
         honor_healing_effect::HonorHealingAssets, sprite_actions::ActionDefinition,
     };
