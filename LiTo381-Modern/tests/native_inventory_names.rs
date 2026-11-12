@@ -50,23 +50,25 @@ fn references_use_actual_base_slots_then_lito_offset_and_preserve_literals() {
     assert_eq!(c.resolve("魔法寶石").unwrap(), "魔法寶石");
 }
 #[test]
-fn invalid_or_unsupported_references_never_publish_partial_names_or_change_wire_item() {
+fn unresolvable_names_keep_the_wire_item_and_native_fallbacks_are_published() {
     let c = catalog();
-    for raw in [
-        "$1",
-        "$2",
-        "$3",
-        "$4",
-        "$6",
-        "$20002",
-        "$20003",
-        "$19999",
-        "$4294967296",
-        "$",
-        "$-1",
-        "$0 / $1",
-        "\u{c}Y$0",
+    // Native 4D44A0: a missing ID is `???`, entries are copied without a
+    // rescan, `$` before a non-digit is dropped.
+    for (raw, shown) in [
+        ("$3", "\\fTcolored"),
+        ("$4", "$0"),
+        ("$6", "???"),
+        ("$20002", "???"),
+        ("$20003", "???"),
+        ("$19999", "???"),
+        ("$-1", "-1"),
+        ("$0 / $1", "Sword / "),
     ] {
+        assert_eq!(c.resolve(raw).unwrap(), shown, "{raw}");
+    }
+    assert_eq!(names::label(&item("$3"), Some(&c)).name, "colored");
+    assert_eq!(c.expand("$2", Some("Hero")).unwrap(), "Hero template");
+    for raw in ["$1", "$2", "$4294967296", "$", "\u{c}Y$0"] {
         let i = item(raw);
         let before = i.clone();
         let row = names::label(&i, Some(&c));
@@ -90,12 +92,15 @@ fn labels_resolve_only_presentation_and_count_stays_authoritative() {
     let a = names::label(&i, Some(&c));
     assert_eq!(a.name, "Sword (2)");
     assert_eq!(a.count, 2);
-    assert_eq!(a.text, "Sword (2) × 2");
+    // The server's own `(count)` suffix is not shown again beside the count.
+    assert_eq!(a.text, "Sword × 2");
     assert_eq!(i, before);
     i.count = 1;
     let b = names::label(&i, Some(&c));
     assert_eq!(b.name, "Sword (2)");
     assert_eq!(b.count, 1);
+    // A number that is not the current count is kept as sent.
+    assert_eq!(b.text, "Sword (2) × 1");
     i.name = "$20001".into();
     assert_eq!(names::label(&i, Some(&c)).name, "Lito shield");
 }
@@ -138,7 +143,7 @@ fn original_tables_use_lito_first_base_miss_fallback_and_known_cp950_names() {
         c.sources[1].sha256,
         "73243064A856FADE75DE110C5D25F6B1F19ED51C3BA7B1219BBE44ED7E84006B"
     );
-    assert!(c.resolve("$20171").is_err());
+    assert_eq!(c.resolve("$20171").unwrap(), "???");
     let output = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("target/current/verification/native-inventory-names.json");
     std::fs::write(output,serde_json::to_vec_pretty(&serde_json::json!({"sources":c.sources,"examples":[c.resolve("$26 (2)").unwrap(),c.resolve("$20000 / $20026").unwrap()]})).unwrap()).unwrap();

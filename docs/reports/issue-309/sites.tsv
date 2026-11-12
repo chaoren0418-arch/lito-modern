@@ -1,0 +1,187 @@
+# kind	file	fn	verdict	tests	details	note
+env	LiTo381-Modern/src/modern_lito/resources.rs	SharedArchive::open_index	ro-root	60	std::env::current_dir	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+env	LiTo381-Modern/src/modern_lito/resources.rs	read_shared_loose_file	ro-root	38	std::env::current_dir	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-probe	LiTo381-Modern/src/modern_lito/native_call_lightning.rs	Effects::prepare_with_loader	ro-root	32	.canonicalize()	root.canonicalize()。
+fs-probe	LiTo381-Modern/src/modern_lito/native_cone_cold.rs	Effects::prepare_with_loader	ro-root	32	.canonicalize()	root.canonicalize()。
+fs-probe	LiTo381-Modern/src/modern_lito/native_disintegrate.rs	Effects::prepare_with_loader	ro-root	33	.canonicalize()	root.canonicalize()。
+fs-probe	LiTo381-Modern/src/modern_lito/native_resources.rs	PinnedFile::open_checked	ro-root	42	.metadata()	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-probe	LiTo381-Modern/src/modern_lito/native_resources.rs	PinnedFile::verify	ro-root	42	.metadata()	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-probe	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Model::load_terrain	ro-root	32	.is_file()	read_pin／Model::load_terrain：open_readonly＋SHA-256、metadata、read_dir、is_file。
+fs-probe	LiTo381-Modern/src/modern_lito/native_world_scene.rs	read_pin	ro-root	33	.metadata()	read_pin／Model::load_terrain：open_readonly＋SHA-256、metadata、read_dir、is_file。
+fs-probe	LiTo381-Modern/src/modern_lito/resources.rs	SharedArchive::open_index	ro-root	60	.metadata()	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-probe	LiTo381-Modern/src/modern_lito/resources.rs	read_shared_loose_file	ro-root	38	.metadata()	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-probe	LiTo381-Modern/src/modern_lito/resources.rs	verify_open_path	ro-root	64	.is_dir() | .is_file() | .metadata()	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-probe	LiTo381-Modern/src/modern_lito/shared_action_catalog.rs	SharedActionCatalog::reuse_for_model	ro-root	36	.canonicalize() | .is_dir()	symlink_metadata／canonicalize 檢查資源根身分。
+fs-read	LiTo381-Modern/src/modern_lito/native_backend_485f_evidence.rs	actual_runtime_rejection_close_and_join_remain_distinct_from_world_admission	net-unreviewed	1	std::fs::read	讀 logs/continuation-20261003/r486-map-binding.json（原機 snapshot manifest）後啟動 native_city_runtime::Runtime 工作執行緒；測試斷言 workers_started==0，但 Runtime 內可達 native_login_transport::Transport::connect，本張沒有審結。
+fs-read	LiTo381-Modern/src/modern_lito/native_login_bootstrap.rs	JavaFixtureAdapter::load	net-unreviewed	1	std::fs::File::open	JavaFixtureAdapter::load 與 redirect。
+fs-read	LiTo381-Modern/src/modern_lito/native_login_events.rs	FixtureProfile::load	net-unreviewed	1	std::fs::File::open	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+fs-read	LiTo381-Modern/src/modern_lito/native_resources.rs	NativeObservedArchives::validate_sources	ro-root	39	fs::canonicalize	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-read	LiTo381-Modern/src/modern_lito/native_resources.rs	NativeRetainedGeometry::open	ro-root	39	fs::canonicalize	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-read	LiTo381-Modern/src/modern_lito/native_resources.rs	NativeRetainedGeometry::validate_sources	ro-root	39	fs::canonicalize	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-read	LiTo381-Modern/src/modern_lito/native_resources.rs	PinnedFile::open_checked	ro-root	42	fs::canonicalize	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-read	LiTo381-Modern/src/modern_lito/native_resources.rs	SharedNativeArchives::open	ro-root	33	fs::canonicalize	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-read	LiTo381-Modern/src/modern_lito/native_resources.rs	native_sector_names	ro-root	39	fs::read_dir	PinnedFile::open_checked／verify、native_sector_names、NativeRetainedGeometry、NativeObservedArchives、SharedNativeArchives：canonicalize／read_dir／metadata 與 resources::open_readonly；雜湊後持有拒寫 handle 到 owner 釋放。
+fs-read	LiTo381-Modern/src/modern_lito/native_startup_host.rs	FixtureStartupHost::load	net-unreviewed	1	std::fs::File::open	FixtureStartupHost::load（要求 loopback 數字位址）與 target()。
+fs-read	LiTo381-Modern/src/modern_lito/native_water_light.rs	Shade::load	ro-root	42	std::fs::File::open	File::open(root/shade.dat) 唯讀。
+fs-read	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Model::load_terrain	ro-root	32	std::fs::metadata | std::fs::read_dir	read_pin／Model::load_terrain：open_readonly＋SHA-256、metadata、read_dir、is_file。
+fs-read	LiTo381-Modern/src/modern_lito/resources.rs	SharedArchive::open_index	ro-root	60	fs::canonicalize	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-read	LiTo381-Modern/src/modern_lito/resources.rs	open_readonly	ro-root	64	OpenOptions::new (no write/append/create/truncate flag in this fn)	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-read	LiTo381-Modern/src/modern_lito/resources.rs	read_shared_loose_file	ro-root	38	fs::canonicalize	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-read	LiTo381-Modern/src/modern_lito/resources.rs	reject_reparse_chain	ro-root	64	fs::symlink_metadata	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-read	LiTo381-Modern/src/modern_lito/resources.rs	verify_open_path	ro-root	64	fs::canonicalize | fs::metadata | std::os::unix::fs::MetadataExt	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+fs-read	LiTo381-Modern/src/modern_lito/shared_action_catalog.rs	SharedActionCatalog::reuse_for_model	ro-root	36	std::fs::symlink_metadata	symlink_metadata／canonicalize 檢查資源根身分。
+fs-read	LiTo381-Modern/tests/native_arena_portal.rs	close_gui_spawn_crosses_real_original_sector_before_source_entrance	ro-root	1	std::fs::read | std::fs::read_dir	read_dir／read D:\lineage開發\0-客戶端\LiTo\LTmap\{563,573,574}（寫死路徑）。
+fs-read	LiTo381-Modern/tests/native_arena_portal.rs	original_101_and_102_sources_are_available_without_client_destinations	ro-root	1	std::fs::read | std::fs::read_dir	read_dir／read D:\lineage開發\0-客戶端\LiTo\LTmap\{563,573,574}（寫死路徑）。
+fs-read	LiTo381-Modern/tests/native_navigation.rs	actual_ltmap_all_32768_direction_tests_match_deployed_server	ro-root	1	std::fs::read	read_dir／read LTmap\510、LTmap\564\7fff8000.s32（寫死路徑）。
+fs-read	LiTo381-Modern/tests/native_navigation.rs	honor_spawns_route_across_original_sectors_and_avoid_dynamic_cells	ro-root	1	std::fs::read | std::fs::read_dir	read_dir／read LTmap\510、LTmap\564\7fff8000.s32（寫死路徑）。
+fs-read	LiTo381-Modern/tests/native_terrain_residence.rs	sources	ro-root	1	std::fs::read | std::fs::read_dir	read_dir／read LiTo\LTmap\<map>（寫死路徑）。
+fs-read	LiTo381-Modern/tests/native_water_light.rs	all_native_water_channel_tables_and_private_CRT_resource_plane_match	ro-root	1	std::fs::read	read D:\lineage開發\0-客戶端\shade.dat（寫死路徑）。
+fs-read	LiTo381-Modern/tests/support/native_fragment_reference.rs	full_native_fixture	ro-root	4	std::fs::read | std::fs::read_dir	read_dir／read <root>\LiTo\LTmap\<map>。
+fs-write	LiTo381-Modern/src/modern_lito/native_backend_485f_evidence.rs	save_test_report	write-owned	6	fs::OpenOptions::new +create_new/write | fs::create_dir | fs::create_dir_all	寫 <CARGO_MANIFEST_DIR>/target/current/scratch/native-backend-485f-evidence/run-<pid>-<n>/<prefix>-check-<name>.json；目錄用 create_dir 搶占、檔案用 create_new，不覆寫既有檔。std::process::id 只取 PID 命名。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	<Session as Drop>::drop	falsepos	1	Shutdown::Both	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	<Session as Drop>::drop	loopback	2	Shutdown::Both	c.start(peer, …) 的 peer 是同一測試 listener.local_addr()（tests/native_game_timers.rs:113–146）。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	Session	falsepos	1	TcpStream	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	Session	loopback	2	TcpStream	c.start(peer, …) 的 peer 是同一測試 listener.local_addr()（tests/native_game_timers.rs:113–146）。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	Session::connect	falsepos	1	TcpStream::connect_timeout	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	Session::connect	loopback	2	TcpStream::connect_timeout	c.start(peer, …) 的 peer 是同一測試 listener.local_addr()（tests/native_game_timers.rs:113–146）。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	poll_frame	falsepos	1	TcpStream	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	poll_frame	loopback	2	TcpStream	c.start(peer, …) 的 peer 是同一測試 listener.local_addr()（tests/native_game_timers.rs:113–146）。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	wait_frame	falsepos	1	TcpStream	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	wait_frame	loopback	2	TcpStream	c.start(peer, …) 的 peer 是同一測試 listener.local_addr()（tests/native_game_timers.rs:113–146）。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	write_frame	falsepos	1	TcpStream	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+net	LiTo381-Modern/src/modern_lito/native_connection.rs	write_frame	loopback	2	TcpStream	c.start(peer, …) 的 peer 是同一測試 listener.local_addr()（tests/native_game_timers.rs:113–146）。
+net	LiTo381-Modern/src/modern_lito/native_entry_transfer.rs	Runtime::start_source_transfer_branch	net-unreviewed	1	SocketAddrV4::new	轉移分支的位址組裝。
+net	LiTo381-Modern/src/modern_lito/native_entry_transfer.rs	address_from_word	net-unreviewed	1	Ipv4Addr::from	轉移分支的位址組裝。
+net	LiTo381-Modern/src/modern_lito/native_java_return.rs	State	net-unreviewed	1	std::net::SocketAddrV4	State 內含 SocketAddrV4 值。
+net	LiTo381-Modern/src/modern_lito/native_login_bootstrap.rs	Change	net-unreviewed	1	std::net::SocketAddrV4	JavaFixtureAdapter::load 與 redirect。
+net	LiTo381-Modern/src/modern_lito/native_login_bootstrap.rs	Runtime::redirect_login_bootstrap	net-unreviewed	1	std::net::SocketAddrV4::new	JavaFixtureAdapter::load 與 redirect。
+net	LiTo381-Modern/src/modern_lito/native_login_events.rs	Runtime::reconnect_login_bootstrap_fixture	net-unreviewed	1	SocketAddr::V4 | std::net::SocketAddrV4	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+net	LiTo381-Modern/src/modern_lito/native_login_events.rs	Runtime::reconnect_source_transfer_fixture	net-unreviewed	1	SocketAddr::V4 | std::net::SocketAddrV4	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+net	LiTo381-Modern/src/modern_lito/native_login_events.rs	Runtime::spawn_owned_player_fixture	net-unreviewed	1	SocketAddr::V4	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+net	LiTo381-Modern/src/modern_lito/native_login_transport.rs	Transport	net-unreviewed	1	TcpStream	Transport::connect：TcpStream::connect_timeout。
+net	LiTo381-Modern/src/modern_lito/native_login_transport.rs	Transport::connect	net-unreviewed	1	SocketAddr::V4 | TcpStream::connect_timeout	Transport::connect：TcpStream::connect_timeout。
+net	LiTo381-Modern/src/modern_lito/native_login_transport.rs	Transport::take_stream	net-unreviewed	1	TcpStream	Transport::connect：TcpStream::connect_timeout。
+net	LiTo381-Modern/src/modern_lito/native_startup.rs	Settings::validate	pure	2	std::net::IpAddr::V4	只解析 IpAddr 值，沒有 socket。
+net	LiTo381-Modern/src/modern_lito/native_startup_host.rs	FixtureStartupHost::target	net-unreviewed	1	SocketAddrV4::new	FixtureStartupHost::load（要求 loopback 數字位址）與 target()。
+net	LiTo381-Modern/tests/native_game_timers.rs	admitted_timer_bytes_share_the_ordered_counter_and_final_quit_barrier	loopback	1	TcpListener::bind	TcpListener::bind("127.0.0.1:0")，測試全程持有 listener。
+net	LiTo381-Modern/tests/native_game_timers.rs	natural_callbacks_continue_with_a_full_inbound_event_queue_and_no_UI_polling	loopback	1	TcpListener::bind	TcpListener::bind("127.0.0.1:0")，測試全程持有 listener。
+net	LiTo381-Modern/tests/native_game_timers.rs	read_body	loopback	2	TcpStream	TcpListener::bind("127.0.0.1:0")，測試全程持有 listener。
+net	LiTo381-Modern/tests/native_game_timers.rs	version	loopback	2	TcpStream	TcpListener::bind("127.0.0.1:0")，測試全程持有 listener。
+process	LiTo381-Modern/src/modern_lito/native_backend_485f_evidence.rs	save_test_report	write-owned	6	std::process::id	寫 <CARGO_MANIFEST_DIR>/target/current/scratch/native-backend-485f-evidence/run-<pid>-<n>/<prefix>-check-<name>.json；目錄用 create_dir 搶占、檔案用 create_new，不覆寫既有檔。std::process::id 只取 PID 命名。
+process	LiTo381-Modern/src/modern_lito/native_city_runtime.rs	Runtime::apply_source_packet	falsepos	1	Command::Back	Command::Back／Enter／Pan 是本模組的 enum，不是 std::process::Command。
+process	LiTo381-Modern/src/modern_lito/native_city_runtime.rs	Runtime::commit_source_boundary	falsepos	1	Command::Back	Command::Back／Enter／Pan 是本模組的 enum，不是 std::process::Command。
+process	LiTo381-Modern/src/modern_lito/native_city_runtime.rs	Runtime::handle	falsepos	1	Command::Back | Command::Enter | Command::Pan	Command::Back／Enter／Pan 是本模組的 enum，不是 std::process::Command。
+process	LiTo381-Modern/src/modern_lito/native_city_runtime.rs	Runtime::open_source_state_menu	falsepos	1	Command::Back	Command::Back／Enter／Pan 是本模組的 enum，不是 std::process::Command。
+process	LiTo381-Modern/src/modern_lito/native_city_runtime.rs	worker	falsepos	1	Command::Back | Command::Enter | Command::Pan	Command::Back／Enter／Pan 是本模組的 enum，不是 std::process::Command。
+thread	LiTo381-Modern/src/modern_lito/native_backend_485f_evidence.rs	actual_runtime_rejection_close_and_join_remain_distinct_from_world_admission	net-unreviewed	1	thread::sleep	讀 logs/continuation-20261003/r486-map-binding.json（原機 snapshot manifest）後啟動 native_city_runtime::Runtime 工作執行緒；測試斷言 workers_started==0，但 Runtime 內可達 native_login_transport::Transport::connect，本張沒有審結。
+thread	LiTo381-Modern/src/modern_lito/native_city_runtime.rs	Runtime::poll	thread	1	JoinHandle::is_finished	city worker 執行緒；行程內。
+thread	LiTo381-Modern/src/modern_lito/native_city_runtime.rs	Runtime::start_inner	thread	1	thread::Builder::new	city worker 執行緒；行程內。
+thread	LiTo381-Modern/src/modern_lito/native_connection.rs	Controller::start	falsepos	1	std::thread::Builder::new	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+thread	LiTo381-Modern/src/modern_lito/native_connection.rs	Controller::start	thread	2	std::thread::Builder::new	Controller::start 的工作執行緒與 emit 的 sleep；行程內。
+thread	LiTo381-Modern/src/modern_lito/native_connection.rs	emit	falsepos	1	std::thread::sleep	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+thread	LiTo381-Modern/src/modern_lito/native_connection.rs	emit	thread	2	std::thread::sleep	Controller::start 的工作執行緒與 emit 的 sleep；行程內。
+thread	LiTo381-Modern/src/modern_lito/native_connection.rs	emit_running	falsepos	1	std::thread::sleep	工具把 native_skill_effects.rs:671 的 clip.start() 以方法名對到 Controller::start；測試本體（tests/native_world_layers.rs:278–325）只用 LoginController::default().snapshot()，沒有呼叫 start／connect。
+thread	LiTo381-Modern/src/modern_lito/native_connection.rs	emit_running	thread	2	std::thread::sleep	Controller::start 的工作執行緒與 emit 的 sleep；行程內。
+thread	LiTo381-Modern/src/modern_lito/native_login_events.rs	Runtime::spawn_owned_player_fixture	net-unreviewed	1	thread::Builder::new	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+thread	LiTo381-Modern/src/modern_lito/native_login_events.rs	Session::reap	net-unreviewed	1	JoinHandle::is_finished	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+thread	LiTo381-Modern/src/modern_lito/native_login_events.rs	io_worker	net-unreviewed	1	thread::sleep	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+thread	LiTo381-Modern/src/modern_lito/native_login_events.rs	publish	net-unreviewed	1	thread::sleep	owned player fixture 的連線、I/O 執行緒與 FixtureProfile::load。
+thread	LiTo381-Modern/src/modern_lito/native_resources.rs	source_lock	thread	33	std::thread::sleep	Mutex try_lock 迴圈內 sleep 1ms；行程內。
+thread	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Job	thread	13	std::thread::JoinHandle	native-world-load 工作執行緒（行程內），內部呼叫 Model::load（唯讀資源根）。
+thread	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Job::with_model_at_labels_environment_finite_history	thread	13	std::thread::Builder::new	native-world-load 工作執行緒（行程內），內部呼叫 Model::load（唯讀資源根）。
+thread	LiTo381-Modern/tests/native_environment.rs	real_monotonic_water_poll_rearms_once_per_ready_generation_and_retires_game_callbacks	thread	1	std::thread::sleep	真實單調時鐘輪詢 sleep。
+thread	LiTo381-Modern/tests/native_game_timers.rs	admitted_timer_bytes_share_the_ordered_counter_and_final_quit_barrier	thread	1	std::thread::sleep | std::thread::spawn	假伺服器執行緒與 2ms 輪詢 sleep。
+thread	LiTo381-Modern/tests/native_game_timers.rs	natural_callbacks_continue_with_a_full_inbound_event_queue_and_no_UI_polling	thread	1	std::thread::sleep | std::thread::spawn	假伺服器執行緒與 2ms 輪詢 sleep。
+thread	LiTo381-Modern/tests/native_game_timers.rs	pump	thread	2	std::thread::sleep	假伺服器執行緒與 2ms 輪詢 sleep。
+thread	LiTo381-Modern/tests/native_resource_loading.rs	concurrent_shared_native_archive_windows_match_independent_original_pixels	thread	1	std::thread::scope	std::thread::scope 併發開啟共享封存（唯讀）。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	actor_cue	thread	3	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	actor_retire_and_recreate	thread	2	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	actual_async_new_model_restores_same_game_scroll_without_adding_map_jump	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	admission_lifecycle_cancelled_pending_death_holds_final_pose	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	admission_lifecycle_reused_actor_id_and_new_connection_accept_fresh_actions	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	admission_quiesce	thread	2	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	generation_model_job_rejects_same_map_old_world_with_restarted_clock	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	inactive_presentation	thread	3	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	legacy_actual_publication_binds_an_unplayed_cue_and_cancel_retires_its_owner	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	legacy_actual_stale_environment_job_defers_wire_sound_once_and_never_publishes_old_pixels	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	ordinary_pending_wire_is_retired_before_worker_can_publish	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	ordinary_wire_cue_never_replays_after_same_world_model_recreation	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	presentation_cancel_does_not_recapture_sources_from_a_pending_render	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	presentation_frame	thread	3	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	presentation_resume_same_scene_rejects_retired_render_contexts	thread	1	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+thread	LiTo381-Modern/tests/native_world_lighting_scene.rs	wire_admission_consume	thread	2	std::thread::sleep	等背景載入 Job 的 sleep 輪詢。
+time	LiTo381-Modern/src/modern_lito/native_backend_485f_evidence.rs	Recorder::new	time	6	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_backend_485f_evidence.rs	actual_runtime_rejection_close_and_join_remain_distinct_from_world_admission	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_clan_markers.rs	Bank::load	time	32	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	Controller::start_game_timers	time	2	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	IngressReceipt::decoded	time	34	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	Outgoing::timers_due	time	3	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	Session::connect	time	3	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	Session::send_body	time	3	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	wait_frame	time	3	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	write_batch	time	3	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_connection.rs	write_frame	time	3	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_entry_transfer.rs	State::arm	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_environment.rs	State::begin	time	48	std::time::Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_java_return.rs	Runtime::finish_java_return_write	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_java_return.rs	State::unexpired	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_login.rs	LoginController::cast_request	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_login.rs	LoginController::select_character_kind	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_login.rs	LoginController::select_room_map	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_login_events.rs	io_worker	time	1	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_static2941.rs	Prepared::from_bank	time	32	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_status4183.rs	now_ms	time	102	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_status4183.rs	origin	time	102	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_world_roofs.rs	<Runtime as Default>::default	time	35	Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Model::draw_at_labels_environment	time	31	std::time::Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Model::load	time	32	std::time::Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Model::load_native_terrain	time	32	std::time::Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_world_scene.rs	Model::load_terrain	time	32	std::time::Instant::now	
+time	LiTo381-Modern/src/modern_lito/native_world_view.rs	Presentation::tick_mode	time	11	std::time::Instant::now	
+time	LiTo381-Modern/tests/native_emblems.rs	bounded_requests_silent_miss_late_response_and_atomic_rejection	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_emblems.rs	world_reset_and_current_actor_id_fence_rendering	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_game_timers.rs	admitted_timer_bytes_share_the_ordered_counter_and_final_quit_barrier	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_game_timers.rs	natural_callbacks_continue_with_a_full_inbound_event_queue_and_no_UI_polling	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_game_timers.rs	pump	time	2	Instant::now	
+time	LiTo381-Modern/tests/native_map_portal.rs	original_native_entrances_encode_source_only_and_guard_every_owner_change	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_entry.rs	formal_map_rejection_is_visible_and_does_not_change_world	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	actor_cue	time	3	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	actor_retire_and_recreate	time	2	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	actual_async_new_model_restores_same_game_scroll_without_adding_map_jump	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	admission_lifecycle_cancelled_pending_death_holds_final_pose	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	admission_lifecycle_reused_actor_id_and_new_connection_accept_fresh_actions	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	admission_quiesce	time	2	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	generation_model_job_rejects_same_map_old_world_with_restarted_clock	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	inactive_presentation	time	3	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	legacy_actual_publication_binds_an_unplayed_cue_and_cancel_retires_its_owner	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	legacy_actual_stale_environment_job_defers_wire_sound_once_and_never_publishes_old_pixels	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	ordinary_pending_wire_is_retired_before_worker_can_publish	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	ordinary_wire_cue_never_replays_after_same_world_model_recreation	time	1	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	presentation_frame	time	3	Instant::now	
+time	LiTo381-Modern/tests/native_world_lighting_scene.rs	wire_admission_consume	time	2	Instant::now	
+unsafe	LiTo381-Modern/src/modern_lito/compositor_dib.rs	copy	pure	32	unsafe	SSE2 RGBA→BGRA 記憶體複製（#54 已判安全）。
+unsafe	LiTo381-Modern/src/modern_lito/descriptions.rs	decode_cp950	cp950	33	unsafe	MultiByteToWideChar(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_character_directory_fields.rs	display_ms950	cp950	1	unsafe	MultiByteToWideChar(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_clock.rs	initialize	time	4	unsafe	QueryPerformanceFrequency／QueryPerformanceCounter。
+unsafe	LiTo381-Modern/src/modern_lito/native_clock.rs	sample	time	5	unsafe	QueryPerformanceFrequency／QueryPerformanceCounter。
+unsafe	LiTo381-Modern/src/modern_lito/native_inventory.rs	Reader::string	cp950	3	unsafe	MultiByteToWideChar(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_java_room_catalog.rs	validate_cp950	cp950	1	unsafe	MultiByteToWideChar(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_java_room_departure.rs	validate_cp950	cp950	1	unsafe	MultiByteToWideChar(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_java_room_settings.rs	validate_cp950	cp950	1	unsafe	MultiByteToWideChar(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_login.rs	decode_message	cp950	112	unsafe	MultiByteToWideChar(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_login.rs	encode_text	cp950	40	unsafe	WideCharToMultiByte(950)。
+unsafe	LiTo381-Modern/src/modern_lito/native_world_text.rs	raster	gdi	32	unsafe	CreateCompatibleDC(None)＋CreateFontW(12, CHINESEBIG5_CHARSET, 無指定字體名)＋CreateDIBSection＋TextOutW；記憶體 DC，不建立視窗，Drop 釋放 GDI 物件。結果取決於主機安裝的 Big5 字型。
+unsafe	LiTo381-Modern/src/modern_lito/resources.rs	final_handle_path	ro-root	64	unsafe	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+win32	LiTo381-Modern/src/modern_lito/descriptions.rs	decode_cp950	cp950	33	MultiByteToWideChar	MultiByteToWideChar(950)。
+win32	LiTo381-Modern/src/modern_lito/native_character_directory_fields.rs	display_ms950	cp950	1	MultiByteToWideChar	MultiByteToWideChar(950)。
+win32	LiTo381-Modern/src/modern_lito/native_inventory.rs	Reader::string	cp950	3	MultiByteToWideChar	MultiByteToWideChar(950)。
+win32	LiTo381-Modern/src/modern_lito/native_java_room_catalog.rs	validate_cp950	cp950	1	MultiByteToWideChar	MultiByteToWideChar(950)。
+win32	LiTo381-Modern/src/modern_lito/native_java_room_departure.rs	validate_cp950	cp950	1	MultiByteToWideChar	MultiByteToWideChar(950)。
+win32	LiTo381-Modern/src/modern_lito/native_java_room_settings.rs	validate_cp950	cp950	1	MultiByteToWideChar	MultiByteToWideChar(950)。
+win32	LiTo381-Modern/src/modern_lito/native_login.rs	decode_message	cp950	112	MultiByteToWideChar	MultiByteToWideChar(950)。
+win32	LiTo381-Modern/src/modern_lito/native_login.rs	encode_text	cp950	40	BOOL | WideCharToMultiByte	WideCharToMultiByte(950)。
+win32	LiTo381-Modern/src/modern_lito/native_world_text.rs	raster	gdi	32	COLORREF | CreateCompatibleDC | CreateDIBSection | CreateFontW | DeleteDC | DeleteObject | GdiFlush | GetTextExtentPoint32W | GetTextFaceW | SelectObject | SetBkMode | SetTextColor | TextOutW	CreateCompatibleDC(None)＋CreateFontW(12, CHINESEBIG5_CHARSET, 無指定字體名)＋CreateDIBSection＋TextOutW；記憶體 DC，不建立視窗，Drop 釋放 GDI 物件。結果取決於主機安裝的 Big5 字型。
+win32	LiTo381-Modern/src/modern_lito/resources.rs	final_handle_path	ro-root	64	std::os::windows::ffi::OsStringExt | std::os::windows::io::AsRawHandle	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+win32	LiTo381-Modern/src/modern_lito/resources.rs	is_link	ro-root	64	std::os::windows::fs::MetadataExt	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+win32	LiTo381-Modern/src/modern_lito/resources.rs	open_readonly	ro-root	64	std::os::windows::fs::OpenOptionsExt	read_shared_loose_file／SharedArchive::open_index／reject_reparse_chain／open_readonly／verify_open_path／final_handle_path／is_link：OpenOptions 只設 read(true)，Windows share_mode=FILE_SHARE_READ（持有期間拒絕他人寫入與刪除）；current_dir 只在相對路徑時讀取；unsafe 是 GetFinalPathNameByHandleW 查詢。無寫入、刪除、建立。
+win32	LiTo381-Modern/src/modern_lito/shared_action_catalog.rs	SharedActionCatalog::reuse_for_model	ro-root	36	std::os::windows::fs::MetadataExt	symlink_metadata／canonicalize 檢查資源根身分。

@@ -24,6 +24,12 @@ use windows::{
 };
 use zeroize::Zeroizing;
 use super::native_game::pages::{Pages, Turn};
+use super::native_hud_policy as hud;
+// Multiline EDIT messages (winuser.h) used by the status box.
+const EM_GETRECT: u32 = 0x00B2;
+const EM_LINESCROLL: u32 = 0x00B6;
+const EM_GETLINECOUNT: u32 = 0x00BA;
+const EM_GETFIRSTVISIBLELINE: u32 = 0x00CE;
 #[path="native_rental_window.rs"]
 mod rental;
 #[path = "native_skill_window.rs"]
@@ -109,6 +115,7 @@ struct Ui {
     inventory_icons: super::native_inventory_icons::Service,
     inventory_icon_rows: Vec<(u32, u16)>,
     inventory_choice: Option<super::native_item_actions::Choice>,
+    missing_ammo: super::native_equipment::MissingAmmoNotice,
     skill_item_target: Option<super::native_skills::ItemTarget>,
     summon_choice: Option<super::native_skills::SummonTarget>,
     teleport_rows: Vec<String>,
@@ -144,7 +151,8 @@ struct Ui {
     closing: bool,
     font: HFONT,
 }
-struct State(RefCell<Ui>);
+/// The flag is a held-input release that arrived while the UI was borrowed.
+struct State(RefCell<Ui>, std::cell::Cell<bool>);
 struct WindowGuard(HWND);
 impl Drop for WindowGuard {
     fn drop(&mut self) {
@@ -175,8 +183,66 @@ impl Ui {
             .unwrap_or_default()
     }
     unsafe fn text(&self, id: u16, text: &str) {
+        let hwnd = self.control(id);
+        let before = (id == STATUS).then(|| self.status_lines(hwnd));
         let text = wide(text);
-        let _ = SetWindowTextW(self.control(id), PCWSTR(text.as_ptr()));
+        let _ = SetWindowTextW(hwnd, PCWSTR(text.as_ptr()));
+        // Replacing the text puts the first line back on top. Keep a line the
+        // reader scrolled back to; otherwise show the last wrapped line.
+        if let Some(before) = before {
+            self.follow_status(hwnd, before);
+        }
+    }
+    /// Scroll the status box to the line the HUD rule picks after a change.
+    unsafe fn follow_status(&self, hwnd: HWND, before: hud::StatusLines) {
+        let (first, lines, visible) = self.status_lines(hwnd);
+        let line = hud::status_first_line(before, lines, visible);
+        if line != first {
+            // Signed line delta from the current first visible line.
+            send(hwnd, EM_LINESCROLL, WPARAM(0), LPARAM(line as isize - first as isize));
+        }
+    }
+    unsafe fn status_lines(&self, hwnd: HWND) -> hud::StatusLines {
+        let first = send(hwnd, EM_GETFIRSTVISIBLELINE, WPARAM(0), LPARAM(0)).0.max(0) as usize;
+        let lines = send(hwnd, EM_GETLINECOUNT, WPARAM(0), LPARAM(0)).0.max(0) as usize;
+        let mut rect = RECT::default();
+        send(hwnd, EM_GETRECT, WPARAM(0), LPARAM(&mut rect as *mut RECT as isize));
+        let mut metrics = TEXTMETRICW::default();
+        let dc = GetDC(Some(hwnd));
+        if !dc.0.is_null() {
+            let old = SelectObject(dc, self.font.into());
+            let _ = GetTextMetricsW(dc, &mut metrics);
+            SelectObject(dc, old);
+            ReleaseDC(Some(hwnd), dc);
+        }
+        // Unknown metrics: treat every line as visible, which never scrolls.
+        let visible = if metrics.tmHeight > 0 && rect.bottom > rect.top {
+            ((rect.bottom - rect.top) / metrics.tmHeight).max(1) as usize
+        } else {
+            lines
+        };
+        (first, lines, visible)
+    }
+    /// Focus loss, minimize or a modal size/menu loop: nothing held continues.
+    unsafe fn release_input(&mut self, audio: bool) {
+        self.item_cursor = None;
+        self.held.clear();
+        self.held_attack.clear();
+        if audio {
+            if let Err(e) = self.voices.stop_all() {
+                self.audio_error = Some(e.to_string());
+            }
+        }
+    }
+    fn option_row(&self) -> bool {
+        let selected = self.skills.selected();
+        hud::option_row(
+            selected.is_some_and(super::native_skills::destination_skill),
+            selected == Some(51),
+            selected.is_some_and(super::native_skills::text_skill),
+            self.rental.open,
+            self.ground_view,
+        )
     }
     unsafe fn read(&self, id: u16, max: usize) -> Result<Zeroizing<String>> {
         let hwnd = self.control(id);
@@ -387,6 +453,8 @@ impl Ui {
         let mut area = RECT::default();
         let _ = GetClientRect(parent, &mut area);
         let width = (area.right - px(40)).max(px(280));
+        // Moving or resizing the status box rewraps it; see the end of layout.
+        let status_before = self.status_lines(self.control(STATUS));
         let rows = [
             (CREATE_ROOM,20,20,px(130),32),
             (EDIT_ROOM,170,20,px(130),32),
@@ -614,9 +682,10 @@ impl Ui {
                 true,
             );
             // Above the F5–F12 hotbar (bottom-155..-97); a closed combo is ~24px.
-            let _ = MoveWindow(self.control(SUMMON_OPTIONS),px(16),area.bottom-px(190),area.right-px(32),px(300),true);
-            let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),area.bottom-px(190),area.right-px(32),px(220),true);
-            let _ = MoveWindow(self.control(SKILL_TEXT),px(16),area.bottom-px(190),area.right-px(32),px(24),true);
+            let option_top = area.bottom - px(hud::strip::OPTION_TOP);
+            let _ = MoveWindow(self.control(SUMMON_OPTIONS),px(16),option_top,area.right-px(32),px(300),true);
+            let _ = MoveWindow(self.control(TELEPORT_DEST),px(16),option_top,area.right-px(32),px(220),true);
+            let _ = MoveWindow(self.control(SKILL_TEXT),px(16),option_top,area.right-px(32),px(hud::strip::OPTION_HEIGHT),true);
             let _ = MoveWindow(
                 self.control(SCORES),
                 px(16),
@@ -633,14 +702,16 @@ impl Ui {
                 px(32),
                 true,
             );
+            // World rows: book/cast -90, hotbar -155, option row -190. Any of
+            // the three option controls lifts the status box clear of that row.
+            let (status_top, status_height) = hud::world_status(
+                self.inventory_view, self.ground_view, self.result_view, self.option_row());
             let _ = MoveWindow(
                 self.control(STATUS),
                 px(16),
-                area.bottom
-                    // World rows: book/cast -90, hotbar -155, teleport -190.
-                    - px(if self.inventory_view { if self.ground_view {286} else {326} } else if self.result_view { 250 } else if self.skills.selected().is_some_and(super::native_skills::destination_skill) {290} else { 250 }),
+                area.bottom - px(status_top),
                 area.right - px(32),
-                px(if self.inventory_view { 80 } else if self.result_view { 45 } else { 90 }),
+                px(status_height),
                 true,
             );
             let _ = MoveWindow(
@@ -666,26 +737,27 @@ impl Ui {
         self.layout_rental();
         self.layout_skill_book(area, dpi);
         self.layout_companions();
+        self.follow_status(self.control(STATUS), status_before);
     }
     unsafe fn score_extent(&self) {
         self.list_extent(SCORES, self.score_labels.iter().map(String::as_str));
     }
     unsafe fn draw_inventory(&self, draw: &DRAWITEMSTRUCT) {
         let selected = draw.itemState.0 & ODS_SELECTED.0 != 0;
-        let background = GetSysColor(if selected {
-            COLOR_HIGHLIGHT
-        } else {
-            COLOR_WINDOW
-        });
+        // Rows are black, as the native name colours (white, pale yellow) and
+        // the blessed halo assume a dark surface; this is a layout choice of
+        // this list, not the original inventory frame.
+        let background = if selected { GetSysColor(COLOR_HIGHLIGHT) } else { 0 };
         FillRect(
             draw.hDC,
             &draw.rcItem,
-            GetSysColorBrush(if selected {
-                COLOR_HIGHLIGHT
+            if selected {
+                GetSysColorBrush(COLOR_HIGHLIGHT)
             } else {
-                COLOR_WINDOW
-            }),
+                HBRUSH(GetStockObject(BLACK_BRUSH).0)
+            },
         );
+        let mut name_color = super::native_text_format::WHITE;
         if self.inventory_owner != self.controller.snapshot().inventory.owner {
             return;
         }
@@ -702,9 +774,14 @@ impl Ui {
             .get(id)
             .filter(|_| !self.ground_view)
         {
+            name_color = super::native_text_format::name_color(item.identified, item.blessing)
+                .unwrap_or(name_color);
             if let Some(icon) = self.inventory_icons.icon(item.icon) {
                 let b = background;
-                let pixels = icon.bgra([b as u8, (b >> 8) as u8, (b >> 16) as u8]);
+                let pixels = icon.bgra_styled(
+                    [b as u8, (b >> 8) as u8, (b >> 16) as u8],
+                    super::native_inventory_icons::IconStyle::of(item.identified, item.blessing),
+                );
                 let mut info = BITMAPINFO::default();
                 info.bmiHeader = BITMAPINFOHEADER {
                     biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
@@ -735,18 +812,19 @@ impl Ui {
             }
         }
         let old_font = SelectObject(draw.hDC, self.font.into());
+        let [r, g, b] = super::native_text_format::rgb(name_color);
         let old_color = SetTextColor(
             draw.hDC,
-            COLORREF(GetSysColor(if selected {
-                COLOR_HIGHLIGHTTEXT
+            if selected {
+                COLORREF(GetSysColor(COLOR_HIGHLIGHTTEXT))
             } else {
-                COLOR_WINDOWTEXT
-            })),
+                COLORREF(u32::from(r) | u32::from(g) << 8 | u32::from(b) << 16)
+            },
         );
         let old_mode = SetBkMode(draw.hDC, TRANSPARENT);
         let mut text: Vec<u16> = label.encode_utf16().collect();
         let mut area = draw.rcItem;
-        area.left += px(if self.ground_view { 4 } else { 44 });
+        area.left += px(if self.ground_view || *id == 0 { 4 } else { 44 });
         area.right -= px(4);
         DrawTextW(
             draw.hDC,
@@ -1451,14 +1529,31 @@ impl Ui {
             let _ = InvalidateRect(Some(self.parent), None, true);
         }
         let inventory = &self.controller.snapshot().inventory;
-        let mut rows: Vec<_> = inventory
-            .items
-            .values()
-            .map(|i| {
-                (
-                    i.id,
-                    super::native_inventory_names::label(i, self.inventory_names.catalog()).text,
-                )
+        // 裝備中 → 彈藥 → 其他；標題列的 ID 為 0（物品 ID 不會是 0），不能被選為物品。
+        let stance = {
+            let snapshot = self.controller.snapshot();
+            snapshot
+                .phase
+                .active_world()
+                .then(|| snapshot.world.own_actor().map(|a| a.walk_action))
+                .flatten()
+        };
+        let mut rows: Vec<_> = super::native_equipment::Summary::of(inventory)
+            .rows(stance)
+            .into_iter()
+            .filter_map(|row| match row {
+                super::native_equipment::Row::Header(text) => Some((0, text)),
+                super::native_equipment::Row::Item(id) => inventory.items.get(&id).map(|i| {
+                    (
+                        id,
+                        super::native_inventory_names::label_as(
+                            i,
+                            self.inventory_names.catalog(),
+                            inventory.owner.as_ref().map(|o| o.character.as_str()),
+                        )
+                        .text,
+                    )
+                }),
             })
             .collect();
         if self.ground_view {
@@ -1482,24 +1577,19 @@ impl Ui {
                 .iter()
                 .map(|choice| {
                     let a = &choice.item;
+                    // Ground rows are plain text: inline format codes of the
+                    // resolved name are not drawn as characters.
                     let name = self
                         .inventory_names
                         .catalog()
                         .and_then(|c| c.resolve(&a.name).ok())
+                        .map(|n| super::native_inventory_names::plain(&n))
                         .unwrap_or_else(|| a.name.clone());
-                    let name: String = name
-                        .chars()
-                        .map(|c| if c.is_control() { ' ' } else { c })
-                        .collect();
                     (
                         a.id,
                         format!(
                             "{} × {}（{}, {}）",
-                            if name.is_empty() {
-                                "未命名物品"
-                            } else {
-                                &name
-                            },
+                            super::native_inventory::display_name(&name, a.experience),
                             a.experience,
                             a.x,
                             a.y
@@ -1548,7 +1638,8 @@ impl Ui {
             let selected = usize::try_from(index)
                 .ok()
                 .and_then(|i| self.inventory_rows.get(i))
-                .map(|r| r.0);
+                .map(|r| r.0)
+                .filter(|id| *id != 0);
             let same_owner = owner == self.inventory_owner && !self.ground_view;
             if self.ground_view {
                 self.pickup_choice = None;
@@ -1598,11 +1689,13 @@ impl Ui {
             let height = send(list, LB_GETITEMHEIGHT, WPARAM(0), LPARAM(0)).0.max(1) as i32;
             let mut rect = RECT::default();
             let _ = GetClientRect(list, &mut rect);
-            self.inventory_icon_rows
+            // 依清單實際顯示的列（含分組標題）取圖示，不依背包原順序。
+            let items = &self.controller.snapshot().inventory.items;
+            self.inventory_rows
                 .iter()
                 .skip(top)
                 .take(((rect.bottom.max(0) / height) + 2).min(32) as usize)
-                .map(|r| r.1)
+                .filter_map(|r| items.get(&r.0).map(|i| i.icon))
                 .collect()
         } else {
             vec![]
@@ -1617,6 +1710,11 @@ impl Ui {
         self.refresh_skills();
         let snapshot = self.controller.snapshot();
         let phase = snapshot.phase;
+        let missing_ammo = self.missing_ammo.observe(
+            snapshot.world.system_message_count,
+            snapshot.world.last_system_message.as_ref(),
+            snapshot.inventory.revision,
+        );
         let is_character = matches!(
             phase,
             LoginPhase::CharactersReady | LoginPhase::CharacterPending
@@ -1942,6 +2040,9 @@ impl Ui {
                             super::native_item_actions::Feedback::SceneUpdated
                             | super::native_item_actions::Feedback::TargetNoResponse) {
                             snapshot.item_feedback.label().to_owned()
+                        } else if missing_ammo {
+                            // 伺服器拒絕遠程攻擊的原文；背包一有變動就不再顯示。
+                            super::native_equipment::MISSING_AMMO_MESSAGE.to_owned()
                         } else if let Some((9,text)) = &snapshot.world.last_system_message {
                             if text.starts_with("戰鬥中無法退出，請停止攻擊並等待 ") {
                                 text.clone()
@@ -1949,8 +2050,12 @@ impl Ui {
                         } else {format!("{selection}；F1 治癒／F2 護盾／F3 光箭")};
                         let buffs = super::native_status_icons::summary_with_mp(&snapshot.world, frame.vitals.mp,
                             super::native_status4183::now_ms(), self.controller.skill_cooldown_ms(std::time::Instant::now()));
-                        format!("地圖 {}　HP {}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}",
-                            snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),buffs,target,ground,
+                        // 弓／鐵手甲姿勢才顯示彈藥；數量只來自伺服器的背包封包。
+                        let ammo = snapshot.world.own_actor()
+                            .and_then(|a| super::native_equipment::Summary::of(&snapshot.inventory).hud(a.walk_action))
+                            .map(|text| format!("　{text}")).unwrap_or_default();
+                        format!("地圖 {}　HP {}{}　{}\r\n目標：{}{}　{}　{}\r\n{}\r\n方向鍵移動；Space攻擊；O門；P入口；Esc清除。未顯示 {} 個物件。{}",
+                            snapshot.world.map_id.unwrap_or(0),frame.vitals.hp.map(|[current,maximum]|format!("{current}/{maximum}")).unwrap_or_else(||"等待資料".into()),ammo,buffs,target,ground,
                             snapshot.attack_feedback.text(),
                             match self.controller.triple_arrow_receipt() {
                                 Some(receipt)=>format!("{}（{receipt}）",snapshot.skill_feedback.label()),
@@ -2386,8 +2491,21 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     let ptr = GetWindowLongPtrW(hwnd, GWLP_USERDATA) as *const State;
     if !ptr.is_null() {
         let state = &*ptr;
+        let release = hud::focus_release(msg, wparam.0);
+        if release != hud::Release::Keep {
+            // Recorded first: a message sent while the UI is busy (a modal
+            // prompt opened from an action) is applied at the next message.
+            state.1.set(true);
+        }
         if let Ok(mut ui) = state.0.try_borrow_mut() {
+            if state.1.take() {
+                ui.release_input(release == hud::Release::InputAndAudio);
+            }
             match msg {
+                // Empty list area matches the black owner-drawn rows.
+                WM_CTLCOLORLISTBOX if HWND(lparam.0 as *mut _) == ui.control(INVENTORY_LIST) => {
+                    return LRESULT(GetStockObject(BLACK_BRUSH).0 as isize);
+                }
                 WM_DRAWITEM => {
                     let draw = &*(lparam.0 as *const DRAWITEMSTRUCT);
                     if draw.CtlID == u32::from(SKILLS)
@@ -2587,17 +2705,6 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                     }
                     return LRESULT(0);
                 }
-                WM_ACTIVATEAPP if wparam.0 == 0 => {
-                    ui.item_cursor = None;
-                    ui.held.clear();
-                    ui.held_attack.clear();
-                    if let Err(e)=ui.voices.stop_all() {ui.audio_error=Some(e.to_string());}
-                }
-                WM_KILLFOCUS | WM_CANCELMODE => {
-                    ui.item_cursor = None;
-                    ui.held.clear();
-                    ui.held_attack.clear();
-                }
                 WM_CLOSE => {
                     ui.item_cursor = None;
                     ui.held.clear();
@@ -2707,6 +2814,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 inventory_icons: super::native_inventory_icons::Service::new(resource_root.clone()),
                 inventory_icon_rows: vec![],
                 inventory_choice: None,
+                missing_ammo: Default::default(),
                 skill_item_target: None,
                 summon_choice:None,
                 teleport_rows:vec![],
@@ -2741,7 +2849,7 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 held_attack: Default::default(),
                 closing: false,
                 font: HFONT::default(),
-            })));
+            }), Default::default()));
             let dpi = GetDpiForSystem().max(96) as i32;
             let hwnd = CreateWindowExW(
                 WINDOW_EX_STYLE(0),
@@ -2767,13 +2875,11 @@ pub fn run_with_resources(peer: SocketAddr, resource_root: std::path::PathBuf) -
                 SetTimer(Some(hwnd), 1, 20, None) != 0,
                 "native login UI timer"
             );
-            let _ = ShowWindow(hwnd, SW_SHOW);
-            // A launcher using STARTF_USESHOWWINDOW/SW_HIDE overrides the first
-            // ShowWindow call. This explicitly requested interactive route must
-            // still present its window when launched by the hidden shell helper.
-            if !IsWindowVisible(hwnd).as_bool() {
-                let _ = ShowWindow(hwnd, SW_SHOW);
-            }
+            // A launcher's STARTF_USESHOWWINDOW command (SW_HIDE, or a minimized
+            // variant) overrides the first ShowWindow call. This explicitly
+            // requested interactive route must still end with a restored,
+            // on-screen window: an iconic one cannot be captured or clicked.
+            super::window_presentation::present(hwnd);
             let _ = SetFocus(Some(state.0.borrow().control(CONNECT)));
             let mut message = MSG::default();
             loop {

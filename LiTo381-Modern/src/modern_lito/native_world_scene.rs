@@ -448,6 +448,10 @@ pub struct Model {
     names: super::native_inventory_names::Catalog,
     text_cache: super::native_world_text::Cache,
     clan_markers: super::native_clan_markers::Runtime,
+    name_badge: super::native_name_badge::Runtime,
+    /// Native `byte_64BC14`; process-wide in the original, so it survives a
+    /// model reload. Effective only with the own status 0x80 privilege.
+    all_names: bool,
     root: std::path::PathBuf,
     sound_cache: std::collections::BTreeMap<u32, super::combat_audio::PreparedSound>,
     wire_audio: super::native_wire_audio::Cursor,
@@ -772,6 +776,8 @@ impl Model {
             names,
             text_cache: Default::default(),
             clan_markers: Default::default(),
+            name_badge: Default::default(),
+            all_names: false,
             sound_cache: Default::default(),
             wire_audio: Default::default(),
             composed_frames: 0,
@@ -814,6 +820,13 @@ impl Model {
             vitals_gate:Default::default(),
         })
     }
+    /// Native all-name switch (`byte_64BC14`). No input is bound to it here.
+    pub fn set_all_names(&mut self, enabled: bool) {
+        self.all_names = enabled;
+    }
+    pub fn all_names(&self) -> bool {
+        self.all_names
+    }
     pub fn draw(&mut self, world: &World, cancel: &AtomicBool) -> Result<Frame> {
         self.draw_at(world, cancel, 0)
     }
@@ -846,6 +859,7 @@ impl Model {
         if self.world_generation!=world.generation {
             let mut replacement=Self::load(&self.root,world,cancel)?;
             replacement.local_impacts=self.local_impacts;
+            replacement.all_names=self.all_names;
             *self=replacement;
         }
         // Direct controller callers and the scene worker share the same reload
@@ -1365,8 +1379,36 @@ impl Model {
             .map_or(400, |(_, _, _, center, _)| center.x);
         let hp_bars = super::native_hp_meter::layout(world, &hits);
         let hp_meter_receipt = super::native_hp_meter::draw(&mut canvas, &hp_bars)?;
-        let label_lines =
-            super::native_world_labels::layout(world, &self.names, &hits, own_x, hover);
+        let hover_id = hover.and_then(|h| h.resolve(world));
+        let mut name_policy = super::native_world_labels::Policy {
+            all_names: self.all_names,
+            flag_1f: Default::default(),
+        };
+        let all_names_active = super::native_world_labels::all_names_active(world, &name_policy);
+        let mut flag_1f_unresolved = 0u64;
+        {
+            let catalog = self.effect_catalog.as_ref().expect("Model catalog ownership").catalog();
+            for actor in world.actors.values() {
+                if !(all_names_active || hover_id == Some(actor.id)) {
+                    continue;
+                }
+                // A set flag whose pending S36 class lookup cannot be read keeps
+                // its last authoritative state; the miss is reported.
+                let set = actor
+                    .relations
+                    .flag_1f
+                    .resolve(|graphics| Ok(super::native_world_lighting::metadata(catalog, graphics)?[0]))
+                    .unwrap_or_else(|_| {
+                        flag_1f_unresolved += 1;
+                        true
+                    });
+                if set {
+                    name_policy.flag_1f.insert(actor.id);
+                }
+            }
+        }
+        let label_lines = super::native_world_labels::layout_with(
+            world, &self.names, &hits, own_x, hover, &name_policy);
         let mut label_receipt = super::native_world_labels::draw(
             &mut canvas,
             &mut self.text_cache,
@@ -1374,8 +1416,15 @@ impl Model {
             cancel,
         )?;
         label_receipt["sources"] = serde_json::json!(self.names.sources);
-        let emblem_receipt = super::native_emblems::draw(&world.emblems, world, &label_lines, &mut canvas, cancel)?;
-        let marker_centers = prepared_bodies.iter().map(|(id, _, _, center, _)| (*id, *center)).collect();
+        label_receipt["all_names_switch"] = serde_json::json!(self.all_names);
+        label_receipt["name_privilege"] = serde_json::json!(super::native_world_labels::name_privilege(world));
+        label_receipt["flag_1f_unresolved"] = serde_json::json!(flag_1f_unresolved);
+        label_receipt["hover_flag_1f"] = serde_json::json!(hover_id.is_some_and(|id| name_policy.flag_1f.contains(&id)));
+        label_receipt["own_fa_flag"] = serde_json::json!(super::native_fa_gate::own_flag(world));
+        let marker_centers: std::collections::BTreeMap<u32, super::world_map::PixelPoint> =
+            prepared_bodies.iter().map(|(id, _, _, center, _)| (*id, *center)).collect();
+        let emblem_receipt = super::native_emblems::draw(&world.emblems, world, &label_lines, hover_id, &marker_centers, &mut canvas, cancel)?;
+        let badge_receipt = self.name_badge.draw(&self.root, &label_lines, &mut self.text_cache, &mut canvas, cancel)?;
         let marker_receipt = self.clan_markers.draw(&self.root, world, &marker_centers, &mut canvas, elapsed_ns, cancel)?;
         let minimap_receipt = super::native_minimap::draw(world, &self.navigation, &mut canvas, &mut self.text_cache, cancel)?;
         self.composed_frames = self.composed_frames.saturating_add(1);
@@ -1472,6 +1521,7 @@ impl Model {
         receipt["hp_meter"] = hp_meter_receipt;
         receipt["status4183"] = status4183_receipt;
         receipt["emblems"] = emblem_receipt;
+        receipt["name_badges"] = badge_receipt;
         receipt["clan_markers"] = marker_receipt;
         receipt["roofs"] = roofs.receipt().clone();
         receipt["roof_definition"] = scene.roofs().receipt();

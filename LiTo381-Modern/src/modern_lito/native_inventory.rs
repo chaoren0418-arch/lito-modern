@@ -39,24 +39,82 @@ impl Item {
         self.label_with_name(&self.name)
     }
     pub fn label_with_name(&self, name: &str) -> String {
-        let name: String = name
-            .chars()
-            .map(|c| if c.is_control() { ' ' } else { c })
-            .collect();
-        let label = format!(
-            "{} × {}",
-            if name.is_empty() {
-                "未命名物品"
-            } else {
-                &name
-            },
-            self.count
-        );
+        // Native 4437F0 regroups a remaining trailing `(digits)` (a charge
+        // count, for example) with thousands separators.
+        let shown = super::native_text_format::inventory_view_name(&display_name(name, self.count));
+        let label = format!("{shown} × {}", self.count);
         if matches!(self.use_type, 3 | 4) {
             if (1..=127).contains(&self.charge) {
                 format!("{label}（剩餘次數 {}）", self.charge)
             } else { format!("{label}（無可用次數）") }
         } else { label }
+    }
+}
+/// Name shown next to a separately listed authoritative count. The server view
+/// name ends with ` (count)` for stacks above one; that exact suffix is dropped
+/// so the count is not shown twice. A different number (a charge count, or a
+/// name that was not refreshed with the count) is kept as sent. Presentation
+/// only: the stored wire name is never changed.
+pub fn display_name(name: &str, count: u32) -> String {
+    let name: String = name
+        .chars()
+        .map(|c| if c.is_control() { ' ' } else { c })
+        .collect();
+    let name = match name.strip_suffix(&format!(" ({count})")) {
+        Some(base) if count > 1 => base.to_owned(),
+        _ => name,
+    };
+    if name.is_empty() {
+        "未命名物品".into()
+    } else {
+        name
+    }
+}
+#[cfg(test)]
+mod display_name_tests {
+    use super::{display_name, Item};
+    fn item(name: &str, count: u32, use_type: u8, charge: u8) -> Item {
+        Item {
+            id: 1,
+            use_type,
+            charge,
+            icon: 0,
+            blessing: 0,
+            count,
+            identified: 1,
+            name: name.into(),
+            detail: vec![],
+        }
+    }
+    #[test]
+    fn server_count_suffix_is_not_repeated_beside_the_authoritative_count() {
+        assert_eq!(item("治癒藥水 (5)", 5, 0, 0).label(), "治癒藥水 × 5");
+        assert_eq!(item("治癒藥水", 5, 0, 0).label(), "治癒藥水 × 5");
+        assert_eq!(item("治癒藥水", 1, 0, 0).label(), "治癒藥水 × 1");
+        // Equipped marker precedes the count in the server view name.
+        assert_eq!(item("箭 ($9) (300)", 300, 0, 0).label(), "箭 ($9) × 300");
+    }
+    #[test]
+    fn only_the_trailing_exact_stack_count_is_removed() {
+        // Count 1 is never appended by the server: `(1)` here is a charge count.
+        assert_eq!(display_name("松木魔杖 (1)", 1), "松木魔杖 (1)");
+        // Charge count then stack count: one suffix goes, the charge stays.
+        assert_eq!(display_name("松木魔杖 (3) (3)", 3), "松木魔杖 (3)");
+        assert_eq!(display_name("松木魔杖 (7) (2)", 2), "松木魔杖 (7)");
+        // A stale or unrelated number is not a duplicate of the count.
+        assert_eq!(display_name("治癒藥水 (5)", 4), "治癒藥水 (5)");
+        assert_eq!(display_name("治癒藥水 (25)", 5), "治癒藥水 (25)");
+        assert_eq!(display_name("治癒藥水(5)", 5), "治癒藥水(5)");
+        assert_eq!(display_name("(5) 治癒藥水", 5), "(5) 治癒藥水");
+        assert_eq!(display_name("治癒藥水 (5) ", 5), "治癒藥水 (5) ");
+    }
+    #[test]
+    fn control_characters_and_empty_names_keep_their_presentation() {
+        assert_eq!(display_name("", 1), "未命名物品");
+        assert_eq!(display_name(" (2)", 2), "未命名物品");
+        assert_eq!(display_name("a\u{c}b (2)", 2), "a b");
+        assert_eq!(item("", 1, 0, 0).label(), "未命名物品 × 1");
+        assert_eq!(item("魔杖 (2)", 2, 3, 4).label(), "魔杖 × 2（剩餘次數 4）");
     }
 }
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]

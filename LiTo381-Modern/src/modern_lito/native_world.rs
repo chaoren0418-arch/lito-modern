@@ -53,7 +53,9 @@ pub struct Actor {
     pub draw_state: super::native_actor_states::State,
     pub emblem: u32,
     pub clan: String,
-    /// Native FA writes actor+0x13a. Marker rendering/input semantics are separate.
+    /// Native actor+0x13a. Written by FA (4AC234) and by the S_PUT_OBJECT
+    /// constructor from the status-4 tail dword (4A3A72 -> 4E810C). Marker
+    /// rendering and the own-actor command gate read it separately.
     pub clan_marker_active: bool,
     pub master: String,
     pub unknown: u8,
@@ -63,8 +65,9 @@ pub struct Actor {
     pub auxiliary_name: String,
     pub tail_word: u16,
     pub tail_byte: u8,
-    /// Present exactly when S_PUT_OBJECT status bit 0x04 is set.
-    /// Preserve the deployed five-byte extension without inventing semantics.
+    /// Present exactly when S_PUT_OBJECT status bit 0x04 is set. Native 4A3A50
+    /// reads `c` (kept when 0..=14, otherwise 0xff) then `d`; a nonzero `d`
+    /// becomes actor+0x13a. The `c` value's consumer is not reconstructed.
     pub status_tail: Option<[u8; 5]>,
     pub relations: super::native_actor_relations::Relations,
 }
@@ -328,7 +331,9 @@ pub fn actor(b: &[u8]) -> Result<Actor> {
         relations,
     };
     if a.status & 4 != 0 {
-        a.status_tail = Some(r.take(5)?.try_into()?);
+        let tail: [u8; 5] = r.take(5)?.try_into()?;
+        a.clan_marker_active = tail[1..] != [0; 4];
+        a.status_tail = Some(tail);
     }
     r.end()?;
     ensure!(
@@ -897,7 +902,8 @@ impl World {
                 self.message_count += 1;
                 self.last_message = Some((code, args));
                 if matches!(code,353|743) {self.last_summon_rejection=Some((self.message_count,code));}
-                if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352) {
+                // 1412: only the formal cube handlers (205／210／215／220) send it, when placement is refused.
+                if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352 | 1412) {
                     self.last_skill_rejection = Some((self.message_count, code));
                 }
                 if code == 79 {
