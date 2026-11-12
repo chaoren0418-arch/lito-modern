@@ -14,6 +14,9 @@ use super::native_forced_combat::{self, Input as CombatInput};
 #[path = "native_rental_return_tests.rs"]
 mod rental_return_tests;
 #[cfg(test)]
+#[path = "native_rental_lifecycle_tests.rs"]
+mod rental_lifecycle_tests;
+#[cfg(test)]
 #[path = "native_battle_withdrawal_tests.rs"]
 mod battle_withdrawal_tests;
 #[cfg(test)]
@@ -25,6 +28,9 @@ mod teleport_recovery_tests;
 #[cfg(test)]
 #[path = "native_login_movement_tests.rs"]
 mod movement_tests;
+#[cfg(test)]
+#[path = "native_lifecycle_tests.rs"]
+mod lifecycle_tests;
 #[cfg(test)]
 #[path = "native_skill_controller_tests.rs"]
 mod skill_ui_tests;
@@ -323,6 +329,7 @@ pub struct Snapshot {
     pub services: Option<super::native_services::Directory>,
     pub rental_set: Option<u8>,
     pub rental_restart_acks: u64,
+    pub rental_return_outcome: Option<RentalReturnOutcome>,
     pub battle_withdrawal_pending: bool,
     pub shop_points: Option<u32>,
     pub merchant: super::native_merchant::Session,
@@ -349,6 +356,13 @@ struct TeleportRecovery {
     source: String,
     character: String,
 }
+/// A fresh authenticated directory after timeout is recovery, not a normal return.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
+pub enum RentalReturnOutcome {
+    Normal,
+    Reconnected,
+}
+
 struct RentalReturnReconnect {
     login_peer: SocketAddr,
     source: String,
@@ -451,6 +465,7 @@ impl Default for LoginController {
                 services: None,
                 rental_set: None,
                 rental_restart_acks: 0,
+                rental_return_outcome: None,
                 battle_withdrawal_pending: false,
                 shop_points: None,
                 merchant: Default::default(),
@@ -670,6 +685,12 @@ impl LoginController {
     pub fn skill_action_ready(&self, frame: &super::native_world_scene::Frame, now: Instant) -> bool {
         self.skill_gates_open(now) && frame.movement_ready(&self.state.world)
     }
+    /// Remaining server-paced reuse window for the HUD; `None` when ready.
+    pub fn skill_cooldown_ms(&self, now: Instant) -> Option<u64> {
+        self.skill_ready
+            .map(|deadline| deadline.saturating_duration_since(now).as_millis().min(u128::from(u64::MAX)) as u64)
+            .filter(|ms| *ms > 0)
+    }
     /// Every admission gate except body-animation completion; the send path
     /// adds main's moving-callback exception for untargeted casts.
     fn skill_gates_open(&self, now: Instant) -> bool {
@@ -816,7 +837,7 @@ impl LoginController {
         let mut body = self.state.world.attack_request(target)?;
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
-        self.attack_pending = Some(super::native_combat::Pending::new(&self.state.world, target, Instant::now()));
+        self.attack_pending = Some(super::native_combat::Pending::capture(&self.state.world, target, Instant::now()));
         self.state.attack_feedback = super::native_combat::Feedback::Pending;
         Ok(())
     }
@@ -844,7 +865,7 @@ impl LoginController {
         native_forced_combat::append(&mut body, input, &self.state);
         self.send_player_action(body)?;
         if let Some(ms) = interval_ms { self.empty_attack_pacer.commit(now, ms); }
-        self.attack_pending = Some(super::native_combat::Pending::new(&self.state.world, 0, now));
+        self.attack_pending = Some(super::native_combat::Pending::capture(&self.state.world, 0, now));
         self.state.attack_feedback = super::native_combat::Feedback::Pending;
         Ok(())
     }
@@ -1187,6 +1208,9 @@ impl LoginController {
         );
         self.state.character_result = None;
         self.state.classic_entry_result = None;
+        // A new explicit selection ends the previous rental return's packet fence.
+        self.state.rental_restart_acks = 0;
+        self.state.merchant.clear();
         self.state.rental_set=None;self.rental_set_pending=None;self.state.shop_points=None;
         self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
         self.state.inventory.begin(
@@ -1243,7 +1267,11 @@ impl LoginController {
     pub fn return_from_rental(&mut self)->Result<()> {
         ensure!(self.merchant_owner().is_some(),"目前不是可返回的租裝村角色");
         ensure!(!self.state.merchant.waiting,"請等待 NPC 回覆後返回");
+        ensure!(self.portal_entry.is_none(),"請等待地圖入口回覆後返回");
         self.transport.send(self.transport.snapshot().epoch,Zeroizing::new(vec![0x10]))?;
+        self.teleport=None;
+        self.interrupt_world_actions();
+        self.state.rental_return_outcome=None;
         self.state.merchant.clear();self.state.rental_restart_acks=0;self.rental_restart_quit_pending=false;
         self.state.phase=LoginPhase::RentalRestartPending;self.deadline=Some(Instant::now()+Duration::from_secs(8));Ok(())
     }
@@ -1491,6 +1519,13 @@ impl LoginController {
                     self.room_mode_received=false;self.state.room_system_message=None;
                     self.state.world.clear_preserving_generation();self.state.environment.retire_scene();
                     if self.state.phase==LoginPhase::ReturningCharacters {
+                        if self.state.rental_restart_acks>0 {
+                            // Keep authority updates hidden until explicit reselection:
+                            // rental removals may follow S_D0 on this same connection.
+                            self.state.inventory.suspend();
+                            self.state.merchant.clear();
+                            self.interrupt_world_actions();
+                        }
                         return Ok(true);
                     }
                     self.state.phase = LoginPhase::LobbyReady;
@@ -1675,8 +1710,8 @@ impl LoginController {
             }
             L::SourceRefresh => {
                 ensure!(!self.rental_restart_quit_pending,"source refresh preceded rental quit acknowledgement");
-                ensure!(self.state.rental_restart_acks==0 || self.state.rental_set.is_none()
-                    || self.state.joined_room.is_none(),"source refresh preceded rental departure");
+                ensure!(self.state.rental_restart_acks==0 || self.state.joined_room.is_none(),
+                    "source refresh preceded rental departure");
                 ensure!(
                     self.state.phase == LoginPhase::ReturningCharacters,
                     "unsolicited source refresh permission"
@@ -1717,6 +1752,27 @@ impl LoginController {
         let dispatched_at = Instant::now();
         if let Some(receipt) = ingress {
             ensure!(receipt.connection_epoch() == self.transport.snapshot().epoch, "world ingress connection retired");
+        }
+        if self.state.phase==LoginPhase::RentalRestartPending
+            || (self.state.rental_restart_acks>0 && matches!(self.state.phase,
+                LoginPhase::ReturningCharacters|LoginPhase::LoadingCharacters|LoginPhase::CharactersReady)) {
+            // Only return controls, the refreshed directory and authoritative
+            // inventory deltas survive this fence. Queued scene/NPC replies
+            // cannot revive battle, restore a consumed list or renew a deadline.
+            if !body.first().is_some_and(|op|matches!(op,0x65|0xf0|0xd0|0xf5|0x03|0xcb|0xfb)) {
+                self.state.inventory.accept(self.transport.snapshot().epoch,body)?;
+                return Ok(());
+            }
+            // Validate control order before World::accept can record an unknown
+            // opcode. Rejected return controls must leave the entire scope intact.
+            if body.first()==Some(&0xd0) {
+                self.accept_room(body)?;
+                return Ok(());
+            }
+            if body.first()==Some(&0xf5) {
+                self.accept_lobby(body)?;
+                return Ok(());
+            }
         }
         if self.state.phase==LoginPhase::TeleportQuitPending {
             if body.first()==Some(&0xf0) {
@@ -1767,8 +1823,8 @@ impl LoginController {
             self.deadline=Some(Instant::now()+Duration::from_secs(8));return Ok(());
         }
         if body.first()==Some(&0xf0) && (self.state.phase==LoginPhase::RentalRestartPending
-            || (self.state.phase==LoginPhase::ReturningCharacters
-                && self.state.rental_restart_acks>0 && self.state.rental_set.is_some())) {
+            || (self.state.rental_restart_acks>0 && matches!(self.state.phase,
+                LoginPhase::ReturningCharacters|LoginPhase::LoadingCharacters|LoginPhase::CharactersReady))) {
             ensure!(body==[0xf0,0] && self.rental_restart_quit_pending
                 && self.state.phase==LoginPhase::ReturningCharacters,
                 "unsolicited, duplicate or malformed rental quit acknowledgement");
@@ -1847,6 +1903,12 @@ impl LoginController {
             Some(receipt) => self.state.world.accept_received(body, receipt)?,
             None => self.state.world.accept(body)?,
         };
+        if let Some(reply) = self.state.world.integrity_reply() {
+            // Answer on the connection that delivered this challenge; a failed
+            // queue leaves the reply pending and propagates the error.
+            self.transport.send(self.transport.snapshot().epoch, Zeroizing::new(reply.to_vec()))?;
+            self.state.world.integrity_reply_queued();
+        }
         self.static2941.synchronize(&self.state.world, self.transport.snapshot().epoch);
         if world_accepted {
             self.player_callbacks.synchronize(&mut self.static2941,&mut self.state.world,self.transport.snapshot().epoch);
@@ -2092,6 +2154,9 @@ impl LoginController {
                 self.state.phase=LoginPhase::CharacterPending;
                 self.deadline=Some(Instant::now()+Duration::from_secs(8));
             } else {
+                if self.state.rental_restart_acks>0 {
+                    self.state.rental_return_outcome=Some(RentalReturnOutcome::Normal);
+                }
                 self.state.phase = LoginPhase::CharactersReady;
                 self.deadline = None;
             }
@@ -2291,6 +2356,7 @@ impl LoginController {
         if let Err(error)=self.state.world.poll_status4183(super::native_status4183::now_ms()) {
             self.fail(format!("4183 visual clock: {error:#}"));
         }
+        self.state.world.poll_status_icons(super::native_status4183::now_ms());
         if let Some(epoch)=self.state.environment.epoch {
             let generation=self.state.world.view_ready().then_some(self.state.world.generation);
             if let Err(error)=self.state.environment.water_poll(epoch,generation) {
@@ -2464,6 +2530,7 @@ impl LoginController {
                     && self.state.inventory.items.is_empty() && !self.state.world.ready(),
                     "return source directory retained retired rental authority");
                 self.rental_return_reconnect=None;
+                self.state.rental_return_outcome=Some(RentalReturnOutcome::Reconnected);
             }
             _=>{}
         }
@@ -3301,3 +3368,57 @@ mod pending_join_departure_tests;
 #[cfg(test)]
 #[path = "native_resurrection_tests.rs"]
 mod resurrection_tests;
+
+#[cfg(test)]
+#[path = "native_integrity_controller_tests.rs"]
+mod integrity_controller_tests;
+
+#[cfg(test)]
+mod native_integrity_tests {
+    use super::*;
+    use crate::modern_lito::native_integrity::Status;
+
+    const CHALLENGE: [u8; 14] = [0x7b, 33, 0x98, 0xba, 0xdc, 0xfe, 0x40, 0xd8, 0x4e, 0, 5, 0, 0, 0];
+
+    fn active_controller() -> LoginController {
+        let mut controller = LoginController::default();
+        assert!(controller.state.world.accept(&[0x28, 5, 0, 0]).unwrap());
+        assert!(controller.state.world.accept(&[0xd2]).unwrap());
+        controller.state.phase = LoginPhase::BattlePending;
+        controller
+    }
+
+    const UNKNOWN: [u8; 14] = [0x7b, 33, 1, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255];
+
+    #[test]
+    fn game_ingress_unknown_range_is_recorded_without_sending_or_extending_deadline() {
+        let mut controller = active_controller();
+        controller.deadline = Some(Instant::now() + Duration::from_secs(8));
+        let deadline = controller.deadline;
+        // There is deliberately no transport: attempting to send would fail.
+        for _ in 0..2 {
+            controller.accept_game(&UNKNOWN).unwrap();
+            assert_eq!(controller.state.world.integrity_status, Status::UnsupportedRange);
+            assert_eq!(controller.state.phase, LoginPhase::BattlePending);
+            assert_eq!(controller.deadline, deadline);
+            assert!(controller.state.acknowledgement_opcodes.is_empty());
+        }
+    }
+
+    #[test]
+    fn game_ingress_send_failure_keeps_reply_pending_and_is_not_reported_queued() {
+        let mut controller = active_controller();
+        assert!(controller.accept_game(&CHALLENGE).is_err());
+        assert_eq!(controller.state.world.integrity_status, Status::ReplyPending);
+        assert_eq!(controller.state.world.integrity_challenge, Some([0xfedcba98, 5167168, 5]));
+    }
+
+    #[test]
+    fn game_ingress_rejects_bad_challenge_without_changing_snapshot() {
+        let mut controller = active_controller();
+        controller.accept_game(&UNKNOWN).unwrap();
+        let before = serde_json::to_value(controller.snapshot()).unwrap();
+        assert!(controller.accept_game(&CHALLENGE[..13]).is_err());
+        assert_eq!(serde_json::to_value(controller.snapshot()).unwrap(), before);
+    }
+}

@@ -127,6 +127,8 @@ pub struct World {
     pub ability_buffs: BTreeMap<u8,super::native_ability_buffs::Update>,
     pub last_message: Option<(u16, Vec<String>)>,
     pub last_skill_rejection: Option<(u64, u16)>,
+    /// Message sequence of the last S10 code 79; read only by item-targeted casts.
+    pub last_item_skill_rejection: Option<u64>,
     pub death_confirmation_pending: bool,
     pub death_confirmations_sent: u64,
     pub last_death_confirmed_action: Option<u64>,
@@ -163,7 +165,15 @@ pub struct World {
     pub game_time: Option<u32>,
     pub hp: Option<[u16; 2]>,
     pub mp: Option<[u16; 2]>,
+    /// Counts S_MANA_POINT/S_STATUS receipts that actually changed `mp`.
+    pub mp_notifications: u64,
+    /// Server-timed status icons (ICONS1, ICON_I2H, doll, S_MAGE_SHIELD, own S_SPEED).
+    pub status_icons: super::native_status_icons::Leases,
+    /// Receipt clock of the packet currently being accepted (lease start).
+    #[serde(skip)]
+    packet_ms: u64,
     pub integrity_challenge: Option<[u32; 3]>,
+    pub integrity_status: super::native_integrity::Status,
     pub minimap: super::native_minimap::State,
     pub unhandled_opcodes: BTreeSet<u8>,
 }
@@ -560,6 +570,21 @@ impl World {
     pub fn ready(&self) -> bool {
         !self.observer_mode && self.started && self.portal.is_none() && self.own_actor().is_some()
     }
+    /// C_ADDR body for the current challenge, only while a supported reply is pending.
+    pub fn integrity_reply(&self) -> Option<[u8; 13]> {
+        use super::native_integrity::{Challenge, Status};
+        let [id, address, length] = self.integrity_challenge?;
+        (self.integrity_status == Status::ReplyPending)
+            .then(|| Challenge { id, address, length }.compatibility_proof())
+            .flatten()
+    }
+    /// Record that the pending reply entered the owning connection's queue.
+    pub fn integrity_reply_queued(&mut self) {
+        use super::native_integrity::Status;
+        if self.integrity_status == Status::ReplyPending {
+            self.integrity_status = Status::ReplyQueued;
+        }
+    }
     pub fn finish_portal_if_ready(&mut self)->Result<bool>{
         let Some(pending)=self.portal else{return Ok(false)};
         let Some(actor)=self.own_actor()else{return Ok(false)};
@@ -577,6 +602,7 @@ impl World {
         // Keep the previous scheduler across world resets long enough to retire
         // its leases. Failed parsing must not consume any scheduler state.
         let mut status = std::mem::take(&mut self.status4183);
+        self.packet_ms = received_ms;
         let accepted = match self.accept_inner(b) {
             Ok(accepted)=>accepted,
             Err(error)=>{self.status4183=status;return Err(error);}
@@ -590,6 +616,28 @@ impl World {
     }
     pub(crate) fn poll_status4183(&mut self, now_ms: u64) -> Result<()> {
         self.status4183.poll(now_ms, &mut self.visual_revision)
+    }
+    /// Retires server-timed leases. An elapsed own S_SPEED timer returns the
+    /// local actor to normal speed, as the native local timer does.
+    pub fn poll_status_icons(&mut self, now_ms: u64) -> bool {
+        let expired = self.status_icons.poll(now_ms);
+        if expired.is_empty() {
+            return false;
+        }
+        if expired.contains(&super::native_status_icons::Key::Speed) {
+            if let Some(a) = self.status.and_then(|s| self.actors.get_mut(&s.object_id)) {
+                a.speed = 0;
+                a.speed_seconds = 0;
+            }
+        }
+        self.visual_revision += 1;
+        true
+    }
+    fn set_mp(&mut self, value: [u16; 2]) {
+        if self.mp != Some(value) {
+            self.mp = Some(value);
+            self.mp_notifications += 1;
+        }
     }
     fn accept_inner(&mut self, b: &[u8]) -> Result<bool> {
         let op = *b.first().context("empty world packet")?;
@@ -836,6 +884,9 @@ impl World {
                 self.last_message = Some((code, args));
                 if matches!(code, 276 | 278 | 279 | 280 | 285 | 299 | 316 | 319 | 352) {
                     self.last_skill_rejection = Some((self.message_count, code));
+                }
+                if code == 79 {
+                    self.last_item_skill_rejection = Some(self.message_count);
                 }
             }
             0x37 | 0x53 => {
@@ -1184,6 +1235,10 @@ impl World {
                 );
                 if op == 0x29 {
                     super::native_speed::factor(mode, 0, 0)?;
+                    // Only the local actor turns the writeH duration into a timer.
+                    if self.status.is_some_and(|s| s.object_id == id) {
+                        self.status_icons.speed(mode, seconds, self.packet_ms);
+                    }
                 } else {
                     super::native_speed::factor(0, mode, 0)?;
                 }
@@ -1209,8 +1264,18 @@ impl World {
                 }
                 self.hp = Some([s.current_hp, s.maximum_hp]);
                 self.resurrection_relocations.remove(&s.object_id);
-                self.mp = Some([s.current_mp, s.maximum_mp]);
+                self.set_mp([s.current_mp, s.maximum_mp]);
                 self.status = Some(s);
+            }
+            0x7b if matches!(b.get(1), Some(&20 | &40 | &56)) => {
+                if self.status_icons.accept_event(b, self.packet_ms)? {
+                    self.visual_revision += 1;
+                }
+            }
+            0x6d => {
+                if self.status_icons.accept_shield(b, self.packet_ms)? {
+                    self.visual_revision += 1;
+                }
             }
             0xe9 => {
                 let t = r.d()?;
@@ -1222,21 +1287,26 @@ impl World {
                 r.end()?;
                 self.game_time = Some(time);
             }
-            0x7b if b.get(1) == Some(&33) => {
-                r.c()?;
-                let challenge = [r.d()?, r.d()?, r.d()?];
-                r.end()?;
-                ensure!(
-                    challenge.iter().all(|v| *v != 0),
-                    "invalid integrity challenge"
-                );
-                self.integrity_challenge = Some(challenge);
+            super::native_opcodes::S_EVENT if b.get(1) == Some(&33) => {
+                use super::native_integrity::{Challenge, Status};
+                let challenge = Challenge::parse(b)?;
+                let repeated = self.integrity_challenge == Some(challenge.fields())
+                    && self.integrity_status == Status::ReplyQueued;
+                self.integrity_challenge = Some(challenge.fields());
+                // A repeated, already answered challenge is not answered twice.
+                if !repeated {
+                    self.integrity_status = if challenge.compatibility_proof().is_some() {
+                        Status::ReplyPending
+                    } else {
+                        Status::UnsupportedRange
+                    };
+                }
             }
             0x4d | 0x0d => {
                 let value = [r.h()?, r.h()?];
                 r.end()?;
                 if op == 0x4d {
-                    self.mp = Some(value)
+                    self.set_mp(value)
                 } else {
                     self.hp = Some(value);
                     if let Some(s) = self.status { self.resurrection_relocations.remove(&s.object_id); }

@@ -46,6 +46,11 @@ pub struct Pending {
     pub generation: u64,
     /// world.message_count when the request was committed.
     pub messages: u64,
+    /// Object lives at send time: `(own id, own incarnation)` and the target's
+    /// incarnation. Removal plus same-ID re-entry (Return-to-Nature release,
+    /// rental portal rebuild, corpse re-put) is a different life, like S11.
+    pub attacker: Option<(u32, u64)>,
+    pub target_incarnation: Option<u64>,
 }
 /// Counts own S23 replies that did not acknowledge the request pending at
 /// that moment (late replies to an earlier, timed-out or other target).
@@ -218,14 +223,20 @@ impl HeldAttack {
     }
 }
 impl Pending {
-    pub fn new(world: &super::native_world::World, target: u32, since: std::time::Instant) -> Self {
+    pub fn capture(world: &super::native_world::World, target: u32, since: std::time::Instant) -> Self {
         Self {
             since,
             count: world.own_attack_packets,
             target,
             generation: world.generation,
             messages: world.message_count,
+            attacker: world.own_actor().map(|a| (a.id, a.incarnation)),
+            target_incarnation: world.actors.get(&target).map(|a| a.incarnation),
         }
+    }
+    /// Alias of `capture`.
+    pub fn new(world: &super::native_world::World, target: u32, since: std::time::Instant) -> Self {
+        Self::capture(world, target, since)
     }
     /// True when an own reply after this request names the requested target.
     /// Own replies naming another target are late replies to older requests.
@@ -247,8 +258,11 @@ impl Pending {
             }
         }
         if world.battle_result.is_some()
-            || world.own_actor().is_none_or(|a| a.dead)
-            || (self.target != 0 && !world.actors.contains_key(&self.target))
+            || world.own_actor().is_none_or(|a| a.dead
+                || self.attacker.is_some_and(|life| life != (a.id, a.incarnation)))
+            // Target 0 is the empty swing: there is no target life to lose.
+            || (self.target != 0 && world.actors.get(&self.target).is_none_or(|a|
+                self.target_incarnation.is_some_and(|life| life != a.incarnation)))
         {
             return Feedback::Interrupted;
         }

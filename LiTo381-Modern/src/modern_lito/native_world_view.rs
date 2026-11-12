@@ -203,6 +203,9 @@ impl Presentation {
         if root_changed {
             self.source_owner=None;self.source_root=Some(root.to_path_buf());
             self.light_owner=None;self.light_remap=Default::default();self.water_history=Default::default();
+            // Retire the stored finite History now, not when B's worker
+            // completes: an A→B→A return must not revive A's graph or audio.
+            if let Some((_,_,history))=&mut self.finite_visual_history {history.retire_source();}
         }
         if active {self.keep_source_owner=true;}
         let binding = if active && world.view_ready() {
@@ -239,6 +242,12 @@ impl Presentation {
         if let Some(pending)=&self.job {
             if self.finite_audio_history.is_world((pending.key.connection,pending.key.generation,pending.key.map)) {
                 retained.extend(pending.effect_sequences.iter().copied());
+            }
+        }
+        // Four-profile active cues keep their audio keys after raw-ring eviction.
+        if let Some((owner,_,history))=&self.finite_visual_history {
+            if self.finite_audio_history.is_world((owner.connection,owner.generation,owner.map)) {
+                retained.extend(history.active_finite_sequences());
             }
         }
         retained.extend(world.status4183.sequences());

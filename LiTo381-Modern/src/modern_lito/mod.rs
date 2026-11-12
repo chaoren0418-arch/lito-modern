@@ -160,6 +160,7 @@ pub mod resources;
 pub mod rebuild_verification;
 pub mod native_wire;
 pub mod native_opcodes;
+pub mod native_integrity;
 pub mod native_version;
 pub mod native_connection;
 pub(crate) mod native_clock;
@@ -371,6 +372,7 @@ pub mod native_world_animation;
 pub(crate) mod native_status4183;
 pub mod native_navigation;
 pub mod native_speed;
+pub mod native_status_icons;
 
 pub mod native_terrain_cache;
 

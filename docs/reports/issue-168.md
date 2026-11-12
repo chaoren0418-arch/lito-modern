@@ -70,6 +70,16 @@ test result: ok. 2154 passed; 0 failed; 591 ignored; 0 measured; 0 filtered out;
 
 591 個 ignored 是專案既有的資源／實機測試，不算通過。整合測試 `tests/native_combat.rs` 不在 CI 範圍（部分案例要讀本機客戶端資源），本輪**未執行**。
 
+### 第二次同步 origin/main（`9729613`，2026-11-12）
+
+PR 變成衝突狀態，再合併一次 main。main 這段時間在 `native_combat::Pending` 加了物件生命（`attacker`、`target_incarnation`）並把建構子改名 `capture`。處理方式：
+
+- `Pending` 同時保留本張的 `messages`（110 拒絕判斷）與 main 的生命欄位；建構子以 `capture` 為主，`new` 留作別名。
+- `observe` 的中斷條件採 main 的生命比對，但目標 0（空揮）不檢查目標生命，否則空揮會一送出就被判成「已中止」。
+- `native_login.rs` 保留本張的 `empty_attack_with_input`，呼叫改用 `capture`；`native_resurrection_tests.rs`、`tests/native_combat.rs` 採 main 版本（`capture`），本張原本補的 `own_attack_log` 行不在衝突區、保留。
+- 合併後本機 `cargo check --locked --offline -j1 --target x86_64-pc-windows-msvc --target-dir target/current --all-targets`：`Finished dev profile ... in 3m 09s`，exit=0（既有警告，不宣稱零警告）。
+- 合併後的 `cargo test --lib` 結果以這次 push 後 PR #278 的 CI 為準，本機未執行（待驗證，結果會補在 PR 留言）。
+
 ## 推測
 
 - 原生客戶端空揮座標取「面向前一格」：紀錄封包只有一筆，無法從中反推方向；正式伺服器只要求非 0、不等於自己座標且在畫面內，所以任何面向前一格都會被接受。原生是否改用滑鼠位置等其他座標，未以反組譯核對。
