@@ -221,7 +221,8 @@ fn formal_pickup_action15_uses_original_frames_then_returns_to_idle() {
     assert_eq!(s.world.own_attack_packets, 0);
     assert_eq!(s.world.own_cast_packets, 0);
     std::fs::write(
-        "target/current/verification/native-ground-pickup-action.json",
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("target/current/verification/native-ground-pickup-action.json"),
         serde_json::to_vec_pretty(&rows).unwrap(),
     )
     .unwrap();
